@@ -1,0 +1,20 @@
+# Normalizacja końców linii: w repo zawsze LF
+* text=auto eol=lf
+
+# Skrypty Windows zostają z CRLF
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Czytelne diffy notebooków (wymaga: uv run nbdime config-git --enable)
+*.ipynb diff=jupyternotebook merge=jupyternotebook
+
+# Pliki binarne
+*.png    binary
+*.jpg    binary
+*.pdf    binary
+*.parquet binary
+*.glb    binary
+
+# Pliki danych nie liczą się do statystyk języków na GitHubie
+*.geojson linguist-generated
+web/data/** linguist-generated

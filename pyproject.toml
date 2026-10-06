@@ -1,0 +1,80 @@
+[project]
+name = "metro-agh"
+version = "0.1.0"
+description = "Optymalizacja linii metra na kampusie AGH algorytmem mrówkowym"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    # dane
+    "requests>=2.31",
+    "requests-oauthlib>=2.0",
+    "python-dotenv>=1.0",
+    "pandas>=2.2",
+    "pyarrow>=15.0",
+    "icalendar>=5.0",
+    "pyyaml>=6.0",
+    # geo i grafy
+    "osmnx>=2.0",
+    "geopandas>=1.0",
+    "shapely>=2.0",
+    "pyproj>=3.6",
+    "networkx>=3.2",
+    # algorytmy
+    "numpy>=1.26",
+    "numba>=0.59",
+    # eksperymenty
+    "scipy>=1.12",
+    "matplotlib>=3.8",
+    "seaborn>=0.13",
+    "tqdm>=4.66",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "pre-commit>=3.7",
+    "jupyterlab>=4.1",
+    "nbstripout>=0.7",
+    "nbdime>=4.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/metro_agh"]
+
+# --- ruff ---------------------------------------------------------------
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "scripts", "tests"]
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # bugbear
+    "SIM",  # simplify
+    "NPY",  # numpy
+    "PD",   # pandas
+]
+
+[tool.ruff.lint.per-file-ignores]
+"notebooks/*" = ["E402", "B018"]   # importy w środku notebooka, gołe wyrażenia
+"tests/*" = ["B011"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+# --- pytest -------------------------------------------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

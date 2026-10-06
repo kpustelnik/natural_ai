@@ -1,0 +1,41 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+
+# --- Sekrety ---
+.env
+
+# --- Dane generowane (odtwarzalne skryptami) ---
+data/raw/
+data/processed/
+web/data/
+experiments/results/
+cache/
+
+# data/sample/ i data/validation/ SĄ w repo
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Edytory i systemy ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.DS_Store
+Thumbs.db
+
+# --- Sprawozdanie (LaTeX) ---
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls

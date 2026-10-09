@@ -23,17 +23,22 @@ SCHEMA_DIR = REPO_ROOT / "schemas"
 
 def render_all() -> dict[str, str]:
     """Relative path -> file content."""
+    # hand-written inputs: "validation" schemas (fields with defaults may be omitted);
+    # web files are written in full: "serialization" schemas (every field is present)
     models = {
-        "building.schema.json": Building,
-        "campus.schema.json": Campus,
-        "instance_meta.schema.json": InstanceMeta,
-        "best_line.schema.json": BestLine,
-        "run.schema.json": RunMeta,
-        **{f"web/{name}.schema.json": model for name, model in WEB_MODELS.items()},
+        "building.schema.json": (Building, "validation"),
+        "campus.schema.json": (Campus, "validation"),
+        "instance_meta.schema.json": (InstanceMeta, "validation"),
+        "best_line.schema.json": (BestLine, "validation"),
+        "run.schema.json": (RunMeta, "validation"),
+        **{
+            f"web/{name}.schema.json": (model, "serialization")
+            for name, model in WEB_MODELS.items()
+        },
     }
     return {
-        path: json.dumps(model.model_json_schema(), indent=2, ensure_ascii=False) + "\n"
-        for path, model in models.items()
+        path: json.dumps(model.model_json_schema(mode=mode), indent=2, ensure_ascii=False) + "\n"
+        for path, (model, mode) in models.items()
     }
 
 

@@ -34,13 +34,30 @@ STOP_TAGS = {"highway": "bus_stop", "railway": "tram_stop", "public_transport": 
 
 
 @dataclass
+class Issue:
+    section: str
+    text: str
+    building_id: str | None = None
+    osm_id: str | None = None
+
+
+@dataclass
 class Issues:
-    """Things a human should look at; rendered into report.md."""
+    """Things a human should look at; rendered into report.md and osm/issues.json."""
 
-    items: dict[str, list[str]] = field(default_factory=dict)
+    records: list[Issue] = field(default_factory=list)
 
-    def add(self, section: str, text: str) -> None:
-        self.items.setdefault(section, []).append(text)
+    def add(
+        self, section: str, text: str, building_id: str | None = None, osm_id: str | None = None
+    ) -> None:
+        self.records.append(Issue(section, text, building_id, osm_id))
+
+    @property
+    def items(self) -> dict[str, list[str]]:
+        out: dict[str, list[str]] = {}
+        for r in self.records:
+            out.setdefault(r.section, []).append(r.text)
+        return out
 
 
 # --- tag helpers ------------------------------------------------------------
@@ -155,11 +172,16 @@ def buildings_layer(
             category = o["category"] if pd.notna(o["category"]) else classify(code, building_tag)
         looks_agh = ref and re.match(r"^(DS|[ABCDHSUZ])-?\d", ref)
         if looks_agh and code is None:
-            issues.add("Refs that look like AGH codes but did not parse", f"{osm_id}: {ref!r}")
+            issues.add(
+                "Refs that look like AGH codes but did not parse",
+                f"{osm_id}: {ref!r}",
+                osm_id=osm_id,
+            )
         if code is None and building_tag == "dormitory":
             issues.add(
                 "Dorms without an AGH code (context; add to osm_building_map.csv if AGH)",
                 f"{osm_id}: {_tag(row, 'name')}",
+                osm_id=osm_id,
             )
         rows.append(
             {
@@ -189,9 +211,14 @@ def buildings_layer(
             issues.add(
                 "Buildings merged from several OSM elements",
                 f"{code}: {', '.join(group.osm_id)} ({kind})",
+                building_id=code,
             )
         if len(set(group.category)) > 1:
-            issues.add("Merged parts with different categories", f"{code}: {set(group.category)}")
+            issues.add(
+                "Merged parts with different categories",
+                f"{code}: {set(group.category)}",
+                building_id=code,
+            )
         rec = main.drop(labels=["area"]).to_dict()
         rec.update(
             osm_ids="|".join(group.osm_id),
@@ -218,14 +245,22 @@ def buildings_layer(
         for c, code in zip(out.category, out.building_id, strict=True)
     ]
     for code in out.loc[(out.category == "connector") & out.connects.isna(), "building_id"]:
-        issues.add("Connectors whose building pair could not be parsed", code)
+        issues.add("Connectors whose building pair could not be parsed", code, building_id=code)
     known = set(out.building_id.dropna())
     for code, connects in out.loc[out.connects.notna(), ["building_id", "connects"]].to_numpy():
         missing = [e for e in connects.split("|") if e not in known]
         if missing:
-            issues.add("Connectors to buildings missing from OSM", f"{code}: {missing}")
+            issues.add(
+                "Connectors to buildings missing from OSM",
+                f"{code}: {missing}",
+                building_id=code,
+            )
     for code in out.loc[(out.category != "context") & out.levels.isna(), "building_id"]:
-        issues.add("AGH buildings without building:levels (default height used)", code)
+        issues.add(
+            "AGH buildings without building:levels (default height used)",
+            code,
+            building_id=code,
+        )
     return out.drop(columns=["height_tag"])
 
 
@@ -277,7 +312,11 @@ def entrances_layer(
             private=group.access.isin(["private", "no"]).astype(int),
         ).sort_values(["private", "p", "osm_node"])
         if (group.entrance == "main").sum() > 1:
-            issues.add("Buildings with several entrance=main (first by node id used)", code)
+            issues.add(
+                "Buildings with several entrance=main (first by node id used)",
+                code,
+                building_id=code,
+            )
         ent.loc[ranked.index[0], "is_main"] = True
     return ent
 
@@ -482,5 +521,9 @@ def build_layers(
         if not area.is_empty:
             outside = buildings[buildings.building_id.notna() & ~buildings.intersects(area)]
             for code in outside.building_id:
-                issues.add("AGH codes outside the campus area (check they are AGH)", code)
+                issues.add(
+                    "AGH codes outside the campus area (check they are AGH)",
+                    code,
+                    building_id=code,
+                )
     return layers, issues

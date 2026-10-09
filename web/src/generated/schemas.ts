@@ -18,11 +18,18 @@ export type PlaceKind = "academic" | "dorm" | "other";
 
 export interface WebData {
   aco_trace_header: AcoTraceHeader;
+  building_info: BuildingInfo;
+  context_features: ContextFeatures;
   day_header: DayHeader;
+  issues: IssueList;
   metro: Metro;
+  network_header: NetworkHeader;
   paths_header: PathsHeader;
+  replay: Replay;
+  replays: ReplayCatalog;
   scene: Scene;
   stats: Stats;
+  status: BuildStatus;
 }
 /**
  * ``aco/trace.{json,bin}``: AcoTrace with candidate positions for the animation.
@@ -39,7 +46,7 @@ export interface AcoTraceHeader {
   buffers: {
     [k: string]: BufferView;
   };
-  kind?: "aco_trace";
+  kind: "aco_trace";
   run_id: string;
   algorithm: string;
   topology: MetroTopology;
@@ -53,7 +60,7 @@ export interface AcoTraceHeader {
  * via the `definition` "Provenance".
  */
 export interface Provenance {
-  schema_version?: number;
+  schema_version: number;
   /**
    * ISO 8601 timestamp
    */
@@ -65,8 +72,8 @@ export interface Provenance {
   /**
    * sha256 of the resolved config
    */
-  config_hash?: string | null;
-  git_commit?: string | null;
+  config_hash: string | null;
+  git_commit: string | null;
 }
 /**
  * This interface was referenced by `WebData`'s JSON-Schema
@@ -88,6 +95,185 @@ export interface BufferView {
   shape: number[];
 }
 /**
+ * Everything the inspector shows about one building, without parsing its glb.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "BuildingInfo".
+ */
+export interface BuildingInfo {
+  provenance: Provenance;
+  id: string;
+  lod: 1 | 2 | 3;
+  frame: BuildingFrame;
+  /**
+   * local metres, counter-clockwise
+   */
+  footprint: [number, number][];
+  footprint_holes: [number, number][][];
+  area_m2: number;
+  height_m: number;
+  levels: InfoLevel[];
+  entrances: InfoEntrance[];
+  /**
+   * OSM outline rings in local metres, exterior first
+   */
+  osm_outline: [number, number][][];
+  /**
+   * distance between the footprint and the OSM outline
+   */
+  osm_hausdorff_m: number | null;
+  issues: Issue[];
+}
+/**
+ * The building's local frame in web coordinates. local -> web:
+ * ``web = anchor + x * (sin b, 0, -cos b) + y * (-cos b, 0, -sin b)`` with b = bearing.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "BuildingFrame".
+ */
+export interface BuildingFrame {
+  /**
+   * web position of the local origin (ground level)
+   *
+   * @minItems 3
+   * @maxItems 3
+   */
+  anchor: [number, number, number];
+  /**
+   * grid bearing of local +x (EPSG:2180 = web grid)
+   */
+  bearing_deg: number;
+}
+/**
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "InfoLevel".
+ */
+export interface InfoLevel {
+  id: number;
+  elevation: number;
+  height: number;
+  floor_y: number;
+  /**
+   * LOD2/3 only
+   */
+  spaces: InfoSpace[];
+}
+/**
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "InfoSpace".
+ */
+export interface InfoSpace {
+  id: string;
+  kind: "corridor" | "room" | "stairs";
+  /**
+   * outline, local metres
+   */
+  polygon: [number, number][];
+  /**
+   * label point inside the polygon, local metres
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  centre: [number, number];
+  /**
+   * sides of the minimum rotated rectangle, longer first
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  size: [number, number];
+  area_m2: number;
+  /**
+   * door positions, local metres
+   */
+  doors: [number, number][];
+  name: string | null;
+  capacity: number | null;
+  /**
+   * web bounding box, for framing
+   *
+   * @minItems 3
+   * @maxItems 3
+   */
+  bbox_min: [number, number, number];
+  /**
+   * @minItems 3
+   * @maxItems 3
+   */
+  bbox_max: [number, number, number];
+}
+/**
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "InfoEntrance".
+ */
+export interface InfoEntrance {
+  id: string;
+  /**
+   * @minItems 2
+   * @maxItems 2
+   */
+  local: [number, number];
+  /**
+   * @minItems 3
+   * @maxItems 3
+   */
+  position: [number, number, number];
+  main: boolean;
+  metro_shaft: boolean;
+  osm_node: number | null;
+}
+/**
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "Issue".
+ */
+export interface Issue {
+  severity: "info" | "warning" | "error";
+  /**
+   * group heading, e.g. 'AGH buildings without entrances'
+   */
+  section: string;
+  message: string;
+  building_id: string | null;
+  /**
+   * e.g. way/123456
+   */
+  osm_id: string | null;
+  /**
+   * web position to jump to
+   */
+  position: [number, number, number] | null;
+}
+/**
+ * Feature id = position in ``features``; the glb mesh carries it as ``_FEATURE_ID``.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "ContextFeatures".
+ */
+export interface ContextFeatures {
+  provenance: Provenance;
+  features: ContextFeature[];
+}
+/**
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "ContextFeature".
+ */
+export interface ContextFeature {
+  osm_id: string;
+  name: string | null;
+  /**
+   * OSM building tag
+   */
+  building: string;
+  height_m: number;
+  height_source: "tag" | "levels" | "default";
+  /**
+   * first index of its triangles in the glb mesh
+   */
+  index_start: number;
+  index_count: number;
+}
+/**
  * ``trips/<scenario>/day-<weekday>.{json,bin}``: who walks which path when.
  *
  * One row = one segment: student ``student_id`` starts path ``path_id`` at ``t_start``.
@@ -107,12 +293,22 @@ export interface DayHeader {
   buffers: {
     [k: string]: BufferView;
   };
-  kind?: "day";
+  kind: "day";
   scenario: Scenario;
   weekday: number;
   n_students: number;
   t_min: number;
   t_max: number;
+}
+/**
+ * ``issues.json`` (viewer) and ``data/processed/osm/issues.json`` (OSM stage).
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "IssueList".
+ */
+export interface IssueList {
+  provenance: Provenance;
+  issues: Issue[];
 }
 /**
  * This interface was referenced by `WebData`'s JSON-Schema
@@ -182,6 +378,37 @@ export interface RunStop {
   depart_t: number;
 }
 /**
+ * ``network.{json,bin}``: the walk graph as line segments.
+ *
+ * Codes in ``edge_kind`` index into ``edge_kind_names``; ``node_keys`` / ``edge_sources``
+ * hold what does not fit a typed array (OSM ids exceed uint32).
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "NetworkHeader".
+ */
+export interface NetworkHeader {
+  provenance: Provenance;
+  /**
+   * file name of the .bin next to this header
+   */
+  bin: string;
+  buffers: {
+    [k: string]: BufferView;
+  };
+  kind: "network";
+  n_nodes: number;
+  n_edges: number;
+  edge_kind_names: string[];
+  /**
+   * per node, e.g. 'osm:123'
+   */
+  node_keys: string[];
+  /**
+   * per edge, e.g. 'way/1|way/2'
+   */
+  edge_sources: (string | null)[];
+}
+/**
  * ``trips/<scenario>/paths.{json,bin}``: every distinct path, shared by all days.
  *
  * Path p has vertices ``path_offsets[p] .. path_offsets[p+1]-1``.
@@ -199,9 +426,67 @@ export interface PathsHeader {
   buffers: {
     [k: string]: BufferView;
   };
-  kind?: "paths";
+  kind: "paths";
   scenario: Scenario;
   n_paths: number;
+}
+/**
+ * ``replays/<id>/replay.json``: one thing the viewer can play back.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "Replay".
+ */
+export interface Replay {
+  id: string;
+  kind: "aco" | "simulation";
+  title: string;
+  description: string | null;
+  created_at: string;
+  /**
+   * optimisation run it comes from
+   */
+  run_id: string | null;
+  topology: MetroTopology | null;
+  stations: string[];
+  scenarios: Scenario[];
+  weekdays: number[];
+  files: ReplayFiles;
+}
+/**
+ * Paths relative to the data dir; all of them live under ``replays/<id>/``.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "ReplayFiles".
+ */
+export interface ReplayFiles {
+  /**
+   * Metro (metro.json)
+   */
+  metro: string | null;
+  /**
+   * AcoTraceHeader
+   */
+  aco_trace: string | null;
+  /**
+   * scenario -> dir with paths.json and day-<weekday>.json
+   */
+  trips: {
+    [k: string]: string;
+  };
+  /**
+   * Stats
+   */
+  stats: string | null;
+}
+/**
+ * ``replays/index.json``: every replay.json found, newest first.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "ReplayCatalog".
+ */
+export interface ReplayCatalog {
+  provenance: Provenance;
+  replays: Replay[];
 }
 /**
  * This interface was referenced by `WebData`'s JSON-Schema
@@ -210,12 +495,38 @@ export interface PathsHeader {
 export interface Scene {
   provenance: Provenance;
   frame: WebFrame;
+  extent: Extent;
+  /**
+   * absolute repo path on the machine that exported (dev links)
+   */
+  source_root: string | null;
   buildings: SceneBuilding[];
+  /**
+   * stops used by the simulation (campus.yaml)
+   */
   stops: SceneStop[];
   /**
-   * terrain / paths mesh
+   * OSM stops not in campus.yaml
    */
-  ground_glb?: string | null;
+  other_stops: SceneStop[];
+  /**
+   * ground, paths, boundary, fences
+   */
+  ground_glb: string | null;
+  context: SceneContext | null;
+  /**
+   * NetworkHeader path
+   */
+  network: string | null;
+  /**
+   * IssueList path
+   */
+  issues: string | null;
+  /**
+   * ReplayCatalog path
+   */
+  replays: string | null;
+  aerial: SceneAerial | null;
 }
 /**
  * This interface was referenced by `WebData`'s JSON-Schema
@@ -239,7 +550,23 @@ export interface WebFrame {
    * absolute height mapped to web y = 0
    */
   origin_z: number;
-  axes?: "x=east,y=up,z=-north";
+  axes: "x=east,y=up,z=-north";
+}
+/**
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "Extent".
+ */
+export interface Extent {
+  /**
+   * @minItems 3
+   * @maxItems 3
+   */
+  min: [number, number, number];
+  /**
+   * @minItems 3
+   * @maxItems 3
+   */
+  max: [number, number, number];
 }
 /**
  * This interface was referenced by `WebData`'s JSON-Schema
@@ -249,12 +576,28 @@ export interface SceneBuilding {
   id: string;
   name: string | null;
   kind: PlaceKind;
+  /**
+   * kind, with connectors (P-…) told apart
+   */
+  category: "academic" | "dorm" | "other" | "connector";
   lod: 1 | 2 | 3;
   /**
    * path relative to the data dir, e.g. buildings/D-17.glb
    */
   glb: string;
+  /**
+   * BuildingInfo path, e.g. buildings/D-17.json
+   */
+  info: string;
+  /**
+   * source file relative to the repo root
+   */
+  yaml: string;
+  osm_id: string | null;
+  height_m: number;
+  frame: BuildingFrame;
   levels: SceneLevel[];
+  entrances: SceneEntrance[];
   /**
    * @minItems 3
    * @maxItems 3
@@ -265,6 +608,15 @@ export interface SceneBuilding {
    * @maxItems 3
    */
   bbox_max: [number, number, number];
+  /**
+   * room ids (LOD3), for the search
+   */
+  rooms: string[];
+  n_issues: number;
+  /**
+   * the YAML fails validation; these files are the last good ones
+   */
+  stale: boolean;
 }
 /**
  * This interface was referenced by `WebData`'s JSON-Schema
@@ -280,6 +632,20 @@ export interface SceneLevel {
 }
 /**
  * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "SceneEntrance".
+ */
+export interface SceneEntrance {
+  id: string;
+  /**
+   * @minItems 3
+   * @maxItems 3
+   */
+  position: [number, number, number];
+  main: boolean;
+  metro_shaft: boolean;
+}
+/**
+ * This interface was referenced by `WebData`'s JSON-Schema
  * via the `definition` "SceneStop".
  */
 export interface SceneStop {
@@ -290,6 +656,45 @@ export interface SceneStop {
    * @maxItems 3
    */
   position: [number, number, number];
+}
+/**
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "SceneContext".
+ */
+export interface SceneContext {
+  /**
+   * all context buildings merged, e.g. campus/context.glb
+   */
+  glb: string;
+  /**
+   * ContextFeatures path, e.g. campus/context.json
+   */
+  features: string;
+}
+/**
+ * Orthophoto draped on the ground: an axis-aligned rectangle in the web frame.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "SceneAerial".
+ */
+export interface SceneAerial {
+  /**
+   * path relative to the data dir, e.g. campus/aerial.jpg
+   */
+  image: string;
+  /**
+   * web corner with the smallest x and z
+   *
+   * @minItems 3
+   * @maxItems 3
+   */
+  min: [number, number, number];
+  /**
+   * @minItems 3
+   * @maxItems 3
+   */
+  max: [number, number, number];
+  attribution: string;
 }
 /**
  * This interface was referenced by `WebData`'s JSON-Schema
@@ -359,4 +764,46 @@ export interface OdStats {
   to_key: string;
   n_legs: number;
   saving_s: number;
+}
+/**
+ * ``status.json``: written last by every export, polled by the dev server.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "BuildStatus".
+ */
+export interface BuildStatus {
+  /**
+   * increases on every export
+   */
+  version: number;
+  built_at: string;
+  /**
+   * data files (re)written by this export
+   */
+  changed: string[];
+  errors: BuildError[];
+}
+/**
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "BuildError".
+ */
+export interface BuildError {
+  /**
+   * relative to the repo root
+   */
+  file: string;
+  /**
+   * 1-based line in the file
+   */
+  line: number | null;
+  /**
+   * pydantic location, e.g. levels.1.rooms.3
+   */
+  loc: string | null;
+  message: string;
+  building_id: string | null;
+  /**
+   * id of the room, corridor, stairs or entrance it is about
+   */
+  element: string | null;
 }

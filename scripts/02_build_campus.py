@@ -4,7 +4,7 @@
     uv run scripts/02_build_campus.py --bootstrap  # + LOD1 YAML for new AGH buildings
     uv run scripts/02_build_campus.py --refresh    # download from Overpass again
 
-Outputs (data/processed/osm/): campus.gpkg (open in QGIS), report.md, preview.html.
+Outputs (data/processed/osm/): campus.gpkg (open in QGIS), report.md, issues.json, preview.html.
 The walk network + indoor graph (network/*.parquet) will be added to this stage later.
 """
 
@@ -17,8 +17,8 @@ import pandas as pd
 from metro_agh.campus.bootstrap import bootstrap
 from metro_agh.campus.osm import fetch
 from metro_agh.campus.osm_process import build_layers
-from metro_agh.campus.osm_report import write_preview, write_report
-from metro_agh.config import load_config, path
+from metro_agh.campus.osm_report import write_issues, write_preview, write_report
+from metro_agh.config import load_config, path, provenance
 from metro_agh.schemas.tables import OSM_BUILDING_MAP, OSM_TABLES
 
 log = logging.getLogger("02_build_campus")
@@ -67,8 +67,9 @@ def main() -> None:
         )  # fmt: skip
 
     write_report(out_dir / "report.md", layers, issues, boot)
+    write_issues(out_dir / "issues.json", issues, provenance("02_build_campus.py", cfg))
     write_preview(out_dir / "preview.html", layers)
-    log.info("wrote %s, report.md, preview.html", gpkg)
+    log.info("wrote %s, report.md, issues.json, preview.html", gpkg)
 
 
 if __name__ == "__main__":

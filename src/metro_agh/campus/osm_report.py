@@ -6,6 +6,8 @@ from pathlib import Path
 
 import geopandas as gpd
 
+from ..schemas.common import Provenance
+from ..schemas.web import Issue, IssueList
 from .bootstrap import BootstrapResult
 from .osm_process import Issues
 
@@ -79,6 +81,18 @@ def write_report(
     lines += ["", "## Stops", "", "| id | name | modes | platforms |", "|---|---|---|---|"]
     lines += [f"| `{r.stop_id}` | {r.name} | {r.modes} | {r.n_platforms} |" for r in s.itertuples()]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+
+
+def write_issues(path: Path, issues: Issues, prov: Provenance) -> None:
+    """``osm/issues.json``: the same issues as report.md, for the viewer's issues panel."""
+    out = IssueList(
+        provenance=prov,
+        issues=[
+            Issue(section=r.section, message=r.text, building_id=r.building_id, osm_id=r.osm_id)
+            for r in issues.records
+        ],
+    )
+    path.write_text(out.model_dump_json(indent=1), encoding="utf-8", newline="\n")
 
 
 # --- preview.html ---------------------------------------------------------------------

@@ -1,0 +1,191 @@
+{
+  "$defs": {
+    "MetroTopology": {
+      "enum": [
+        "line",
+        "loop"
+      ],
+      "title": "MetroTopology",
+      "type": "string"
+    },
+    "ReplayFiles": {
+      "additionalProperties": false,
+      "description": "Paths relative to the data dir; all of them live under ``replays/<id>/``.",
+      "properties": {
+        "metro": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Metro (metro.json)",
+          "title": "Metro"
+        },
+        "aco_trace": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "AcoTraceHeader",
+          "title": "Aco Trace"
+        },
+        "trips": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "scenario -> dir with paths.json and day-<weekday>.json",
+          "propertyNames": {
+            "$ref": "#/$defs/Scenario"
+          },
+          "title": "Trips",
+          "type": "object"
+        },
+        "stats": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Stats",
+          "title": "Stats"
+        }
+      },
+      "required": [
+        "metro",
+        "aco_trace",
+        "trips",
+        "stats"
+      ],
+      "title": "ReplayFiles",
+      "type": "object"
+    },
+    "Scenario": {
+      "enum": [
+        "no_metro",
+        "metro"
+      ],
+      "title": "Scenario",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``replays/<id>/replay.json``: one thing the viewer can play back.",
+  "properties": {
+    "id": {
+      "pattern": "^[a-z0-9][a-z0-9_.-]*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "aco",
+        "simulation"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "created_at": {
+      "title": "Created At",
+      "type": "string"
+    },
+    "run_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "optimisation run it comes from",
+      "title": "Run Id"
+    },
+    "topology": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MetroTopology"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "stations": {
+      "default": [],
+      "items": {
+        "pattern": "^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*$",
+        "type": "string"
+      },
+      "title": "Stations",
+      "type": "array"
+    },
+    "scenarios": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Scenario"
+      },
+      "title": "Scenarios",
+      "type": "array"
+    },
+    "weekdays": {
+      "default": [],
+      "items": {
+        "maximum": 5,
+        "minimum": 1,
+        "type": "integer"
+      },
+      "title": "Weekdays",
+      "type": "array"
+    },
+    "files": {
+      "$ref": "#/$defs/ReplayFiles"
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "title",
+    "description",
+    "created_at",
+    "run_id",
+    "topology",
+    "stations",
+    "scenarios",
+    "weekdays",
+    "files"
+  ],
+  "title": "Replay",
+  "type": "object"
+}

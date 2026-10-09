@@ -79,6 +79,7 @@ def building_document(
         issues.add(
             "Disjoint footprints: only the largest part was bootstrapped",
             f"{row.building_id}: {len(parts)} parts",
+            building_id=row.building_id,
         )
         geom = parts[0]
     poly: Polygon = orient(geom.simplify(cfg["osm"]["footprint_simplify_m"]), sign=1.0)
@@ -92,7 +93,11 @@ def building_document(
     else:
         p = poly.representative_point()
         anchor = (p.x, p.y)
-        issues.add("AGH buildings without entrances (anchor = inside point)", row.building_id)
+        issues.add(
+            "AGH buildings without entrances (anchor = inside point)",
+            row.building_id,
+            building_id=row.building_id,
+        )
 
     # +x along the long axis; flip it so the building centre is on the positive side of
     # whichever axis it is further along (in front of an end entrance, left of a side one)
@@ -180,7 +185,9 @@ def bootstrap(
             path.unlink()
             result.failed.append(f"{row.building_id}: {err}")
             issues.add(
-                "Bootstrap failed validation (file not written)", f"{row.building_id}: {err}"
+                "Bootstrap failed validation (file not written)",
+                f"{row.building_id}: {err}",
+                building_id=row.building_id,
             )
             continue
         result.written.append(row.building_id)

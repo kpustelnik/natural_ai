@@ -126,7 +126,13 @@ class EdgeKind(StrEnum):
 class StrictModel(BaseModel):
     """Base for every contract model. Unknown keys are errors, which catches YAML typos."""
 
-    model_config = ConfigDict(extra="forbid", frozen=False, use_enum_values=True)
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=False,
+        use_enum_values=True,
+        # in "serialization" schemas (what readers receive) fields with defaults are present
+        json_schema_serialization_defaults_required=True,
+    )
 
 
 class Provenance(StrictModel):

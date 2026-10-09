@@ -48,5 +48,8 @@ jobs:
       - name: Generated types up to date
         run: npm run gen:types && git diff --exit-code src/generated
 
+      - name: Unit tests
+        run: npm test
+
       - name: Typecheck and build
         run: npm run build

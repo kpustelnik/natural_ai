@@ -15,9 +15,12 @@ const outFile = join(here, "..", "src", "generated", "schemas.ts");
 // Pydantic emits JSON Schema 2020-12; json-schema-to-typescript expects older drafts.
 // - drop per-field "title" (otherwise every field becomes its own type alias)
 // - tuples: "prefixItems" -> "items" array
+// - "$ref" with sibling keys (a field description) -> plain "$ref", or the referenced type
+//   is emitted twice (Extent and Extent1)
 function normalise(node, isModel = false) {
   if (Array.isArray(node)) return node.map((n) => normalise(n));
   if (node === null || typeof node !== "object") return node;
+  if (typeof node.$ref === "string") return { $ref: node.$ref };
   const out = {};
   for (const [key, value] of Object.entries(node)) {
     if (key === "title" && !isModel) continue;

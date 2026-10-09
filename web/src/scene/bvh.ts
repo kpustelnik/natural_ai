@@ -8,9 +8,11 @@ BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 Mesh.prototype.raycast = acceleratedRaycast;
 
-/** Build a BVH for every mesh under `root` (call after loading a glb). */
-export function buildBoundsTrees(root: Object3D): void {
+/** Build a BVH for every mesh under `root` (call after loading a glb).
+ * `indirect` keeps the index buffer order (needed when triangle ranges mean something,
+ * like the per-feature ranges of the context mesh); otherwise the BVH reorders it. */
+export function buildBoundsTrees(root: Object3D, indirect = false): void {
   root.traverse((obj) => {
-    if (obj instanceof Mesh && !obj.geometry.boundsTree) obj.geometry.computeBoundsTree();
+    if (obj instanceof Mesh && !obj.geometry.boundsTree) obj.geometry.computeBoundsTree({ indirect });
   });
 }

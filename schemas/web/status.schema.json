@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "BuildError": {
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "description": "relative to the repo root",
+          "title": "File",
+          "type": "string"
+        },
+        "line": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "1-based line in the file",
+          "title": "Line"
+        },
+        "loc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "pydantic location, e.g. levels.1.rooms.3",
+          "title": "Loc"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "building_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Building Id"
+        },
+        "element": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "id of the room, corridor, stairs or entrance it is about",
+          "title": "Element"
+        }
+      },
+      "required": [
+        "file",
+        "line",
+        "loc",
+        "message",
+        "building_id",
+        "element"
+      ],
+      "title": "BuildError",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``status.json``: written last by every export, polled by the dev server.",
+  "properties": {
+    "version": {
+      "description": "increases on every export",
+      "minimum": 0,
+      "title": "Version",
+      "type": "integer"
+    },
+    "built_at": {
+      "title": "Built At",
+      "type": "string"
+    },
+    "changed": {
+      "description": "data files (re)written by this export",
+      "items": {
+        "type": "string"
+      },
+      "title": "Changed",
+      "type": "array"
+    },
+    "errors": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/BuildError"
+      },
+      "title": "Errors",
+      "type": "array"
+    }
+  },
+  "required": [
+    "version",
+    "built_at",
+    "changed",
+    "errors"
+  ],
+  "title": "BuildStatus",
+  "type": "object"
+}

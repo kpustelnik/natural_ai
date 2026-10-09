@@ -1,10 +1,10 @@
-// Point markers: building entrances and stops, as instanced discs that keep a minimum
-// size on screen when zoomed out.
+// Point markers: building entrances, stops and barriers, as instanced discs that keep a
+// minimum size on screen when zoomed out.
 
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { Color, CylinderGeometry, InstancedMesh, Matrix4, MeshLambertMaterial, Vector3 } from "three";
-import type { Scene, SceneStop } from "../../generated/schemas";
+import type { NetworkBarrier, Scene, SceneStop } from "../../generated/schemas";
 import type { Vec3 } from "../../lib/frames";
 import { app, type Pick, pickKey, useApp } from "../../state/app";
 import { ACCENT, MARKERS } from "../palette";
@@ -18,7 +18,7 @@ interface Marker {
   pick: Pick;
 }
 
-function MarkerSet({ markers, height }: { markers: Marker[]; height: number }) {
+export function MarkerSet({ markers, height }: { markers: Marker[]; height: number }) {
   const selKey = useApp((s) => pickKey(s.selection));
   const hovKey = useApp((s) => pickKey(s.hover));
   const lastScale = useRef(0);
@@ -101,4 +101,19 @@ export function Stops({ stops, other }: { stops: SceneStop[]; other: boolean }) 
     [stops, other],
   );
   return <MarkerSet markers={markers} height={1.2} />;
+}
+
+export function Barriers({ barriers }: { barriers: NetworkBarrier[] }) {
+  const markers = useMemo<Marker[]>(
+    () =>
+      barriers.map((b, index) => ({
+        position: b.position,
+        color: MARKERS.barrier,
+        radius: 0.4,
+        minPx: 1.3,
+        pick: { kind: "barrier" as const, index },
+      })),
+    [barriers],
+  );
+  return <MarkerSet markers={markers} height={0.3} />;
 }

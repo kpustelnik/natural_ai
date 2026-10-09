@@ -9,8 +9,9 @@ export type Workspace = "campus" | "building" | "network" | "metro" | "simulatio
 export type CameraMode = "orbit" | "plan" | "walk";
 export type ColorMode = "category" | "lod" | "issues";
 export type RoomColorMode = "kind" | "capacity";
-export type Tool = "select" | "measure";
-export type RightTab = "inspector" | "issues";
+export type Tool = "select" | "measure" | "route";
+export type RightTab = "inspector" | "issues" | "route";
+export type AcoView = "ants" | "trains";
 
 export const WORKSPACES: { id: Workspace; label: string }[] = [
   { id: "campus", label: "Campus" },
@@ -28,6 +29,7 @@ export type LayerId =
   | "boundary"
   | "fences"
   | "network"
+  | "barriers"
   | "entrances"
   | "stops"
   | "otherStops"
@@ -69,6 +71,7 @@ export const LAYER_GROUPS: { title: string; layers: { id: LayerId; label: string
     title: "Transport",
     layers: [
       { id: "network", label: "Walk network" },
+      { id: "barriers", label: "Gates and barriers" },
       { id: "stops", label: "Stops (simulation)" },
       { id: "otherStops", label: "Other stops" },
     ],
@@ -85,6 +88,7 @@ const BASE: Layers = {
   boundary: true,
   fences: false,
   network: false,
+  barriers: false,
   entrances: true,
   stops: true,
   otherStops: false,
@@ -99,7 +103,7 @@ const BASE: Layers = {
 export const WORKSPACE_LAYERS: Record<Workspace, Layers> = {
   campus: BASE,
   building: { ...BASE, labels: false, stops: false, grid: true, osmOutline: true },
-  network: { ...BASE, network: true, fences: true, paths: false, otherStops: true, labels: false },
+  network: { ...BASE, network: true, barriers: true, fences: true, paths: false, otherStops: true, labels: false },
   metro: { ...BASE, entrances: false },
   simulation: { ...BASE, entrances: false },
 };
@@ -110,7 +114,8 @@ export type Pick =
   | { kind: "stop"; id: string }
   | { kind: "entrance"; building: string; id: string }
   | { kind: "space"; building: string; id: string; level: number }
-  | { kind: "edge"; index: number };
+  | { kind: "edge"; index: number }
+  | { kind: "barrier"; index: number };
 
 export function pickKey(p: Pick | null): string {
   if (!p) return "";
@@ -127,6 +132,8 @@ export function pickKey(p: Pick | null): string {
       return `space:${p.building}/${p.id}@${p.level}`;
     case "edge":
       return `edge:${p.index}`;
+    case "barrier":
+      return `barrier:${p.index}`;
   }
 }
 
@@ -150,9 +157,18 @@ export interface Playback {
   replayId: string | null;
   playing: boolean;
   speed: number; // simulated seconds per real second
-  t: number; // seconds since 00:00 (simulation) or iteration (aco)
+  t: number; // seconds since 00:00 of the weekday (trains, students)
+  iteration: number; // ACO replays: fractional iteration of the ant player
+  acoView: AcoView; // ACO replays: the ants or the best line's trains
   weekday: number; // 1..5
   scenario: Scenario;
+}
+
+/** Route tool: two endpoints (endpoint keys like D-17/1.38, stop:…, or node keys). */
+export interface Route {
+  from: string | null;
+  to: string | null;
+  slot: "from" | "to"; // which end the next click in the 3D view sets
 }
 
 export interface Toast {
@@ -179,6 +195,7 @@ export interface AppState {
   roomColor: RoomColorMode;
   tool: Tool;
   measure: Vec3[]; // measure tool points (web)
+  route: Route;
   capture: Capture | null;
   toasts: Toast[];
   leftOpen: boolean;
@@ -206,6 +223,7 @@ export const app = createStore<AppState>({
   roomColor: "kind",
   tool: "select",
   measure: [],
+  route: { from: null, to: null, slot: "from" },
   capture: null,
   toasts: [],
   leftOpen: true,
@@ -222,6 +240,8 @@ export const app = createStore<AppState>({
     playing: false,
     speed: 60,
     t: 8 * 3600,
+    iteration: 0,
+    acoView: "ants",
     weekday: 1,
     scenario: "metro",
   },
@@ -312,4 +332,13 @@ export function copyCapture(): void {
   if (!c?.points.length) return;
   void navigator.clipboard?.writeText(captureText(c));
   toast(`Copied ${c.points.length} points (${c.building} local)`);
+}
+
+/** Set one end of the route; the next click then sets the other end. */
+export function setRouteEnd(slot: "from" | "to", key: string | null): void {
+  app.set((s) => ({
+    route: { ...s.route, [slot]: key, slot: slot === "from" ? "to" : "from" },
+    rightTab: "route",
+    rightOpen: true,
+  }));
 }

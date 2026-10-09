@@ -13,7 +13,14 @@ const KIND_LABEL: Record<Replay["kind"], string> = {
 };
 
 export function openReplay(r: Replay | null): void {
-  setPlayback({ replayId: r?.id ?? null, playing: false, t: r?.kind === "aco" ? 0 : 8 * 3600 });
+  setPlayback({
+    replayId: r?.id ?? null,
+    playing: false,
+    t: 8 * 3600,
+    iteration: 0,
+    acoView: "ants",
+    speed: r?.kind === "aco" ? 5 : 60,
+  });
   if (r) {
     setWorkspace(r.kind === "aco" ? "metro" : "simulation");
     if (r.scenarios.length) setPlayback({ scenario: r.scenarios.includes("metro") ? "metro" : r.scenarios[0]! });

@@ -1,5 +1,7 @@
 // App state <-> location.hash, so reloads keep the view and views can be shared:
 //   #ws=building&cam=plan&sel=building:D-17&replay=run-1&pose=x,y,z,tx,ty,tz,zoom
+//   #ws=network&from=stop:miasteczko_studenckie_agh&to=D-17/1.38   (route tool)
+//   #ws=metro&replay=aco-run&it=40&view=trains&day=1&t=30600       (a paused replay moment)
 
 import type { Vec3 } from "../lib/frames";
 import { app, type AppState, type CameraPose, type Pick, pickKey, WORKSPACE_LAYERS, WORKSPACES } from "./app";
@@ -17,6 +19,7 @@ export function parsePick(text: string | null): Pick | null {
     case "context":
       return Number.isInteger(Number(rest)) ? { kind, fid: Number(rest) } : null;
     case "edge":
+    case "barrier":
       return Number.isInteger(Number(rest)) ? { kind, index: Number(rest) } : null;
     case "space": {
       const m = /^([^/]+)\/(.+)@(-?\d+)$/.exec(rest);
@@ -58,7 +61,21 @@ export function stateFromHash(hash: string): Partial<AppState> {
   const pose = parsePose(q.get("pose"));
   if (pose) out.initialPose = pose;
   const replay = q.get("replay");
-  if (replay) out.playback = { ...app.get().playback, replayId: replay };
+  if (replay) {
+    const p = { ...app.get().playback, replayId: replay };
+    const num = (k: string) => (q.get(k) !== null && Number.isFinite(Number(q.get(k))) ? Number(q.get(k)) : null);
+    p.t = num("t") ?? p.t;
+    p.iteration = num("it") ?? p.iteration;
+    p.weekday = num("day") ?? p.weekday;
+    if (q.get("view") === "trains") p.acoView = "trains";
+    out.playback = p;
+  }
+  const from = q.get("from");
+  const to = q.get("to");
+  if (from || to) {
+    out.route = { from, to, slot: from && !to ? "to" : "from" };
+    out.rightTab = "route";
+  }
   return out;
 }
 
@@ -77,7 +94,19 @@ function writeHash(): void {
   if (s.camera === "plan") q.set("cam", s.camera);
   if (s.selection) q.set("sel", pickKey(s.selection));
   if (s.level !== null) q.set("level", String(s.level));
-  if (s.playback.replayId) q.set("replay", s.playback.replayId);
+  const p = s.playback;
+  if (p.replayId) {
+    q.set("replay", p.replayId);
+    // the moment of the replay, while paused (a running clock would rewrite the URL every frame)
+    if (!p.playing) {
+      q.set("day", String(p.weekday));
+      q.set("t", String(Math.round(p.t)));
+      q.set("it", String(Math.round(p.iteration * 10) / 10));
+      if (p.acoView === "trains") q.set("view", "trains");
+    }
+  }
+  if (s.route.from) q.set("from", s.route.from);
+  if (s.route.to) q.set("to", s.route.to);
   if (lastPose) q.set("pose", formatPose(lastPose));
   const hash = `#${q.toString()}`;
   if (hash !== location.hash) history.replaceState(null, "", hash);
@@ -94,7 +123,10 @@ export function bindUrl(): () => void {
       s.camera !== prev.camera ||
       s.selection !== prev.selection ||
       s.level !== prev.level ||
-      s.playback.replayId !== prev.playback.replayId
+      s.playback.replayId !== prev.playback.replayId ||
+      (!s.playback.playing && s.playback !== prev.playback) ||
+      s.route.from !== prev.route.from ||
+      s.route.to !== prev.route.to
     ) {
       writeHash();
     }

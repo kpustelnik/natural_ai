@@ -75,17 +75,58 @@ export const ISSUE_COLOURS = {
   issues: { wall: "#f6dfbd", roof: "#ebcc9d", swatch: "#e0a458", label: "has issues" },
 };
 
+/** Walk graph edges by class (network.json edge_kind_names). */
 export const NETWORK = {
   footway: "#3d7a5a",
   road: "#7c838b",
   steps: "#d9480f",
+  corridor: "#4f6d9a",
+  door: "#8d9bb3",
+  stairs: "#7a4fb0",
+  entrance: "#e8a33d",
+  passage: "#1c63b8",
+  shaft: ACCENT,
+  link: "#aab0b8",
 } as const;
+
+export const NETWORK_LABELS: Record<keyof typeof NETWORK, string> = {
+  footway: "footway, path",
+  road: "road, service",
+  steps: "steps",
+  corridor: "corridor",
+  door: "room door",
+  stairs: "stairs",
+  entrance: "entrance",
+  passage: "passage",
+  shaft: "metro shaft",
+  link: "link to the paths",
+};
+
+/** Route tool: the parts of a route. */
+export const ROUTE_PARTS = {
+  outdoor: { color: "#3d7a5a", label: "outdoor" },
+  indoor: { color: "#4f6d9a", label: "indoor" },
+  stairs: { color: "#7a4fb0", label: "stairs" },
+} as const;
+
+/** Metro and ACO playback. */
+export const METRO = {
+  tunnel: ACCENT,
+  platform: "#d9d6d0",
+  shaft: ACCENT,
+  train: "#15181b",
+  candidate: "#9aa0a7",
+  chosen: ACCENT,
+  ant: "#3a3f45",
+  pheromone: "#2f3338",
+};
 
 export const MARKERS = {
   entrance: "#3a3f45",
   mainEntrance: "#e8a33d",
   stop: "#1c63b8",
   otherStop: "#9aa0a6",
+  barrier: "#a08a6c",
 };
 
 export function buildingColours(b: SceneBuilding, mode: ColorMode): { wall: string; roof: string } {

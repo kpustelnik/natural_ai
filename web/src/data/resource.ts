@@ -3,10 +3,12 @@
 
 import { useEffect, useState } from "react";
 import type {
+  AcoTraceHeader,
   BuildingInfo,
   BuildStatus,
   ContextFeatures,
   IssueList,
+  Metro,
   NetworkHeader,
   ReplayCatalog,
   Scene,
@@ -84,5 +86,13 @@ async function fetchInfo(path: string): Promise<BuildingInfo> {
 export const loadBuildingInfo = (path: string) => load(path, () => fetchInfo(path));
 export const useBuildingInfo = (path?: string | null) => useResource<BuildingInfo>(path, fetchInfo);
 export const useReplays = (path?: string | null) => useResource<ReplayCatalog>(path, fetchJson);
-export const useNetwork = (path?: string | null) =>
-  useResource<BinaryFile<NetworkHeader>>(path, (p) => loadBinary<NetworkHeader>(p));
+async function fetchNetwork(path: string): Promise<BinaryFile<NetworkHeader>> {
+  const net = await loadBinary<NetworkHeader>(path);
+  registry.network = net; // for the inspector, framing and the route tool's clicks
+  return net;
+}
+
+export const useNetwork = (path?: string | null) => useResource<BinaryFile<NetworkHeader>>(path, fetchNetwork);
+export const useMetro = (path?: string | null) => useResource<Metro>(path, fetchJson);
+export const useAcoTrace = (path?: string | null) =>
+  useResource<BinaryFile<AcoTraceHeader>>(path, (p) => loadBinary<AcoTraceHeader>(p));

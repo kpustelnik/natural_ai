@@ -178,7 +178,12 @@ def test_export_files_follow_contracts(exported):
 
     ContextFeatures.model_validate_json((out / "campus/context.json").read_text(encoding="utf-8"))
     net = NetworkHeader.model_validate_json((out / "network.json").read_text(encoding="utf-8"))
-    assert net.n_edges == 2 and (out / net.bin).stat().st_size > 0
+    assert (out / net.bin).stat().st_size > 0
+    # the synthetic OSM has 2 walk edges; the sample buildings add their indoor graphs
+    assert net.n_edges > 2 and net.n_nodes == len(net.node_keys)
+    assert {"D-17/1.38", "D-17", "C-2", "stop:czarnowiejska"} <= set(net.endpoints)
+    assert net.node_keys[net.endpoints["D-17/1.38"]] == "D-17/1.38"
+    assert {"stairs", "door", "passage", "shaft", "link"} <= set(net.edge_kind_names)
     IssueList.model_validate_json((out / "issues.json").read_text(encoding="utf-8"))
     cat = ReplayCatalog.model_validate_json(
         (out / "replays/index.json").read_text(encoding="utf-8")

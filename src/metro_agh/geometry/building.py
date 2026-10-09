@@ -105,6 +105,33 @@ def _entrance_local(b: Building, e: Entrance) -> tuple[tuple[float, float], int]
     return (float(p[0]), float(p[1])), level.id
 
 
+def osm_index(osm_buildings) -> dict[str, int]:
+    """Every OSM element id of the buildings layer (also merged parts) -> row position."""
+    index = {}
+    for pos, ids in enumerate(osm_buildings.osm_ids):
+        for i in ids.split("|"):
+            index[i] = pos
+    return index
+
+
+def match_osm(b: Building, osm_buildings, index: dict[str, int]):
+    """(row, geometry) of the OSM building a YAML describes: by ``osm_id``, else by code."""
+    if b.osm_id and b.osm_id in index:
+        row = index[b.osm_id]
+    else:  # bootstrapped files always carry osm_id; hand-made ones may match by code
+        match = np.flatnonzero((osm_buildings.building_id == b.id).to_numpy())
+        row = int(match[0]) if len(match) else None
+    return row, (osm_buildings.geometry.iloc[row] if row is not None else None)
+
+
+def largest_polygon(geom) -> Polygon | None:
+    if geom is None:
+        return None
+    parts = [geom] if geom.geom_type == "Polygon" else list(getattr(geom, "geoms", []))
+    parts = [p for p in parts if p.geom_type == "Polygon"]
+    return max(parts, key=lambda p: p.area) if parts else None
+
+
 def place(b: Building, cfg: dict, origin_z: float, osm_outline: Polygon | None) -> PlacedBuilding:
     """Put a building into the world. ``osm_outline`` (EPSG:2180) is used when the YAML has
     no footprint."""

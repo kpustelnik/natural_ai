@@ -46,6 +46,108 @@
       "title": "BufferView",
       "type": "object"
     },
+    "FieldMeasurement": {
+      "additionalProperties": false,
+      "description": "A row of data/validation/field_measurements.csv, for the route tool.",
+      "properties": {
+        "route_id": {
+          "title": "Route Id",
+          "type": "string"
+        },
+        "from_key": {
+          "title": "From Key",
+          "type": "string"
+        },
+        "to_key": {
+          "title": "To Key",
+          "type": "string"
+        },
+        "measured_s": {
+          "title": "Measured S",
+          "type": "number"
+        },
+        "date": {
+          "title": "Date",
+          "type": "string"
+        },
+        "who": {
+          "title": "Who",
+          "type": "string"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Notes"
+        }
+      },
+      "required": [
+        "route_id",
+        "from_key",
+        "to_key",
+        "measured_s",
+        "date",
+        "who",
+        "notes"
+      ],
+      "title": "FieldMeasurement",
+      "type": "object"
+    },
+    "NetworkBarrier": {
+      "additionalProperties": false,
+      "properties": {
+        "osm_id": {
+          "title": "Osm Id",
+          "type": "string"
+        },
+        "barrier": {
+          "description": "OSM barrier tag: gate, bollard, ...",
+          "title": "Barrier",
+          "type": "string"
+        },
+        "access": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Access"
+        },
+        "position": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Position",
+          "type": "array"
+        }
+      },
+      "required": [
+        "osm_id",
+        "barrier",
+        "access",
+        "position"
+      ],
+      "title": "NetworkBarrier",
+      "type": "object"
+    },
     "Provenance": {
       "additionalProperties": false,
       "description": "Attached to every generated JSON file, so stale outputs can be detected.",
@@ -103,7 +205,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "``network.{json,bin}``: the walk graph as line segments.\n\nCodes in ``edge_kind`` index into ``edge_kind_names``; ``node_keys`` / ``edge_sources``\nhold what does not fit a typed array (OSM ids exceed uint32).",
+  "description": "``network.{json,bin}``: the walk graph (network/*.parquet) for drawing and routing.\n\nCodes in ``node_kind`` / ``edge_kind`` index into ``node_kind_names`` /\n``edge_kind_names``; ``node_keys`` / ``edge_sources`` hold what does not fit a typed\narray (OSM ids exceed uint32).",
   "properties": {
     "provenance": {
       "$ref": "#/$defs/Provenance"
@@ -134,7 +236,16 @@
       "title": "N Edges",
       "type": "integer"
     },
+    "node_kind_names": {
+      "description": "GRAPH_NODES kinds",
+      "items": {
+        "type": "string"
+      },
+      "title": "Node Kind Names",
+      "type": "array"
+    },
     "edge_kind_names": {
+      "description": "footway, road, steps, then GRAPH_EDGES kinds",
       "items": {
         "type": "string"
       },
@@ -142,15 +253,23 @@
       "type": "array"
     },
     "node_keys": {
-      "description": "per node, e.g. 'osm:123'",
+      "description": "per node, e.g. 'osm:123', 'D-17/1.38'",
       "items": {
         "type": "string"
       },
       "title": "Node Keys",
       "type": "array"
     },
+    "endpoints": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "description": "endpoint key (room, building, stop) -> node index",
+      "title": "Endpoints",
+      "type": "object"
+    },
     "edge_sources": {
-      "description": "per edge, e.g. 'way/1|way/2'",
+      "description": "per edge, e.g. 'way/1|way/2', 'D-17'",
       "items": {
         "anyOf": [
           {
@@ -163,6 +282,24 @@
       },
       "title": "Edge Sources",
       "type": "array"
+    },
+    "barriers": {
+      "default": [],
+      "description": "OSM point barriers",
+      "items": {
+        "$ref": "#/$defs/NetworkBarrier"
+      },
+      "title": "Barriers",
+      "type": "array"
+    },
+    "measurements": {
+      "default": [],
+      "description": "measured walking times to compare routes with",
+      "items": {
+        "$ref": "#/$defs/FieldMeasurement"
+      },
+      "title": "Measurements",
+      "type": "array"
     }
   },
   "required": [
@@ -172,9 +309,13 @@
     "kind",
     "n_nodes",
     "n_edges",
+    "node_kind_names",
     "edge_kind_names",
     "node_keys",
-    "edge_sources"
+    "endpoints",
+    "edge_sources",
+    "barriers",
+    "measurements"
   ],
   "title": "NetworkHeader",
   "type": "object"

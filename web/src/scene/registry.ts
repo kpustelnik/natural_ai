@@ -64,6 +64,10 @@ export function pickBox(p: Pick): { min: Vec3; max: Vec3 } | null {
       }
       return box.isEmpty() ? null : { min: box.min.toArray() as Vec3, max: box.max.toArray() as Vec3 };
     }
+    case "barrier": {
+      const b = registry.network?.header.barriers[p.index];
+      return b ? around(b.position, 25) : null;
+    }
   }
 }
 

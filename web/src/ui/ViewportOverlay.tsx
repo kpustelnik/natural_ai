@@ -3,7 +3,7 @@
 
 import { useBuildingInfo } from "../data/resource";
 import type { Scene } from "../generated/schemas";
-import { CAPACITY, CAPACITY_UNKNOWN, legend, SPACE_KIND } from "../scene/palette";
+import { CAPACITY, CAPACITY_UNKNOWN, legend, NETWORK, NETWORK_LABELS, SPACE_KIND } from "../scene/palette";
 import { segmentLength } from "../scene/tools/Tools";
 import {
   app,
@@ -73,7 +73,10 @@ function Hint({ scene }: { scene: Scene }) {
   const replay = useApp((s) => s.playback.replayId);
   const tool = useApp((s) => s.tool);
   let text: string | null = null;
+  const routeSlot = useApp((s) => s.route.slot);
   if (tool === "measure") text = "Click points to measure · Backspace removes the last · Esc clears";
+  else if (tool === "route")
+    text = `Click the ${routeSlot === "from" ? "start (A)" : "destination (B)"}: a room, building, stop or any point on the paths · Esc ends`;
   else if (workspace === "building" && !building) text = "Select a building to open it.";
   else if (workspace === "building" && level === null) {
     const b = scene.buildings.find((x) => x.id === building);
@@ -247,6 +250,7 @@ export function ViewportOverlay({ scene }: { scene: Scene }) {
   const selectedBuilding = useApp((s) => pickBuilding(s.selection));
   const level = useApp((s) => s.level);
   const workspace = useApp((s) => s.workspace);
+  const networkLegend = useApp((s) => s.workspace === "network" && s.layers.network);
   const openedB = opened ? scene.buildings.find((b) => b.id === opened) : undefined;
   const info = useBuildingInfo(openedB?.info).data;
   const interior = !!openedB && level !== null && camera !== "walk";
@@ -302,6 +306,15 @@ export function ViewportOverlay({ scene }: { scene: Scene }) {
         >
           <IconRuler size={15} /> Measure
         </button>
+        {(workspace === "network" || tool === "route") && (
+          <button
+            className={`tool-button ${tool === "route" ? "active" : ""}`}
+            title="Route between two points (R)"
+            onClick={() => app.set({ tool: tool === "route" ? "select" : "route", rightTab: "route", rightOpen: true })}
+          >
+            Route
+          </button>
+        )}
         {workspace !== "building" && selectedBuilding && (
           <button
             className="tool-button"
@@ -323,7 +336,16 @@ export function ViewportOverlay({ scene }: { scene: Scene }) {
         {tool === "measure" && <MeasurePanel scene={scene} />}
         <CapturePanel />
       </div>
-      {showAgh && (
+      {networkLegend ? (
+        <div className="overlay-bottom-left legend">
+          {(Object.keys(NETWORK) as (keyof typeof NETWORK)[]).map((k) => (
+            <div key={k} className="legend-row">
+              <span className="swatch line" style={{ background: NETWORK[k] }} />
+              {NETWORK_LABELS[k]}
+            </div>
+          ))}
+        </div>
+      ) : showAgh && (
         <div className="overlay-bottom-left legend">
           {interior && hasRooms ? (
             <RoomLegend />

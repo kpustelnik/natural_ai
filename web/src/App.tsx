@@ -37,6 +37,10 @@ function useShortcuts() {
         case "M":
           app.set({ tool: s.tool === "measure" ? "select" : "measure", measure: [] });
           break;
+        case "r":
+        case "R":
+          app.set({ tool: s.tool === "route" ? "select" : "route", rightTab: "route", rightOpen: true });
+          break;
         case "3":
           app.set({ camera: "walk" });
           break;
@@ -63,7 +67,7 @@ function useShortcuts() {
         case "Escape":
           // clear the innermost thing first: measure points, the tool, the capture, the selection
           if (s.tool === "measure" && s.measure.length) app.set({ measure: [] });
-          else if (s.tool === "measure") app.set({ tool: "select" });
+          else if (s.tool !== "select") app.set({ tool: "select" });
           else if (s.capture) app.set({ capture: null });
           else select(null);
           break;

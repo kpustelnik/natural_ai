@@ -1007,6 +1007,7 @@ kbd {
 .labels-layer {
   position: absolute;
   inset: 0;
+  z-index: 0; /* own stacking context: the labels' depth z-indexes stay below the dock */
   pointer-events: none;
   overflow: hidden;
 }
@@ -1056,6 +1057,7 @@ kbd {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: 0 4px 16px rgb(0 0 0 / 0.06);
+  z-index: 5;
 }
 
 .dock-title {
@@ -1456,4 +1458,179 @@ kbd {
   color: #ffffff;
   font-family: var(--mono);
   font-weight: 500;
+}
+
+/* --- phase 4/5: route tool, network legend, ACO player -------------------------------- */
+
+.dock.wide {
+  width: min(860px, calc(100% - 320px));
+}
+
+.aco-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.aco-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.aco-line {
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.chart {
+  min-width: 0;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-bottom: 4px;
+  font-size: 11px;
+  color: var(--text-2, var(--text));
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.chart-plot {
+  display: block;
+  width: 100%;
+  height: 84px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: crosshair;
+}
+
+.chart-caption {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.route-panel .route-end {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.route-end .end-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--text);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.route-end .end-badge.to {
+  background: var(--accent);
+}
+
+.route-end.next .end-badge {
+  box-shadow: 0 0 0 3px rgb(200 16 46 / 0.2);
+}
+
+.route-end input {
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font: inherit;
+}
+
+.route-end input.invalid {
+  border-color: var(--accent);
+}
+
+.route-total {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 12px 0 6px;
+}
+
+.route-total .big {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.route-bar {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+  margin-bottom: 6px;
+}
+
+.route-bar span {
+  border-radius: 2px;
+}
+
+.route-legs {
+  margin-top: 8px;
+}
+
+.route-leg {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.route-leg .dot-part {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.measure-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.measure-table th,
+.measure-table td {
+  padding: 3px 4px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.measure-table td.num,
+.measure-table th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.measure-table tr.clickable:hover {
+  background: var(--surface-2);
+  cursor: pointer;
+}
+
+.swatch.line {
+  height: 3px;
+  border-radius: 1px;
 }

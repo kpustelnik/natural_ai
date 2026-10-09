@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=../../../../schemas/building.schema.json
+# SAMPLE (synthetic interior). LOD2: floors, an L-shaped corridor and stairs, no rooms yet.
+# Students going to an A-0 room that is not modelled end at the building endpoint "A-0".
+schema_version: 1
+id: A-0
+name: Budynek główny
+kind: academic
+placement:
+  anchor: [19.9234, 50.0646]
+  bearing_deg: 75
+footprint: [[0, -10], [80, -10], [80, 40], [60, 40], [60, 10], [0, 10]]
+
+levels:
+  - id: -1
+    elevation: -3.5
+    height: 3.5
+    corridors:
+      - id: cb
+        path: [[5, 0], [70, 0]]
+    stairs:
+      - { id: s_main, corridor: cb, side: left, at: 10, width: 5, depth: 6 }
+
+  - id: 0
+    elevation: 0.0
+    height: 4.5
+    corridors:
+      - id: c0
+        path: [[0, 0], [70, 0], [70, 35]]
+        width: 4.0
+    stairs:
+      - { id: s_main, corridor: c0, side: left, at: 15, width: 5, depth: 6 }
+      - { id: s_east, corridor: c0, side: right, at: 100, width: 4, depth: 5 }
+
+  - id: 1
+    elevation: 4.5
+    height: 4.0
+    corridors:
+      - id: c1
+        path: [[0, 0], [70, 0], [70, 35]]
+        width: 3.0
+    stairs:
+      - { id: s_main, corridor: c1, side: left, at: 15, width: 5, depth: 6 }
+      - { id: s_east, corridor: c1, side: right, at: 100, width: 4, depth: 5 }
+
+entrances:
+  - { id: main, corridor: c0, side: start, metro_shaft: true }
+  - { id: north, corridor: c0, side: end }

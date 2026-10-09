@@ -1,0 +1,11 @@
+activity_id,group_id,weekday,start,end,week_parity,building_id,room_id
+a001,ALG:WYK:1,1,08:00,09:30,all,A-0,
+a002,ALG:LAB:1,1,09:45,11:15,all,D-17,0.10
+a003,ALG:LAB:2,1,09:45,11:15,all,D-17,0.12
+a004,MAT:CW:1,1,11:30,13:00,all,B-1,0.17
+a005,ROB:WYK:1,1,08:00,09:30,all,C-2,
+a006,ROB:LAB:1,1,09:45,11:15,odd,B-1,0.21
+a007,ROB:LAB:2,1,09:45,11:15,even,B-1,0.21
+a008,ALG:WYK:1,3,12:00,13:30,all,D-17,1.40
+a009,ROB:LAB:1,3,08:00,09:30,all,D-17,1.38
+a010,ROB:LAB:2,3,09:45,11:15,all,D-17,1.38

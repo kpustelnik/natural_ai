@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../../schemas/campus.schema.json
+# SAMPLE campus-level data: passages between buildings, OSM corrections, stops.
+schema_version: 1
+
+passages:
+  - id: a0_b1
+    a: { building: A-0, corridor: c0, at: 70 }
+    b: { building: B-1, corridor: c0, at: 30 }
+    kind: indoor
+    width: 3.0
+
+extra_paths:
+  - id: d17_shortcut
+    path: [[19.9131, 50.0681], [19.9140, 50.0676]]
+    note: path behind D-17 missing in OSM (example)
+
+removed_ways:
+  - osm_way_id: 123456789
+    reason: gate closed for students (example id)
+
+stops:
+  - { id: "stop:czarnowiejska", name: Czarnowiejska, location: [19.9172, 50.0665], weight: 2 }
+  - { id: "stop:agh_ur", name: AGH / UR, location: [19.9213, 50.0633], weight: 2 }
+  - id: "stop:miasteczko_studenckie_agh"
+    name: Miasteczko Studenckie AGH
+    location: [19.9030, 50.0680]
+    weight: 1

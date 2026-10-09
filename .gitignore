@@ -14,11 +14,14 @@ dist/
 # --- Dane generowane (odtwarzalne skryptami) ---
 data/raw/
 data/processed/
-web/data/
+web/public/data/
 experiments/results/
 cache/
 
 # data/sample/ i data/validation/ SĄ w repo
+
+# --- Web ---
+node_modules/
 
 # --- Jupyter ---
 .ipynb_checkpoints/

@@ -27,6 +27,8 @@ dependencies = [
     "matplotlib>=3.8",
     "seaborn>=0.13",
     "tqdm>=4.66",
+    # kontrakty danych
+    "pydantic>=2.7",
 ]
 
 [dependency-groups]

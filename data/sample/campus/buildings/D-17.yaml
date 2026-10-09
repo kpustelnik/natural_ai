@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../../../schemas/building.schema.json
+# SAMPLE (synthetic interior). LOD3: corridors, rooms, stairs.
+# Local frame: origin = main entrance, +x along bearing_deg, +y to the left, metres.
+schema_version: 1
+id: D-17
+name: Pawilon D-17
+kind: academic
+aliases: ["D17"]
+placement:
+  anchor: [19.9126, 50.0683]
+  bearing_deg: 90
+footprint: [[0, -8.25], [40, -8.25], [40, 8.25], [0, 8.25]]
+
+levels:
+  - id: 0
+    elevation: 0.0
+    height: 3.6
+    corridors:
+      - id: c0
+        path: [[0, 0], [40, 0]]
+        width: 2.5
+    rooms:
+      - { id: "0.10", corridor: c0, side: left, at: 2, width: 8, depth: 7 }
+      - { id: "0.12", corridor: c0, side: left, at: 10, width: 8, depth: 7 }
+      - { id: "0.11", corridor: c0, side: right, at: 2, width: 12, depth: 7 }
+    stairs:
+      - { id: s1, corridor: c0, side: right, at: 30, width: 4, depth: 6 }
+
+  - id: 1
+    elevation: 3.6
+    height: 3.4
+    corridors:
+      - id: c1
+        path: [[0, 0], [40, 0]]
+    rooms:
+      - { id: "1.38", corridor: c1, side: left, at: 4, width: 10, depth: 7 }
+      # a room drawn as a polygon, with two doors
+      - id: "1.40"
+        name: Sala wykładowa
+        capacity: 120
+        polygon: [[20, 1.25], [38, 1.25], [38, 8.25], [20, 8.25]]
+        doors:
+          - { corridor: c1, at: 22 }
+          - { corridor: c1, at: 36 }
+    stairs:
+      - { id: s1, corridor: c1, side: right, at: 30, width: 4, depth: 6 }
+
+entrances:
+  - { id: main, corridor: c0, side: start, metro_shaft: true }
+  - { id: back, corridor: c0, side: end }

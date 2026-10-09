@@ -1,0 +1,197 @@
+{
+  "$defs": {
+    "BestLine": {
+      "additionalProperties": false,
+      "properties": {
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "topology": {
+          "$ref": "#/$defs/MetroTopology"
+        },
+        "stations": {
+          "description": "in line order",
+          "items": {
+            "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*[a-z]?$",
+            "type": "string"
+          },
+          "minItems": 2,
+          "title": "Stations",
+          "type": "array"
+        },
+        "objective_s": {
+          "description": "weighted total travel time with this line",
+          "minimum": 0,
+          "title": "Objective S",
+          "type": "number"
+        },
+        "baseline_s": {
+          "description": "same without metro",
+          "minimum": 0,
+          "title": "Baseline S",
+          "type": "number"
+        },
+        "lower_bound_s": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "teleport bound: every leg takes 0 s via metro access",
+          "title": "Lower Bound S"
+        }
+      },
+      "required": [
+        "provenance",
+        "run_id",
+        "topology",
+        "stations",
+        "objective_s",
+        "baseline_s"
+      ],
+      "title": "BestLine",
+      "type": "object"
+    },
+    "MetroTopology": {
+      "enum": [
+        "line",
+        "loop"
+      ],
+      "title": "MetroTopology",
+      "type": "string"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Attached to every generated JSON file, so stale outputs can be detected.",
+      "properties": {
+        "schema_version": {
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "generated_at": {
+          "description": "ISO 8601 timestamp",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "generator": {
+          "description": "script that produced the file, e.g. 04_optimize.py",
+          "title": "Generator",
+          "type": "string"
+        },
+        "config_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "sha256 of the resolved config",
+          "title": "Config Hash"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        }
+      },
+      "required": [
+        "generated_at",
+        "generator"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "experiment": {
+      "title": "Experiment",
+      "type": "string"
+    },
+    "algorithm": {
+      "description": "mmas | acs | random | greedy | brute_force",
+      "title": "Algorithm",
+      "type": "string"
+    },
+    "instance": {
+      "description": "instance path",
+      "title": "Instance",
+      "type": "string"
+    },
+    "instance_hash": {
+      "title": "Instance Hash",
+      "type": "string"
+    },
+    "seed": {
+      "title": "Seed",
+      "type": "integer"
+    },
+    "params": {
+      "additionalProperties": true,
+      "description": "algorithm parameters actually used",
+      "title": "Params",
+      "type": "object"
+    },
+    "eval_budget": {
+      "minimum": 1,
+      "title": "Eval Budget",
+      "type": "integer"
+    },
+    "evaluations": {
+      "minimum": 1,
+      "title": "Evaluations",
+      "type": "integer"
+    },
+    "wall_time_s": {
+      "minimum": 0,
+      "title": "Wall Time S",
+      "type": "number"
+    },
+    "best": {
+      "$ref": "#/$defs/BestLine"
+    }
+  },
+  "required": [
+    "provenance",
+    "run_id",
+    "experiment",
+    "algorithm",
+    "instance",
+    "instance_hash",
+    "seed",
+    "params",
+    "eval_budget",
+    "evaluations",
+    "wall_time_s",
+    "best"
+  ],
+  "title": "RunMeta",
+  "type": "object"
+}

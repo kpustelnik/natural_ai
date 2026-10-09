@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../schemas/building.schema.json
+# Bootstrapped from OpenStreetMap (way/231815476) on 2026-10-09. LOD1.
+# Edit freely: the OSM bootstrap never overwrites this file.
+# Format: docs/data_contracts.md, section 3.1
+schema_version: 1
+id: B-8
+kind: academic
+osm_id: way/231815476
+placement:
+  anchor: [19.9164801, 50.0659391]
+  bearing_deg: 289.0
+footprint:
+- [-19.6, 11.6]
+- [-19.6, 10.8]
+- [-15.1, 10.8]
+- [-15.1, 8.7]
+- [-22.7, 8.7]
+- [-24.4, 7.8]
+- [-26.2, 6.1]
+- [-26.9, 4.0]
+- [-27.0, -4.7]
+- [-24.8, -4.7]
+- [-24.7, -13.6]
+- [-10.7, -13.6]
+- [-10.7, -11.3]
+- [8.3, -11.3]
+- [8.3, -13.6]
+- [35.6, -13.4]
+- [35.6, 8.5]
+- [6.2, 8.6]
+- [6.2, 10.7]
+- [10.7, 10.7]
+- [10.6, 11.5]
+n_levels: 4
+height_m: 14.0
+entrances:
+- {id: main, point: [0.0, 0.0], metro_shaft: true}

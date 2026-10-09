@@ -76,12 +76,14 @@ metro-agh/
 ├── data/
 │   ├── raw/                    # [gitignore] surowe dane, nie edytujemy ręcznie
 │   │   ├── usos/               #   odpowiedzi API / eksporty iCal
-│   │   └── osm/                #   cache osmnx
+│   │   └── osm/                #   features.osm, walk.osm (surowe odpowiedzi Overpass)
 │   ├── campus/                 # [w repo] ręcznie modelowany kampus
 │   │   ├── buildings/*.yaml    #   budynek: piętra, korytarze, sale, schody, wejścia
 │   │   ├── campus.yaml         #   przejścia między budynkami, poprawki OSM, przystanki
+│   │   ├── osm_building_map.csv #  poprawki klasyfikacji budynków z OSM
 │   │   └── usos_room_map.csv   #   poprawki mapowania sal z USOS
 │   ├── processed/              # [gitignore] wyniki etapów pipeline'u
+│   │   ├── osm/                #   campus.gpkg (QGIS), report.md, preview.html
 │   │   ├── usos/               #   timetable.csv, groups.csv, cohorts.csv, group_cohorts.csv
 │   │   ├── population/         #   students.parquet, enrollments.parquet
 │   │   ├── demand/             #   legs.parquet, od.parquet
@@ -100,7 +102,10 @@ metro-agh/
 │   │   ├── client.py           # USOS API (OAuth 1.0a) / plan B: iCal
 │   │   └── parse.py            # sala -> budynek, normalizacja do timetable.csv
 │   ├── campus/
-│   │   ├── osm.py              # pobranie grafu pieszego i obrysów budynków
+│   │   ├── osm.py              # pobranie danych z Overpass (z cache i serwerami zapasowymi)
+│   │   ├── osm_process.py      # warstwy: budynki, wejścia, przystanki, bariery, graf pieszy
+│   │   ├── osm_report.py       # report.md i preview.html
+│   │   ├── geo.py              # układy współrzędnych: lon/lat, EPSG:2180, lokalny, web
 │   │   ├── bootstrap.py        # szkielety LOD1 budynków z OSM (nie nadpisuje istniejących)
 │   │   ├── interior.py         # YAML budynku -> geometria pięter i graf wewnętrzny
 │   │   └── candidates.py       # kandydaci na stacje (wejścia z metro_shaft)
@@ -216,12 +221,21 @@ Pipeline krok po kroku (każdy skrypt czyta parametry z `config.yaml`):
 
 ```bash
 uv run scripts/01_fetch_usos.py          # -> data/raw/usos, data/processed/timetable.csv
-uv run scripts/02_build_campus.py        # -> graf, budynki, kandydaci na stacje
+uv run scripts/02_build_campus.py        # -> data/processed/osm/ (campus.gpkg, report.md, preview.html)
 uv run scripts/03_build_demand.py        # -> demand.parquet
 uv run scripts/04_optimize.py            # -> experiments/results/best_line.json
 uv run scripts/05_simulate.py            # -> trajektorie bez / z metrem
 uv run scripts/06_export_web.py          # -> web/public/data/
 ```
+
+Kampus z OpenStreetMap:
+
+```bash
+uv run scripts/02_build_campus.py --bootstrap   # + szkielety YAML nowych budynków AGH (LOD1)
+uv run scripts/02_build_campus.py --refresh     # pobierz OSM ponownie (zamiast z data/raw/osm)
+```
+
+Wynik: `data/processed/osm/campus.gpkg` (otwórz w QGIS), `preview.html` (mapa w przeglądarce) i `report.md` (lista rzeczy do sprawdzenia ręcznie). Istniejące pliki w `data/campus/buildings/` nigdy nie są nadpisywane.
 
 Praca na danych testowych (bez USOS) — flaga `--sample` czyta z `data/sample/`:
 

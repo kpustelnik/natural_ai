@@ -13,14 +13,26 @@ paths:
   web_data: web/public/data
 
 campus:
-  # obszar kampusu AGH (lon/lat, WGS84) - do doprecyzowania
-  bbox: { west: 19.900, south: 50.062, east: 19.930, north: 50.072 }
+  # obszar pobierany z OSM (lon/lat, WGS84): kampus AGH + Miasteczko Studenckie + otoczenie
+  bbox: { west: 19.8975, south: 50.0625, east: 19.9265, north: 50.0730 }
+  agh_relation: 3830877      # amenity=university "Akademia Górniczo-Hutnicza"
   network_type: walk
   metric_crs: "EPSG:2180"
   # początek układu sceny three.js (x = wschód, y = góra, z = -północ)
   web_origin: { lon: 19.915, lat: 50.067, z: 200.0 }
   floor_height_m: 3.5        # LOD1: wysokość = piętra * floor_height_m
   default_levels: 3          # LOD1: gdy OSM nie ma building:levels
+
+osm:
+  overpass_urls:
+    - https://overpass-api.de/api/interpreter
+    - https://overpass.private.coffee/api/interpreter
+    - https://maps.mail.ru/osm/tools/overpass/api/interpreter
+  retries: 6
+  timeout_s: 180
+  user_agent: "metro-agh-student-project/0.1 (AGH course project)"
+  entrance_snap_m: 1.5       # wejście należy do budynku, jeśli leży bliżej niż tyle od obrysu
+  footprint_simplify_m: 0.2  # upraszczanie obrysów przy bootstrapie YAML
 
 usos:
   # plan B, gdy API niedostępne: "ical"

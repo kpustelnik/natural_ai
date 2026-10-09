@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../../schemas/building.schema.json
+# Bootstrapped from OpenStreetMap (way/231815725) on 2026-10-09. LOD1.
+# Edit freely: the OSM bootstrap never overwrites this file.
+# Format: docs/data_contracts.md, section 3.1
+schema_version: 1
+id: U-7
+name: Klub Studio
+kind: academic
+osm_id: way/231815725
+placement:
+  anchor: [19.9082438, 50.0680424]
+  bearing_deg: 12.6
+footprint:
+- [-21.9, 22.9]
+- [-21.9, 10.7]
+- [-18.5, 10.7]
+- [-18.5, 4.0]
+- [-17.0, 4.0]
+- [-17.0, -7.3]
+- [-18.5, -7.3]
+- [-18.5, -22.8]
+- [21.2, -22.9]
+- [21.3, -13.5]
+- [26.1, -13.5]
+- [26.1, 22.9]
+height_m: 10.5
+entrances:
+- {id: main, point: [0.0, 0.0], metro_shaft: true}

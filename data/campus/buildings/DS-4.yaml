@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../../../schemas/building.schema.json
+# Bootstrapped from OpenStreetMap (way/231815504) on 2026-10-09. LOD1.
+# Edit freely: the OSM bootstrap never overwrites this file.
+# Format: docs/data_contracts.md, section 3.1
+schema_version: 1
+id: DS-4
+name: Dom Studencki Filutek
+kind: dorm
+osm_id: way/231815504
+placement:
+  anchor: [19.9056407, 50.0693205]
+  bearing_deg: 192.4
+footprint:
+- [-24.8, 15.9]
+- [-24.9, 8.5]
+- [-24.1, 8.5]
+- [-24.2, 7.4]
+- [-24.8, 7.3]
+- [-24.9, 0.0]
+- [24.5, 0.0]
+- [24.6, 15.9]
+n_levels: 5
+height_m: 17.5
+entrances:
+- {id: main, point: [0.0, 0.0], osm_node: 2520230210}

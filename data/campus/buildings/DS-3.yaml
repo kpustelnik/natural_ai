@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../../schemas/building.schema.json
+# Bootstrapped from OpenStreetMap (way/230301330) on 2026-10-09. LOD1.
+# Edit freely: the OSM bootstrap never overwrites this file.
+# Format: docs/data_contracts.md, section 3.1
+schema_version: 1
+id: DS-3
+name: Dom Studencki Akropol
+kind: dorm
+osm_id: way/230301330
+placement:
+  anchor: [19.9028705, 50.0694089]
+  bearing_deg: 12.6
+footprint:
+- [-3.1, 10.4]
+- [-3.1, 2.7]
+- [0.0, 2.7]
+- [0.0, 1.7]
+- [0.0, -2.7]
+- [-3.0, -2.7]
+- [-3.0, -10.4]
+- [33.9, -10.4]
+- [33.9, -2.8]
+- [30.7, -2.8]
+- [30.6, 2.8]
+- [33.8, 2.8]
+- [33.9, 10.4]
+n_levels: 16
+height_m: 55.0
+entrances:
+- {id: main, point: [0.0, 0.0], osm_node: 10018432265}

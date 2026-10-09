@@ -16,13 +16,13 @@ SCHEMA_VERSION = 1
 
 # --- identifiers ---------------------------------------------------------
 
-BUILDING_ID_PATTERN = r"^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*[a-z]?$"  # D-17, A-0, DS-7, U-2a
+BUILDING_ID_PATTERN = r"^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*$"  # D-17, A-0, DS-7, DS-Alfa, P-A0-A1
 ROOM_ID_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._-]*$"  # 1.38, 0.12, aula_1
 STOP_ID_PATTERN = r"^stop:[a-z0-9_]+$"  # stop:czarnowiejska
 LOCAL_ID_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9_-]*$"  # corridor / stairs / entrance ids
 # endpoint key = where a student is: a building, a room in it, or a bus stop
 ENDPOINT_KEY_PATTERN = (
-    r"^(stop:[a-z0-9_]+|[A-Z][A-Z0-9]*(-[A-Z0-9]+)*[a-z]?(/[A-Za-z0-9][A-Za-z0-9._-]*)?)$"
+    r"^(stop:[a-z0-9_]+|[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*(/[A-Za-z0-9][A-Za-z0-9._-]*)?)$"
 )
 
 BuildingId = Annotated[str, StringConstraints(pattern=BUILDING_ID_PATTERN)]

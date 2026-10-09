@@ -71,6 +71,7 @@ select = [
 [tool.ruff.lint.per-file-ignores]
 "notebooks/*" = ["E402", "B018"]   # importy w środku notebooka, gołe wyrażenia
 "tests/*" = ["B011"]
+"src/metro_agh/campus/osm_report.py" = ["E501"]   # osadzony HTML/JS
 
 [tool.ruff.format]
 quote-style = "double"

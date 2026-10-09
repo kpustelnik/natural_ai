@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../../schemas/building.schema.json
+# Bootstrapped from OpenStreetMap (way/231815501) on 2026-10-09. LOD1.
+# Edit freely: the OSM bootstrap never overwrites this file.
+# Format: docs/data_contracts.md, section 3.1
+schema_version: 1
+id: DS-2
+name: Babilon
+kind: dorm
+osm_id: way/231815501
+placement:
+  anchor: [19.9048595, 50.0692204]
+  bearing_deg: 12.4
+footprint:
+- [-3.5, 10.3]
+- [-3.5, 2.8]
+- [0.0, 2.8]
+- [0.0, -2.8]
+- [-3.5, -2.8]
+- [-3.5, -10.3]
+- [33.5, -10.3]
+- [33.5, -2.8]
+- [30.3, -2.8]
+- [30.3, 2.8]
+- [33.5, 2.8]
+- [33.5, 10.4]
+n_levels: 16
+height_m: 55.0
+entrances:
+- {id: main, point: [0.0, 0.0], osm_node: 9788980525}

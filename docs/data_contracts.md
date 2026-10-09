@@ -21,7 +21,7 @@ the code disagree, the code wins and this document has a bug.
 3. [Hand-written data](#3-hand-written-data)
 4. [USOS](#4-usos)
 5. [Population and demand](#5-population-and-demand)
-6. [Walk network](#6-walk-network)
+6. [Campus and walk network](#6-campus-and-walk-network)
 7. [Problem instance](#7-problem-instance)
 8. [Optimisation results](#8-optimisation-results)
 9. [Simulation](#9-simulation)
@@ -39,9 +39,10 @@ the code disagree, the code wins and this document has a bug.
  usos_room_map.csv ──────────────────► usos/timetable.csv, groups.csv,
                                        cohorts.csv, group_cohorts.csv
                                               │
- buildings/*.yaml ──┐  02_build_campus        │
- campus.yaml ───────┼────────────────► network/nodes.parquet, edges.parquet
- OSM (raw cache) ───┘                  osm/footprints.geojson
+ OSM (raw/osm/cache) ── 02_build_campus ──► osm/campus.gpkg, report.md, preview.html
+                          --bootstrap ──────► buildings/*.yaml (LOD1, new files only)
+ buildings/*.yaml ──┐                         │
+ campus.yaml ───────┼── 02_build_campus ──► network/nodes.parquet, edges.parquet
                                               │
                        03_build_demand        ▼
  config: population ─────────────────► population/students.parquet, enrollments.parquet
@@ -69,7 +70,9 @@ Paths of generated files are relative to `paths.processed` (`data/processed`), o
 
 | Contract | Code | Written by | Read by |
 |---|---|---|---|
-| `buildings/*.yaml`, `campus.yaml` | `schemas.building`, `schemas.campus` | by hand | campus, network, export |
+| `osm/campus.gpkg` | `tables.OSM_*` | person 2 (`02_build_campus.py`) | bootstrap, network, export |
+| `osm_building_map.csv` | `tables.OSM_BUILDING_MAP` | by hand | campus |
+| `buildings/*.yaml`, `campus.yaml` | `schemas.building`, `schemas.campus` | bootstrap, then by hand | campus, network, export |
 | `usos_room_map.csv` | `tables.ROOM_MAP` | by hand | usos |
 | `usos/*.csv` | `tables.TIMETABLE`, `GROUPS`, `COHORTS`, `GROUP_COHORTS` | person 1 | demand |
 | `population/*.parquet` | `tables.STUDENTS`, `ENROLLMENTS` | person 1 | demand, simulation |
@@ -104,7 +107,7 @@ Metres and seconds everywhere, no minutes. Name suffixes carry the unit:
 
 | id | format | example |
 |---|---|---|
-| building | canonical AGH code, upper case | `D-17`, `A-0`, `DS-7` |
+| building | AGH code as in OSM `ref` | `D-17`, `A-0`, `DS-7`, `DS-Alfa`, `P-A0-A1` |
 | room | room number as in USOS, without the building | `1.38`, `0.10` |
 | stop | `stop:` + lower-case slug | `stop:czarnowiejska` |
 | corridor, stairs, entrance | `[A-Za-z0-9_-]`, unique **within one building** | `c0`, `s_main` |
@@ -130,7 +133,7 @@ rebuild picks them up automatically.
 |---|---|---|
 | WGS84 `EPSG:4326` (lon, lat) | GeoJSON, `placement.anchor`, `campus.yaml` | lon, lat |
 | PL-1992 `EPSG:2180` | every computation, `network/nodes.parquet`, `instance.npz` | x = easting, y = northing, z = absolute height |
-| building local | `buildings/*.yaml` | origin at `anchor`; +x along `bearing_deg`; +y to the left; z up |
+| building local | `buildings/*.yaml` | origin at `anchor`; +x along `bearing_deg` (grid bearing in EPSG:2180, within 1° of true north); +y to the left; z up |
 | web (three.js) | everything in `web/public/data` | x = east, **y = up**, z = −north; metres from `campus.web_origin` |
 
 With pyproj always use `Transformer.from_crs(..., always_xy=True)`. EPSG:2180 officially
@@ -157,6 +160,7 @@ Validate everything with `uv run pytest tests/test_schemas.py`, or for one file:
 
 ```python
 from metro_agh.schemas import load_building
+
 load_building("data/campus/buildings/D-17.yaml")
 ```
 
@@ -177,8 +181,9 @@ contains:
 | 2 | `levels` with `corridors` + `stairs`, corridor entrances | to the main entrance inside | floors, corridors, stairwells |
 | 3 | + `rooms` | room to room | full interior |
 
-`02_build_campus.py --bootstrap` writes a LOD1 file for every OSM building that has no YAML
-yet. It **never overwrites** an existing file. You then refine files by hand.
+`02_build_campus.py --bootstrap` writes a LOD1 file for every AGH building in OSM that has
+no YAML yet (section 6.3). It **never overwrites** an existing file. You then refine files by
+hand.
 
 #### Local frame
 
@@ -263,6 +268,7 @@ entrances:
 
 ```yaml
 footprint: [[0, 0], [60, 0], [60, 14], [0, 14]]  # local; omit to use the OSM outline (osm_id)
+footprint_holes: [[[20, 4], [40, 4], [40, 10], [20, 10]]]  # courtyards (A-0)
 osm_id: way/123456                               # optional, the OSM baseline
 n_levels: 11
 height_m: 33.0
@@ -421,14 +427,82 @@ Rules:
 
 ---
 
-## 6. Walk network
+## 6. Campus and walk network
+
+### 6.1 `osm/campus.gpkg`: `tables.OSM_*`
+
+Written by `scripts/02_build_campus.py` from one Overpass query for features and one for the
+walk network over `campus.bbox`. Raw responses are cached in `data/raw/osm/cache`
+(`--refresh` downloads again). One GeoPackage, **all layers in EPSG:2180**; open it in
+QGIS to inspect, or open `osm/preview.html` in a browser. `osm/report.md` lists everything a
+human should check.
+
+| layer | geometry | one row per | key columns |
+|---|---|---|---|
+| `boundary` | polygon | area | `kind` (`agh_campus` = OSM relation, `miasteczko` = hull of dorms, `bbox`) |
+| `buildings` | polygon | AGH building (parts merged) or context building | `osm_id, osm_ids, building_id, category, ref, name, building, levels, levels_underground, roof_levels, height_m, height_source, connects, main_entrance_node, n_entrances` |
+| `entrances` | point | OSM entrance node | `osm_node, entrance, name, ref, level, access, wheelchair, building_id, building_osm_id, is_main` |
+| `stops` | point | stop (platforms grouped by name) | `stop_id, name, modes, n_platforms, platform_ids` |
+| `barriers` | point | gate, bollard, turnstile, … | `osm_id, barrier, access, name` |
+| `fences` | line/polygon | fence, wall, hedge | `osm_id, barrier, access` |
+| `walk_nodes` | point | walk-network node | `osm_node, street_count, highway, barrier, access, entrance` |
+| `walk_edges` | line | walk-network edge (undirected) | `u, v, key, osm_ways, highway, name, length_m, is_steps, step_count, incline, access, foot, covered, tunnel, bridge, indoor, level, surface` |
+
+**Building classification** (`category`):
+
+| category | rule | becomes |
+|---|---|---|
+| `academic` | AGH code in `ref` (`A-0`, `D-17`, `U-2`, `H-A1`, `Z-15`…), building tag university/college/library/yes/… | building YAML, metro candidate |
+| `dorm` | `DS-*` code or `building=dormitory` with an AGH code | building YAML, student home |
+| `other` | AGH code on a non-academic building (hospital, hotel, sports hall…) | building YAML |
+| `connector` | `P-<a>-<b>` code (`P-A0-A1`); `connects` = the two building ids | building YAML of kind `other`; later a `passage` |
+| `context` | everything else (no AGH code) | grey LOD1 block in 3D only, never a trip endpoint |
+
+Rules: refs are normalised (`Z15` → `Z-15`; `;`-lists take the first AGH code). Parts with the
+same code are merged into one outline. Height comes from `height`, else
+`building:levels` × `campus.floor_height_m`, else `campus.default_levels` ×
+`floor_height_m`; `height_source` says which. An entrance belongs to the building whose
+outline is within `osm.entrance_snap_m`, with AGH buildings taking precedence over context
+buildings. The main entrance of a building is chosen by: not private, then `entrance=main`,
+then `yes`, then the rest, then lowest node id. Emergency exits are never the main entrance.
+
+### 6.2 `data/campus/osm_building_map.csv`: `tables.OSM_BUILDING_MAP`
+
+Hand-written fixes for the classification, e.g. a dorm OSM has without a ref:
+
+| column | example | note |
+|---|---|---|
+| `osm_id` | `way/230301584` | element as in the `buildings` layer |
+| `building_id` | `DS-Kolumny` | empty = make it context |
+| `category` | `dorm` | empty = derive from the rules |
+| `note` | `AGH dorm without ref in OSM` | |
+
+### 6.3 Building bootstrap (`--bootstrap`)
+
+For every non-context building without `data/campus/buildings/<id>.yaml`, a LOD1 file is
+written and then validated with `load_building`:
+
+- `placement.anchor` = the main entrance (or a point inside the outline if there is none),
+- `placement.bearing_deg` = the building's long axis, flipped so the building centre lies
+  on the positive side (+x in front of an end entrance, +y for an entrance on a long side),
+- `footprint` (+ `footprint_holes`) in local metres, simplified by `osm.footprint_simplify_m`,
+  rounded to 0.1 m,
+- `n_levels` (if OSM has it), `height_m`, `osm_id`, `name`, `aliases` (raw ref if different),
+- `entrances` as points: `main` first, then `e1`, `e2`…, emergency exits skipped;
+  `metro_shaft: true` on the main entrance of academic buildings; `osm_node` when the entrance
+  is a node of the walk network.
+
+Disjoint parts keep only the largest outline (listed in the report). Files that already exist
+are never touched.
+
+### 6.4 Walk network contracts
 
 One graph for everything walkable: OSM outdoor paths (with `campus.yaml` corrections), the
 indoor graphs of all buildings, passages, stops, and the metro shafts down to the platforms.
 Train rides are **not** edges: the objective and the simulation add them analytically, which
 keeps the graph independent of the chosen line.
 
-### 6.1 `network/nodes.parquet`: `tables.GRAPH_NODES`
+#### `network/nodes.parquet`: `tables.GRAPH_NODES`
 
 | column | type | note |
 |---|---|---|
@@ -454,7 +528,7 @@ Node `key` format, so people can refer to nodes across rebuilds:
 | stop | stop id | `stop:miasteczko_studenckie_agh` |
 | place (LOD1 / building endpoint) | building id | `C-2` |
 
-### 6.2 `network/edges.parquet`: `tables.GRAPH_EDGES`
+#### `network/edges.parquet`: `tables.GRAPH_EDGES`
 
 `u, v, kind, length_m, time_uv_s, time_vu_s, source`
 
@@ -724,7 +798,7 @@ The notebooks use the same numbers, computed from `simulation/*/legs.parquet`.
 
 ## 11. Open questions
 
-- **Stops**: which three stops are used (Miasteczko Studenckie AGH is confirmed; its location is approximate).
+- **Stops**: which stops besides Miasteczko Studenckie AGH; `osm/report.md` lists all stops in the bbox.
 - **Group sizes and cohort sizes**: what the USOS API actually exposes. Until then
   `size_source = estimate`.
 - **Elevators**: not routed in v1 (stairs only).

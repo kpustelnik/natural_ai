@@ -21,6 +21,7 @@ import { dayRuns, trainsAt } from "../../lib/metro";
 import { app, useApp } from "../../state/app";
 import { METRO } from "../palette";
 import { setPickable } from "../picking";
+import { onSplitSide } from "../registry";
 
 const TUNNEL_R = 2.4;
 const TRAIN = { length: 24, width: 2.8, height: 3.2 };
@@ -134,13 +135,15 @@ function Trains({ metro }: { metro: Metro }) {
   return <primitive object={mesh} />;
 }
 
-export function MetroLayer({ path }: { path: string }) {
+export function MetroLayer({ path, side }: { path: string; side: "left" | "right" | null }) {
   const metro = useMetro(path).data;
   const line = useMemo(() => (metro ? buildLine(metro) : null), [metro]);
   useEffect(() => () => line?.dispose(), [line]);
+  const group = useRef<Group>(null);
+  useEffect(() => (group.current ? onSplitSide(group.current, side) : undefined), [side, line]);
   if (!metro || !line) return null;
   return (
-    <group>
+    <group ref={group}>
       <primitive object={line.group} />
       <Trains metro={metro} />
     </group>

@@ -19,6 +19,7 @@ import {
   samePick,
   select,
   setRouteEnd,
+  splitActive,
   toast,
   useApp,
 } from "../state/app";
@@ -37,6 +38,8 @@ import { RouteLayer } from "./layers/Route";
 import { SCENE } from "./palette";
 import { resolvePick } from "./picking";
 import { pickBox, registry } from "./registry";
+import { PerfProbe } from "./PerfProbe";
+import { SplitRenderer, splitEvents } from "./SplitView";
 import { snap } from "./tools/snap";
 import { CaptureLayer, MeasureLayer } from "./tools/Tools";
 
@@ -209,6 +212,8 @@ export function Viewport({ scene }: { scene: Scene }) {
     const lv = b?.levels.find((l) => l.id === s.level);
     return !!b && !!lv && lv.floor_y < b.frame.anchor[1] - 0.5;
   });
+  const split = useApp(splitActive);
+  const perf = useApp((s) => s.perf !== "off");
   registry.scene = scene;
   // the metro line is underground: see through the ground while it is on show
   const seeThrough = useReplayView(scene).view === "line";
@@ -241,6 +246,12 @@ export function Viewport({ scene }: { scene: Scene }) {
       flat
       dpr={[1, 2]}
       gl={{ antialias: true, preserveDrawingBuffer: true, localClippingEnabled: true }}
+      events={splitEvents}
+      onCreated={({ gl }) => {
+        registry.canvas = gl.domElement;
+      }}
+      aria-label="3D view of the campus"
+      role="img"
       onPointerMissed={(e) => {
         if (app.get().tool === "select" && !e.altKey) select(null);
       }}
@@ -268,6 +279,8 @@ export function Viewport({ scene }: { scene: Scene }) {
       {hasCapture && <CaptureLayer />}
       {layers.labels && layers.agh && <Labels scene={scene} showStops={layers.stops} />}
       <Css2dLayer />
+      {split && <SplitRenderer />}
+      {perf && <PerfProbe />}
     </Canvas>
   );
 }

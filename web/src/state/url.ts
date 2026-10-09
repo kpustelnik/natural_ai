@@ -2,6 +2,8 @@
 //   #ws=building&cam=plan&sel=building:D-17&replay=run-1&pose=x,y,z,tx,ty,tz,zoom
 //   #ws=network&from=stop:miasteczko_studenckie_agh&to=D-17/1.38   (route tool)
 //   #ws=metro&replay=aco-run&it=40&view=trains&day=1&t=30600       (a paused replay moment)
+//   #ws=simulation&replay=sim-run&sc=no_metro&split=1&tab=stats      (scenario, split view)
+//   #...&present=1&play=1&speed=60&perf=log      (presentation, autoplay, frame-rate probe)
 
 import type { Vec3 } from "../lib/frames";
 import { app, type AppState, type CameraPose, type Pick, pickKey, WORKSPACE_LAYERS, WORKSPACES } from "./app";
@@ -68,8 +70,17 @@ export function stateFromHash(hash: string): Partial<AppState> {
     p.iteration = num("it") ?? p.iteration;
     p.weekday = num("day") ?? p.weekday;
     if (q.get("view") === "trains") p.acoView = "trains";
+    const sc = q.get("sc");
+    if (sc === "metro" || sc === "no_metro") p.scenario = sc;
+    p.split = q.get("split") === "1";
+    if (q.get("play") === "1") p.playing = true;
+    p.speed = num("speed") ?? p.speed;
     out.playback = p;
+    if (q.get("tab") === "stats") out.rightTab = "stats";
   }
+  if (q.get("present") === "1") out.present = true;
+  const perf = q.get("perf");
+  if (perf === "1" || perf === "log") out.perf = perf === "log" ? "log" : "on";
   const from = q.get("from");
   const to = q.get("to");
   if (from || to) {
@@ -104,9 +115,15 @@ function writeHash(): void {
       q.set("it", String(Math.round(p.iteration * 10) / 10));
       if (p.acoView === "trains") q.set("view", "trains");
     }
+    if (s.workspace === "simulation") {
+      if (p.split) q.set("split", "1");
+      else if (p.scenario !== "metro") q.set("sc", p.scenario);
+      if (s.rightTab === "stats") q.set("tab", "stats");
+    }
   }
   if (s.route.from) q.set("from", s.route.from);
   if (s.route.to) q.set("to", s.route.to);
+  if (s.present) q.set("present", "1");
   if (lastPose) q.set("pose", formatPose(lastPose));
   const hash = `#${q.toString()}`;
   if (hash !== location.hash) history.replaceState(null, "", hash);
@@ -126,7 +143,11 @@ export function bindUrl(): () => void {
       s.playback.replayId !== prev.playback.replayId ||
       (!s.playback.playing && s.playback !== prev.playback) ||
       s.route.from !== prev.route.from ||
-      s.route.to !== prev.route.to
+      s.route.to !== prev.route.to ||
+      s.rightTab !== prev.rightTab ||
+      s.present !== prev.present ||
+      s.playback.split !== prev.playback.split ||
+      s.playback.scenario !== prev.playback.scenario
     ) {
       writeHash();
     }

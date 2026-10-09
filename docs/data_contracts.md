@@ -689,6 +689,14 @@ Departure rule: `class_to_class` legs leave at `earliest_depart_wt`. `home_to_cl
 leave so that they arrive at `deadline − arrival_buffer_s`. `class_to_home` legs leave right
 after class.
 
+Code: `metro_agh.simulation.simulate` (`scripts/05_simulate.py`). Walks are shortest paths on
+the directed graph of 6.4 (Dijkstra once per distinct origin). A metro leg walks to the
+platform of station i (the shaft is in the graph), takes the first train of the timetable that
+reaches station j, and walks out of j; `wait_s` runs from reaching the platform to the train's
+departure, `ride_s` from that departure to the arrival at j. It is taken only when it arrives
+earlier than walking (`class_to_class`, `class_to_home`), or, for `home_to_class`, when it lets
+the student leave later and still arrive by `deadline − arrival_buffer_s`.
+
 ---
 
 ## 10. Web viewer
@@ -911,19 +919,27 @@ between candidates as ribbon width and opacity.
 **Where replays come from.** `06_export_web.py --aco` turns every
 `results/<run_id>/` with a `trace.npz` into `replays/aco-<run_id>/` (trace, `metro.json` of its
 best line, replay.json). `--metro` turns `results/best_line.json` into
-`replays/sim-<run_id>/` (kind `simulation`; `--sim` adds trips and stats later). The trains
+`replays/sim-<run_id>/` (kind `simulation`, trains only). `--sim` reads
+`simulation/<scenario>/legs.parquet`, `demand/legs.parquet` and `network/*.parquet` and adds
+`trips/` and `stats.json` to that replay (`metro_agh.web.export_sim`). Walking paths follow
+the edges' polylines from `network.json`, matched by node key, so the web export must be of the
+same campus; a ride path runs through the platforms it passes, with the timetable's times. The trains
 follow `simulation/metro/schedule.parquet` when it is for the same line, else a timetable
 built from `metro` in the config (`metro_agh.simulation.schedule`). Station positions come
 from scene.json, so `--campus` runs first. `--fake` writes a synthetic run
-(`data/processed/fake/results/`, same contracts as section 8) and exports it; it is only for
-developing the viewer.
+(`data/processed/fake/results/`, same contracts as section 8) and a synthetic week:
+`network/`, `population/`, `demand/` (random students and AGH time slots, not USOS) and
+`simulation/` by the real stage-5 code, all under `data/processed/fake/`; then it exports both
+replays. It is only for developing the viewer.
 
 **`replays/<id>/stats.json`: `schemas.web.Stats`.**
 
 - `scenarios.{no_metro, metro}`: `n_legs, total_travel_s, mean_leg_s, n_late, late_share,
   longer_than_break_share, metro_share`.
 - `saving_s`: total no_metro − total metro.
-- `per_hour[{weekday, hour, n_legs, no_metro_s, metro_s}]`: the time-of-day chart.
+- `per_hour[{weekday, hour, n_legs, no_metro_s, metro_s}]`: the time-of-day chart; a leg
+  counts in the hour it leaves in when walking (`no_metro` `depart_wt`), and `*_s` sum the
+  door-to-door times (`arrive_wt − depart_wt`, waiting included).
 - `stations[{building_id, boardings, alightings}]`.
 - `top_od[{from_key, to_key, n_legs, saving_s}]`: the 50 largest savings.
 

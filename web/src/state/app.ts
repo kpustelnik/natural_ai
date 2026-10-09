@@ -10,7 +10,7 @@ export type CameraMode = "orbit" | "plan" | "walk";
 export type ColorMode = "category" | "lod" | "issues";
 export type RoomColorMode = "kind" | "capacity";
 export type Tool = "select" | "measure" | "route";
-export type RightTab = "inspector" | "issues" | "route";
+export type RightTab = "inspector" | "issues" | "route" | "stats";
 export type AcoView = "ants" | "trains";
 
 export const WORKSPACES: { id: Workspace; label: string }[] = [
@@ -162,6 +162,7 @@ export interface Playback {
   acoView: AcoView; // ACO replays: the ants or the best line's trains
   weekday: number; // 1..5
   scenario: Scenario;
+  split: boolean; // simulation: both scenarios side by side (no_metro left, metro right)
 }
 
 /** Route tool: two endpoints (endpoint keys like D-17/1.38, stop:…, or node keys). */
@@ -210,6 +211,9 @@ export interface AppState {
   playback: Playback;
   searchFocus: number; // bumped to focus the search box
   northRequest: number; // bumped by the compass: turn the camera to north-up
+  present: boolean; // presentation mode: only the view (and the playback dock)
+  help: boolean; // keyboard help dialog
+  perf: "off" | "on" | "log"; // frame-rate probe: overlay, or overlay + console lines
 }
 
 export const app = createStore<AppState>({
@@ -244,9 +248,13 @@ export const app = createStore<AppState>({
     acoView: "ants",
     weekday: 1,
     scenario: "metro",
+    split: false,
   },
   searchFocus: 0,
   northRequest: 0,
+  present: false,
+  help: false,
+  perf: "off",
 });
 
 export function useApp<S>(selector: (s: AppState) => S): S {
@@ -316,6 +324,11 @@ export function focusBox(min: Vec3, max: Vec3): void {
 
 export function focusPoint(p: Vec3, radius = 40): void {
   focusBox([p[0] - radius, p[1], p[2] - radius], [p[0] + radius, p[1] + radius / 2, p[2] + radius]);
+}
+
+/** Whether the view is split into the two scenarios right now. */
+export function splitActive(s: AppState): boolean {
+  return s.playback.split && s.playback.replayId !== null && s.workspace === "simulation" && s.camera !== "walk";
 }
 
 export function setPlayback(patch: Partial<Playback>): void {

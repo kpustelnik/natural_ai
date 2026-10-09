@@ -9,13 +9,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MOUSE, OrthographicCamera, PerspectiveCamera, Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import type { Vec3 } from "../lib/frames";
-import { app, type FocusRequest, openedBuilding, useApp } from "../state/app";
+import { app, type FocusRequest, openedBuilding, splitActive, useApp } from "../state/app";
 import { rememberPose } from "../state/url";
 import { registry } from "./registry";
 import { type WalkStart, WalkRig } from "./WalkRig";
 
 const FOV = 40;
 const ANIM_MS = 450;
+// with "reduce motion" set in the OS, the camera jumps instead of flying
+const REDUCED = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 const PLAN_HEIGHT = 3000;
 const DEFAULT_DIR = new Vector3(0.25, 0.75, 0.62).normalize(); // from south-south-east, 50 deg up
 
@@ -69,7 +71,13 @@ export function CameraRig({ home }: { home: FocusRequest }) {
   const focus = useApp((s) => s.focus);
   const northRequest = useApp((s) => s.northRequest);
   const set = useThree((s) => s.set);
-  const size = useThree((s) => s.size);
+  const canvas = useThree((s) => s.size);
+  // the split view draws the scene twice, each half with its own projection
+  const split = useApp(splitActive);
+  const size = useMemo(
+    () => ({ width: split ? Math.floor(canvas.width / 2) : canvas.width, height: canvas.height }),
+    [split, canvas.width, canvas.height],
+  );
   const dom = useThree((s) => s.gl.domElement);
 
   const cams = useMemo(() => {
@@ -234,7 +242,7 @@ export function CameraRig({ home }: { home: FocusRequest }) {
     const cam = mode === "plan" ? cams.ortho : cams.persp;
     const f = flight.current;
     if (f) {
-      const k = ease(Math.min(1, (performance.now() - f.t0) / ANIM_MS));
+      const k = REDUCED ? 1 : ease(Math.min(1, (performance.now() - f.t0) / ANIM_MS));
       cam.position.lerpVectors(f.fromPos, f.toPos, k);
       c.target.lerpVectors(f.fromTarget, f.toTarget, k);
       if (mode === "plan") {

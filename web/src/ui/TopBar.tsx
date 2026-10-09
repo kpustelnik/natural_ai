@@ -13,6 +13,8 @@ export function TopBar({ scene, catalog }: { scene: Scene; catalog: ReplayCatalo
       <button
         className={`icon-button ${leftOpen ? "on" : ""}`}
         title="Toggle left panel"
+        aria-label="Toggle left panel"
+        aria-pressed={leftOpen}
         onClick={() => app.set({ leftOpen: !leftOpen })}
       >
         <IconSidebar />
@@ -23,7 +25,12 @@ export function TopBar({ scene, catalog }: { scene: Scene; catalog: ReplayCatalo
       </div>
       <nav className="tabs" aria-label="Workspaces">
         {WORKSPACES.map((w) => (
-          <button key={w.id} className={w.id === workspace ? "tab active" : "tab"} onClick={() => setWorkspace(w.id)}>
+          <button
+            key={w.id}
+            className={w.id === workspace ? "tab active" : "tab"}
+            aria-current={w.id === workspace ? "page" : undefined}
+            onClick={() => setWorkspace(w.id)}
+          >
             {w.label}
           </button>
         ))}
@@ -34,6 +41,8 @@ export function TopBar({ scene, catalog }: { scene: Scene; catalog: ReplayCatalo
       <button
         className={`icon-button ${rightOpen ? "on" : ""}`}
         title="Toggle right panel"
+        aria-label="Toggle right panel"
+        aria-pressed={rightOpen}
         onClick={() => app.set({ rightOpen: !rightOpen })}
       >
         <IconPanelRight />

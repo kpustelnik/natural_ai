@@ -4,11 +4,13 @@ import { useBuildingInfo, useContextFeatures, useIssues } from "../data/resource
 import type { BuildError, Issue, Scene, SceneBuilding } from "../generated/schemas";
 import { area, duration, lonLat, metres, osmUrl } from "../lib/format";
 import { type Vec3, webToGeo } from "../lib/frames";
+import { useOpenReplay } from "../scene/layers/Replay";
 import { pickBox, registry } from "../scene/registry";
 import { app, enterBuilding, focusBox, focusPoint, openedBuilding, type Pick, select, setRouteEnd, useApp } from "../state/app";
 import { useSlice } from "../state/store";
 import { IconAlert, IconCode, IconCopy, IconEnter, IconExternal, IconFrame, IconInfo } from "./icons";
 import { RoutePanel } from "./RoutePanel";
+import { StatsPanel } from "./StatsPanel";
 
 /** vscode:// link to a repo file (and line), for the machine that exported the data. */
 export function editorUrl(scene: Scene, file: string, line?: number | null): string | null {
@@ -504,7 +506,7 @@ function IssuesPanel({ scene }: { scene: Scene }) {
       )}
       <div className="segmented small">
         {(["all", "error", "warning", "info"] as const).map((s) => (
-          <button key={s} className={severity === s ? "active" : ""} onClick={() => setSeverity(s)}>
+          <button key={s} className={severity === s ? "active" : ""} aria-pressed={severity === s} onClick={() => setSeverity(s)}>
             {s}
           </button>
         ))}
@@ -540,23 +542,39 @@ function sevRank(items: Issue[]): number {
 }
 
 export function RightPanel({ scene }: { scene: Scene }) {
-  const tab = useApp((s) => s.rightTab);
+  const replay = useOpenReplay(scene);
+  const simulation = useApp((s) => s.workspace === "simulation");
+  const showStats = simulation || replay?.kind === "simulation";
+  const tab = useApp((s) => (s.rightTab === "stats" && !showStats ? "inspector" : s.rightTab));
   const count = useIssues(scene.issues).data?.issues.length ?? 0;
   return (
     <aside className="sidebar right">
       <div className="panel-tabs">
-        <button className={tab === "inspector" ? "active" : ""} onClick={() => app.set({ rightTab: "inspector" })}>
+        <button className={tab === "inspector" ? "active" : ""} aria-pressed={tab === "inspector"} onClick={() => app.set({ rightTab: "inspector" })}>
           <IconInfo size={14} /> Inspector
         </button>
-        <button className={tab === "issues" ? "active" : ""} onClick={() => app.set({ rightTab: "issues" })}>
+        <button className={tab === "issues" ? "active" : ""} aria-pressed={tab === "issues"} onClick={() => app.set({ rightTab: "issues" })}>
           <IconAlert size={14} /> Issues <span className="count">{count}</span>
         </button>
-        <button className={tab === "route" ? "active" : ""} onClick={() => app.set({ rightTab: "route" })} title="Route tool (R)">
+        <button className={tab === "route" ? "active" : ""} aria-pressed={tab === "route"} onClick={() => app.set({ rightTab: "route" })} title="Route tool (R)">
           Route
         </button>
+        {showStats && (
+          <button className={tab === "stats" ? "active" : ""} aria-pressed={tab === "stats"} onClick={() => app.set({ rightTab: "stats" })} title="Simulation stats">
+            Stats
+          </button>
+        )}
       </div>
       <div className="panel-body">
-        {tab === "inspector" ? <Inspector scene={scene} /> : tab === "issues" ? <IssuesPanel scene={scene} /> : <RoutePanel scene={scene} />}
+        {tab === "inspector" ? (
+          <Inspector scene={scene} />
+        ) : tab === "issues" ? (
+          <IssuesPanel scene={scene} />
+        ) : tab === "stats" ? (
+          <StatsPanel replay={replay?.kind === "simulation" ? replay : null} />
+        ) : (
+          <RoutePanel scene={scene} />
+        )}
       </div>
     </aside>
   );

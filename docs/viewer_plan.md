@@ -1,6 +1,7 @@
 # Browser viewer: implementation plan
 
-Status: **phases 0 to 5 are implemented** (2026-10-09); phases 6 and 7 are still a plan.
+Status: **phases 0 to 7 are implemented** (2026-10-09), 5 and 6 on synthetic data (`--fake`); the
+frame-rate target of phase 6 is not measured yet (see its notes).
 Where the implementation differs from the plan below, the phase notes in
 [section 7](#7-phases) say so.
 Formats are defined in [data_contracts.md](data_contracts.md), section 10. The contract
@@ -430,7 +431,7 @@ Each phase ends with something usable, and its acceptance checks are run before 
     (interpolated) iteration, so early near-uniform trails stay faint.
   - A paused replay moment is in the URL (`it`, `t`, `day`, `view`).
 
-### Phase 6: Simulation workspace
+### Phase 6: Simulation workspace, done (on a synthetic week; fps not measured)
 - `--sim` export: `trips/<scenario>/paths.*`, `day-*.{json,bin}`, `stats.json`.
 - Students as an `InstancedMesh` of low cylinders (up to 20,000). Positions are
   interpolated per frame in a vertex shader from a path texture, or on the CPU with
@@ -441,11 +442,42 @@ Each phase ends with something usable, and its acceptance checks are run before 
 - Stats panel: totals, per-hour chart (own SVG, no chart library), station boardings,
   top OD savings, each clickable to show it in 3D.
 - **Done when** a full Monday plays at 60× with 20,000 students at ≥ 50 fps.
+- Status: plays on `--fake`, a synthetic week of 20,000 students (253,179 legs) on the real
+  walk graph, simulated by the real stage-5 code (`metro_agh.simulation.simulate`,
+  `05_simulate.py`; it did not exist, so this phase wrote it from section 9 of the contracts).
+  At most about 7,400 students are on the move at once. The CPU update takes 0.1 ms per frame
+  on average over a whole Monday at 60× (worst 19 ms, at start-up). **The ≥ 50 fps target is not
+  verified**: headless Chrome on a busy machine gave about 30 fps in this view even with no
+  students on screen (and 60 in the Campus view), which says more about the measuring than the
+  view. To measure on a laptop: open
+  `#ws=simulation&replay=<id>&day=1&t=26400&play=1&speed=60&perf=1` and read the probe.
+- Implementation notes:
+  - CPU interpolation was enough (`lib/trips.ts`: binary search for the rows that can be on
+    screen, then one search per student in its path), so no vertex shader.
+  - The simulation is deterministic, so everyone on the same path leaving at the same second is
+    at one point. For drawing only, such a group is laid out as a sunflower spiral around it,
+    so its area shows its size.
+  - Split view: the scene is drawn twice per frame with one camera (`scene/SplitView.tsx`),
+    no metro on the left, with metro and the line on the right; pointer events map into their
+    half. HTML labels are hidden while split.
+  - Stats tab: totals per scenario, travel per hour of the selected weekday (click: go to that
+    hour), stations (click: frame), largest savings (click: the walking route in 3D).
+  - `per_hour` counts a leg in the hour it leaves in when walking (contract 10.6).
 
-### Phase 7: finish
+### Phase 7: finish, done
 - Screenshot / clean presentation mode, keyboard help (`?`), loading states, an empty
   state per missing file with the command to produce it, accessibility pass (focus,
   contrast), performance pass.
+- Implementation notes:
+  - `P` presentation mode (only the view, compass, scale bar and the playback dock; `#present=1`),
+    `S` screenshot: the canvas plus the HTML labels redrawn on top, as a PNG.
+  - `?` keyboard help; the status bar shows how many files are loading.
+  - A missing file shows the command that writes it (a toast once per file, and in the replay
+    menu, the empty Metro / Simulation workspaces, the Route and Stats tabs, the dock).
+  - Accessibility: visible keyboard focus, `aria-pressed` on toggle buttons, labels on icon
+    buttons, `--muted` text darkened to 4.5:1, reduced-motion camera jumps.
+  - Performance: a frame-rate probe (`` ` ``, or `#perf=1`; `#perf=log` prints a line per
+    second for measuring headless), and `#play=1&speed=N` to start a replay from a link.
 
 Phases 0–3 don't depend on USOS or the optimiser. Phase 4 needed the network builder (now
 written), 5 the optimiser, and 6 the simulation. Until they exist, phases 5 and 6 are

@@ -10,6 +10,7 @@ import { duration, metres } from "../lib/format";
 import type { Leg } from "../lib/graph";
 import { ROUTE_PARTS } from "../scene/palette";
 import { app, focusBox, type Route, setRouteEnd, useApp } from "../state/app";
+import { Command } from "./Command";
 import { IconClose, IconFrame } from "./icons";
 
 function frameRoute(net: Network, route: Route): void {
@@ -48,7 +49,7 @@ function EndInput({ net, slot, value, next }: { net: Network; slot: "from" | "to
         }}
         title={valid ? "Endpoint key or graph node key" : "Not in the walk graph"}
       />
-      <button className="icon-button" title="Clear" onClick={() => setRouteEnd(slot, null)} disabled={!value}>
+      <button className="icon-button" title="Clear" aria-label="Clear" onClick={() => setRouteEnd(slot, null)} disabled={!value}>
         <IconClose size={12} />
       </button>
     </div>
@@ -122,7 +123,14 @@ export function RoutePanel({ scene }: { scene: Scene }) {
     [net],
   );
 
-  if (!scene.network) return <p className="muted">No walk graph exported (network.json).</p>;
+  if (!scene.network) {
+    return (
+      <div className="muted">
+        <p>No walk graph exported (network.json). It comes with the campus export:</p>
+        <Command lines={["uv run scripts/06_export_web.py --campus"]} />
+      </div>
+    );
+  }
   if (!net) return <p className="muted">Loading the walk graph…</p>;
   const s = result?.ok ? result.summary : null;
 

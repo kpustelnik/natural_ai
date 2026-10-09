@@ -1,4 +1,4 @@
-import { useStatus } from "../data/resource";
+import { useLoading, useStatus } from "../data/resource";
 import type { Scene } from "../generated/schemas";
 import { dateTime, lonLat } from "../lib/format";
 import { webToGeo, webToLocal } from "../lib/frames";
@@ -25,6 +25,16 @@ function BuildStatusItem() {
   );
 }
 
+function LoadingItem() {
+  const n = useLoading();
+  if (!n) return null;
+  return (
+    <span className="status-item muted" role="status">
+      <span className="spinner" aria-hidden /> loading {n} file{n > 1 ? "s" : ""}…
+    </span>
+  );
+}
+
 export function StatusBar({ scene }: { scene: Scene }) {
   const cursor = useApp((s) => s.cursor);
   const hovered = useApp((s) => s.cursorBuilding);
@@ -44,10 +54,14 @@ export function StatusBar({ scene }: { scene: Scene }) {
   return (
     <footer className="statusbar">
       <BuildStatusItem />
+      <LoadingItem />
       <span className="status-spacer" />
       {hint && <span className="status-item muted">{hint}</span>}
       {cursor && <span className="status-item mono">{lonLat(...webToGeo(scene.frame, cursor))}</span>}
       {local && <span className="status-item mono">{local}</span>}
+      <button className="status-item status-button" onClick={() => app.set({ help: true })} title="Keyboard shortcuts">
+        <kbd>?</kbd> shortcuts
+      </button>
     </footer>
   );
 }

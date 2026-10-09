@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Replay, ReplayCatalog } from "../generated/schemas";
 import { dateTime, WEEKDAYS } from "../lib/format";
 import { app, setPlayback, setWorkspace, useApp } from "../state/app";
+import { Command } from "./Command";
 import { IconChevronDown, IconClose, IconReplay } from "./icons";
 
 const KIND_LABEL: Record<Replay["kind"], string> = {
@@ -19,6 +20,7 @@ export function openReplay(r: Replay | null): void {
     t: 8 * 3600,
     iteration: 0,
     acoView: "ants",
+    split: false,
     speed: r?.kind === "aco" ? 5 : 60,
   });
   if (r) {
@@ -87,10 +89,10 @@ export function ReplayMenu({ catalog }: { catalog: ReplayCatalog | undefined }) 
           {replays.length === 0 && (
             <div className="empty">
               <p>No replays exported yet.</p>
-              <p className="muted">
-                Optimisation runs and simulations appear here once the pipeline exports them to{" "}
-                <code>web/public/data/replays/&lt;id&gt;/replay.json</code>.
-              </p>
+              <p className="muted">Optimisation runs and simulations appear here once they are exported:</p>
+              <Command lines={["uv run scripts/06_export_web.py --aco", "uv run scripts/06_export_web.py --sim"]} />
+              <p className="muted">Before the optimiser exists, a synthetic run, line and week:</p>
+              <Command lines={["uv run scripts/06_export_web.py --fake"]} />
             </div>
           )}
           {(["simulation", "aco"] as const).map((kind) => {

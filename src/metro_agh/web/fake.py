@@ -266,3 +266,186 @@ def write_fake_results(scene: Scene, cfg: dict, out_root: Path, seed: int = 42) 
         time.perf_counter() - t0,
     )  # fmt: skip
     return run_dir
+
+
+# --- synthetic week of students (phase 6 of the viewer) ------------------------------------
+
+SLOT_STARTS = [8 * 3600 + i * 105 * 60 for i in range(7)]  # AGH: 8:00, 9:45, ... 18:30
+CLASS_S = 90 * 60
+N_CLASSES_P = [0.08, 0.12, 0.25, 0.3, 0.18, 0.07]  # 0..5 classes a day
+FIRST_SLOT_P = [0.3, 0.25, 0.18, 0.12, 0.08, 0.05, 0.02]
+GAP_P = [0.7, 0.18, 0.12]  # free slots between two classes: 0, 1, 2
+SAME_ROOM_P = 0.2
+OWN_FACULTY_P = 0.6
+SIM_NOTE = (
+    "Synthetic week from 06_export_web.py --fake: random students and timetables (not USOS) "
+    "on the real walk graph, simulated with metro_agh.simulation. For developing the viewer."
+)
+
+
+def fake_population(
+    nodes: pd.DataFrame,
+    scene: Scene,
+    stop_weights: dict[str, float],
+    cfg: dict,
+    rng: np.random.Generator,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """``tables.STUDENTS`` and ``tables.LEGS`` (sections 5.1 and 5.3) for random students:
+    a home (dorm or stop), a faculty building, and 0-5 classes a day in the AGH slots."""
+    from ..schemas.tables import LEGS, STUDENTS
+
+    keys = set(nodes.endpoint_key.dropna())
+    by_id = {b.id: b for b in scene.buildings if b.id in keys}
+
+    def size(b) -> float:
+        return max(1.0, (b.bbox_max[0] - b.bbox_min[0]) * (b.bbox_max[2] - b.bbox_min[2]))
+
+    # where classes are: the rooms of LOD3 buildings, else the building itself
+    rooms: dict[str, list[str]] = {}
+    for k in keys:
+        if "/" in k:
+            rooms.setdefault(k.split("/")[0], []).append(k)
+    academic = [b for b in by_id.values() if b.category == "academic"]
+    dorms = [b for b in by_id.values() if b.kind == "dorm"]
+    stops = [s for s in stop_weights if s in keys]
+    if not academic:
+        raise ValueError("no academic building in the walk graph")
+    places = [sorted(rooms.get(b.id, [b.id])) for b in academic]
+    xz = np.array([[b.frame.anchor[0], b.frame.anchor[2]] for b in academic])
+    w_size = np.array([size(b) for b in academic])
+
+    n = int(cfg["population"]["n_students"])
+    dorm_share = float(cfg["population"]["dorm_share"]) if dorms and stops else float(bool(dorms))
+    max_break = float(cfg["demand"]["max_break_s"])
+    weekdays = list(cfg.get("simulation", {}).get("weekdays", [1, 2, 3, 4, 5]))
+
+    in_dorm = rng.random(n) < dorm_share
+    dorm_w = np.array([size(b) for b in dorms]) if dorms else np.ones(1)
+    stop_w = np.array([stop_weights[s] for s in stops]) if stops else np.ones(1)
+    home = np.where(
+        in_dorm,
+        np.array([b.id for b in dorms] or [""])[
+            rng.choice(len(dorm_w), n, p=dorm_w / dorm_w.sum())
+        ],
+        np.array(stops or [""])[rng.choice(len(stop_w), n, p=stop_w / stop_w.sum())],
+    )
+    faculty = rng.choice(len(academic), n, p=w_size / w_size.sum())
+    students = pd.DataFrame(
+        {
+            "student_id": np.arange(n),
+            "cohort_id": [f"FAKE-{academic[f].id}" for f in faculty],
+            "home_kind": np.where(in_dorm, "dorm", "stop"),
+            "home_key": home,
+        }
+    )
+    STUDENTS.validate(students)
+
+    # classes elsewhere: bigger and closer buildings are likelier
+    d = np.linalg.norm(xz[:, None] - xz[None], axis=2)
+    elsewhere = w_size[None] / (d + 200.0)
+    elsewhere /= elsewhere.sum(axis=1, keepdims=True)
+
+    rows = []
+    for s in range(n):
+        f, h, dorm = int(faculty[s]), str(home[s]), bool(in_dorm[s])
+        for day in weekdays:
+            base = (day - 1) * 86400
+            n_cls = int(rng.choice(len(N_CLASSES_P), p=N_CLASSES_P))
+            if n_cls == 0:
+                continue
+            slots = [int(rng.choice(len(FIRST_SLOT_P), p=FIRST_SLOT_P))]
+            while len(slots) < n_cls:
+                nxt = slots[-1] + 1 + int(rng.choice(len(GAP_P), p=GAP_P))
+                if nxt >= len(SLOT_STARTS):
+                    break
+                slots.append(nxt)
+            where: list[str] = []
+            for _ in slots:
+                if where and rng.random() < SAME_ROOM_P:
+                    where.append(where[-1])
+                    continue
+                b = (
+                    f
+                    if rng.random() < OWN_FACULTY_P
+                    else int(rng.choice(len(academic), p=elsewhere[f]))
+                )
+                where.append(places[b][int(rng.integers(len(places[b])))])
+
+            def leg(kind, a, b, dep, dl):
+                brk = dl - dep if dep is not None and dl is not None else None
+                rows.append((s, day, kind, a, b, dep, dl, brk))  # noqa: B023
+
+            start = [base + SLOT_STARTS[x] for x in slots]
+            leg("home_to_class", h, where[0], None, start[0])
+            for c in range(1, len(slots)):
+                end_prev = start[c - 1] + CLASS_S
+                if where[c] == where[c - 1]:
+                    continue
+                if dorm and start[c] - end_prev > max_break:
+                    leg("class_to_home", where[c - 1], h, end_prev, None)
+                    leg("home_to_class", h, where[c], None, start[c])
+                else:
+                    leg("class_to_class", where[c - 1], where[c], end_prev, start[c])
+            leg("class_to_home", where[-1], h, start[-1] + CLASS_S, None)
+    legs = pd.DataFrame(
+        rows,
+        columns=["student_id", "weekday", "kind", "from_key", "to_key", "earliest_depart_wt",
+                 "deadline_wt", "break_s"],
+    )  # fmt: skip
+    legs = legs[legs.from_key != legs.to_key].reset_index(drop=True)
+    legs.insert(0, "leg_id", np.arange(len(legs)))
+    legs.insert(3, "seq", legs.groupby(["student_id", "weekday"]).cumcount())
+    for c in ("earliest_depart_wt", "deadline_wt", "break_s"):
+        legs[c] = legs[c].astype("Int64")
+    legs = legs[LEGS.column_names]
+    LEGS.validate(legs)
+    return students, legs
+
+
+def write_fake_simulation(
+    scene: Scene, cfg: dict, campus_dir: Path, out_root: Path, seed: int = 42
+) -> Path:
+    """A synthetic week under ``out_root`` (the fake processed dir): network/ (built from
+    campus_dir and campus.gpkg, like stage 2), population/, demand/, and simulation/ for
+    the line in ``out_root/results/best_line.json``. Returns ``out_root``."""
+    import yaml
+
+    from ..config import path
+    from ..network.graph import build_campus_graph
+    from ..schemas.campus import Campus
+    from ..schemas.tables import LEGS, OD, OSM_BUILDINGS, OSM_WALK_EDGES, OSM_WALK_NODES, STUDENTS
+    from ..simulation.simulate import run_simulation
+
+    t0 = time.perf_counter()
+    out_root = Path(out_root)
+    gpkg = path(cfg, "processed") / "osm" / "campus.gpkg"
+    layers = {
+        "walk_nodes": OSM_WALK_NODES.read(gpkg),
+        "walk_edges": OSM_WALK_EDGES.read(gpkg),
+        "buildings": OSM_BUILDINGS.read(gpkg),
+    }
+    graph = build_campus_graph(cfg, campus_dir, layers)
+    graph.write(out_root / "network")
+    in_scene = {b.id for b in scene.buildings}
+    in_graph = set(graph.nodes.building_id.dropna())
+    if in_graph != in_scene:
+        log.warning(
+            "scene.json and %s differ (%d buildings only in one of them): export --campus "
+            "from the same campus (--sample?)", campus_dir, len(in_graph ^ in_scene),
+        )  # fmt: skip
+
+    campus = Campus.model_validate(
+        yaml.safe_load((Path(campus_dir) / "campus.yaml").read_text(encoding="utf-8"))
+    )
+    rng = np.random.default_rng(seed + 1)
+    students, legs = fake_population(
+        graph.nodes, scene, {s.id: s.weight for s in campus.stops}, cfg, rng
+    )
+    STUDENTS.write(students, out_root / STUDENTS.path)
+    LEGS.write(legs, out_root / LEGS.path)
+    od = legs.groupby(["from_key", "to_key"]).size().rename("n_legs").reset_index()
+    OD.write(od, out_root / OD.path)
+    log.info("fake week: %d students, %d legs", len(students), len(legs))
+    run_simulation(out_root, out_root / "results" / "best_line.json", cfg)
+    log.info("fake simulation written in %.1f s", time.perf_counter() - t0)
+    return out_root

@@ -121,6 +121,19 @@ export const METRO = {
   pheromone: "#2f3338",
 };
 
+/** Students by what they are doing (simulation replays). */
+export const STUDENTS = [
+  { color: "#2a6fb0", label: "walking" },
+  { color: "#e8a33d", label: "waiting for a train" },
+  { color: ACCENT, label: "on the train" },
+] as const;
+
+/** The two scenarios in charts and the split view. */
+export const SCENARIOS = {
+  no_metro: { color: "#848a91", label: "No metro" },
+  metro: { color: ACCENT, label: "With metro" },
+} as const;
+
 export const MARKERS = {
   entrance: "#3a3f45",
   mainEntrance: "#e8a33d",

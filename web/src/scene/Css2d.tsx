@@ -4,6 +4,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
+import { splitActive, useApp } from "../state/app";
 
 export function Css2dLayer() {
   const gl = useThree((s) => s.gl);
@@ -19,10 +20,17 @@ export function Css2dLayer() {
     return () => renderer.domElement.remove();
   }, [gl, renderer]);
   useEffect(() => renderer.setSize(size.width, size.height), [renderer, size]);
+  // labels would land on the wrong half of a split view: hide them there
+  const split = useApp(splitActive);
+  useEffect(() => {
+    renderer.domElement.style.display = split ? "none" : "";
+  }, [renderer, split]);
 
   // mounted last, so it runs after the layers' frame callbacks that set label visibility
   // (a positive priority would take over the main render loop)
-  useFrame(({ scene, camera }) => renderer.render(scene, camera));
+  useFrame(({ scene, camera }) => {
+    if (!split) renderer.render(scene, camera);
+  });
   return null;
 }
 

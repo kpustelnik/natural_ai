@@ -163,19 +163,22 @@ def _check_column(col: Column, s: pd.Series) -> list[str]:
             out.append(f"{col.name}: expected bool, got {s.dtype}")
         return out
     elif col.dtype == "list[int]":
-        if not v.map(lambda x: hasattr(x, "__len__") and not isinstance(x, str)).all():
+        if not all(hasattr(x, "__len__") and not isinstance(x, str) for x in v):
             out.append(f"{col.name}: expected list of ints")
         return out
 
+    distinct = pd.unique(v) if col.allowed is not None or col.pattern is not None else ()
     if col.allowed is not None:
-        bad = sorted(set(v) - set(col.allowed))
+        bad = sorted(set(distinct) - set(col.allowed))
         if bad:
             out.append(f"{col.name}: values {bad[:5]} not in {list(col.allowed)}")
     if col.pattern is not None:
         rx = re.compile(col.pattern)
-        bad = [x for x in v if not rx.match(x)]
+        bad = [x for x in distinct if not rx.match(x)]
         if bad:
-            out.append(f"{col.name}: {len(bad)} values not matching {col.pattern}, e.g. {bad[:3]}")
+            out.append(
+                f"{col.name}: {len(bad)} distinct values not matching {col.pattern}, e.g. {bad[:3]}"
+            )
     if col.min is not None and (v < col.min).any():
         out.append(f"{col.name}: values below {col.min}")
     if col.max is not None and (v > col.max).any():

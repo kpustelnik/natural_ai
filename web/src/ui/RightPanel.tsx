@@ -2,12 +2,15 @@ import { useMemo, useState } from "react";
 import { live } from "../data/live";
 import { useBuildingInfo, useContextFeatures, useIssues } from "../data/resource";
 import type { BuildError, Issue, Scene, SceneBuilding } from "../generated/schemas";
-import { area, lonLat, metres, osmUrl } from "../lib/format";
+import { area, duration, lonLat, metres, osmUrl } from "../lib/format";
 import { type Vec3, webToGeo } from "../lib/frames";
+import { useOpenReplay } from "../scene/layers/Replay";
 import { pickBox, registry } from "../scene/registry";
-import { app, enterBuilding, focusBox, focusPoint, openedBuilding, type Pick, select, useApp } from "../state/app";
+import { app, enterBuilding, focusBox, focusPoint, openedBuilding, type Pick, select, setRouteEnd, useApp } from "../state/app";
 import { useSlice } from "../state/store";
 import { IconAlert, IconCode, IconCopy, IconEnter, IconExternal, IconFrame, IconInfo } from "./icons";
+import { RoutePanel } from "./RoutePanel";
+import { StatsPanel } from "./StatsPanel";
 
 /** vscode:// link to a repo file (and line), for the machine that exported the data. */
 export function editorUrl(scene: Scene, file: string, line?: number | null): string | null {
@@ -68,6 +71,19 @@ function Actions({ pick, extra }: { pick: Pick; extra?: React.ReactNode }) {
       </button>
       {extra}
     </div>
+  );
+}
+
+function RouteButtons({ keyName }: { keyName: string }) {
+  return (
+    <>
+      <button className="button" onClick={() => setRouteEnd("from", keyName)} title="Start a route here (Route tab)">
+        Route from
+      </button>
+      <button className="button" onClick={() => setRouteEnd("to", keyName)} title="End a route here (Route tab)">
+        Route to
+      </button>
+    </>
   );
 }
 
@@ -148,6 +164,7 @@ function BuildingInspector({ scene, b }: { scene: Scene; b: SceneBuilding }) {
               </a>
             )}
             <CopyButton text={b.id} label="Copy id" />
+            <RouteButtons keyName={b.id} />
           </>
         }
       />
@@ -213,6 +230,7 @@ function SpaceInspector({ scene, sel }: { scene: Scene; sel: Extract<Pick, { kin
         extra={
           <>
             <CopyButton text={key} label="Copy key" />
+            {sp.kind === "room" && <RouteButtons keyName={key} />}
             <button className="button" onClick={() => select({ kind: "building", id: b.id })}>
               Building {b.id}
             </button>
@@ -298,7 +316,15 @@ function Inspector({ scene }: { scene: Scene }) {
               <span className={`chip ${used ? "accent" : ""}`}>{used ? "used by the simulation" : "not in campus.yaml"}</span>
             </div>
           </div>
-          <Actions pick={sel} extra={<CopyButton text={s.id} label="Copy id" />} />
+          <Actions
+            pick={sel}
+            extra={
+              <>
+                <CopyButton text={s.id} label="Copy id" />
+                {used && <RouteButtons keyName={s.id} />}
+              </>
+            }
+          />
           <div className="kv-list">
             <Row k="id">{s.id}</Row>
             <Position scene={scene} p={s.position} />
@@ -343,31 +369,93 @@ function Inspector({ scene }: { scene: Scene }) {
       const h = net.header;
       const kind = h.edge_kind_names[(net.arrays.edge_kind as Uint8Array)[sel.index]!];
       const length = (net.arrays.length_m as Float32Array)[sel.index]!;
+      const tuv = (net.arrays.time_uv_s as Float32Array)[sel.index]!;
+      const tvu = (net.arrays.time_vu_s as Float32Array)[sel.index]!;
       const nodes = net.arrays.edge_nodes as Uint32Array;
-      const ways = h.edge_sources[sel.index]?.split("|") ?? [];
+      const from = h.node_keys[nodes[sel.index * 2]!]!;
+      const to = h.node_keys[nodes[sel.index * 2 + 1]!]!;
+      const source = h.edge_sources[sel.index] ?? null;
+      const ways = source?.startsWith("way/") ? source.split("|") : [];
+      const building = source && !ways.length && scene.buildings.some((b) => b.id === source) ? source : null;
       return (
         <>
           <div className="inspector-head">
-            <div className="title">Path segment</div>
+            <div className="title">{kind === "footway" || kind === "road" || kind === "steps" ? "Path segment" : "Graph edge"}</div>
             <div className="chips">
               <span className="chip">{kind}</span>
             </div>
           </div>
-          <Actions pick={sel} />
+          <Actions
+            pick={sel}
+            extra={
+              <>
+                <button className="button" onClick={() => setRouteEnd("from", from)} title="Start a route here">
+                  Route from
+                </button>
+                <button className="button" onClick={() => setRouteEnd("to", to)} title="End a route here">
+                  Route to
+                </button>
+              </>
+            }
+          />
           <div className="kv-list">
             <Row k="length">{metres(length)}</Row>
-            <Row k="from">{h.node_keys[nodes[sel.index * 2]!]}</Row>
-            <Row k="to">{h.node_keys[nodes[sel.index * 2 + 1]!]}</Row>
-            <Row k="OSM ways">
-              <span className="links">
-                {ways.map((w) => (
-                  <a key={w} href={osmUrl(w)} target="_blank" rel="noreferrer">
-                    {w}
-                  </a>
-                ))}
-              </span>
+            <Row k="time">
+              {tuv === tvu ? (
+                duration(tuv)
+              ) : (
+                <>
+                  {duration(tuv)} → <span className="muted">· back {duration(tvu)}</span>
+                </>
+              )}
             </Row>
+            <Row k="from">{from}</Row>
+            <Row k="to">{to}</Row>
+            {ways.length > 0 && (
+              <Row k="OSM ways">
+                <span className="links">
+                  {ways.map((w) => (
+                    <a key={w} href={osmUrl(w)} target="_blank" rel="noreferrer">
+                      {w}
+                    </a>
+                  ))}
+                </span>
+              </Row>
+            )}
+            {building && (
+              <Row k="building">
+                <button className="link-button" onClick={() => select({ kind: "building", id: building })}>
+                  {building}
+                </button>
+              </Row>
+            )}
+            {source && !ways.length && !building && <Row k="source">{source}</Row>}
           </div>
+        </>
+      );
+    }
+    case "barrier": {
+      const b = registry.network?.header.barriers[sel.index];
+      if (!b) return <p className="muted">Loading…</p>;
+      return (
+        <>
+          <div className="inspector-head">
+            <div className="title">{b.barrier.replace(/_/g, " ")}</div>
+            <div className="chips">
+              <span className="chip">barrier</span>
+              {b.access && <span className="chip">access: {b.access}</span>}
+            </div>
+          </div>
+          <Actions pick={sel} extra={<CopyButton text={b.osm_id} label="Copy OSM id" />} />
+          <div className="kv-list">
+            <Row k="OSM">
+              <a href={osmUrl(b.osm_id)} target="_blank" rel="noreferrer">
+                {b.osm_id} <IconExternal size={12} />
+              </a>
+            </Row>
+            <Position scene={scene} p={b.position} />
+          </div>
+          <p className="muted small">The graph ignores barriers in v1. A gate students cannot pass goes to removed_ways in campus.yaml.</p>
         </>
       );
     }
@@ -418,7 +506,7 @@ function IssuesPanel({ scene }: { scene: Scene }) {
       )}
       <div className="segmented small">
         {(["all", "error", "warning", "info"] as const).map((s) => (
-          <button key={s} className={severity === s ? "active" : ""} onClick={() => setSeverity(s)}>
+          <button key={s} className={severity === s ? "active" : ""} aria-pressed={severity === s} onClick={() => setSeverity(s)}>
             {s}
           </button>
         ))}
@@ -454,19 +542,40 @@ function sevRank(items: Issue[]): number {
 }
 
 export function RightPanel({ scene }: { scene: Scene }) {
-  const tab = useApp((s) => s.rightTab);
+  const replay = useOpenReplay(scene);
+  const simulation = useApp((s) => s.workspace === "simulation");
+  const showStats = simulation || replay?.kind === "simulation";
+  const tab = useApp((s) => (s.rightTab === "stats" && !showStats ? "inspector" : s.rightTab));
   const count = useIssues(scene.issues).data?.issues.length ?? 0;
   return (
     <aside className="sidebar right">
       <div className="panel-tabs">
-        <button className={tab === "inspector" ? "active" : ""} onClick={() => app.set({ rightTab: "inspector" })}>
+        <button className={tab === "inspector" ? "active" : ""} aria-pressed={tab === "inspector"} onClick={() => app.set({ rightTab: "inspector" })}>
           <IconInfo size={14} /> Inspector
         </button>
-        <button className={tab === "issues" ? "active" : ""} onClick={() => app.set({ rightTab: "issues" })}>
+        <button className={tab === "issues" ? "active" : ""} aria-pressed={tab === "issues"} onClick={() => app.set({ rightTab: "issues" })}>
           <IconAlert size={14} /> Issues <span className="count">{count}</span>
         </button>
+        <button className={tab === "route" ? "active" : ""} aria-pressed={tab === "route"} onClick={() => app.set({ rightTab: "route" })} title="Route tool (R)">
+          Route
+        </button>
+        {showStats && (
+          <button className={tab === "stats" ? "active" : ""} aria-pressed={tab === "stats"} onClick={() => app.set({ rightTab: "stats" })} title="Simulation stats">
+            Stats
+          </button>
+        )}
       </div>
-      <div className="panel-body">{tab === "inspector" ? <Inspector scene={scene} /> : <IssuesPanel scene={scene} />}</div>
+      <div className="panel-body">
+        {tab === "inspector" ? (
+          <Inspector scene={scene} />
+        ) : tab === "issues" ? (
+          <IssuesPanel scene={scene} />
+        ) : tab === "stats" ? (
+          <StatsPanel replay={replay?.kind === "simulation" ? replay : null} />
+        ) : (
+          <RoutePanel scene={scene} />
+        )}
+      </div>
     </aside>
   );
 }

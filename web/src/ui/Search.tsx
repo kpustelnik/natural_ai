@@ -116,7 +116,7 @@ export function Search({ scene }: { scene: Scene }) {
               key={r.key}
               role="option"
               aria-selected={i === active}
-              className={i === active ? "active" : ""}
+              className={i === active ? "active" : ""} aria-pressed={i === active}
               onMouseEnter={() => setActive(i)}
               onMouseDown={(e) => {
                 e.preventDefault();

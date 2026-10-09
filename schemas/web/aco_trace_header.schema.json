@@ -111,7 +111,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "``aco/trace.{json,bin}``: AcoTrace with candidate positions for the animation.",
+  "description": "``replays/<id>/trace.{json,bin}``: AcoTrace (results/<run_id>/trace.npz) with the\ncandidate positions and the convergence curve, for the ACO player.\n\nBuffers (I sampled iterations, A sampled ants, k stations, N candidates, C iterations):\n    iterations int32 (I)   tours int16 (I, A, k)   tour_cost_s float32 (I, A)\n    best_tour int16 (I, k)   pheromone float32 (I, N, N)\n    curve_iteration int32 (C)   curve_best_s, curve_iter_best_s, curve_iter_mean_s float32 (C)\nThe curve is convergence.csv (every iteration); without it, the sampled iterations.",
   "properties": {
     "provenance": {
       "$ref": "#/$defs/Provenance"
@@ -145,12 +145,63 @@
     "topology": {
       "$ref": "#/$defs/MetroTopology"
     },
+    "k": {
+      "minimum": 2,
+      "title": "K",
+      "type": "integer"
+    },
+    "n_iterations": {
+      "description": "iterations of the whole run",
+      "minimum": 1,
+      "title": "N Iterations",
+      "type": "integer"
+    },
+    "best_s": {
+      "description": "objective of the final best line",
+      "title": "Best S",
+      "type": "number"
+    },
+    "baseline_s": {
+      "description": "objective without metro",
+      "title": "Baseline S",
+      "type": "number"
+    },
+    "stations": {
+      "description": "the final best line, in line order",
+      "items": {
+        "pattern": "^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*$",
+        "type": "string"
+      },
+      "title": "Stations",
+      "type": "array"
+    },
     "candidate_ids": {
       "items": {
         "pattern": "^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*$",
         "type": "string"
       },
       "title": "Candidate Ids",
+      "type": "array"
+    },
+    "candidate_tops": {
+      "description": "shaft tops (main entrances), web",
+      "items": {
+        "maxItems": 3,
+        "minItems": 3,
+        "prefixItems": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "type": "array"
+      },
+      "title": "Candidate Tops",
       "type": "array"
     },
     "candidate_platforms": {
@@ -182,7 +233,13 @@
     "run_id",
     "algorithm",
     "topology",
+    "k",
+    "n_iterations",
+    "best_s",
+    "baseline_s",
+    "stations",
     "candidate_ids",
+    "candidate_tops",
     "candidate_platforms"
   ],
   "title": "AcoTraceHeader",

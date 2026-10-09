@@ -1,6 +1,7 @@
 # Browser viewer: implementation plan
 
-Status: **phases 0 to 3 are implemented** (2026-10-09); phases 4 to 7 are still a plan.
+Status: **phases 0 to 7 are implemented** (2026-10-09), 5 and 6 on synthetic data (`--fake`); the
+frame-rate target of phase 6 is not measured yet (see its notes).
 Where the implementation differs from the plan below, the phase notes in
 [section 7](#7-phases) say so.
 Formats are defined in [data_contracts.md](data_contracts.md), section 10. The contract
@@ -378,24 +379,59 @@ Each phase ends with something usable, and its acceptance checks are run before 
   - Room colour modes: kind and capacity. Demand and USOS mapping come with the simulation.
   - The metro shaft is drawn as a dashed outline down to `metro.station_depth_m`.
 
-### Phase 4: Network workspace
+### Phase 4: Network workspace, done
 - Walk graph overlay (steps, barriers, fences), and the indoor graph and passages once the
   network builder (stage 2b) writes `network/*.parquet`.
 - Route tool: pick two endpoints (building, room, stop) and see the shortest path, its time
   and its parts (outdoor, indoor, stairs). This is the quickest way to check the graph is
   accurate against your own walking times (`field_measurements.csv`).
 - **Done when** a route from `stop:miasteczko-studenckie-agh` to `D-17/1.38` is shown with
-  a plausible time.
+  a plausible time. Checked on `--sample` (the only campus with room 1.38): 13 min 39 s for
+  1.05 km, of it 12 min 34 s outdoors, 55 s inside D-17 and 10 s up the stairs `s1`
+  (`#ws=network&from=stop:miasteczko_studenckie_agh&to=D-17/1.38`).
+- Implementation notes:
+  - Stage 2b did not exist, so this phase wrote it (`metro_agh.network`, section 6.4 of the
+    contracts): `02_build_campus.py` writes `network/*.parquet`, and the web export builds the
+    same graph in memory, so the graph follows YAML edits in watch mode (a rebuild of one
+    building with the graph takes about 0.2 s). The real campus (all LOD1) gives 5,340
+    nodes and 6,505 edges in 0.6 s.
+  - `network.json` now carries the whole graph with times per direction, node kinds, the
+    endpoint index, barriers and the field measurements (contract 10.7).
+  - Route tool: right panel tab *Route* (`R`, or *Route from / to* in the inspector), ends
+    typed as keys or picked in the view (a room, building, stop, entrance, or else the
+    nearest graph node). Dijkstra over the directed CSR (`lib/graph.ts`); the route is in
+    the URL (`from`, `to`). Field measurements are listed with the graph's time and the
+    difference; the CSV is still empty.
+  - With a building opened at a level, the indoor graph is cut at the section height like
+    the building. Barriers are only shown: the graph ignores them in v1.
 
-### Phase 5: Metro workspace
+### Phase 5: Metro workspace, done (on a synthetic run)
 - `--metro` / `--aco` export: `metro.json`, `aco/trace.*`.
 - Candidates as cylinders at their shafts, the chosen stations, shafts, platforms, the
   tunnel (cut-away ground or translucent ground), and trains interpolated from runs.
 - ACO player: iteration scrubber, sampled ants moving along their tours, pheromone as
   tunnel-candidate edge thickness and opacity, best-so-far cost chart.
-- **Done when** the trace of a real run plays from iteration 0 to the end.
+- **Done when** the trace of a real run plays from iteration 0 to the end. There is no
+  optimiser yet (stage 4), so this was checked on `--fake`: a MAX-MIN ant system on a
+  synthetic instance of the real campus (54 candidates, k = 5, 120 iterations, 30 ants)
+  plays from 0 to 119 with the pheromone concentrating and the best line improving. The
+  exporters read only the contracted files (`run.json`, `convergence.csv`, `trace.npz`,
+  `best_line.json`), so a real run goes through the same path: `06_export_web.py --aco`.
+- Implementation notes:
+  - Replays: `--aco` → `replays/aco-<run_id>/` (trace + the best line's `metro.json`),
+    `--metro` → `replays/sim-<run_id>/` (kind `simulation`, trains only until `--sim`).
+    The timetable comes from `simulation/metro/schedule.parquet` if it is for the same line,
+    else from `metro_agh.simulation.schedule` with the config's headway, speed and dwell.
+  - `AcoTraceHeader` gained the convergence curve, `candidate_tops`, `k`, `n_iterations`,
+    `best_s`, `baseline_s` and the final `stations` (contract 10.6).
+  - The dock of an ACO replay has two views: *Ants* (iteration player, convergence chart,
+    best line so far) and *Trains* (the best line on the day clock). Simulation replays
+    show the trains too. While the line is on show the ground turns see-through.
+  - Pheromone ribbons are scaled between the weakest and the strongest trail of the current
+    (interpolated) iteration, so early near-uniform trails stay faint.
+  - A paused replay moment is in the URL (`it`, `t`, `day`, `view`).
 
-### Phase 6: Simulation workspace
+### Phase 6: Simulation workspace, done (on a synthetic week; fps not measured)
 - `--sim` export: `trips/<scenario>/paths.*`, `day-*.{json,bin}`, `stats.json`.
 - Students as an `InstancedMesh` of low cylinders (up to 20,000). Positions are
   interpolated per frame in a vertex shader from a path texture, or on the CPU with
@@ -406,16 +442,46 @@ Each phase ends with something usable, and its acceptance checks are run before 
 - Stats panel: totals, per-hour chart (own SVG, no chart library), station boardings,
   top OD savings, each clickable to show it in 3D.
 - **Done when** a full Monday plays at 60× with 20,000 students at ≥ 50 fps.
+- Status: plays on `--fake`, a synthetic week of 20,000 students (253,179 legs) on the real
+  walk graph, simulated by the real stage-5 code (`metro_agh.simulation.simulate`,
+  `05_simulate.py`; it did not exist, so this phase wrote it from section 9 of the contracts).
+  At most about 7,400 students are on the move at once. The CPU update takes 0.1 ms per frame
+  on average over a whole Monday at 60× (worst 19 ms, at start-up). **The ≥ 50 fps target is not
+  verified**: headless Chrome on a busy machine gave about 30 fps in this view even with no
+  students on screen (and 60 in the Campus view), which says more about the measuring than the
+  view. To measure on a laptop: open
+  `#ws=simulation&replay=<id>&day=1&t=26400&play=1&speed=60&perf=1` and read the probe.
+- Implementation notes:
+  - CPU interpolation was enough (`lib/trips.ts`: binary search for the rows that can be on
+    screen, then one search per student in its path), so no vertex shader.
+  - The simulation is deterministic, so everyone on the same path leaving at the same second is
+    at one point. For drawing only, such a group is laid out as a sunflower spiral around it,
+    so its area shows its size.
+  - Split view: the scene is drawn twice per frame with one camera (`scene/SplitView.tsx`),
+    no metro on the left, with metro and the line on the right; pointer events map into their
+    half. HTML labels are hidden while split.
+  - Stats tab: totals per scenario, travel per hour of the selected weekday (click: go to that
+    hour), stations (click: frame), largest savings (click: the walking route in 3D).
+  - `per_hour` counts a leg in the hour it leaves in when walking (contract 10.6).
 
-### Phase 7: finish
+### Phase 7: finish, done
 - Screenshot / clean presentation mode, keyboard help (`?`), loading states, an empty
   state per missing file with the command to produce it, accessibility pass (focus,
   contrast), performance pass.
+- Implementation notes:
+  - `P` presentation mode (only the view, compass, scale bar and the playback dock; `#present=1`),
+    `S` screenshot: the canvas plus the HTML labels redrawn on top, as a PNG.
+  - `?` keyboard help; the status bar shows how many files are loading.
+  - A missing file shows the command that writes it (a toast once per file, and in the replay
+    menu, the empty Metro / Simulation workspaces, the Route and Stats tabs, the dock).
+  - Accessibility: visible keyboard focus, `aria-pressed` on toggle buttons, labels on icon
+    buttons, `--muted` text darkened to 4.5:1, reduced-motion camera jumps.
+  - Performance: a frame-rate probe (`` ` ``, or `#perf=1`; `#perf=log` prints a line per
+    second for measuring headless), and `#play=1&speed=N` to start a replay from a link.
 
-Phases 0–3 don't depend on USOS or the optimiser and can start now. Phase 4 needs the
-network builder, 5 the optimiser, and 6 the simulation. Until they exist, phases 5 and 6
-can be developed on small synthetic files produced by a `--fake` export flag that
-follows the same contracts.
+Phases 0–3 don't depend on USOS or the optimiser. Phase 4 needed the network builder (now
+written), 5 the optimiser, and 6 the simulation. Until they exist, phases 5 and 6 are
+developed on synthetic files from the `--fake` export flag, which follow the same contracts.
 
 ## 8. Performance budgets
 

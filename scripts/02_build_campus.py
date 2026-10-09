@@ -5,7 +5,8 @@
     uv run scripts/02_build_campus.py --refresh    # download from Overpass again
 
 Outputs (data/processed/osm/): campus.gpkg (open in QGIS), report.md, issues.json, preview.html.
-The walk network + indoor graph (network/*.parquet) will be added to this stage later.
+Then the walk graph (stage 2b): data/processed/network/nodes.parquet + edges.parquet, built from
+the OSM layers and data/campus (outdoor paths, building interiors, passages, stops, shafts).
 """
 
 import argparse
@@ -19,6 +20,7 @@ from metro_agh.campus.osm import fetch
 from metro_agh.campus.osm_process import build_layers
 from metro_agh.campus.osm_report import write_issues, write_preview, write_report
 from metro_agh.config import load_config, path, provenance
+from metro_agh.network.graph import build_campus_graph
 from metro_agh.schemas.tables import OSM_BUILDING_MAP, OSM_TABLES
 
 log = logging.getLogger("02_build_campus")
@@ -70,6 +72,14 @@ def main() -> None:
     write_issues(out_dir / "issues.json", issues, provenance("02_build_campus.py", cfg))
     write_preview(out_dir / "preview.html", layers)
     log.info("wrote %s, report.md, issues.json, preview.html", gpkg)
+
+    # stage 2b: the walk graph (after --bootstrap, so new building files are included)
+    graph = build_campus_graph(cfg, campus_dir, layers)
+    net_dir = path(cfg, "processed") / "network"
+    graph.write(net_dir)
+    for issue in graph.issues[:20]:
+        log.warning("%s: %s", issue.section, issue.message)
+    log.info("wrote %s/nodes.parquet, edges.parquet", net_dir)
 
 
 if __name__ == "__main__":

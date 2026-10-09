@@ -53,6 +53,11 @@ time_model:
   stairs_up_mps: 0.35        # prędkość pionowa na schodach w górę
   stairs_down_mps: 0.45      # prędkość pionowa na schodach w dół
   door_s: 3                  # przejście przez drzwi sali / wejście do budynku
+  outdoor_steps_factor: 1.5  # schody z OSM (bez wysokości): czas = długość / walk_speed × factor
+
+network:
+  corridor_node_step_m: 5.0  # węzeł grafu co tyle metrów wzdłuż korytarza
+  link_warn_m: 40.0          # wejście / przystanek dalej od chodnika z OSM -> uwaga w issues
 
 metro:
   n_stations: 5              # k

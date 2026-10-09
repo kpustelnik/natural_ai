@@ -1,0 +1,1 @@
+Before changing code, read [ARCHITECTURE.md](ARCHITECTURE.md) (a map of every file and its main functions) and open only the files it points to; when you add, move or rename a file or main function, update ARCHITECTURE.md in the same change.

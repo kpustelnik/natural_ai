@@ -1,7 +1,7 @@
 // Loaded scene data that non-scene code needs (framing a selection, the inspector).
 // Layers register what they load; nothing here triggers loading.
 
-import { Box3, type BufferGeometry, Vector3 } from "three";
+import { Box3, type BufferGeometry, type Object3D, Vector3 } from "three";
 import type { BuildingInfo, NetworkHeader, Scene } from "../generated/schemas";
 import type { Vec3 } from "../lib/frames";
 import type { Pick } from "../state/app";
@@ -12,7 +12,28 @@ export const registry: {
   context: BufferGeometry | null;
   network: BinaryFile<NetworkHeader> | null;
   infos: Map<string, BuildingInfo>; // building id -> loaded BuildingInfo
-} = { scene: null, context: null, network: null, infos: new Map() };
+  split: { left: Set<Object3D>; right: Set<Object3D> }; // drawn on one half of the split view only
+  onScreen: Record<string, [number, number, number]>; // scenario -> students walking, waiting, riding
+  perf: Perf | null; // last second, from PerfProbe
+  canvas: HTMLCanvasElement | null; // for screenshots
+} = {
+  scene: null,
+  context: null,
+  network: null,
+  infos: new Map(),
+  split: { left: new Set(), right: new Set() },
+  onScreen: {},
+  perf: null,
+  canvas: null,
+};
+
+export interface Perf {
+  fps: number;
+  worstMs: number;
+  calls: number;
+  triangles: number;
+  students: number;
+}
 
 /** Bounding box of a pick, for framing. */
 export function pickBox(p: Pick): { min: Vec3; max: Vec3 } | null {
@@ -64,9 +85,20 @@ export function pickBox(p: Pick): { min: Vec3; max: Vec3 } | null {
       }
       return box.isEmpty() ? null : { min: box.min.toArray() as Vec3, max: box.max.toArray() as Vec3 };
     }
+    case "barrier": {
+      const b = registry.network?.header.barriers[p.index];
+      return b ? around(b.position, 25) : null;
+    }
   }
 }
 
 function around(p: Vec3, r: number): { min: Vec3; max: Vec3 } {
   return { min: [p[0] - r, p[1], p[2] - r], max: [p[0] + r, p[1] + r / 2, p[2] + r] };
+}
+
+/** Draw `obj` only on one half of the split view (null: on both). Returns the cleanup. */
+export function onSplitSide(obj: Object3D, side: "left" | "right" | null): () => void {
+  if (!side) return () => {};
+  registry.split[side].add(obj);
+  return () => registry.split[side].delete(obj);
 }

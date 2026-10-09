@@ -177,7 +177,8 @@ def test_update_rebuilds_one_building_and_keeps_the_last_good(campus):
     f.write_text(src.replace("width: 12, depth: 7.5", "width: 10, depth: 7.5", 1), encoding="utf-8")
     status = campus.update([f])
     assert set(status.changed) == {
-        "buildings/B-1.glb", "buildings/B-1.json", "scene.json", "issues.json", "replays/index.json"
+        "buildings/B-1.glb", "buildings/B-1.json", "scene.json", "issues.json",
+        "replays/index.json", "network.json", "network.bin",  # the indoor graph changed too
     }  # fmt: skip
     assert status.errors == []
 

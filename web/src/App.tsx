@@ -3,9 +3,12 @@ import { applyStatus } from "./data/live";
 import { MissingDataError } from "./data/loader";
 import { useReplays, useScene, useStatus } from "./data/resource";
 import { pickBox, registry } from "./scene/registry";
+import { screenshot } from "./scene/screenshot";
 import { Viewport } from "./scene/Viewport";
 import { app, copyCapture, enterBuilding, focusBox, openedBuilding, pickBuilding, select, setPlayback, stepLevel, useApp } from "./state/app";
 import { bindUrl } from "./state/url";
+import { Command } from "./ui/Command";
+import { HelpDialog } from "./ui/HelpDialog";
 import { LeftPanel } from "./ui/LeftPanel";
 import { RightPanel } from "./ui/RightPanel";
 import { StatusBar } from "./ui/StatusBar";
@@ -24,7 +27,25 @@ function useShortcuts() {
       if (el.closest("input, select, textarea") || e.ctrlKey || e.metaKey || e.altKey) return;
       const s = app.get();
       if (s.camera === "walk") return; // the walk camera owns the keyboard
+      if (s.help) {
+        if (e.key === "Escape" || e.key === "?") app.set({ help: false });
+        return;
+      }
       switch (e.key) {
+        case "?":
+          app.set({ help: true });
+          break;
+        case "p":
+        case "P":
+          app.set({ present: !s.present });
+          break;
+        case "s":
+        case "S":
+          screenshot();
+          break;
+        case "`":
+          app.set({ perf: s.perf === "off" ? "on" : "off" });
+          break;
         case "PageUp":
         case "PageDown": {
           const id = openedBuilding(s) ?? pickBuilding(s.selection);
@@ -36,6 +57,10 @@ function useShortcuts() {
         case "m":
         case "M":
           app.set({ tool: s.tool === "measure" ? "select" : "measure", measure: [] });
+          break;
+        case "r":
+        case "R":
+          app.set({ tool: s.tool === "route" ? "select" : "route", rightTab: "route", rightOpen: true });
           break;
         case "3":
           app.set({ camera: "walk" });
@@ -62,8 +87,9 @@ function useShortcuts() {
         }
         case "Escape":
           // clear the innermost thing first: measure points, the tool, the capture, the selection
-          if (s.tool === "measure" && s.measure.length) app.set({ measure: [] });
-          else if (s.tool === "measure") app.set({ tool: "select" });
+          if (s.present) app.set({ present: false });
+          else if (s.tool === "measure" && s.measure.length) app.set({ measure: [] });
+          else if (s.tool !== "select") app.set({ tool: "select" });
           else if (s.capture) app.set({ capture: null });
           else select(null);
           break;
@@ -112,12 +138,14 @@ export function App() {
   const catalog = useReplays(scene?.replays).data;
   const leftOpen = useApp((s) => s.leftOpen);
   const rightOpen = useApp((s) => s.rightOpen);
+  const present = useApp((s) => s.present);
 
   if (error) {
     return error instanceof MissingDataError ? (
       <Message title="No data exported yet">
         <p>The viewer reads web/public/data/, written by the Python pipeline:</p>
-        <pre>uv run scripts/02_build_campus.py{"\n"}uv run scripts/06_export_web.py --campus</pre>
+        <Command lines={["uv run scripts/02_build_campus.py", "uv run scripts/06_export_web.py --campus"]} />
+        <p className="muted">Then reload this page.</p>
       </Message>
     ) : (
       <Message title="Could not load the scene">
@@ -125,19 +153,28 @@ export function App() {
       </Message>
     );
   }
-  if (!scene) return <Message title="Loading…">{null}</Message>;
+  if (!scene) {
+    return (
+      <Message title="Loading the campus…">
+        <p className="muted">scene.json, then the buildings and the ground.</p>
+      </Message>
+    );
+  }
 
+  const left = leftOpen && !present;
+  const right = rightOpen && !present;
   return (
-    <div className={`app ${leftOpen ? "" : "no-left"} ${rightOpen ? "" : "no-right"}`}>
-      <TopBar scene={scene} catalog={catalog} />
-      {leftOpen && <LeftPanel scene={scene} />}
+    <div className={`app ${left ? "" : "no-left"} ${right ? "" : "no-right"} ${present ? "present" : ""}`}>
+      {!present && <TopBar scene={scene} catalog={catalog} />}
+      {left && <LeftPanel scene={scene} />}
       <main className="viewport">
         <Viewport scene={scene} />
-        <ViewportOverlay scene={scene} />
+        <ViewportOverlay scene={scene} catalog={catalog} />
         <Timeline catalog={catalog} />
       </main>
-      {rightOpen && <RightPanel scene={scene} />}
-      <StatusBar scene={scene} />
+      {right && <RightPanel scene={scene} />}
+      {!present && <StatusBar scene={scene} />}
+      <HelpDialog />
     </div>
   );
 }

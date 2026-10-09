@@ -1,9 +1,11 @@
 // The 3D view: canvas, lights, cameras, layers and pointer interaction (hover, select,
-// measure, point capture, cursor position). Layers only draw; state lives in the store.
+// measure, route ends, point capture, cursor position). Layers only draw; state lives in
+// the store.
 
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo } from "react";
 import type { Intersection, Object3D } from "three";
+import { nearestNode, nodeName, resolveKey } from "../data/network";
 import { useNetwork } from "../data/resource";
 import type { Scene } from "../generated/schemas";
 import { type Vec3, webToLocal } from "../lib/frames";
@@ -16,6 +18,8 @@ import {
   pickBuilding,
   samePick,
   select,
+  setRouteEnd,
+  splitActive,
   toast,
   useApp,
 } from "../state/app";
@@ -23,15 +27,19 @@ import { CameraRig } from "./CameraRig";
 import { Css2dLayer } from "./Css2d";
 import { Aerial } from "./layers/Aerial";
 import { BuildingGrid, OsmOutline, RoomLabels } from "./layers/BuildingHelpers";
-import { Buildings } from "./layers/Buildings";
+import { Buildings, SECTION_HEIGHT } from "./layers/Buildings";
 import { ContextBuildings } from "./layers/Context";
 import { Ground } from "./layers/Ground";
 import { Labels } from "./layers/Labels";
-import { Entrances, Stops } from "./layers/Markers";
+import { Barriers, Entrances, Stops } from "./layers/Markers";
 import { Network } from "./layers/Network";
+import { ReplayLayers, useReplayView } from "./layers/Replay";
+import { RouteLayer } from "./layers/Route";
 import { SCENE } from "./palette";
 import { resolvePick } from "./picking";
 import { pickBox, registry } from "./registry";
+import { PerfProbe } from "./PerfProbe";
+import { SplitRenderer, splitEvents } from "./SplitView";
 import { snap } from "./tools/snap";
 import { CaptureLayer, MeasureLayer } from "./tools/Tools";
 
@@ -93,6 +101,21 @@ function capturePoint(e: ThreeEvent<MouseEvent>, hit: Intersection, pick: Pick |
   toast(`Copied ${text}  (${b.id} local)`);
 }
 
+/** What a click with the route tool means: an endpoint (room, building, stop), an entrance,
+ * or else the nearest node of the walk graph. */
+function routeKey(pick: Pick | null, hit: Intersection): string | null {
+  const net = registry.network;
+  if (!net) return null;
+  const known = (k: string) => (resolveKey(net, k) !== null ? k : null);
+  let key: string | null = null;
+  if (pick?.kind === "stop" || pick?.kind === "building") key = known(pick.id);
+  else if (pick?.kind === "space") key = known(`${pick.building}/${pick.id}`);
+  else if (pick?.kind === "entrance") key = known(`${pick.building}:${pick.id}:out`);
+  if (key) return key;
+  const node = nearestNode(net, hit.point.toArray() as Vec3);
+  return node === null ? null : nodeName(net, node);
+}
+
 // R3F calls a group's handlers once per object under the pointer: each handler stops the
 // propagation and looks at e.intersections itself.
 function Interaction({ children }: { children: React.ReactNode }) {
@@ -118,6 +141,13 @@ function Interaction({ children }: { children: React.ReactNode }) {
       if (hit) capturePoint(e, hit, pick);
       return;
     }
+    if (s.tool === "route") {
+      if (!hit) return;
+      const key = routeKey(pick, hit);
+      if (key) setRouteEnd(s.route.slot, key);
+      else toast(registry.network ? "Nothing on the walk graph here" : "The walk graph is still loading", "error");
+      return;
+    }
     if (s.tool === "measure") {
       if (!hit) return;
       const p = snap(hit, e.camera, ...canvasSize(e), s.layers.network).point;
@@ -129,7 +159,7 @@ function Interaction({ children }: { children: React.ReactNode }) {
   const onDoubleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
     const s = app.get();
-    if (s.tool === "measure" || s.camera === "walk") return;
+    if (s.tool !== "select" || s.camera === "walk") return;
     const { hit, pick } = firstHit(e);
     const box = pick ? pickBox(pick) : null;
     if (box) focusBox(box.min, box.max);
@@ -146,15 +176,33 @@ function Interaction({ children }: { children: React.ReactNode }) {
   );
 }
 
-function NetworkLayer({ path }: { path: string }) {
+function NetworkLayers({ path, scene }: { path: string; scene: Scene }) {
   const net = useNetwork(path).data;
-  return net ? <Network net={net} /> : null;
+  const show = useApp((s) => s.layers.network);
+  const barriers = useApp((s) => s.layers.barriers);
+  const routing = useApp((s) => s.tool === "route" || !!(s.route.from || s.route.to));
+  // the active level of an opened building cuts the indoor graph like the building
+  const clipY = useApp((s) => {
+    const id = openedBuilding(s);
+    if (!id || s.level === null || s.camera === "walk") return null;
+    const lv = scene.buildings.find((b) => b.id === id)?.levels.find((l) => l.id === s.level);
+    return lv ? lv.floor_y + SECTION_HEIGHT : null;
+  });
+  if (!net) return null;
+  return (
+    <>
+      {show && <Network net={net} clipY={clipY} />}
+      {barriers && <Barriers barriers={net.header.barriers} />}
+      {routing && <RouteLayer net={net} />}
+    </>
+  );
 }
 
 export function Viewport({ scene }: { scene: Scene }) {
   const layers = useApp((s) => s.layers);
   const tool = useApp((s) => s.tool);
   const hasCapture = useApp((s) => s.capture !== null);
+  const needsNetwork = useApp((s) => s.layers.network || s.layers.barriers || s.tool === "route" || !!(s.route.from || s.route.to));
   const opened = useApp((s) => (s.camera === "walk" ? null : openedBuilding(s)));
   // a basement is under the ground plate: hide the ground while it is the active level
   const underground = useApp((s) => {
@@ -164,7 +212,11 @@ export function Viewport({ scene }: { scene: Scene }) {
     const lv = b?.levels.find((l) => l.id === s.level);
     return !!b && !!lv && lv.floor_y < b.frame.anchor[1] - 0.5;
   });
+  const split = useApp(splitActive);
+  const perf = useApp((s) => s.perf !== "off");
   registry.scene = scene;
+  // the metro line is underground: see through the ground while it is on show
+  const seeThrough = useReplayView(scene).view === "line";
 
   // first view: all AGH buildings
   const home = useMemo<FocusRequest>(() => {
@@ -194,25 +246,32 @@ export function Viewport({ scene }: { scene: Scene }) {
       flat
       dpr={[1, 2]}
       gl={{ antialias: true, preserveDrawingBuffer: true, localClippingEnabled: true }}
-      onPointerMissed={(e) => {
-        if (app.get().tool !== "measure" && !e.altKey) select(null);
+      events={splitEvents}
+      onCreated={({ gl }) => {
+        registry.canvas = gl.domElement;
       }}
-      style={{ cursor: tool === "measure" ? "crosshair" : undefined }}
+      aria-label="3D view of the campus"
+      role="img"
+      onPointerMissed={(e) => {
+        if (app.get().tool === "select" && !e.altKey) select(null);
+      }}
+      style={{ cursor: tool === "select" ? undefined : "crosshair" }}
     >
       <color attach="background" args={[SCENE.background]} />
       <hemisphereLight args={["#ffffff", "#c9c6bf", 2.2]} />
       <directionalLight position={[-400, 700, 250]} intensity={1.6} />
       <CameraRig home={home} />
       <Interaction>
-        <Suspense fallback={null}>{scene.ground_glb && !underground && <Ground glb={scene.ground_glb} />}</Suspense>
+        <Suspense fallback={null}>{scene.ground_glb && !underground && <Ground glb={scene.ground_glb} seeThrough={seeThrough} />}</Suspense>
         {layers.agh && <Buildings scene={scene} />}
         <Suspense fallback={null}>{layers.context && scene.context && <ContextBuildings context={scene.context} />}</Suspense>
-        {layers.network && scene.network && <NetworkLayer path={scene.network} />}
+        {needsNetwork && scene.network && <NetworkLayers path={scene.network} scene={scene} />}
         {layers.entrances && layers.agh && <Entrances scene={scene} />}
         {layers.stops && <Stops stops={scene.stops} other={false} />}
         {layers.otherStops && <Stops stops={scene.other_stops} other />}
+        <ReplayLayers scene={scene} />
       </Interaction>
-      {layers.aerial && scene.aerial && !underground && <Aerial aerial={scene.aerial} />}
+      {layers.aerial && scene.aerial && !underground && !seeThrough && <Aerial aerial={scene.aerial} />}
       {opened && layers.grid && <BuildingGrid scene={scene} />}
       {opened && layers.osmOutline && <OsmOutline scene={scene} />}
       {opened && layers.roomLabels && <RoomLabels scene={scene} />}
@@ -220,6 +279,8 @@ export function Viewport({ scene }: { scene: Scene }) {
       {hasCapture && <CaptureLayer />}
       {layers.labels && layers.agh && <Labels scene={scene} showStops={layers.stops} />}
       <Css2dLayer />
+      {split && <SplitRenderer />}
+      {perf && <PerfProbe />}
     </Canvas>
   );
 }

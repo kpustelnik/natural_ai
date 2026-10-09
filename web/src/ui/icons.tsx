@@ -129,3 +129,16 @@ export const IconEnter = icon(
     <path d="m11 8 4 4-4 4M4 12h11" />
   </>,
 );
+export const IconCamera = icon(
+  <>
+    <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+    <circle cx="12" cy="13" r="3.5" />
+  </>,
+);
+export const IconHelp = icon(
+  <>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01" />
+  </>,
+);
+export const IconPresent = icon(<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />);

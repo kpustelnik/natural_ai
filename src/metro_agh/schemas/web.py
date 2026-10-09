@@ -395,38 +395,113 @@ class DayHeader(_BinaryHeader):
     # student_id uint32 (S)   leg_id uint32 (S)   path_id uint32 (S)   t_start float32 (S)
 
 
-NETWORK_EDGE_KINDS = ("footway", "road", "steps")  # outdoor; indoor kinds come with stage 2b
+# drawing classes of network edges: outdoor edges by OSM highway, the rest by GRAPH_EDGES kind
+NETWORK_EDGE_KINDS = (
+    "footway",
+    "road",
+    "steps",
+    "corridor",
+    "door",
+    "stairs",
+    "entrance",
+    "passage",
+    "shaft",
+    "link",
+)
+
+
+class NetworkBarrier(StrictModel):
+    osm_id: str
+    barrier: str = Field(description="OSM barrier tag: gate, bollard, ...")
+    access: str | None
+    position: Vec3
+
+
+class FieldMeasurement(StrictModel):
+    """A row of data/validation/field_measurements.csv, for the route tool."""
+
+    route_id: str
+    from_key: str
+    to_key: str
+    measured_s: float
+    date: str
+    who: str
+    notes: str | None
 
 
 class NetworkHeader(_BinaryHeader):
-    """``network.{json,bin}``: the walk graph as line segments.
+    """``network.{json,bin}``: the walk graph (network/*.parquet) for drawing and routing.
 
-    Codes in ``edge_kind`` index into ``edge_kind_names``; ``node_keys`` / ``edge_sources``
-    hold what does not fit a typed array (OSM ids exceed uint32).
+    Codes in ``node_kind`` / ``edge_kind`` index into ``node_kind_names`` /
+    ``edge_kind_names``; ``node_keys`` / ``edge_sources`` hold what does not fit a typed
+    array (OSM ids exceed uint32).
     """
 
     kind: Literal["network"] = "network"
     n_nodes: int
     n_edges: int
-    edge_kind_names: list[str]
-    node_keys: list[str] = Field(description="per node, e.g. 'osm:123'")
-    edge_sources: list[str | None] = Field(description="per edge, e.g. 'way/1|way/2'")
-    REQUIRED = ("node_xyz", "edge_nodes", "edge_kind", "length_m", "segment_xyz", "segment_edge")
-    # node_xyz float32 (N, 3)   edge_nodes uint32 (E, 2)   edge_kind uint8 (E)
-    # length_m float32 (E)      segment_xyz float32 (S, 2, 3)   segment_edge uint32 (S)
+    node_kind_names: list[str] = Field(description="GRAPH_NODES kinds")
+    edge_kind_names: list[str] = Field(description="footway, road, steps, then GRAPH_EDGES kinds")
+    node_keys: list[str] = Field(description="per node, e.g. 'osm:123', 'D-17/1.38'")
+    endpoints: dict[str, int] = Field(
+        description="endpoint key (room, building, stop) -> node index"
+    )
+    edge_sources: list[str | None] = Field(description="per edge, e.g. 'way/1|way/2', 'D-17'")
+    barriers: list[NetworkBarrier] = Field(default=[], description="OSM point barriers")
+    measurements: list[FieldMeasurement] = Field(
+        default=[], description="measured walking times to compare routes with"
+    )
+    REQUIRED = (
+        "node_xyz",
+        "node_kind",
+        "edge_nodes",
+        "edge_kind",
+        "length_m",
+        "time_uv_s",
+        "time_vu_s",
+        "segment_xyz",
+        "segment_edge",
+    )
+    # node_xyz float32 (N, 3)   node_kind uint8 (N)
+    # edge_nodes uint32 (E, 2)  edge_kind uint8 (E)   length_m, time_uv_s, time_vu_s float32 (E)
+    # segment_xyz float32 (S, 2, 3)   segment_edge uint32 (S)
     # segments = the edges' real polylines, for drawing; segment_edge = edge index
 
 
 class AcoTraceHeader(_BinaryHeader):
-    """``aco/trace.{json,bin}``: AcoTrace with candidate positions for the animation."""
+    """``replays/<id>/trace.{json,bin}``: AcoTrace (results/<run_id>/trace.npz) with the
+    candidate positions and the convergence curve, for the ACO player.
+
+    Buffers (I sampled iterations, A sampled ants, k stations, N candidates, C iterations):
+        iterations int32 (I)   tours int16 (I, A, k)   tour_cost_s float32 (I, A)
+        best_tour int16 (I, k)   pheromone float32 (I, N, N)
+        curve_iteration int32 (C)   curve_best_s, curve_iter_best_s, curve_iter_mean_s float32 (C)
+    The curve is convergence.csv (every iteration); without it, the sampled iterations.
+    """
 
     kind: Literal["aco_trace"] = "aco_trace"
     run_id: str
     algorithm: str
     topology: MetroTopology
+    k: int = Field(ge=2)
+    n_iterations: int = Field(ge=1, description="iterations of the whole run")
+    best_s: float = Field(description="objective of the final best line")
+    baseline_s: float = Field(description="objective without metro")
+    stations: list[BuildingId] = Field(description="the final best line, in line order")
     candidate_ids: list[BuildingId]
+    candidate_tops: list[Vec3] = Field(description="shaft tops (main entrances), web")
     candidate_platforms: list[Vec3]
-    REQUIRED = ("iterations", "tours", "tour_cost_s", "best_tour", "pheromone")
+    REQUIRED = (
+        "iterations",
+        "tours",
+        "tour_cost_s",
+        "best_tour",
+        "pheromone",
+        "curve_iteration",
+        "curve_best_s",
+        "curve_iter_best_s",
+        "curve_iter_mean_s",
+    )
 
 
 # --- stats.json --------------------------------------------------------------

@@ -32,7 +32,14 @@ export interface WebData {
   status: BuildStatus;
 }
 /**
- * ``aco/trace.{json,bin}``: AcoTrace with candidate positions for the animation.
+ * ``replays/<id>/trace.{json,bin}``: AcoTrace (results/<run_id>/trace.npz) with the
+ * candidate positions and the convergence curve, for the ACO player.
+ *
+ * Buffers (I sampled iterations, A sampled ants, k stations, N candidates, C iterations):
+ *     iterations int32 (I)   tours int16 (I, A, k)   tour_cost_s float32 (I, A)
+ *     best_tour int16 (I, k)   pheromone float32 (I, N, N)
+ *     curve_iteration int32 (C)   curve_best_s, curve_iter_best_s, curve_iter_mean_s float32 (C)
+ * The curve is convergence.csv (every iteration); without it, the sampled iterations.
  *
  * This interface was referenced by `WebData`'s JSON-Schema
  * via the `definition` "AcoTraceHeader".
@@ -50,7 +57,28 @@ export interface AcoTraceHeader {
   run_id: string;
   algorithm: string;
   topology: MetroTopology;
+  k: number;
+  /**
+   * iterations of the whole run
+   */
+  n_iterations: number;
+  /**
+   * objective of the final best line
+   */
+  best_s: number;
+  /**
+   * objective without metro
+   */
+  baseline_s: number;
+  /**
+   * the final best line, in line order
+   */
+  stations: string[];
   candidate_ids: string[];
+  /**
+   * shaft tops (main entrances), web
+   */
+  candidate_tops: [number, number, number][];
   candidate_platforms: [number, number, number][];
 }
 /**
@@ -378,10 +406,11 @@ export interface RunStop {
   depart_t: number;
 }
 /**
- * ``network.{json,bin}``: the walk graph as line segments.
+ * ``network.{json,bin}``: the walk graph (network/*.parquet) for drawing and routing.
  *
- * Codes in ``edge_kind`` index into ``edge_kind_names``; ``node_keys`` / ``edge_sources``
- * hold what does not fit a typed array (OSM ids exceed uint32).
+ * Codes in ``node_kind`` / ``edge_kind`` index into ``node_kind_names`` /
+ * ``edge_kind_names``; ``node_keys`` / ``edge_sources`` hold what does not fit a typed
+ * array (OSM ids exceed uint32).
  *
  * This interface was referenced by `WebData`'s JSON-Schema
  * via the `definition` "NetworkHeader".
@@ -398,15 +427,68 @@ export interface NetworkHeader {
   kind: "network";
   n_nodes: number;
   n_edges: number;
+  /**
+   * GRAPH_NODES kinds
+   */
+  node_kind_names: string[];
+  /**
+   * footway, road, steps, then GRAPH_EDGES kinds
+   */
   edge_kind_names: string[];
   /**
-   * per node, e.g. 'osm:123'
+   * per node, e.g. 'osm:123', 'D-17/1.38'
    */
   node_keys: string[];
   /**
-   * per edge, e.g. 'way/1|way/2'
+   * endpoint key (room, building, stop) -> node index
+   */
+  endpoints: {
+    [k: string]: number;
+  };
+  /**
+   * per edge, e.g. 'way/1|way/2', 'D-17'
    */
   edge_sources: (string | null)[];
+  /**
+   * OSM point barriers
+   */
+  barriers: NetworkBarrier[];
+  /**
+   * measured walking times to compare routes with
+   */
+  measurements: FieldMeasurement[];
+}
+/**
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "NetworkBarrier".
+ */
+export interface NetworkBarrier {
+  osm_id: string;
+  /**
+   * OSM barrier tag: gate, bollard, ...
+   */
+  barrier: string;
+  access: string | null;
+  /**
+   * @minItems 3
+   * @maxItems 3
+   */
+  position: [number, number, number];
+}
+/**
+ * A row of data/validation/field_measurements.csv, for the route tool.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "FieldMeasurement".
+ */
+export interface FieldMeasurement {
+  route_id: string;
+  from_key: string;
+  to_key: string;
+  measured_s: number;
+  date: string;
+  who: string;
+  notes: string | null;
 }
 /**
  * ``trips/<scenario>/paths.{json,bin}``: every distinct path, shared by all days.

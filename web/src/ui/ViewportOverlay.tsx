@@ -1,9 +1,14 @@
 // Controls drawn over the 3D view: camera mode, colour mode, level stepper, compass,
-// scale bar, legend, tool panels (measure, captured points), toasts and hints.
+// scale bar, legend, tool panels (measure, captured points), toasts and hints; the empty
+// state of the Metro and Simulation workspaces, the split-view captions, the frame-rate
+// probe. In presentation mode only the compass, scale bar, legend and captions stay.
 
+import { useEffect, useState } from "react";
 import { useBuildingInfo } from "../data/resource";
-import type { Scene } from "../generated/schemas";
-import { CAPACITY, CAPACITY_UNKNOWN, legend, SPACE_KIND } from "../scene/palette";
+import type { Replay, ReplayCatalog, Scene } from "../generated/schemas";
+import { registry } from "../scene/registry";
+import { screenshot } from "../scene/screenshot";
+import { CAPACITY, CAPACITY_UNKNOWN, legend, NETWORK, NETWORK_LABELS, SCENARIOS, SPACE_KIND } from "../scene/palette";
 import { segmentLength } from "../scene/tools/Tools";
 import {
   app,
@@ -14,10 +19,13 @@ import {
   openedBuilding,
   pickBuilding,
   type RoomColorMode,
+  splitActive,
   stepLevel,
   useApp,
 } from "../state/app";
-import { IconClose, IconCopy, IconDown, IconOrbit, IconPlan, IconRuler, IconUp, IconWalk } from "./icons";
+import { Command } from "./Command";
+import { IconCamera, IconClose, IconCopy, IconDown, IconHelp, IconOrbit, IconPlan, IconPresent, IconRuler, IconUp, IconWalk } from "./icons";
+import { openReplay } from "./ReplayMenu";
 
 const COLOR_MODES: { id: ColorMode; label: string }[] = [
   { id: "category", label: "Category" },
@@ -73,7 +81,10 @@ function Hint({ scene }: { scene: Scene }) {
   const replay = useApp((s) => s.playback.replayId);
   const tool = useApp((s) => s.tool);
   let text: string | null = null;
+  const routeSlot = useApp((s) => s.route.slot);
   if (tool === "measure") text = "Click points to measure · Backspace removes the last · Esc clears";
+  else if (tool === "route")
+    text = `Click the ${routeSlot === "from" ? "start (A)" : "destination (B)"}: a room, building, stop or any point on the paths · Esc ends`;
   else if (workspace === "building" && !building) text = "Select a building to open it.";
   else if (workspace === "building" && level === null) {
     const b = scene.buildings.find((x) => x.id === building);
@@ -93,11 +104,11 @@ function LevelStepper({ scene }: { scene: Scene }) {
       <button title="Level up (PageUp)" onClick={() => stepLevel(levels, 1)}>
         <IconUp size={14} />
       </button>
-      <button className={level === null ? "active" : ""} onClick={() => app.set({ level: null })} title="Whole building">
+      <button className={level === null ? "active" : ""} aria-pressed={level === null} onClick={() => app.set({ level: null })} title="Whole building">
         All
       </button>
       {levels.map((l) => (
-        <button key={l} className={level === l ? "active" : ""} onClick={() => app.set({ level: l })} title={`Level ${l}`}>
+        <button key={l} className={level === l ? "active" : ""} aria-pressed={level === l} onClick={() => app.set({ level: l })} title={`Level ${l}`}>
           {l}
         </button>
       ))}
@@ -130,7 +141,7 @@ function MeasurePanel({ scene }: { scene: Scene }) {
     <div className="tool-panel">
       <div className="tool-head">
         <IconRuler size={14} /> Measure
-        <button className="icon-button" title="Close (M)" onClick={() => app.set({ tool: "select", measure: [] })}>
+        <button className="icon-button" title="Close (M)" aria-label="Close" onClick={() => app.set({ tool: "select", measure: [] })}>
           <IconClose size={14} />
         </button>
       </div>
@@ -167,7 +178,7 @@ function CapturePanel() {
     <div className="tool-panel">
       <div className="tool-head">
         Points in {capture.building} local
-        <button className="icon-button" title="Clear (Esc)" onClick={() => app.set({ capture: null })}>
+        <button className="icon-button" title="Clear (Esc)" aria-label="Clear" onClick={() => app.set({ capture: null })}>
           <IconClose size={14} />
         </button>
       </div>
@@ -212,6 +223,15 @@ function RoomLegend() {
   );
 }
 
+function SplitCaptions() {
+  return (
+    <div className="split-overlay" aria-hidden>
+      <span className="split-label left">{SCENARIOS.no_metro.label}</span>
+      <span className="split-label right">{SCENARIOS.metro.label}</span>
+    </div>
+  );
+}
+
 function Toasts() {
   const toasts = useApp((s) => s.toasts);
   return (
@@ -236,7 +256,68 @@ function WalkHelp() {
   );
 }
 
-export function ViewportOverlay({ scene }: { scene: Scene }) {
+/** Metro / Simulation workspace with no replay open: what can be opened, or how to make one. */
+function NoReplay({ catalog }: { catalog: ReplayCatalog | undefined }) {
+  const workspace = useApp((s) => s.workspace);
+  const open = useApp((s) => s.playback.replayId !== null);
+  if (open || (workspace !== "metro" && workspace !== "simulation")) return null;
+  const kind: Replay["kind"] = workspace === "metro" ? "aco" : "simulation";
+  const list = catalog?.replays.filter((r) => r.kind === kind) ?? [];
+  return (
+    <div className="empty-card">
+      <h2>{kind === "aco" ? "No optimisation run open" : "No simulation open"}</h2>
+      {list.length > 0 ? (
+        <>
+          <p className="muted">Open one:</p>
+          <div className="empty-list">
+            {list.slice(0, 5).map((r) => (
+              <button key={r.id} className="button" onClick={() => openReplay(r)}>
+                {r.title}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="muted">
+            {kind === "aco"
+              ? "Runs with a trace.npz in experiments/results/ become replays with:"
+              : "The simulated week (stage 5) becomes a replay with:"}
+          </p>
+          <Command lines={[kind === "aco" ? "uv run scripts/06_export_web.py --aco" : "uv run scripts/05_simulate.py", ...(kind === "aco" ? [] : ["uv run scripts/06_export_web.py --sim"])]} />
+          <p className="muted">Before the pipeline exists, a synthetic run, line and week:</p>
+          <Command lines={["uv run scripts/06_export_web.py --fake"]} />
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Frame rate, draw calls and students of the last second (the ` key). */
+function PerfPanel() {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => tick((n) => n + 1), 500);
+    return () => clearInterval(id);
+  }, []);
+  const p = registry.perf;
+  return (
+    <div className="perf-panel mono" aria-live="off">
+      {p ? (
+        <>
+          <span className={p.fps < 50 ? "error-text" : ""}>{p.fps.toFixed(0)} fps</span> · worst {p.worstMs.toFixed(0)} ms ·{" "}
+          {p.calls} calls · {(p.triangles / 1000).toFixed(0)}k tris{p.students ? ` · ${p.students.toLocaleString("en-US")} students` : ""}
+        </>
+      ) : (
+        "measuring…"
+      )}
+    </div>
+  );
+}
+
+export function ViewportOverlay({ scene, catalog }: { scene: Scene; catalog: ReplayCatalog | undefined }) {
+  const present = useApp((s) => s.present);
+  const perf = useApp((s) => s.perf !== "off");
   const camera = useApp((s) => s.camera);
   const colorMode = useApp((s) => s.colorMode);
   const roomColor = useApp((s) => s.roomColor);
@@ -247,10 +328,32 @@ export function ViewportOverlay({ scene }: { scene: Scene }) {
   const selectedBuilding = useApp((s) => pickBuilding(s.selection));
   const level = useApp((s) => s.level);
   const workspace = useApp((s) => s.workspace);
+  const networkLegend = useApp((s) => s.workspace === "network" && s.layers.network);
+  const split = useApp(splitActive);
   const openedB = opened ? scene.buildings.find((b) => b.id === opened) : undefined;
   const info = useBuildingInfo(openedB?.info).data;
   const interior = !!openedB && level !== null && camera !== "walk";
   const hasRooms = !!info?.levels.some((l) => l.spaces.length);
+
+  if (present) {
+    return (
+      <div className="overlay">
+        <div className="overlay-top-right">
+          <Compass />
+        </div>
+        <button className="present-exit" onClick={() => app.set({ present: false })} title="Leave presentation mode (P or Esc)">
+          Presentation · <kbd>P</kbd> to leave
+        </button>
+        <div className="overlay-bottom-right">
+          {aerialOn && scene.aerial && <div className="attribution">{scene.aerial.attribution}</div>}
+          <ScaleBar />
+        </div>
+        {split && <SplitCaptions />}
+        {perf && <PerfPanel />}
+        <Toasts />
+      </div>
+    );
+  }
 
   if (camera === "walk") {
     return (
@@ -268,10 +371,10 @@ export function ViewportOverlay({ scene }: { scene: Scene }) {
     <div className="overlay">
       <div className="overlay-top-left">
         <div className="segmented" role="group" aria-label="Camera">
-          <button className={camera === "orbit" ? "active" : ""} onClick={() => app.set({ camera: "orbit" })} title="Orbit camera (1)">
+          <button className={camera === "orbit" ? "active" : ""} aria-pressed={camera === "orbit"} onClick={() => app.set({ camera: "orbit" })} title="Orbit camera (1)">
             <IconOrbit size={15} /> 3D
           </button>
-          <button className={camera === "plan" ? "active" : ""} onClick={() => app.set({ camera: "plan" })} title="Plan view (2)">
+          <button className={camera === "plan" ? "active" : ""} aria-pressed={camera === "plan"} onClick={() => app.set({ camera: "plan" })} title="Plan view (2)">
             <IconPlan size={15} /> Plan
           </button>
           <button onClick={() => app.set({ camera: "walk" })} title="Walk: first person (3)">
@@ -281,7 +384,7 @@ export function ViewportOverlay({ scene }: { scene: Scene }) {
         {interior && hasRooms ? (
           <div className="segmented" role="group" aria-label="Colour rooms by">
             {ROOM_MODES.map((m) => (
-              <button key={m.id} className={roomColor === m.id ? "active" : ""} onClick={() => app.set({ roomColor: m.id })}>
+              <button key={m.id} className={roomColor === m.id ? "active" : ""} aria-pressed={roomColor === m.id} onClick={() => app.set({ roomColor: m.id })}>
                 {m.label}
               </button>
             ))}
@@ -289,7 +392,7 @@ export function ViewportOverlay({ scene }: { scene: Scene }) {
         ) : (
           <div className="segmented" role="group" aria-label="Colour by">
             {COLOR_MODES.map((m) => (
-              <button key={m.id} className={colorMode === m.id ? "active" : ""} onClick={() => app.set({ colorMode: m.id })}>
+              <button key={m.id} className={colorMode === m.id ? "active" : ""} aria-pressed={colorMode === m.id} onClick={() => app.set({ colorMode: m.id })}>
                 {m.label}
               </button>
             ))}
@@ -302,6 +405,15 @@ export function ViewportOverlay({ scene }: { scene: Scene }) {
         >
           <IconRuler size={15} /> Measure
         </button>
+        {(workspace === "network" || tool === "route") && (
+          <button
+            className={`tool-button ${tool === "route" ? "active" : ""}`}
+            title="Route between two points (R)"
+            onClick={() => app.set({ tool: tool === "route" ? "select" : "route", rightTab: "route", rightOpen: true })}
+          >
+            Route
+          </button>
+        )}
         {workspace !== "building" && selectedBuilding && (
           <button
             className="tool-button"
@@ -317,13 +429,33 @@ export function ViewportOverlay({ scene }: { scene: Scene }) {
       </div>
       <div className="overlay-top-right">
         <Compass />
+        <div className="view-actions" role="group" aria-label="View">
+          <button className="icon-button" onClick={screenshot} title="Save a screenshot (S)" aria-label="Save a screenshot">
+            <IconCamera size={16} />
+          </button>
+          <button className="icon-button" onClick={() => app.set({ present: true })} title="Presentation mode (P)" aria-label="Presentation mode">
+            <IconPresent size={16} />
+          </button>
+          <button className="icon-button" onClick={() => app.set({ help: true })} title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">
+            <IconHelp size={16} />
+          </button>
+        </div>
         <LevelStepper scene={scene} />
       </div>
       <div className="overlay-right-panels">
         {tool === "measure" && <MeasurePanel scene={scene} />}
         <CapturePanel />
       </div>
-      {showAgh && (
+      {networkLegend ? (
+        <div className="overlay-bottom-left legend">
+          {(Object.keys(NETWORK) as (keyof typeof NETWORK)[]).map((k) => (
+            <div key={k} className="legend-row">
+              <span className="swatch line" style={{ background: NETWORK[k] }} />
+              {NETWORK_LABELS[k]}
+            </div>
+          ))}
+        </div>
+      ) : showAgh && (
         <div className="overlay-bottom-left legend">
           {interior && hasRooms ? (
             <RoomLegend />
@@ -341,6 +473,9 @@ export function ViewportOverlay({ scene }: { scene: Scene }) {
         {aerialOn && scene.aerial && <div className="attribution">{scene.aerial.attribution}</div>}
         <ScaleBar />
       </div>
+      {split && <SplitCaptions />}
+      <NoReplay catalog={catalog} />
+      {perf && <PerfPanel />}
       <Toasts />
     </div>
   );

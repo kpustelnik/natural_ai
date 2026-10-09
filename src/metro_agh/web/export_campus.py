@@ -8,7 +8,7 @@ Outputs (web/public/data/, docs/data_contracts.md section 10):
     campus/context.glb|.json      every other OSM building, merged (ContextFeatures)
     campus/ground.glb             ground, paths, campus boundary, fences
     campus/aerial.jpg             orthophoto underlay (optional)
-    network.json|.bin             the outdoor walk graph (NetworkHeader)
+    network.json|.bin             the walk graph: outdoor, indoor, passages (NetworkHeader)
     issues.json                   IssueList: OSM stage + export checks
     replays/index.json            ReplayCatalog of replays/*/replay.json
     status.json                   BuildStatus, written last
@@ -17,7 +17,6 @@ Outputs (web/public/data/, docs/data_contracts.md section 10):
 building after a save: ``full()`` once, then ``update(paths)``.
 """
 
-import json
 import logging
 import time
 from pathlib import Path
@@ -31,11 +30,24 @@ from shapely.geometry import LineString, MultiPolygon, Polygon, box
 
 from ..campus.geo import to_metric
 from ..config import ROOT, path, provenance
-from ..geometry.building import PlacedBuilding, lod1_meshes, place
+from ..geometry.building import PlacedBuilding, lod1_meshes, match_osm, osm_index, place
 from ..geometry.interior import interior_meshes, plan_levels, shaft_lines, space_size
 from ..geometry.mesh import Lines, Origin, TriMesh, flat, outline, polygons, polyline, prism, web
+from ..network.graph import (
+    Graph,
+    assemble,
+    edge_class,  # noqa: F401  (re-exported: the export's path classes)
+    outdoor_part,
+    passage_ats,
+    passage_part,
+    stop_part,
+)
+from ..network.indoor import GraphIssue, Part, TimeModel, building_part
 from ..schemas.campus import Campus
+from ..schemas.common import NodeKind
 from ..schemas.tables import (
+    FIELD_MEASUREMENTS,
+    OSM_BARRIERS,
     OSM_BOUNDARY,
     OSM_BUILDINGS,
     OSM_FENCES,
@@ -52,11 +64,13 @@ from ..schemas.web import (
     ContextFeature,
     ContextFeatures,
     Extent,
+    FieldMeasurement,
     InfoEntrance,
     InfoLevel,
     InfoSpace,
     Issue,
     IssueList,
+    NetworkBarrier,
     NetworkHeader,
     Replay,
     ReplayCatalog,
@@ -78,7 +92,6 @@ log = logging.getLogger(__name__)
 
 GENERATOR = "06_export_web.py"
 HAUSDORFF_WARN_M = 1.0
-FOOTWAY = {"footway", "path", "pedestrian", "steps", "corridor", "track", "bridleway", "cycleway"}
 PATH_STYLE = {  # class -> (ribbon width m, web y)
     "road": (5.0, 0.03),
     "footway": (2.0, 0.06),
@@ -104,21 +117,6 @@ def _ring_local(coords) -> list[tuple[float, float]]:
 def _repo_rel(p: Path) -> str:
     p = Path(p).resolve()
     return p.relative_to(ROOT).as_posix() if p.is_relative_to(ROOT) else p.as_posix()
-
-
-def edge_class(highway: str, is_steps: bool) -> str:
-    if is_steps:
-        return "steps"
-    return "footway" if set(highway.split("|")) & FOOTWAY else "road"
-
-
-def _osm_index(osm_buildings: gpd.GeoDataFrame) -> dict[str, int]:
-    """Every OSM element id (also merged ones) -> row position."""
-    index = {}
-    for pos, ids in enumerate(osm_buildings.osm_ids):
-        for i in ids.split("|"):
-            index[i] = pos
-    return index
 
 
 def _bbox(meshes: list[TriMesh]) -> tuple[tuple, tuple]:
@@ -154,6 +152,13 @@ class CampusExport:
         self.other_stops: list[SceneStop] = []
         self.extent: Polygon | None = None
         self.aerial: SceneAerial | None = None
+        # walk graph: the OSM part and one part per building, joined on every export
+        self.tm = TimeModel.from_config(cfg)
+        self.campus: Campus | None = None
+        self.outdoor = None
+        self.placed: dict[str, PlacedBuilding] = {}
+        self.indoor: dict[str, Part] = {}  # id -> graph of the last good build
+        self.graph: Graph | None = None
 
     # --- small helpers ---
 
@@ -183,10 +188,14 @@ class CampusExport:
         self._read_previous_scene()
 
         self.osm_buildings = OSM_BUILDINGS.read(gpkg)
-        self.osm_index = _osm_index(self.osm_buildings)
+        self.osm_index = osm_index(self.osm_buildings)
         self.osm_issues = load_osm_issues(self, self.osm_dir, self.osm_buildings)
+        self.campus = Campus.model_validate(
+            yaml.safe_load((self.campus_dir / "campus.yaml").read_text(encoding="utf-8"))
+        )
 
         self.buildings, self.building_issues, self.covered, self.errors = {}, {}, {}, {}
+        self.placed, self.indoor = {}, {}
         files = sorted((self.campus_dir / "buildings").glob("*.yaml"))
         for f in files:
             self._building(f)
@@ -198,11 +207,12 @@ class CampusExport:
         self.ground = export_ground(
             self, self.extent, edges, OSM_BOUNDARY.read(gpkg), OSM_FENCES.read(gpkg)
         )
-        self.network = export_network(self, OSM_WALK_NODES.read(gpkg), edges)
-        campus = Campus.model_validate(
-            yaml.safe_load((self.campus_dir / "campus.yaml").read_text(encoding="utf-8"))
+        self.outdoor = outdoor_part(
+            OSM_WALK_NODES.read(gpkg), edges, self.campus, self.cfg, self.tm
         )
-        self.stops, self.other_stops = export_stops(self, campus, OSM_STOPS.read(gpkg))
+        self.barriers = OSM_BARRIERS.read(gpkg)
+        self.network = self._network()
+        self.stops, self.other_stops = export_stops(self, self.campus, OSM_STOPS.read(gpkg))
         self.aerial = export_aerial(self, self.extent)
         return self._finish(t0)
 
@@ -220,13 +230,26 @@ class CampusExport:
                 self.buildings.pop(bid, None)
                 self.building_issues.pop(bid, None)
                 self.covered.pop(bid, None)
+                self.placed.pop(bid, None)
+                self.indoor.pop(bid, None)
                 self.errors.pop(_repo_rel(f), None)
                 self._prune({p.stem for p in (self.campus_dir / "buildings").glob("*.yaml")})
         if self._covered_rows() != before:  # a building took over (or released) an OSM outline
             self.context = export_context(self, self.osm_buildings, self._covered_rows())
+        self.network = self._network()
         return self._finish(t0)
 
     # --- parts ---
+
+    def _network(self) -> str:
+        """Join the walk graph (outdoor + every building's last good part) and export it."""
+        parts = [
+            *self.indoor.values(),
+            passage_part(self.campus, self.placed, self.tm, self.origin_z),
+            stop_part(self.campus, self.outdoor.z),
+        ]
+        self.graph = assemble(self.outdoor, parts, self.cfg, self.tm)
+        return export_network(self, self.graph, self.barriers)
 
     def _covered_rows(self) -> set[int]:
         return {r for r in self.covered.values() if r is not None}
@@ -247,7 +270,7 @@ class CampusExport:
         place_error = None
         placed = osm_geom = row = None
         if b is not None:
-            row, osm_geom = self._osm_match(b)
+            row, osm_geom = match_osm(b, self.osm_buildings, self.osm_index)
             outline_geom = max(polygons(osm_geom), key=lambda p: p.area) if osm_geom else None
             try:
                 placed = place(b, self.cfg, self.origin_z, outline_geom)
@@ -266,16 +289,17 @@ class CampusExport:
         entry, issues = _building_files(self, src, placed, osm_geom, category)
         self.buildings[bid] = entry
         self.building_issues[bid] = issues
+        self.placed[bid] = placed
+        ats = passage_ats(self.campus).get(bid) if self.campus else None
+        self.indoor[bid] = building_part(placed, self.cfg, self.tm, self.origin_z, ats)
 
-    def _osm_match(self, b) -> tuple[int | None, object]:
-        row = None
-        if b.osm_id and b.osm_id in self.osm_index:
-            row = self.osm_index[b.osm_id]
-        else:  # bootstrapped files always carry osm_id; hand-made ones may match by code
-            match = np.flatnonzero((self.osm_buildings.building_id == b.id).to_numpy())
-            row = int(match[0]) if len(match) else None
-        geom = self.osm_buildings.geometry.iloc[row] if row is not None else None
-        return row, geom
+    def _graph_issue(self, i: GraphIssue) -> Issue:
+        pos = None
+        if i.position is not None:
+            x, y, z = i.position
+            pos = _vec3(web([x], [y], z - self.origin_z, self.origin)[0])
+        known = i.building_id if i.building_id in self.buildings else None
+        return Issue(section=i.section, message=i.message, building_id=known, position=pos)
 
     def _prune(self, stems: set[str]) -> None:
         """Drop files of buildings whose YAML is gone (files of failing YAMLs are kept)."""
@@ -299,6 +323,7 @@ class CampusExport:
             *self.osm_issues,
             *(i for b in self.buildings for i in self.building_issues.get(b, [])),
             *error_issues,
+            *(self._graph_issue(i) for i in (self.graph.issues if self.graph else [])),
         ]
         counts: dict[str, int] = {}
         for i in issues:
@@ -709,43 +734,92 @@ def export_ground(
 # --- network -------------------------------------------------------------------------
 
 
-def export_network(ex: CampusExport, nodes: gpd.GeoDataFrame, edges: gpd.GeoDataFrame) -> str:
-    node_index = {int(n): i for i, n in enumerate(nodes.osm_node)}
-    xyz = web(nodes.geometry.x.to_numpy(), nodes.geometry.y.to_numpy(), 0.0, ex.origin)
-    pairs = np.array(
-        [[node_index[int(u)], node_index[int(v)]] for u, v in zip(edges.u, edges.v, strict=True)],
-        np.uint32,
-    ).reshape(-1, 2)
-    kinds = [edge_class(h, s) for h, s in zip(edges.highway, edges.is_steps, strict=True)]
-    kind_code = np.array([NETWORK_EDGE_KINDS.index(k) for k in kinds], np.uint8)
+def export_network(ex: CampusExport, graph: Graph, barriers: gpd.GeoDataFrame) -> str:
+    """network.json + .bin: the whole walk graph, with times per direction for routing."""
+    nodes, edges = graph.nodes, graph.edges
+    xyz = web(nodes.x.to_numpy(), nodes.y.to_numpy(), nodes.z.to_numpy() - ex.origin_z, ex.origin)
+    node_kinds = [k.value for k in NodeKind]
+    pairs = edges[["u", "v"]].to_numpy(np.uint32).reshape(-1, 2)
 
-    segs, seg_edge = [], []
-    for i, geom in enumerate(edges.geometry):
-        pts = np.asarray(geom.coords)
-        a = web(pts[:-1, 0], pts[:-1, 1], 0.0, ex.origin)
-        b = web(pts[1:, 0], pts[1:, 1], 0.0, ex.origin)
-        segs.append(np.stack([a, b], axis=1))
-        seg_edge.append(np.full(len(a), i, np.uint32))
+    # every edge's polyline as segments (straight edges: node to node), converted at once
+    node_xyz = nodes[["x", "y", "z"]].to_numpy()
+    starts, ends, seg_edge = [], [], []
+    for i, geom in enumerate(graph.edge_geometry):
+        geom = node_xyz[pairs[i]] if geom is None else geom
+        starts.append(geom[:-1])
+        ends.append(geom[1:])
+        seg_edge.append(np.full(len(geom) - 1, i, np.uint32))
+    a, b = np.concatenate(starts), np.concatenate(ends)
+    segs = np.stack(
+        [
+            web(a[:, 0], a[:, 1], a[:, 2] - ex.origin_z, ex.origin),
+            web(b[:, 0], b[:, 1], b[:, 2] - ex.origin_z, ex.origin),
+        ],
+        axis=1,
+    )
+
+    endpoints = {
+        str(k): int(i)
+        for k, i in zip(nodes.endpoint_key, nodes.node_id, strict=True)
+        if isinstance(k, str)
+    }
     write_binary(
         ex.out_dir / "network.json",
         NetworkHeader,
         {
             "node_xyz": xyz.astype(np.float32),
+            "node_kind": np.array([node_kinds.index(k) for k in nodes.kind], np.uint8),
             "edge_nodes": pairs,
-            "edge_kind": kind_code,
+            "edge_kind": np.array(
+                [NETWORK_EDGE_KINDS.index(c) for c in graph.edge_class], np.uint8
+            ),
             "length_m": edges.length_m.to_numpy(np.float32),
-            "segment_xyz": np.concatenate(segs).astype(np.float32),
-            "segment_edge": np.concatenate(seg_edge),
+            "time_uv_s": edges.time_uv_s.to_numpy(np.float32),
+            "time_vu_s": edges.time_vu_s.to_numpy(np.float32),
+            "segment_xyz": segs.astype(np.float32),
+            "segment_edge": np.concatenate(seg_edge).astype(np.uint32),
         },
         provenance=provenance(GENERATOR, ex.cfg),
         n_nodes=len(nodes),
         n_edges=len(edges),
+        node_kind_names=node_kinds,
         edge_kind_names=list(NETWORK_EDGE_KINDS),
-        node_keys=[f"osm:{int(n)}" for n in nodes.osm_node],
-        edge_sources=[w or None for w in edges.osm_ways],
+        node_keys=nodes.key.tolist(),
+        endpoints=endpoints,
+        edge_sources=[s if isinstance(s, str) else None for s in edges.source],
+        barriers=[
+            NetworkBarrier(
+                osm_id=r.osm_id,
+                barrier=r.barrier,
+                access=r.access if isinstance(r.access, str) else None,
+                position=_vec3(web([r.geometry.x], [r.geometry.y], 0.0, ex.origin)[0]),
+            )
+            for r in barriers.itertuples()
+        ],
+        measurements=load_measurements(),
     )
     ex.changed += ["network.json", "network.bin"]
     return "network.json"
+
+
+def load_measurements() -> list[FieldMeasurement]:
+    """Walking times measured on campus (data/validation), for the route tool."""
+    f = ROOT / FIELD_MEASUREMENTS.path
+    if not f.exists():
+        return []
+    df = FIELD_MEASUREMENTS.read(f)
+    return [
+        FieldMeasurement(
+            route_id=r.route_id,
+            from_key=r.from_key,
+            to_key=r.to_key,
+            measured_s=float(r.measured_s),
+            date=r.date,
+            who=r.who,
+            notes=r.notes if isinstance(r.notes, str) else None,
+        )
+        for r in df.itertuples()
+    ]
 
 
 # --- stops, issues, replays ----------------------------------------------------------
@@ -772,18 +846,23 @@ def export_stops(ex: CampusExport, campus: Campus, osm_stops: gpd.GeoDataFrame):
 
 
 def export_replays(ex: CampusExport) -> str:
+    rel = write_replay_catalog(ex.out_dir, ex.cfg)
+    ex.changed.append(rel)
+    return rel
+
+
+def write_replay_catalog(out_dir: Path, cfg: dict) -> str:
+    """replays/index.json from every replays/*/replay.json, newest first."""
     replays = []
-    for f in sorted((ex.out_dir / "replays").glob("*/replay.json")):
+    for f in sorted((out_dir / "replays").glob("*/replay.json")):
         try:
             replays.append(Replay.model_validate_json(f.read_text(encoding="utf-8")))
         except pydantic.ValidationError as err:
-            rel = f"{path(ex.cfg, 'web_data').relative_to(ROOT).as_posix()}/{ex.rel(f)}"
-            log.error("%s: %s", rel, err)
+            log.error("%s: %s", _repo_rel(f), err)
     replays.sort(key=lambda r: r.created_at, reverse=True)
-    ex.write_json(
-        "replays/index.json",
-        ReplayCatalog(provenance=provenance(GENERATOR, ex.cfg), replays=replays),
-    )
+    catalog = ReplayCatalog(provenance=provenance(GENERATOR, cfg), replays=replays)
+    (out_dir / "replays").mkdir(parents=True, exist_ok=True)
+    (out_dir / "replays/index.json").write_text(catalog.model_dump_json(), encoding="utf-8")
     return "replays/index.json"
 
 
@@ -806,7 +885,7 @@ def load_osm_issues(ex: CampusExport, osm_dir: Path, osm_buildings: gpd.GeoDataF
     if not f.exists():
         log.warning("%s missing: rerun 02_build_campus.py to get OSM issues in the viewer", f)
         return []
-    index = _osm_index(osm_buildings)
+    index = osm_index(osm_buildings)
     out = []
     for issue in IssueList.model_validate_json(f.read_text(encoding="utf-8")).issues:
         if issue.osm_id in index and issue.position is None:
@@ -819,18 +898,28 @@ def load_osm_issues(ex: CampusExport, osm_dir: Path, osm_buildings: gpd.GeoDataF
 
 
 def write_status(ex: CampusExport, errors: list[BuildError]) -> BuildStatus:
-    f = ex.out_dir / "status.json"
+    return write_status_file(ex.out_dir, ex.changed, errors)
+
+
+def write_status_file(
+    out_dir: Path, changed: list[str], errors: list[BuildError] | None = None
+) -> BuildStatus:
+    """status.json, written last by every export. ``errors=None`` keeps the previous
+    ones (an export that does not read building files cannot fix or break them)."""
+    f = out_dir / "status.json"
     version = 0
+    previous: list[BuildError] = []
     if f.exists():
         try:
-            version = json.loads(f.read_text(encoding="utf-8")).get("version", 0) + 1
-        except (ValueError, AttributeError):
+            old = BuildStatus.model_validate_json(f.read_text(encoding="utf-8"))
+            version, previous = old.version + 1, old.errors
+        except (pydantic.ValidationError, ValueError):
             version = 0
     status = BuildStatus(
         version=version,
         built_at=provenance(GENERATOR).generated_at,
-        changed=sorted(set(ex.changed)),
-        errors=errors,
+        changed=sorted(set(changed)),
+        errors=previous if errors is None else errors,
     )
     f.write_text(status.model_dump_json(), encoding="utf-8")
     return status

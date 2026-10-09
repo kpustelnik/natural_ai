@@ -54,6 +54,8 @@ Każdy etap to osobny skrypt w `scripts/` czytający pliki z poprzedniego etapu.
 
 ## Struktura katalogów
 
+Szczegółowa mapa kodu (który plik i która funkcja odpowiada za co, gdzie wprowadzić typowe zmiany): [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ```
 metro-agh/
 ├── README.md
@@ -113,7 +115,8 @@ metro-agh/
 │   │   ├── population.py       # syntetyczni studenci i ich grupy
 │   │   └── legs.py             # plan studenta -> przejścia A -> B
 │   ├── network/
-│   │   ├── graph.py            # graf: chodniki + wnętrza + przejścia + szyby metra
+│   │   ├── indoor.py           # graf jednego budynku: korytarze, sale, schody, wejścia, szyb
+│   │   ├── graph.py            # graf: chodniki + wnętrza + przejścia + przystanki + szyby metra
 │   │   ├── travel_time.py      # Dijkstra, czasy dojść
 │   │   └── instance.py         # budowa instance.npz dla ACO
 │   ├── aco/
@@ -126,7 +129,7 @@ metro-agh/
 │   │   └── brute_force.py      # optimum dokładne na małych instancjach
 │   ├── simulation/
 │   │   ├── schedule.py         # rozkład jazdy pociągów
-│   │   └── trips.py            # przejścia każdego studenta, wybór metro / pieszo
+│   │   └── simulate.py         # przejścia każdego studenta, wybór metro / pieszo wg rozkładu
 │   ├── geometry/
 │   │   ├── mesh.py             # obrysy (EPSG:2180) -> trójkąty i linie w układzie web
 │   │   ├── building.py         # YAML budynku -> położenie, piętra, wejścia, bryła LOD1
@@ -135,6 +138,9 @@ metro-agh/
 │       ├── gltf.py             # minimalny zapis .glb (węzły, extras, materiały)
 │       ├── binary.py           # kontenery nagłówek .json + .bin
 │       ├── export_campus.py    # scene, budynki, kontekst, teren, sieć, issues, katalog replayów
+│       ├── export_metro.py     # replaye: przebieg ACO (trace) i linia metra z pociągami
+│       ├── export_sim.py       # replay symulacji: ścieżki, odcinki na każdy dzień, stats.json
+│       ├── fake.py             # --fake: syntetyczny przebieg ACO i tydzień studentów (do rozwijania przeglądarki)
 │       ├── yaml_errors.py      # błędy walidacji YAML z numerem linii
 │       ├── aerial.py           # ortofotomapa GUGiK (WMS) jako podkład
 │       └── watch.py            # tryb --watch: przebudowa po zapisie pliku
@@ -233,14 +239,24 @@ Pipeline krok po kroku (każdy skrypt czyta parametry z `config.yaml`):
 
 ```bash
 uv run scripts/01_fetch_usos.py          # -> data/raw/usos, data/processed/timetable.csv
-uv run scripts/02_build_campus.py        # -> data/processed/osm/ (campus.gpkg, report.md, issues.json, preview.html)
+uv run scripts/02_build_campus.py        # -> data/processed/osm/ (campus.gpkg, report.md, issues.json, preview.html) + network/*.parquet
 uv run scripts/03_build_demand.py        # -> demand.parquet
 uv run scripts/04_optimize.py            # -> experiments/results/best_line.json
-uv run scripts/05_simulate.py            # -> trajektorie bez / z metrem
+uv run scripts/05_simulate.py            # -> simulation/{no_metro,metro}/legs.parquet, schedule.parquet
 uv run scripts/06_export_web.py --campus # -> web/public/data/ (kampus dla przeglądarki)
 ```
 
-Eksport dla przeglądarki ma dodatkowe flagi: `--watch` (przebudowuje po każdym zapisie YAML, jeden budynek w ok. 0,1 s), `--aerial` (raz pobiera ortofotomapę GUGiK do `data/raw/aerial/`, kolejne eksporty używają kopii) i `--sample`.
+Eksport dla przeglądarki ma dodatkowe flagi: `--watch` (przebudowuje po każdym zapisie YAML, jeden budynek razem z grafem w ok. 0,2 s), `--aerial` (raz pobiera ortofotomapę GUGiK do `data/raw/aerial/`, kolejne eksporty używają kopii) i `--sample`.
+
+Replaye (po `--campus`, bo pozycje stacji biorą się ze `scene.json`):
+
+```bash
+uv run scripts/06_export_web.py --aco      # każdy experiments/results/<run_id>/ z trace.npz -> replay ACO
+uv run scripts/06_export_web.py --metro    # experiments/results/best_line.json -> linia z pociągami
+uv run scripts/06_export_web.py --sim      # wynik 05_simulate.py -> studenci (oba scenariusze) + statystyki
+uv run scripts/06_export_web.py --fake     # syntetyczny przebieg MMAS + tydzień 20 000 studentów (data/processed/fake/)
+uv run scripts/06_export_web.py --fake --sample   # to samo na data/sample/campus (eksport --campus też z --sample)
+```
 
 Kampus z OpenStreetMap:
 
@@ -268,7 +284,7 @@ npm test                                 # testy jednostkowe (vitest)
 npm run gen:types                        # typy TS z schemas/web, po zmianie kontraktów
 ```
 
-Skróty w przeglądarce: `/` szukaj (także sale, np. `D-17/1.38`), `F` pokaż zaznaczenie, `Esc` odznacz, `1` / `2` / `3` kamera 3D / plan / spacer (WASD, Shift bieg, Esc powrót), `PageUp` / `PageDown` piętro wybranego budynku, `M` pomiar, `\` ukryj panele, spacja odtwarzanie. Alt+klik kopiuje współrzędne lokalne `[x, y]` budynku, Alt+Shift+klik zbiera łamaną, `Enter` kopiuje ją w formacie YAML. Widok (zakładka, zaznaczenie, piętro, kamera, replay) jest w adresie URL, więc przeładowanie strony go nie gubi.
+Skróty w przeglądarce: `/` szukaj (także sale, np. `D-17/1.38`), `F` pokaż zaznaczenie, `Esc` odznacz, `1` / `2` / `3` kamera 3D / plan / spacer (WASD, Shift bieg, Esc powrót), `PageUp` / `PageDown` piętro wybranego budynku, `M` pomiar, `R` trasa (zakładka *Route*: najszybsza droga między salą, budynkiem, przystankiem lub dowolnym punktem grafu, z podziałem na odcinki na zewnątrz / w środku / schody), `\` ukryj panele, spacja odtwarzanie, `P` tryb prezentacji (tylko widok i odtwarzacz), `S` zrzut ekranu (PNG z etykietami), `?` lista skrótów, `` ` `` licznik klatek (fps, wywołania rysowania). Alt+klik kopiuje współrzędne lokalne `[x, y]` budynku, Alt+Shift+klik zbiera łamaną, `Enter` kopiuje ją w formacie YAML. Widok (zakładka, zaznaczenie, piętro, kamera, replay) jest w adresie URL, więc przeładowanie strony go nie gubi.
 
 Wejście do budynku: zaznacz go i kliknij *Enter* w inspektorze (albo `PageUp`). Zakładka *Building* wyszarza resztę kampusu, a wybrane piętro jest przecięte na wysokości 1,2 m jak rzut architektoniczny; widok *Plan* jest wtedy obrócony do osi budynku.
 
@@ -375,8 +391,8 @@ Aplikacja w `web/`: **React + three.js** (React Three Fiber), TypeScript, Vite; 
 - menu *Replays*: wybór, co odtworzyć — każdy przebieg ACO i każda symulacja eksportowane do `web/public/data/replays/<id>/`,
 - kampus 3D: budynki z `.glb` (czysty styl architektoniczny), wejście do środka i poruszanie się po piętrach,
 - metro: szyby pod wejściami, perony, tunele, kursujące pociągi wg rozkładu,
-- 20 000 studentów odtwarzanych z danych binarnych, z suwakiem dnia i godziny,
-- przełącznik *bez metra / z metrem*, licznik zaoszczędzonych minut,
+- 20 000 studentów odtwarzanych z danych binarnych, z suwakiem dnia i godziny; kolor: idzie / czeka na pociąg / jedzie,
+- przełącznik *bez metra / z metrem / obok siebie* (dwie połówki widoku, jedna kamera), zakładka *Stats*: zaoszczędzone godziny, wykres na każdą godzinę, użycie stacji, największe oszczędności między punktami,
 - animacja mrówek (kandydaci jako cylindry, trasy mrówek, feromon) z `trace.npz`.
 
 ---

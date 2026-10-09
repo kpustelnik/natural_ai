@@ -1,5 +1,6 @@
 // Ground plate, path ribbons, campus boundary and fences from campus/ground.glb.
 // Only the ground plate is raycast (for the cursor position); nothing here is selectable.
+// `seeThrough` makes the surfaces translucent, for the metro tunnel underneath.
 
 import { useLoader } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
@@ -18,7 +19,7 @@ const SURFACES: Record<string, { color: string; offset: number }> = {
   "paths:steps": { color: SCENE.steps, offset: -3 },
 };
 
-export function Ground({ glb }: { glb: string }) {
+export function Ground({ glb, seeThrough = false }: { glb: string; seeThrough?: boolean }) {
   const gltf = useLoader(GLTFLoader, DATA_URL + glb);
   const layers = useApp((s) => s.layers);
 
@@ -49,6 +50,19 @@ export function Ground({ glb }: { glb: string }) {
     });
     return byLayer;
   }, [gltf]);
+
+  useEffect(() => {
+    for (const layer of Object.keys(SURFACES)) {
+      for (const o of parts.get(layer) ?? []) {
+        if (!(o instanceof Mesh)) continue;
+        const m = o.material as MeshLambertMaterial;
+        m.transparent = seeThrough;
+        m.opacity = seeThrough ? (layer === "ground" ? 0.3 : 0.45) : 1;
+        m.depthWrite = !seeThrough;
+        m.needsUpdate = true;
+      }
+    }
+  }, [parts, seeThrough]);
 
   useEffect(() => {
     const show = (layer: string, on: boolean) => parts.get(layer)?.forEach((o) => (o.visible = on));

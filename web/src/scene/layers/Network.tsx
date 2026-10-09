@@ -1,9 +1,11 @@
-// The walk graph (network.json + .bin): edge polylines coloured by kind, lifted above the
-// paths. Edges are selectable; the picked edge is redrawn in the accent colour.
+// The walk graph (network.json + .bin): edge polylines coloured by kind (outdoor paths,
+// corridors, doors, stairs, passages, shafts), lifted above the floors. Edges are
+// selectable; the picked edge is redrawn in the accent colour. With a building opened at a
+// level, the graph is cut at the same section height as the building.
 
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
-import { BufferAttribute, BufferGeometry, Color, LineBasicMaterial, LineSegments } from "three";
+import { BufferAttribute, BufferGeometry, Color, LineBasicMaterial, LineSegments, Plane, Vector3 } from "three";
 import type { BinaryFile } from "../../data/loader";
 import type { NetworkHeader } from "../../generated/schemas";
 import { app, useApp } from "../../state/app";
@@ -23,7 +25,7 @@ function edgeGeometry(net: BinaryFile<NetworkHeader>, edge: number): BufferGeome
   return g;
 }
 
-export function Network({ net }: { net: BinaryFile<NetworkHeader> }) {
+export function Network({ net, clipY }: { net: BinaryFile<NetworkHeader>; clipY: number | null }) {
   const raycaster = useThree((s) => s.raycaster);
   const selected = useApp((s) => (s.selection?.kind === "edge" ? s.selection.index : null));
   const hovered = useApp((s) => (s.hover?.kind === "edge" ? s.hover.index : null));
@@ -53,6 +55,13 @@ export function Network({ net }: { net: BinaryFile<NetworkHeader> }) {
     );
     return obj;
   }, [net]);
+
+  useEffect(() => {
+    const m = lines.material as LineBasicMaterial;
+    m.clippingPlanes = clipY === null ? [] : [new Plane(new Vector3(0, -1, 0), clipY + LIFT)];
+    lines.userData.clipY = clipY === null ? undefined : clipY + LIFT;
+    m.needsUpdate = true;
+  }, [lines, clipY]);
 
   useEffect(() => {
     registry.network = net;

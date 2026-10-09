@@ -537,8 +537,25 @@ Each edge is stored once, with a walking time per direction (stairs and shafts a
 going up). `kind` is one of `outdoor, corridor, door, stairs, entrance, passage, shaft, link`.
 `source` is the OSM way id, building id or passage id the edge came from.
 
-For debugging in QGIS, `02_build_campus.py --debug` also writes `network/graph.gpkg`. It
-isn't a contract.
+Code: `metro_agh.network` (`indoor.py`: one building; `graph.py`: outdoor, passages, stops,
+links and the assembly). Details of the build:
+
+- Outdoor edges take `length / walk_speed_mps`, OSM steps `× time_model.outdoor_steps_factor`
+  (OSM has no heights). `removed_ways` drop their edges; `extra_paths` snap both ends to the
+  nearest walk node. Parallel edges keep the shortest.
+- Corridor nodes every `network.corridor_node_step_m` and at every door, stairwell, entrance,
+  junction and passage end. A door edge adds `door_s` (room doors and entrances).
+- Stairs join the landings of consecutive levels where the stairwell appears:
+  `rise / stairs_up_mps` up, `rise / stairs_down_mps` down. The shaft is the same, from the
+  shaft top (at the `metro_shaft` entrance, inside) down to the platform.
+- `:out` entrance nodes, stops and LOD1 buildings without entrances are linked (`link`) to the
+  nearest node of the largest connected OSM component, or to `osm_node` when given.
+- An endpoint `D-17` is the inside node of the main entrance (LOD2/3) or the `place` node
+  (LOD1). Building files that fail validation are left out; problems (far links, unreachable
+  endpoints, buildings without entrances) become issues in the viewer, section *Network: …*.
+
+The web export builds the same graph in memory from the same inputs, so the viewer follows
+YAML edits live without rerunning stage 2.
 
 ---
 
@@ -650,7 +667,10 @@ the actual train timetable. No congestion or train capacity in v1.
 `run_id, train_id, weekday, direction (+1/−1), stop_seq, station, arrive_wt, depart_wt`
 
 These are train runs between `metro.service.start` and `end`, every `metro.headway_s`. The
-web viewer animates trains from the same data.
+web viewer animates trains from the same data. `metro_agh.simulation.schedule.build_schedule`
+writes it from the line and the config: straight tunnels at `speed_mps`, `dwell_s` at every
+intermediate station, runs in both directions; a train finishing a run takes the next one
+leaving from that station, so `train_id` counts the trains a day needs.
 
 ### 9.2 `simulation/<scenario>/legs.parquet`: `tables.SIM_LEGS`
 
@@ -668,6 +688,14 @@ web viewer animates trains from the same data.
 Departure rule: `class_to_class` legs leave at `earliest_depart_wt`. `home_to_class` legs
 leave so that they arrive at `deadline − arrival_buffer_s`. `class_to_home` legs leave right
 after class.
+
+Code: `metro_agh.simulation.simulate` (`scripts/05_simulate.py`). Walks are shortest paths on
+the directed graph of 6.4 (Dijkstra once per distinct origin). A metro leg walks to the
+platform of station i (the shaft is in the graph), takes the first train of the timetable that
+reaches station j, and walks out of j; `wait_s` runs from reaching the platform to the train's
+departure, `ride_s` from that departure to the arrival at j. It is taken only when it arrives
+earlier than walking (`class_to_class`, `class_to_home`), or, for `home_to_class`, when it lets
+the student leave later and still arrive by `deadline − arrival_buffer_s`.
 
 ---
 
@@ -880,17 +908,38 @@ by all days:
 - The student position at time `t` is the path interpolated at `t − t_start`.
 
 **`replays/<id>/trace.json` + `.bin`: `AcoTraceHeader`.** The same buffers as `trace.npz`
-(section 8.1), plus `run_id`, `algorithm`, `topology`, `candidate_ids` and
-`candidate_platforms` (web positions). The viewer draws candidates as cylinders, animates
-each sampled ant along its tour between platforms, and shows pheromone as tunnel thickness
-or opacity.
+(section 8.1) and the convergence curve (`curve_iteration` int32, `curve_best_s`,
+`curve_iter_best_s`, `curve_iter_mean_s` float32: `convergence.csv`, or the sampled
+iterations when it is missing). The header adds `run_id`, `algorithm`, `topology`, `k`,
+`n_iterations`, `best_s`, `baseline_s`, the final `stations`, `candidate_ids`,
+`candidate_tops` and `candidate_platforms` (web positions). The viewer draws candidates as
+pins at their shafts, animates each sampled ant along its tour, and shows the pheromone
+between candidates as ribbon width and opacity.
+
+**Where replays come from.** `06_export_web.py --aco` turns every
+`results/<run_id>/` with a `trace.npz` into `replays/aco-<run_id>/` (trace, `metro.json` of its
+best line, replay.json). `--metro` turns `results/best_line.json` into
+`replays/sim-<run_id>/` (kind `simulation`, trains only). `--sim` reads
+`simulation/<scenario>/legs.parquet`, `demand/legs.parquet` and `network/*.parquet` and adds
+`trips/` and `stats.json` to that replay (`metro_agh.web.export_sim`). Walking paths follow
+the edges' polylines from `network.json`, matched by node key, so the web export must be of the
+same campus; a ride path runs through the platforms it passes, with the timetable's times. The trains
+follow `simulation/metro/schedule.parquet` when it is for the same line, else a timetable
+built from `metro` in the config (`metro_agh.simulation.schedule`). Station positions come
+from scene.json, so `--campus` runs first. `--fake` writes a synthetic run
+(`data/processed/fake/results/`, same contracts as section 8) and a synthetic week:
+`network/`, `population/`, `demand/` (random students and AGH time slots, not USOS) and
+`simulation/` by the real stage-5 code, all under `data/processed/fake/`; then it exports both
+replays. It is only for developing the viewer.
 
 **`replays/<id>/stats.json`: `schemas.web.Stats`.**
 
 - `scenarios.{no_metro, metro}`: `n_legs, total_travel_s, mean_leg_s, n_late, late_share,
   longer_than_break_share, metro_share`.
 - `saving_s`: total no_metro − total metro.
-- `per_hour[{weekday, hour, n_legs, no_metro_s, metro_s}]`: the time-of-day chart.
+- `per_hour[{weekday, hour, n_legs, no_metro_s, metro_s}]`: the time-of-day chart; a leg
+  counts in the hour it leaves in when walking (`no_metro` `depart_wt`), and `*_s` sum the
+  door-to-door times (`arrive_wt − depart_wt`, waiting included).
 - `stations[{building_id, boardings, alightings}]`.
 - `top_od[{from_key, to_key, n_legs, saving_s}]`: the 50 largest savings.
 
@@ -898,19 +947,24 @@ The notebooks use the same numbers, computed from `simulation/*/legs.parquet`.
 
 ### 10.7 `network.json` + `.bin`: `schemas.web.NetworkHeader`
 
-The outdoor walk graph (the indoor graph is added with stage 2b):
+The whole walk graph of section 6.4 (outdoor, indoor, passages, stops, shafts), for drawing
+and for the route tool:
 
 | buffer | dtype, shape | meaning |
 |---|---|---|
 | `node_xyz` | float32 (N, 3) | node positions |
-| `edge_nodes` | uint32 (E, 2) | the two node indices of each edge |
-| `edge_kind` | uint8 (E) | index into `edge_kind_names` (`footway`, `road`, `steps`) |
+| `node_kind` | uint8 (N) | index into `node_kind_names` (the `GRAPH_NODES` kinds) |
+| `edge_nodes` | uint32 (E, 2) | the two node indices of each edge (u, v) |
+| `edge_kind` | uint8 (E) | index into `edge_kind_names`: `footway`, `road`, `steps` for outdoor edges, else the `GRAPH_EDGES` kind |
 | `length_m` | float32 (E) | edge length |
-| `segment_xyz` | float32 (S, 2, 3) | the edges' real polylines as segments, for drawing |
+| `time_uv_s`, `time_vu_s` | float32 (E) | walking time u → v and v → u |
+| `segment_xyz` | float32 (S, 2, 3) | the edges' real polylines as segments, in edge order, for drawing |
 | `segment_edge` | uint32 (S) | edge index of each segment |
 
-The header also carries `node_keys` (per node, e.g. `osm:123`; OSM ids exceed uint32) and
-`edge_sources` (per edge, e.g. `way/1|way/2`).
+The header also carries `node_keys` (per node, e.g. `osm:123`, `D-17/1.38`; OSM ids exceed
+uint32), `endpoints` (endpoint key → node index), `edge_sources` (per edge: `way/1|way/2`, a
+building id, a passage id), `barriers` (OSM point barriers with their web position) and
+`measurements` (the rows of `field_measurements.csv`, so the route tool can compare).
 
 ### 10.8 `issues.json`: `schemas.web.IssueList`
 
@@ -949,7 +1003,7 @@ its own directory with a `replay.json`:
 
 ```json
 {
-  "id": "mmas-k5-s42",
+  "id": "sim-mmas-k5-s42",
   "kind": "simulation",
   "title": "Week simulation, MMAS line k=5",
   "description": null,
@@ -960,13 +1014,13 @@ its own directory with a `replay.json`:
   "scenarios": ["no_metro", "metro"],
   "weekdays": [1, 2, 3, 4, 5],
   "files": {
-    "metro": "replays/mmas-k5-s42/metro.json",
+    "metro": "replays/sim-mmas-k5-s42/metro.json",
     "aco_trace": null,
     "trips": {
-      "no_metro": "replays/mmas-k5-s42/trips/no_metro",
-      "metro": "replays/mmas-k5-s42/trips/metro"
+      "no_metro": "replays/sim-mmas-k5-s42/trips/no_metro",
+      "metro": "replays/sim-mmas-k5-s42/trips/metro"
     },
-    "stats": "replays/mmas-k5-s42/stats.json"
+    "stats": "replays/sim-mmas-k5-s42/stats.json"
   }
 }
 ```

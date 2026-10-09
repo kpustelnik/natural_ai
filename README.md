@@ -76,12 +76,14 @@ metro-agh/
 ├── data/
 │   ├── raw/                    # [gitignore] surowe dane, nie edytujemy ręcznie
 │   │   ├── usos/               #   odpowiedzi API / eksporty iCal
-│   │   └── osm/                #   cache osmnx
+│   │   └── osm/                #   features.osm, walk.osm (surowe odpowiedzi Overpass)
 │   ├── campus/                 # [w repo] ręcznie modelowany kampus
 │   │   ├── buildings/*.yaml    #   budynek: piętra, korytarze, sale, schody, wejścia
 │   │   ├── campus.yaml         #   przejścia między budynkami, poprawki OSM, przystanki
+│   │   ├── osm_building_map.csv #  poprawki klasyfikacji budynków z OSM
 │   │   └── usos_room_map.csv   #   poprawki mapowania sal z USOS
 │   ├── processed/              # [gitignore] wyniki etapów pipeline'u
+│   │   ├── osm/                #   campus.gpkg (QGIS), report.md, preview.html
 │   │   ├── usos/               #   timetable.csv, groups.csv, cohorts.csv, group_cohorts.csv
 │   │   ├── population/         #   students.parquet, enrollments.parquet
 │   │   ├── demand/             #   legs.parquet, od.parquet
@@ -94,13 +96,16 @@ metro-agh/
 │
 ├── src/metro_agh/              # kod biblioteczny (importowany przez skrypty i notebooki)
 │   ├── __init__.py
-│   ├── config.py               # wczytanie config.yaml
+│   ├── config.py               # wczytanie config.yaml, provenance plików
 │   ├── schemas/                # kontrakty danych (pydantic + tabele), patrz docs/data_contracts.md
 │   ├── usos/
 │   │   ├── client.py           # USOS API (OAuth 1.0a) / plan B: iCal
 │   │   └── parse.py            # sala -> budynek, normalizacja do timetable.csv
 │   ├── campus/
-│   │   ├── osm.py              # pobranie grafu pieszego i obrysów budynków
+│   │   ├── osm.py              # pobranie danych z Overpass (z cache i serwerami zapasowymi)
+│   │   ├── osm_process.py      # warstwy: budynki, wejścia, przystanki, bariery, graf pieszy
+│   │   ├── osm_report.py       # report.md, issues.json i preview.html
+│   │   ├── geo.py              # układy współrzędnych: lon/lat, EPSG:2180, lokalny, web
 │   │   ├── bootstrap.py        # szkielety LOD1 budynków z OSM (nie nadpisuje istniejących)
 │   │   ├── interior.py         # YAML budynku -> geometria pięter i graf wewnętrzny
 │   │   └── candidates.py       # kandydaci na stacje (wejścia z metro_shaft)
@@ -122,9 +127,17 @@ metro-agh/
 │   ├── simulation/
 │   │   ├── schedule.py         # rozkład jazdy pociągów
 │   │   └── trips.py            # przejścia każdego studenta, wybór metro / pieszo
-│   └── export/
-│       ├── gltf.py             # budynki -> buildings/<id>.glb
-│       └── web.py              # scene, metro, trips, aco, stats dla przeglądarki
+│   ├── geometry/
+│   │   ├── mesh.py             # obrysy (EPSG:2180) -> trójkąty i linie w układzie web
+│   │   ├── building.py         # YAML budynku -> położenie, piętra, wejścia, bryła LOD1
+│   │   └── interior.py         # LOD2/3: pomieszczenia, ściany z otworami drzwi, schody, stropy
+│   └── web/
+│       ├── gltf.py             # minimalny zapis .glb (węzły, extras, materiały)
+│       ├── binary.py           # kontenery nagłówek .json + .bin
+│       ├── export_campus.py    # scene, budynki, kontekst, teren, sieć, issues, katalog replayów
+│       ├── yaml_errors.py      # błędy walidacji YAML z numerem linii
+│       ├── aerial.py           # ortofotomapa GUGiK (WMS) jako podkład
+│       └── watch.py            # tryb --watch: przebudowa po zapisie pliku
 │
 ├── scripts/                    # punkty wejścia, uruchamiane po kolei
 │   ├── 01_fetch_usos.py
@@ -147,11 +160,15 @@ metro-agh/
 │   ├── package.json
 │   ├── index.html
 │   ├── scripts/gen-types.mjs   # schemas/web/*.schema.json -> src/generated/schemas.ts
+│   ├── plugins/metroData.ts    # Vite: przeładowanie danych na żywo, `npm run model` uruchamia watcher
 │   ├── src/
-│   │   ├── App.tsx             # canvas + panel
-│   │   ├── data/loader.ts      # wczytywanie JSON i kontenerów binarnych
-│   │   ├── scene/              # kampus, kamera, three-mesh-bvh
-│   │   ├── ui/                 # panel sterowania
+│   │   ├── App.tsx             # układ: górny pasek, panele boczne, widok 3D, pasek stanu
+│   │   ├── state/              # stan widoku (mały store), synchronizacja z adresem URL
+│   │   ├── data/               # wczytywanie JSON i kontenerów binarnych, cache
+│   │   ├── lib/                # układy współrzędnych (EPSG:2180 w TS), wyszukiwanie, formaty
+│   │   ├── scene/              # kamery (orbita, plan, spacer), warstwy, narzędzia (pomiar), paleta
+│   │   ├── ui/                 # menu replayów, wyszukiwarka, warstwy, drzewo budynków, inspektor
+│   │   ├── theme.css           # wygląd (tokeny kolorów, układ)
 │   │   └── generated/          # [generowane, w repo] typy TS (npm run gen:types)
 │   └── public/data/            # [gitignore] dane z 06_export_web.py
 │
@@ -216,12 +233,23 @@ Pipeline krok po kroku (każdy skrypt czyta parametry z `config.yaml`):
 
 ```bash
 uv run scripts/01_fetch_usos.py          # -> data/raw/usos, data/processed/timetable.csv
-uv run scripts/02_build_campus.py        # -> graf, budynki, kandydaci na stacje
+uv run scripts/02_build_campus.py        # -> data/processed/osm/ (campus.gpkg, report.md, issues.json, preview.html)
 uv run scripts/03_build_demand.py        # -> demand.parquet
 uv run scripts/04_optimize.py            # -> experiments/results/best_line.json
 uv run scripts/05_simulate.py            # -> trajektorie bez / z metrem
-uv run scripts/06_export_web.py          # -> web/public/data/
+uv run scripts/06_export_web.py --campus # -> web/public/data/ (kampus dla przeglądarki)
 ```
+
+Eksport dla przeglądarki ma dodatkowe flagi: `--watch` (przebudowuje po każdym zapisie YAML, jeden budynek w ok. 0,1 s), `--aerial` (raz pobiera ortofotomapę GUGiK do `data/raw/aerial/`, kolejne eksporty używają kopii) i `--sample`.
+
+Kampus z OpenStreetMap:
+
+```bash
+uv run scripts/02_build_campus.py --bootstrap   # + szkielety YAML nowych budynków AGH (LOD1)
+uv run scripts/02_build_campus.py --refresh     # pobierz OSM ponownie (zamiast z data/raw/osm)
+```
+
+Wynik: `data/processed/osm/campus.gpkg` (otwórz w QGIS), `preview.html` (mapa w przeglądarce) i `report.md` (lista rzeczy do sprawdzenia ręcznie). Istniejące pliki w `data/campus/buildings/` nigdy nie są nadpisywane.
 
 Praca na danych testowych (bez USOS) — flaga `--sample` czyta z `data/sample/`:
 
@@ -229,13 +257,20 @@ Praca na danych testowych (bez USOS) — flaga `--sample` czyta z `data/sample/`
 uv run scripts/03_build_demand.py --sample
 ```
 
-Podgląd wizualizacji:
+Podgląd w przeglądarce (najpierw `02_build_campus.py` i `06_export_web.py --campus`):
 
 ```bash
 cd web
-npm run gen:types                        # typy TS z schemas/web
 npm run dev                              # otwórz adres wypisany przez Vite
+npm run model                            # Vite + watcher Pythona: edytuj YAML w VS Code, widok odświeża się sam
+npm run model:sample                     # to samo na data/sample/campus (budynki z wnętrzami)
+npm test                                 # testy jednostkowe (vitest)
+npm run gen:types                        # typy TS z schemas/web, po zmianie kontraktów
 ```
+
+Skróty w przeglądarce: `/` szukaj (także sale, np. `D-17/1.38`), `F` pokaż zaznaczenie, `Esc` odznacz, `1` / `2` / `3` kamera 3D / plan / spacer (WASD, Shift bieg, Esc powrót), `PageUp` / `PageDown` piętro wybranego budynku, `M` pomiar, `\` ukryj panele, spacja odtwarzanie. Alt+klik kopiuje współrzędne lokalne `[x, y]` budynku, Alt+Shift+klik zbiera łamaną, `Enter` kopiuje ją w formacie YAML. Widok (zakładka, zaznaczenie, piętro, kamera, replay) jest w adresie URL, więc przeładowanie strony go nie gubi.
+
+Wejście do budynku: zaznacz go i kliknij *Enter* w inspektorze (albo `PageUp`). Zakładka *Building* wyszarza resztę kampusu, a wybrane piętro jest przecięte na wysokości 1,2 m jak rzut architektoniczny; widok *Plan* jest wtedy obrócony do osi budynku.
 
 Po zmianie modeli w `src/metro_agh/schemas/` (najpierw uzgodnić w zespole):
 
@@ -336,6 +371,8 @@ Pomiary terenowe zapisujemy w `data/validation/field_measurements.csv`:
 
 Aplikacja w `web/`: **React + three.js** (React Three Fiber), TypeScript, Vite; `three-mesh-bvh` do szybkiego raycastingu (wybór sal, kolizje kamery we wnętrzach). Odtwarza gotowe dane z `web/public/data/`; wszystkie obliczenia są w Pythonie.
 
+- zakładki: *Campus* (przegląd OSM i budynków), *Building* (jeden budynek, modelowanie), *Network* (graf pieszy), *Metro*, *Simulation*,
+- menu *Replays*: wybór, co odtworzyć — każdy przebieg ACO i każda symulacja eksportowane do `web/public/data/replays/<id>/`,
 - kampus 3D: budynki z `.glb` (czysty styl architektoniczny), wejście do środka i poruszanie się po piętrach,
 - metro: szyby pod wejściami, perony, tunele, kursujące pociągi wg rozkładu,
 - 20 000 studentów odtwarzanych z danych binarnych, z suwakiem dnia i godziny,

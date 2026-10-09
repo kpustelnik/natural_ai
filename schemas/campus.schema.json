@@ -133,7 +133,7 @@
       "additionalProperties": false,
       "properties": {
         "building": {
-          "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*[a-z]?$",
+          "pattern": "^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*$",
           "title": "Building",
           "type": "string"
         },

@@ -1,4 +1,4 @@
-"""Tabular contracts (CSV / Parquet) and a small validator for pandas DataFrames.
+"""Tabular contracts (CSV / Parquet / GeoPackage layers) and a small validator for DataFrames.
 
 Every table that crosses a module boundary is declared here. Writers call
 ``TABLE.validate(df)`` before saving, readers may call it after loading.
@@ -58,6 +58,9 @@ class Table:
     columns: tuple[Column, ...]
     primary_key: tuple[str, ...] = ()
     hand_written: bool = field(default=False)
+    # geo tables: GeoPackage layer name and allowed geometry types of the "geometry" column
+    layer: str | None = None
+    geometry: tuple[str, ...] | None = None
 
     @property
     def column_names(self) -> list[str]:
@@ -67,7 +70,16 @@ class Table:
         """Raise SchemaError listing every problem found."""
         problems: list[str] = []
         missing = [c for c in self.column_names if c not in df.columns]
-        extra = [c for c in df.columns if c not in self.column_names]
+        extra = [c for c in df.columns if c not in self.column_names and c != "geometry"]
+        if self.geometry is not None:
+            if "geometry" not in df.columns:
+                missing.append("geometry")
+            else:
+                types = set(df.geometry.geom_type.dropna())
+                if not types <= set(self.geometry):
+                    problems.append(f"geometry types {sorted(types)} not in {self.geometry}")
+        elif "geometry" in df.columns:
+            extra.append("geometry")
         if missing:
             problems.append(f"missing columns {missing}")
         if extra:
@@ -99,6 +111,10 @@ class Table:
                 if c.dtype != "list[int]"
             }
             df = pd.read_csv(path, dtype=dtypes, keep_default_na=False, na_values=[""])
+        elif self.layer is not None:
+            import geopandas as gpd
+
+            df = gpd.read_file(path, layer=self.layer)
         else:
             df = pd.read_parquet(path)
         self.validate(df)
@@ -109,8 +125,10 @@ class Table:
         self.validate(df)
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        df = df[self.column_names]
-        if path.suffix == ".csv":
+        df = df[self.column_names + (["geometry"] if self.geometry else [])]
+        if self.layer is not None:
+            df.to_file(path, layer=self.layer, driver="GPKG")
+        elif path.suffix == ".csv":
             df.to_csv(path, index=False, lineterminator="\n")
         else:
             df.to_parquet(path, index=False)
@@ -319,6 +337,208 @@ OD = Table(
     ),
 )
 
+# --- OSM (data/processed/osm/campus.gpkg, all layers in EPSG:2180) --------------
+
+_OSM_GPKG = "osm/campus.gpkg"
+_POLY = ("Polygon", "MultiPolygon")
+
+
+def _str(name: str, description: str, nullable: bool = True, **kw) -> Column:
+    return Column(name, "str", description, nullable=nullable, **kw)
+
+
+OSM_CATEGORIES = ("academic", "dorm", "other", "connector", "context")
+
+OSM_BOUNDARY = Table(
+    name="osm_boundary",
+    path=_OSM_GPKG,
+    layer="boundary",
+    geometry=_POLY,
+    description="AGH campus area, Miasteczko Studenckie (derived from dorms) and the bbox.",
+    primary_key=("kind",),
+    columns=(
+        _str("kind", "agh_campus | miasteczko | bbox", nullable=False),
+        _str("name", "label"),
+        _str("osm_id", "source element, e.g. relation/3830877"),
+    ),
+)
+
+OSM_BUILDINGS = Table(
+    name="osm_buildings",
+    path=_OSM_GPKG,
+    layer="buildings",
+    geometry=_POLY,
+    description="Every OSM building in the bbox; AGH buildings merged per building_id.",
+    primary_key=("osm_id",),
+    columns=(
+        _str("osm_id", "largest OSM element, e.g. way/181823531", nullable=False),
+        _str("osm_ids", "all merged elements joined with '|'", nullable=False),
+        _str("building_id", "AGH code; null for context buildings", pattern=BUILDING_ID_PATTERN),
+        _str("category", "classification", nullable=False, allowed=OSM_CATEGORIES),
+        _str("ref", "raw OSM ref tag"),
+        _str("name", "OSM name"),
+        _str("building", "OSM building tag", nullable=False),
+        Column("levels", "float", "building:levels", nullable=True, min=0),
+        Column("levels_underground", "float", "building:levels:underground", nullable=True, min=0),
+        Column("roof_levels", "float", "roof:levels", nullable=True, min=0),
+        Column("height_m", "float", "height used for 3D", min=0),
+        _str(
+            "height_source",
+            "tag | levels | default",
+            nullable=False,
+            allowed=("tag", "levels", "default"),
+        ),
+        _str("connects", "connectors: the two building ids joined with '|'"),
+        Column("main_entrance_node", "int", "OSM node of the main entrance", nullable=True),
+        Column("n_entrances", "int", "entrance nodes on the outline", min=0),
+    ),
+)
+
+OSM_ENTRANCES = Table(
+    name="osm_entrances",
+    path=_OSM_GPKG,
+    layer="entrances",
+    geometry=("Point",),
+    description="OSM entrance nodes, assigned to the building whose outline they lie on.",
+    primary_key=("osm_node",),
+    columns=(
+        Column("osm_node", "int", "OSM node id"),
+        _str("entrance", "OSM entrance tag: main, yes, service, emergency, ...", nullable=False),
+        _str("name", "OSM name"),
+        _str("ref", "OSM ref"),
+        _str("level", "OSM level"),
+        _str("access", "OSM access"),
+        _str("wheelchair", "OSM wheelchair"),
+        _str(
+            "building_id",
+            "AGH building, null if not on an AGH building",
+            pattern=BUILDING_ID_PATTERN,
+        ),
+        _str("building_osm_id", "building element it lies on (any category)"),
+        Column("is_main", "bool", "chosen main entrance of its AGH building"),
+    ),
+)
+
+OSM_STOPS = Table(
+    name="osm_stops",
+    path=_OSM_GPKG,
+    layer="stops",
+    geometry=("Point",),
+    description="Bus/tram stops: platforms grouped by name, point = their centre.",
+    primary_key=("stop_id",),
+    columns=(
+        _str("stop_id", "stop:<slug>", nullable=False, pattern=r"^stop:[a-z0-9_]+$"),
+        _str("name", "stop name without the platform number", nullable=False),
+        _str("modes", "bus, tram or bus|tram", nullable=False),
+        Column("n_platforms", "int", "platforms merged", min=1),
+        _str("platform_ids", "OSM elements joined with '|'", nullable=False),
+    ),
+)
+
+OSM_BARRIERS = Table(
+    name="osm_barriers",
+    path=_OSM_GPKG,
+    layer="barriers",
+    geometry=("Point",),
+    description="Point barriers on paths: gates, bollards, turnstiles, ...",
+    primary_key=("osm_id",),
+    columns=(
+        _str("osm_id", "OSM element", nullable=False),
+        _str("barrier", "OSM barrier tag", nullable=False),
+        _str("access", "OSM access"),
+        _str("name", "OSM name"),
+    ),
+)
+
+OSM_FENCES = Table(
+    name="osm_fences",
+    path=_OSM_GPKG,
+    layer="fences",
+    geometry=("LineString", "MultiLineString", "Polygon", "MultiPolygon"),
+    description="Linear barriers: fences, walls, hedges (for viewing and later graph checks).",
+    primary_key=("osm_id",),
+    columns=(
+        _str("osm_id", "OSM element", nullable=False),
+        _str("barrier", "OSM barrier tag", nullable=False),
+        _str("access", "OSM access"),
+    ),
+)
+
+OSM_WALK_NODES = Table(
+    name="osm_walk_nodes",
+    path=_OSM_GPKG,
+    layer="walk_nodes",
+    geometry=("Point",),
+    description="Outdoor walk network nodes (osmnx, simplified).",
+    primary_key=("osm_node",),
+    columns=(
+        Column("osm_node", "int", "OSM node id"),
+        Column("street_count", "int", "number of incident streets", min=0),
+        _str("highway", "OSM highway tag of the node (crossing, ...)"),
+        _str("barrier", "OSM barrier on the node"),
+        _str("access", "OSM access of the node"),
+        _str("entrance", "OSM entrance tag, if the node is an entrance"),
+    ),
+)
+
+OSM_WALK_EDGES = Table(
+    name="osm_walk_edges",
+    path=_OSM_GPKG,
+    layer="walk_edges",
+    geometry=("LineString",),
+    description="Outdoor walk network edges (undirected, simplified). Raw OSM tags kept as text.",
+    primary_key=("u", "v", "key"),
+    columns=(
+        Column("u", "int", "osm_node"),
+        Column("v", "int", "osm_node"),
+        Column("key", "int", "parallel edge index", min=0),
+        _str("osm_ways", "OSM way ids joined with '|'", nullable=False),
+        _str("highway", "footway, steps, service, ...; '|'-joined if merged", nullable=False),
+        _str("name", "street / path name"),
+        Column("length_m", "float", "length", min=0),
+        Column("is_steps", "bool", "contains highway=steps"),
+        Column("step_count", "float", "OSM step_count", nullable=True, min=0),
+        _str("incline", "OSM incline (up/down/percent)"),
+        _str("access", "OSM access"),
+        _str("foot", "OSM foot"),
+        _str("covered", "OSM covered"),
+        _str("tunnel", "OSM tunnel"),
+        _str("bridge", "OSM bridge"),
+        _str("indoor", "OSM indoor"),
+        _str("level", "OSM level"),
+        _str("surface", "OSM surface"),
+    ),
+)
+
+OSM_BUILDING_MAP = Table(
+    name="osm_building_map",
+    path="data/campus/osm_building_map.csv",
+    description="Hand-written fixes of OSM building classification.",
+    primary_key=("osm_id",),
+    hand_written=True,
+    columns=(
+        _str("osm_id", "OSM element, e.g. way/230301584", nullable=False),
+        _str(
+            "building_id",
+            "AGH code to assign; empty = make it context",
+            pattern=BUILDING_ID_PATTERN,
+        ),
+        _str("category", "override category; empty = derive", allowed=OSM_CATEGORIES),
+        _str("note", "why"),
+    ),
+)
+
+OSM_TABLES = (
+    OSM_BOUNDARY,
+    OSM_BUILDINGS,
+    OSM_ENTRANCES,
+    OSM_STOPS,
+    OSM_BARRIERS,
+    OSM_FENCES,
+    OSM_WALK_NODES,
+    OSM_WALK_EDGES,
+)
+
 # --- network ---------------------------------------------------------------
 
 GRAPH_NODES = Table(
@@ -471,6 +691,8 @@ FIELD_MEASUREMENTS = Table(
 )
 
 ALL_TABLES: tuple[Table, ...] = (
+    *OSM_TABLES,
+    OSM_BUILDING_MAP,
     TIMETABLE,
     GROUPS,
     COHORTS,

@@ -24,6 +24,7 @@ from .common import (
     Scenario,
     StopId,
     StrictModel,
+    Vec2,
     Vec3,
     Weekday,
 )
@@ -41,7 +42,34 @@ class WebFrame(StrictModel):
     axes: Literal["x=east,y=up,z=-north"] = "x=east,y=up,z=-north"
 
 
+# --- issues.json -----------------------------------------------------------
+
+
+class Issue(StrictModel):
+    severity: Literal["info", "warning", "error"] = "warning"
+    section: str = Field(description="group heading, e.g. 'AGH buildings without entrances'")
+    message: str
+    building_id: BuildingId | None = None
+    osm_id: str | None = Field(default=None, description="e.g. way/123456")
+    position: Vec3 | None = Field(default=None, description="web position to jump to")
+
+
+class IssueList(StrictModel):
+    """``issues.json`` (viewer) and ``data/processed/osm/issues.json`` (OSM stage)."""
+
+    provenance: Provenance
+    issues: list[Issue]
+
+
 # --- scene.json ------------------------------------------------------------
+
+
+class BuildingFrame(StrictModel):
+    """The building's local frame in web coordinates. local -> web:
+    ``web = anchor + x * (sin b, 0, -cos b) + y * (-cos b, 0, -sin b)`` with b = bearing."""
+
+    anchor: Vec3 = Field(description="web position of the local origin (ground level)")
+    bearing_deg: float = Field(description="grid bearing of local +x (EPSG:2180 = web grid)")
 
 
 class SceneLevel(StrictModel):
@@ -50,15 +78,36 @@ class SceneLevel(StrictModel):
     height: float
 
 
+class SceneEntrance(StrictModel):
+    id: str
+    position: Vec3
+    main: bool
+    metro_shaft: bool
+
+
 class SceneBuilding(StrictModel):
     id: BuildingId
     name: str | None
     kind: PlaceKind
+    category: Literal["academic", "dorm", "other", "connector"] = Field(
+        description="kind, with connectors (P-…) told apart"
+    )
     lod: Literal[1, 2, 3]
     glb: str = Field(description="path relative to the data dir, e.g. buildings/D-17.glb")
+    info: str = Field(description="BuildingInfo path, e.g. buildings/D-17.json")
+    yaml: str = Field(description="source file relative to the repo root")
+    osm_id: str | None
+    height_m: float
+    frame: BuildingFrame
     levels: list[SceneLevel]
+    entrances: list[SceneEntrance]
     bbox_min: Vec3
     bbox_max: Vec3
+    rooms: list[str] = Field(default=[], description="room ids (LOD3), for the search")
+    n_issues: int = 0
+    stale: bool = Field(
+        default=False, description="the YAML fails validation; these files are the last good ones"
+    )
 
 
 class SceneStop(StrictModel):
@@ -67,12 +116,180 @@ class SceneStop(StrictModel):
     position: Vec3
 
 
+class SceneContext(StrictModel):
+    glb: str = Field(description="all context buildings merged, e.g. campus/context.glb")
+    features: str = Field(description="ContextFeatures path, e.g. campus/context.json")
+
+
+class Extent(StrictModel):
+    min: Vec3
+    max: Vec3
+
+
+class SceneAerial(StrictModel):
+    """Orthophoto draped on the ground: an axis-aligned rectangle in the web frame."""
+
+    image: str = Field(description="path relative to the data dir, e.g. campus/aerial.jpg")
+    min: Vec3 = Field(description="web corner with the smallest x and z")
+    max: Vec3
+    attribution: str
+
+
 class Scene(StrictModel):
     provenance: Provenance
     frame: WebFrame
+    extent: Extent = Field(description="downloaded area (bbox), for the camera and the ground")
+    source_root: str | None = Field(
+        default=None, description="absolute repo path on the machine that exported (dev links)"
+    )
     buildings: list[SceneBuilding]
-    stops: list[SceneStop]
-    ground_glb: str | None = Field(default=None, description="terrain / paths mesh")
+    stops: list[SceneStop] = Field(description="stops used by the simulation (campus.yaml)")
+    other_stops: list[SceneStop] = Field(default=[], description="OSM stops not in campus.yaml")
+    ground_glb: str | None = Field(default=None, description="ground, paths, boundary, fences")
+    context: SceneContext | None = None
+    network: str | None = Field(default=None, description="NetworkHeader path")
+    issues: str | None = Field(default=None, description="IssueList path")
+    replays: str | None = Field(default=None, description="ReplayCatalog path")
+    aerial: SceneAerial | None = None
+
+
+# --- buildings/<id>.json -------------------------------------------------------
+
+
+class InfoSpace(StrictModel):
+    id: str
+    kind: Literal["corridor", "room", "stairs"]
+    polygon: list[Vec2] = Field(description="outline, local metres")
+    centre: Vec2 = Field(description="label point inside the polygon, local metres")
+    size: Vec2 = Field(description="sides of the minimum rotated rectangle, longer first")
+    area_m2: float
+    doors: list[Vec2] = Field(default=[], description="door positions, local metres")
+    name: str | None = None
+    capacity: int | None = None
+    bbox_min: Vec3 = Field(description="web bounding box, for framing")
+    bbox_max: Vec3
+
+
+class InfoLevel(StrictModel):
+    id: LevelId
+    elevation: float
+    height: float
+    floor_y: float
+    spaces: list[InfoSpace] = Field(default=[], description="LOD2/3 only")
+
+
+class InfoEntrance(StrictModel):
+    id: str
+    local: Vec2
+    position: Vec3
+    main: bool
+    metro_shaft: bool
+    osm_node: int | None = None
+
+
+class BuildingInfo(StrictModel):
+    """Everything the inspector shows about one building, without parsing its glb."""
+
+    provenance: Provenance
+    id: BuildingId
+    lod: Literal[1, 2, 3]
+    frame: BuildingFrame
+    footprint: list[Vec2] = Field(description="local metres, counter-clockwise")
+    footprint_holes: list[list[Vec2]] = []
+    area_m2: float
+    height_m: float
+    levels: list[InfoLevel]
+    entrances: list[InfoEntrance]
+    osm_outline: list[list[Vec2]] = Field(
+        default=[], description="OSM outline rings in local metres, exterior first"
+    )
+    osm_hausdorff_m: float | None = Field(
+        default=None, description="distance between the footprint and the OSM outline"
+    )
+    issues: list[Issue] = []
+
+
+# --- campus/context.json ---------------------------------------------------------
+
+
+class ContextFeature(StrictModel):
+    osm_id: str
+    name: str | None
+    building: str = Field(description="OSM building tag")
+    height_m: float
+    height_source: Literal["tag", "levels", "default"]
+    index_start: int = Field(ge=0, description="first index of its triangles in the glb mesh")
+    index_count: int = Field(ge=0)
+
+
+class ContextFeatures(StrictModel):
+    """Feature id = position in ``features``; the glb mesh carries it as ``_FEATURE_ID``."""
+
+    provenance: Provenance
+    features: list[ContextFeature]
+
+
+# --- status.json ---------------------------------------------------------------
+
+
+class BuildError(StrictModel):
+    file: str = Field(description="relative to the repo root")
+    line: int | None = Field(default=None, description="1-based line in the file")
+    loc: str | None = Field(default=None, description="pydantic location, e.g. levels.1.rooms.3")
+    message: str
+    building_id: BuildingId | None = None
+    element: str | None = Field(
+        default=None, description="id of the room, corridor, stairs or entrance it is about"
+    )
+
+
+class BuildStatus(StrictModel):
+    """``status.json``: written last by every export, polled by the dev server."""
+
+    version: int = Field(ge=0, description="increases on every export")
+    built_at: str
+    changed: list[str] = Field(description="data files (re)written by this export")
+    errors: list[BuildError] = []
+
+
+# --- replays -------------------------------------------------------------------
+
+
+REPLAY_ID_PATTERN = r"^[a-z0-9][a-z0-9_.-]*$"
+
+
+class ReplayFiles(StrictModel):
+    """Paths relative to the data dir; all of them live under ``replays/<id>/``."""
+
+    metro: str | None = Field(default=None, description="Metro (metro.json)")
+    aco_trace: str | None = Field(default=None, description="AcoTraceHeader")
+    trips: dict[Scenario, str] = Field(
+        default={}, description="scenario -> dir with paths.json and day-<weekday>.json"
+    )
+    stats: str | None = Field(default=None, description="Stats")
+
+
+class Replay(StrictModel):
+    """``replays/<id>/replay.json``: one thing the viewer can play back."""
+
+    id: str = Field(pattern=REPLAY_ID_PATTERN)
+    kind: Literal["aco", "simulation"]
+    title: str
+    description: str | None = None
+    created_at: str
+    run_id: str | None = Field(default=None, description="optimisation run it comes from")
+    topology: MetroTopology | None = None
+    stations: list[BuildingId] = []
+    scenarios: list[Scenario] = []
+    weekdays: list[Weekday] = []
+    files: ReplayFiles
+
+
+class ReplayCatalog(StrictModel):
+    """``replays/index.json``: every replay.json found, newest first."""
+
+    provenance: Provenance
+    replays: list[Replay]
 
 
 # --- metro.json ------------------------------------------------------------
@@ -178,6 +395,28 @@ class DayHeader(_BinaryHeader):
     # student_id uint32 (S)   leg_id uint32 (S)   path_id uint32 (S)   t_start float32 (S)
 
 
+NETWORK_EDGE_KINDS = ("footway", "road", "steps")  # outdoor; indoor kinds come with stage 2b
+
+
+class NetworkHeader(_BinaryHeader):
+    """``network.{json,bin}``: the walk graph as line segments.
+
+    Codes in ``edge_kind`` index into ``edge_kind_names``; ``node_keys`` / ``edge_sources``
+    hold what does not fit a typed array (OSM ids exceed uint32).
+    """
+
+    kind: Literal["network"] = "network"
+    n_nodes: int
+    n_edges: int
+    edge_kind_names: list[str]
+    node_keys: list[str] = Field(description="per node, e.g. 'osm:123'")
+    edge_sources: list[str | None] = Field(description="per edge, e.g. 'way/1|way/2'")
+    REQUIRED = ("node_xyz", "edge_nodes", "edge_kind", "length_m", "segment_xyz", "segment_edge")
+    # node_xyz float32 (N, 3)   edge_nodes uint32 (E, 2)   edge_kind uint8 (E)
+    # length_m float32 (E)      segment_xyz float32 (S, 2, 3)   segment_edge uint32 (S)
+    # segments = the edges' real polylines, for drawing; segment_edge = edge index
+
+
 class AcoTraceHeader(_BinaryHeader):
     """``aco/trace.{json,bin}``: AcoTrace with candidate positions for the animation."""
 
@@ -235,6 +474,13 @@ class Stats(StrictModel):
 
 WEB_MODELS = {
     "scene": Scene,
+    "building_info": BuildingInfo,
+    "context_features": ContextFeatures,
+    "network_header": NetworkHeader,
+    "issues": IssueList,
+    "status": BuildStatus,
+    "replay": Replay,
+    "replays": ReplayCatalog,
     "metro": Metro,
     "stats": Stats,
     "paths_header": PathsHeader,

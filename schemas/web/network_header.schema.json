@@ -1,0 +1,181 @@
+{
+  "$defs": {
+    "BufferView": {
+      "additionalProperties": false,
+      "properties": {
+        "dtype": {
+          "enum": [
+            "uint8",
+            "int16",
+            "uint16",
+            "int32",
+            "uint32",
+            "float32"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "offset": {
+          "description": "byte offset in the .bin file",
+          "minimum": 0,
+          "multipleOf": 4,
+          "title": "Offset",
+          "type": "integer"
+        },
+        "count": {
+          "description": "number of elements (not bytes)",
+          "minimum": 0,
+          "title": "Count",
+          "type": "integer"
+        },
+        "shape": {
+          "description": "logical shape; product == count",
+          "items": {
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dtype",
+        "offset",
+        "count",
+        "shape"
+      ],
+      "title": "BufferView",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Attached to every generated JSON file, so stale outputs can be detected.",
+      "properties": {
+        "schema_version": {
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "generated_at": {
+          "description": "ISO 8601 timestamp",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "generator": {
+          "description": "script that produced the file, e.g. 04_optimize.py",
+          "title": "Generator",
+          "type": "string"
+        },
+        "config_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "sha256 of the resolved config",
+          "title": "Config Hash"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        }
+      },
+      "required": [
+        "schema_version",
+        "generated_at",
+        "generator",
+        "config_hash",
+        "git_commit"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``network.{json,bin}``: the walk graph as line segments.\n\nCodes in ``edge_kind`` index into ``edge_kind_names``; ``node_keys`` / ``edge_sources``\nhold what does not fit a typed array (OSM ids exceed uint32).",
+  "properties": {
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "bin": {
+      "description": "file name of the .bin next to this header",
+      "title": "Bin",
+      "type": "string"
+    },
+    "buffers": {
+      "additionalProperties": {
+        "$ref": "#/$defs/BufferView"
+      },
+      "title": "Buffers",
+      "type": "object"
+    },
+    "kind": {
+      "const": "network",
+      "default": "network",
+      "title": "Kind",
+      "type": "string"
+    },
+    "n_nodes": {
+      "title": "N Nodes",
+      "type": "integer"
+    },
+    "n_edges": {
+      "title": "N Edges",
+      "type": "integer"
+    },
+    "edge_kind_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Edge Kind Names",
+      "type": "array"
+    },
+    "node_keys": {
+      "description": "per node, e.g. 'osm:123'",
+      "items": {
+        "type": "string"
+      },
+      "title": "Node Keys",
+      "type": "array"
+    },
+    "edge_sources": {
+      "description": "per edge, e.g. 'way/1|way/2'",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Edge Sources",
+      "type": "array"
+    }
+  },
+  "required": [
+    "provenance",
+    "bin",
+    "buffers",
+    "kind",
+    "n_nodes",
+    "n_edges",
+    "edge_kind_names",
+    "node_keys",
+    "edge_sources"
+  ],
+  "title": "NetworkHeader",
+  "type": "object"
+}

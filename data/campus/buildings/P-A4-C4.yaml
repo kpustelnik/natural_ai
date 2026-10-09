@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../../schemas/building.schema.json
+# Bootstrapped from OpenStreetMap (way/231816083) on 2026-10-09. LOD1.
+# Edit freely: the OSM bootstrap never overwrites this file.
+# Format: docs/data_contracts.md, section 3.1
+schema_version: 1
+id: P-A4-C4
+name: Łącznik A-4 – C-4
+kind: other
+osm_id: way/231816083
+placement:
+  anchor: [19.920029, 50.06555]
+  bearing_deg: 14.9
+footprint:
+- [13.1, 6.5]
+- [-0.3, 6.5]
+- [0.3, -6.1]
+- [12.2, -6.1]
+n_levels: 1
+height_m: 3.5
+entrances:
+- {id: main, point: [0.0, 0.0], osm_node: 9577438705}

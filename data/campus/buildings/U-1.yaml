@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../../schemas/building.schema.json
+# Bootstrapped from OpenStreetMap (way/231815478) on 2026-10-09. LOD1.
+# Edit freely: the OSM bootstrap never overwrites this file.
+# Format: docs/data_contracts.md, section 3.1
+schema_version: 1
+id: U-1
+name: Biblioteka Główna AGH
+kind: academic
+osm_id: way/231815478
+placement:
+  anchor: [19.9212681, 50.0655531]
+  bearing_deg: 104.2
+footprint:
+- [-9.8, 0.0]
+- [34.1, 0.0]
+- [34.1, 39.5]
+- [-9.8, 39.5]
+n_levels: 3
+height_m: 10.5
+entrances:
+- {id: main, point: [0.0, 0.0], metro_shaft: true, osm_node: 8977974244}

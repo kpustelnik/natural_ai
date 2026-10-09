@@ -194,3 +194,12 @@ def test_generated_json_schemas_are_up_to_date():
         or (SCHEMA_DIR / rel).read_text(encoding="utf-8") != content
     ]
     assert not stale, f"run `uv run python -m metro_agh.schemas.export`; stale: {stale}"
+
+
+def test_real_campus_data_is_valid():
+    """data/campus is committed: every building YAML and campus.yaml must stay valid."""
+    campus = ROOT / "data" / "campus"
+    buildings = load_buildings(campus)
+    load_campus(campus)
+    for b in buildings.values():
+        assert any(e.metro_shaft for e in b.entrances) == (b.kind == "academic") or b.lod > 1

@@ -1,0 +1,139 @@
+{
+  "$defs": {
+    "ContextFeature": {
+      "additionalProperties": false,
+      "properties": {
+        "osm_id": {
+          "title": "Osm Id",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Name"
+        },
+        "building": {
+          "description": "OSM building tag",
+          "title": "Building",
+          "type": "string"
+        },
+        "height_m": {
+          "title": "Height M",
+          "type": "number"
+        },
+        "height_source": {
+          "enum": [
+            "tag",
+            "levels",
+            "default"
+          ],
+          "title": "Height Source",
+          "type": "string"
+        },
+        "index_start": {
+          "description": "first index of its triangles in the glb mesh",
+          "minimum": 0,
+          "title": "Index Start",
+          "type": "integer"
+        },
+        "index_count": {
+          "minimum": 0,
+          "title": "Index Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "osm_id",
+        "name",
+        "building",
+        "height_m",
+        "height_source",
+        "index_start",
+        "index_count"
+      ],
+      "title": "ContextFeature",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Attached to every generated JSON file, so stale outputs can be detected.",
+      "properties": {
+        "schema_version": {
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "generated_at": {
+          "description": "ISO 8601 timestamp",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "generator": {
+          "description": "script that produced the file, e.g. 04_optimize.py",
+          "title": "Generator",
+          "type": "string"
+        },
+        "config_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "sha256 of the resolved config",
+          "title": "Config Hash"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        }
+      },
+      "required": [
+        "schema_version",
+        "generated_at",
+        "generator",
+        "config_hash",
+        "git_commit"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Feature id = position in ``features``; the glb mesh carries it as ``_FEATURE_ID``.",
+  "properties": {
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "features": {
+      "items": {
+        "$ref": "#/$defs/ContextFeature"
+      },
+      "title": "Features",
+      "type": "array"
+    }
+  },
+  "required": [
+    "provenance",
+    "features"
+  ],
+  "title": "ContextFeatures",
+  "type": "object"
+}

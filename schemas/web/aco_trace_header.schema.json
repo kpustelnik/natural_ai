@@ -100,8 +100,11 @@
         }
       },
       "required": [
+        "schema_version",
         "generated_at",
-        "generator"
+        "generator",
+        "config_hash",
+        "git_commit"
       ],
       "title": "Provenance",
       "type": "object"
@@ -144,7 +147,7 @@
     },
     "candidate_ids": {
       "items": {
-        "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*[a-z]?$",
+        "pattern": "^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*$",
         "type": "string"
       },
       "title": "Candidate Ids",
@@ -175,6 +178,7 @@
     "provenance",
     "bin",
     "buffers",
+    "kind",
     "run_id",
     "algorithm",
     "topology",

@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../schemas/building.schema.json
+# Bootstrapped from OpenStreetMap (way/909413671) on 2026-10-09. LOD1.
+# Edit freely: the OSM bootstrap never overwrites this file.
+# Format: docs/data_contracts.md, section 3.1
+schema_version: 1
+id: C-7
+name: Wydział Humanistyczny AGH
+kind: academic
+osm_id: way/909413671
+placement:
+  anchor: [19.9209595, 50.0662103]
+  bearing_deg: 109.2
+footprint:
+- [-22.3, 0.0]
+- [30.8, 0.0]
+- [30.7, 15.1]
+- [30.1, 15.1]
+- [30.1, 15.9]
+- [30.1, 32.3]
+- [29.5, 32.3]
+- [29.5, 32.5]
+- [27.6, 32.5]
+- [27.6, 32.2]
+- [27.0, 32.2]
+- [27.0, 32.5]
+- [25.1, 32.5]
+- [25.1, 32.3]
+- [22.7, 32.5]
+- [22.6, 29.4]
+- [12.6, 29.2]
+- [12.6, 29.0]
+- [10.8, 29.1]
+- [10.7, 19.3]
+- [-22.3, 19.2]
+n_levels: 7
+height_m: 24.9
+entrances:
+- {id: main, point: [0.0, 0.0], metro_shaft: true, osm_node: 10716155647}
+- {id: e1, point: [13.6, 29.2], osm_node: 9732024020}

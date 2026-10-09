@@ -276,7 +276,7 @@
         },
         "bearing_deg": {
           "default": 90.0,
-          "description": "compass bearing of local +x (0 = north, 90 = east, the default)",
+          "description": "grid bearing (EPSG:2180) of local +x: 0 = north, 90 = east (default)",
           "exclusiveMaximum": 360,
           "minimum": 0,
           "title": "Bearing Deg",
@@ -624,7 +624,7 @@
     },
     "id": {
       "description": "canonical code; must match the file name",
-      "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*[a-z]?$",
+      "pattern": "^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*$",
       "title": "Id",
       "type": "string"
     },
@@ -710,6 +710,28 @@
       "default": null,
       "description": "local outline; None = take OSM footprint",
       "title": "Footprint"
+    },
+    "footprint_holes": {
+      "default": [],
+      "description": "courtyards inside the footprint (local outlines)",
+      "items": {
+        "items": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "type": "array"
+        },
+        "type": "array"
+      },
+      "title": "Footprint Holes",
+      "type": "array"
     },
     "n_levels": {
       "anyOf": [

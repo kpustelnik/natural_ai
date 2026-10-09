@@ -47,7 +47,7 @@ class Placement(StrictModel):
         default=90.0,
         ge=0,
         lt=360,
-        description="compass bearing of local +x (0 = north, 90 = east, the default)",
+        description="grid bearing (EPSG:2180) of local +x: 0 = north, 90 = east (default)",
     )
     ground_elevation_m: float | None = Field(
         default=None, description="absolute ground height at the anchor; None = from DEM or 0"
@@ -184,6 +184,9 @@ class Building(StrictModel):
     footprint: list[Vec2] | None = Field(
         default=None, min_length=3, description="local outline; None = take OSM footprint"
     )
+    footprint_holes: list[list[Vec2]] = Field(
+        default=[], description="courtyards inside the footprint (local outlines)"
+    )
     # LOD1 only (ignored when levels are given)
     n_levels: int | None = Field(default=None, ge=1)
     height_m: PositiveFloat | None = None
@@ -258,6 +261,11 @@ class Building(StrictModel):
                 errors.append(f"entrance {e.id!r}: buildings with levels need corridor entrances")
         if sum(e.metro_shaft for e in self.entrances) > 1:
             errors.append("at most one entrance can have metro_shaft: true")
+
+        if self.footprint_holes and self.footprint is None:
+            errors.append("footprint_holes need an explicit footprint")
+        if any(len(h) < 3 for h in self.footprint_holes):
+            errors.append("every hole needs at least 3 points")
 
         if self.kind != PlaceKind.DORM and self.residents is not None:
             errors.append("residents is only for kind: dorm")

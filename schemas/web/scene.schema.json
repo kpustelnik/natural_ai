@@ -1,5 +1,85 @@
 {
   "$defs": {
+    "BuildingFrame": {
+      "additionalProperties": false,
+      "description": "The building's local frame in web coordinates. local -> web:\n``web = anchor + x * (sin b, 0, -cos b) + y * (-cos b, 0, -sin b)`` with b = bearing.",
+      "properties": {
+        "anchor": {
+          "description": "web position of the local origin (ground level)",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Anchor",
+          "type": "array"
+        },
+        "bearing_deg": {
+          "description": "grid bearing of local +x (EPSG:2180 = web grid)",
+          "title": "Bearing Deg",
+          "type": "number"
+        }
+      },
+      "required": [
+        "anchor",
+        "bearing_deg"
+      ],
+      "title": "BuildingFrame",
+      "type": "object"
+    },
+    "Extent": {
+      "additionalProperties": false,
+      "properties": {
+        "min": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Min",
+          "type": "array"
+        },
+        "max": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Max",
+          "type": "array"
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "title": "Extent",
+      "type": "object"
+    },
     "PlaceKind": {
       "enum": [
         "academic",
@@ -55,17 +135,78 @@
         }
       },
       "required": [
+        "schema_version",
         "generated_at",
-        "generator"
+        "generator",
+        "config_hash",
+        "git_commit"
       ],
       "title": "Provenance",
+      "type": "object"
+    },
+    "SceneAerial": {
+      "additionalProperties": false,
+      "description": "Orthophoto draped on the ground: an axis-aligned rectangle in the web frame.",
+      "properties": {
+        "image": {
+          "description": "path relative to the data dir, e.g. campus/aerial.jpg",
+          "title": "Image",
+          "type": "string"
+        },
+        "min": {
+          "description": "web corner with the smallest x and z",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Min",
+          "type": "array"
+        },
+        "max": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Max",
+          "type": "array"
+        },
+        "attribution": {
+          "title": "Attribution",
+          "type": "string"
+        }
+      },
+      "required": [
+        "image",
+        "min",
+        "max",
+        "attribution"
+      ],
+      "title": "SceneAerial",
       "type": "object"
     },
     "SceneBuilding": {
       "additionalProperties": false,
       "properties": {
         "id": {
-          "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*[a-z]?$",
+          "pattern": "^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*$",
           "title": "Id",
           "type": "string"
         },
@@ -83,6 +224,17 @@
         "kind": {
           "$ref": "#/$defs/PlaceKind"
         },
+        "category": {
+          "description": "kind, with connectors (P-…) told apart",
+          "enum": [
+            "academic",
+            "dorm",
+            "other",
+            "connector"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
         "lod": {
           "enum": [
             1,
@@ -97,11 +249,46 @@
           "title": "Glb",
           "type": "string"
         },
+        "info": {
+          "description": "BuildingInfo path, e.g. buildings/D-17.json",
+          "title": "Info",
+          "type": "string"
+        },
+        "yaml": {
+          "description": "source file relative to the repo root",
+          "title": "Yaml",
+          "type": "string"
+        },
+        "osm_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Osm Id"
+        },
+        "height_m": {
+          "title": "Height M",
+          "type": "number"
+        },
+        "frame": {
+          "$ref": "#/$defs/BuildingFrame"
+        },
         "levels": {
           "items": {
             "$ref": "#/$defs/SceneLevel"
           },
           "title": "Levels",
+          "type": "array"
+        },
+        "entrances": {
+          "items": {
+            "$ref": "#/$defs/SceneEntrance"
+          },
+          "title": "Entrances",
           "type": "array"
         },
         "bbox_min": {
@@ -137,19 +324,112 @@
           ],
           "title": "Bbox Max",
           "type": "array"
+        },
+        "rooms": {
+          "default": [],
+          "description": "room ids (LOD3), for the search",
+          "items": {
+            "type": "string"
+          },
+          "title": "Rooms",
+          "type": "array"
+        },
+        "n_issues": {
+          "default": 0,
+          "title": "N Issues",
+          "type": "integer"
+        },
+        "stale": {
+          "default": false,
+          "description": "the YAML fails validation; these files are the last good ones",
+          "title": "Stale",
+          "type": "boolean"
         }
       },
       "required": [
         "id",
         "name",
         "kind",
+        "category",
         "lod",
         "glb",
+        "info",
+        "yaml",
+        "osm_id",
+        "height_m",
+        "frame",
         "levels",
+        "entrances",
         "bbox_min",
-        "bbox_max"
+        "bbox_max",
+        "rooms",
+        "n_issues",
+        "stale"
       ],
       "title": "SceneBuilding",
+      "type": "object"
+    },
+    "SceneContext": {
+      "additionalProperties": false,
+      "properties": {
+        "glb": {
+          "description": "all context buildings merged, e.g. campus/context.glb",
+          "title": "Glb",
+          "type": "string"
+        },
+        "features": {
+          "description": "ContextFeatures path, e.g. campus/context.json",
+          "title": "Features",
+          "type": "string"
+        }
+      },
+      "required": [
+        "glb",
+        "features"
+      ],
+      "title": "SceneContext",
+      "type": "object"
+    },
+    "SceneEntrance": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "position": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Position",
+          "type": "array"
+        },
+        "main": {
+          "title": "Main",
+          "type": "boolean"
+        },
+        "metro_shaft": {
+          "title": "Metro Shaft",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "position",
+        "main",
+        "metro_shaft"
+      ],
+      "title": "SceneEntrance",
       "type": "object"
     },
     "SceneLevel": {
@@ -262,7 +542,8 @@
         "origin_lonlat",
         "origin_x",
         "origin_y",
-        "origin_z"
+        "origin_z",
+        "axes"
       ],
       "title": "WebFrame",
       "type": "object"
@@ -276,6 +557,23 @@
     "frame": {
       "$ref": "#/$defs/WebFrame"
     },
+    "extent": {
+      "$ref": "#/$defs/Extent",
+      "description": "downloaded area (bbox), for the camera and the ground"
+    },
+    "source_root": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "absolute repo path on the machine that exported (dev links)",
+      "title": "Source Root"
+    },
     "buildings": {
       "items": {
         "$ref": "#/$defs/SceneBuilding"
@@ -284,10 +582,20 @@
       "type": "array"
     },
     "stops": {
+      "description": "stops used by the simulation (campus.yaml)",
       "items": {
         "$ref": "#/$defs/SceneStop"
       },
       "title": "Stops",
+      "type": "array"
+    },
+    "other_stops": {
+      "default": [],
+      "description": "OSM stops not in campus.yaml",
+      "items": {
+        "$ref": "#/$defs/SceneStop"
+      },
+      "title": "Other Stops",
       "type": "array"
     },
     "ground_glb": {
@@ -300,15 +608,85 @@
         }
       ],
       "default": null,
-      "description": "terrain / paths mesh",
+      "description": "ground, paths, boundary, fences",
       "title": "Ground Glb"
+    },
+    "context": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SceneContext"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "network": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "NetworkHeader path",
+      "title": "Network"
+    },
+    "issues": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "IssueList path",
+      "title": "Issues"
+    },
+    "replays": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "ReplayCatalog path",
+      "title": "Replays"
+    },
+    "aerial": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SceneAerial"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     }
   },
   "required": [
     "provenance",
     "frame",
+    "extent",
+    "source_root",
     "buildings",
-    "stops"
+    "stops",
+    "other_stops",
+    "ground_glb",
+    "context",
+    "network",
+    "issues",
+    "replays",
+    "aerial"
   ],
   "title": "Scene",
   "type": "object"

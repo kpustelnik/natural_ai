@@ -92,8 +92,11 @@
         }
       },
       "required": [
+        "schema_version",
         "generated_at",
-        "generator"
+        "generator",
+        "config_hash",
+        "git_commit"
       ],
       "title": "Provenance",
       "type": "object"
@@ -157,6 +160,7 @@
     "provenance",
     "bin",
     "buffers",
+    "kind",
     "scenario",
     "weekday",
     "n_students",

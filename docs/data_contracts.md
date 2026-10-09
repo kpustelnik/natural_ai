@@ -21,7 +21,7 @@ the code disagree, the code wins and this document has a bug.
 3. [Hand-written data](#3-hand-written-data)
 4. [USOS](#4-usos)
 5. [Population and demand](#5-population-and-demand)
-6. [Walk network](#6-walk-network)
+6. [Campus and walk network](#6-campus-and-walk-network)
 7. [Problem instance](#7-problem-instance)
 8. [Optimisation results](#8-optimisation-results)
 9. [Simulation](#9-simulation)
@@ -39,9 +39,10 @@ the code disagree, the code wins and this document has a bug.
  usos_room_map.csv ──────────────────► usos/timetable.csv, groups.csv,
                                        cohorts.csv, group_cohorts.csv
                                               │
- buildings/*.yaml ──┐  02_build_campus        │
- campus.yaml ───────┼────────────────► network/nodes.parquet, edges.parquet
- OSM (raw cache) ───┘                  osm/footprints.geojson
+ OSM (raw/osm/cache) ── 02_build_campus ──► osm/campus.gpkg, report.md, issues.json, preview.html
+                          --bootstrap ──────► buildings/*.yaml (LOD1, new files only)
+ buildings/*.yaml ──┐                         │
+ campus.yaml ───────┼── 02_build_campus ──► network/nodes.parquet, edges.parquet
                                               │
                        03_build_demand        ▼
  config: population ─────────────────► population/students.parquet, enrollments.parquet
@@ -60,7 +61,7 @@ the code disagree, the code wins and this document has a bug.
                                        simulation/metro/schedule.parquet
                                               │
                        06_export_web          ▼
-                                       web/public/data/  (scene, glb, metro, trips, aco, stats)
+                                       web/public/data/  (scene, glb, network, issues, replays/<id>/…)
 ```
 
 Paths of generated files are relative to `paths.processed` (`data/processed`), or to
@@ -69,7 +70,9 @@ Paths of generated files are relative to `paths.processed` (`data/processed`), o
 
 | Contract | Code | Written by | Read by |
 |---|---|---|---|
-| `buildings/*.yaml`, `campus.yaml` | `schemas.building`, `schemas.campus` | by hand | campus, network, export |
+| `osm/campus.gpkg` | `tables.OSM_*` | person 2 (`02_build_campus.py`) | bootstrap, network, export |
+| `osm_building_map.csv` | `tables.OSM_BUILDING_MAP` | by hand | campus |
+| `buildings/*.yaml`, `campus.yaml` | `schemas.building`, `schemas.campus` | bootstrap, then by hand | campus, network, export |
 | `usos_room_map.csv` | `tables.ROOM_MAP` | by hand | usos |
 | `usos/*.csv` | `tables.TIMETABLE`, `GROUPS`, `COHORTS`, `GROUP_COHORTS` | person 1 | demand |
 | `population/*.parquet` | `tables.STUDENTS`, `ENROLLMENTS` | person 1 | demand, simulation |
@@ -104,7 +107,7 @@ Metres and seconds everywhere, no minutes. Name suffixes carry the unit:
 
 | id | format | example |
 |---|---|---|
-| building | canonical AGH code, upper case | `D-17`, `A-0`, `DS-7` |
+| building | AGH code as in OSM `ref` | `D-17`, `A-0`, `DS-7`, `DS-Alfa`, `P-A0-A1` |
 | room | room number as in USOS, without the building | `1.38`, `0.10` |
 | stop | `stop:` + lower-case slug | `stop:czarnowiejska` |
 | corridor, stairs, entrance | `[A-Za-z0-9_-]`, unique **within one building** | `c0`, `s_main` |
@@ -130,7 +133,7 @@ rebuild picks them up automatically.
 |---|---|---|
 | WGS84 `EPSG:4326` (lon, lat) | GeoJSON, `placement.anchor`, `campus.yaml` | lon, lat |
 | PL-1992 `EPSG:2180` | every computation, `network/nodes.parquet`, `instance.npz` | x = easting, y = northing, z = absolute height |
-| building local | `buildings/*.yaml` | origin at `anchor`; +x along `bearing_deg`; +y to the left; z up |
+| building local | `buildings/*.yaml` | origin at `anchor`; +x along `bearing_deg` (grid bearing in EPSG:2180, within 1° of true north); +y to the left; z up |
 | web (three.js) | everything in `web/public/data` | x = east, **y = up**, z = −north; metres from `campus.web_origin` |
 
 With pyproj always use `Transformer.from_crs(..., always_xy=True)`. EPSG:2180 officially
@@ -157,6 +160,7 @@ Validate everything with `uv run pytest tests/test_schemas.py`, or for one file:
 
 ```python
 from metro_agh.schemas import load_building
+
 load_building("data/campus/buildings/D-17.yaml")
 ```
 
@@ -177,8 +181,9 @@ contains:
 | 2 | `levels` with `corridors` + `stairs`, corridor entrances | to the main entrance inside | floors, corridors, stairwells |
 | 3 | + `rooms` | room to room | full interior |
 
-`02_build_campus.py --bootstrap` writes a LOD1 file for every OSM building that has no YAML
-yet. It **never overwrites** an existing file. You then refine files by hand.
+`02_build_campus.py --bootstrap` writes a LOD1 file for every AGH building in OSM that has
+no YAML yet (section 6.3). It **never overwrites** an existing file. You then refine files by
+hand.
 
 #### Local frame
 
@@ -263,6 +268,7 @@ entrances:
 
 ```yaml
 footprint: [[0, 0], [60, 0], [60, 14], [0, 14]]  # local; omit to use the OSM outline (osm_id)
+footprint_holes: [[[20, 4], [40, 4], [40, 10], [20, 10]]]  # courtyards (A-0)
 osm_id: way/123456                               # optional, the OSM baseline
 n_levels: 11
 height_m: 33.0
@@ -421,14 +427,83 @@ Rules:
 
 ---
 
-## 6. Walk network
+## 6. Campus and walk network
+
+### 6.1 `osm/campus.gpkg`: `tables.OSM_*`
+
+Written by `scripts/02_build_campus.py` from one Overpass query for features and one for the
+walk network over `campus.bbox`. Raw responses are cached in `data/raw/osm/cache`
+(`--refresh` downloads again). One GeoPackage, **all layers in EPSG:2180**; open it in
+QGIS to inspect, or open `osm/preview.html` in a browser. `osm/report.md` lists everything a
+human should check. `osm/issues.json` (`schemas.web.IssueList`) holds the same issues with
+`building_id` / `osm_id`, for the viewer's issues panel (section 10.8).
+
+| layer | geometry | one row per | key columns |
+|---|---|---|---|
+| `boundary` | polygon | area | `kind` (`agh_campus` = OSM relation, `miasteczko` = hull of dorms, `bbox`) |
+| `buildings` | polygon | AGH building (parts merged) or context building | `osm_id, osm_ids, building_id, category, ref, name, building, levels, levels_underground, roof_levels, height_m, height_source, connects, main_entrance_node, n_entrances` |
+| `entrances` | point | OSM entrance node | `osm_node, entrance, name, ref, level, access, wheelchair, building_id, building_osm_id, is_main` |
+| `stops` | point | stop (platforms grouped by name) | `stop_id, name, modes, n_platforms, platform_ids` |
+| `barriers` | point | gate, bollard, turnstile, … | `osm_id, barrier, access, name` |
+| `fences` | line/polygon | fence, wall, hedge | `osm_id, barrier, access` |
+| `walk_nodes` | point | walk-network node | `osm_node, street_count, highway, barrier, access, entrance` |
+| `walk_edges` | line | walk-network edge (undirected) | `u, v, key, osm_ways, highway, name, length_m, is_steps, step_count, incline, access, foot, covered, tunnel, bridge, indoor, level, surface` |
+
+**Building classification** (`category`):
+
+| category | rule | becomes |
+|---|---|---|
+| `academic` | AGH code in `ref` (`A-0`, `D-17`, `U-2`, `H-A1`, `Z-15`…), building tag university/college/library/yes/… | building YAML, metro candidate |
+| `dorm` | `DS-*` code or `building=dormitory` with an AGH code | building YAML, student home |
+| `other` | AGH code on a non-academic building (hospital, hotel, sports hall…) | building YAML |
+| `connector` | `P-<a>-<b>` code (`P-A0-A1`); `connects` = the two building ids | building YAML of kind `other`; later a `passage` |
+| `context` | everything else (no AGH code) | grey LOD1 block in 3D only, never a trip endpoint |
+
+Rules: refs are normalised (`Z15` → `Z-15`; `;`-lists take the first AGH code). Parts with the
+same code are merged into one outline. Height comes from `height`, else
+`building:levels` × `campus.floor_height_m`, else `campus.default_levels` ×
+`floor_height_m`; `height_source` says which. An entrance belongs to the building whose
+outline is within `osm.entrance_snap_m`, with AGH buildings taking precedence over context
+buildings. The main entrance of a building is chosen by: not private, then `entrance=main`,
+then `yes`, then the rest, then lowest node id. Emergency exits are never the main entrance.
+
+### 6.2 `data/campus/osm_building_map.csv`: `tables.OSM_BUILDING_MAP`
+
+Hand-written fixes for the classification, e.g. a dorm OSM has without a ref:
+
+| column | example | note |
+|---|---|---|
+| `osm_id` | `way/230301584` | element as in the `buildings` layer |
+| `building_id` | `DS-Kolumny` | empty = make it context |
+| `category` | `dorm` | empty = derive from the rules |
+| `note` | `AGH dorm without ref in OSM` | |
+
+### 6.3 Building bootstrap (`--bootstrap`)
+
+For every non-context building without `data/campus/buildings/<id>.yaml`, a LOD1 file is
+written and then validated with `load_building`:
+
+- `placement.anchor` = the main entrance (or a point inside the outline if there is none),
+- `placement.bearing_deg` = the building's long axis, flipped so the building centre lies
+  on the positive side (+x in front of an end entrance, +y for an entrance on a long side),
+- `footprint` (+ `footprint_holes`) in local metres, simplified by `osm.footprint_simplify_m`,
+  rounded to 0.1 m,
+- `n_levels` (if OSM has it), `height_m`, `osm_id`, `name`, `aliases` (raw ref if different),
+- `entrances` as points: `main` first, then `e1`, `e2`…, emergency exits skipped;
+  `metro_shaft: true` on the main entrance of academic buildings; `osm_node` when the entrance
+  is a node of the walk network.
+
+Disjoint parts keep only the largest outline (listed in the report). Files that already exist
+are never touched.
+
+### 6.4 Walk network contracts
 
 One graph for everything walkable: OSM outdoor paths (with `campus.yaml` corrections), the
 indoor graphs of all buildings, passages, stops, and the metro shafts down to the platforms.
 Train rides are **not** edges: the objective and the simulation add them analytically, which
 keeps the graph independent of the chosen line.
 
-### 6.1 `network/nodes.parquet`: `tables.GRAPH_NODES`
+#### `network/nodes.parquet`: `tables.GRAPH_NODES`
 
 | column | type | note |
 |---|---|---|
@@ -454,7 +529,7 @@ Node `key` format, so people can refer to nodes across rebuilds:
 | stop | stop id | `stop:miasteczko_studenckie_agh` |
 | place (LOD1 / building endpoint) | building id | `C-2` |
 
-### 6.2 `network/edges.parquet`: `tables.GRAPH_EDGES`
+#### `network/edges.parquet`: `tables.GRAPH_EDGES`
 
 `u, v, kind, length_m, time_uv_s, time_vu_s, source`
 
@@ -598,23 +673,75 @@ after class.
 
 ## 10. Web viewer
 
-React + three.js (React Three Fiber) with TypeScript and Vite, in `web/`. The viewer only plays back the files below, which are
-all written by `06_export_web.py` into `web/public/data/` (gitignored). **All positions are
-already in the web frame** (x = east, y = up, z = −north, metres from `campus.web_origin`),
-so the viewer never converts coordinates.
+React + three.js (React Three Fiber) with TypeScript and Vite, in `web/`. The viewer only
+plays back the files below, which are all written by `06_export_web.py` into
+`web/public/data/` (gitignored). **All positions are already in the web frame** (x = east,
+y = up, z = −north, metres from `campus.web_origin`), so the viewer never converts
+coordinates. Implementation plan: [viewer_plan.md](viewer_plan.md).
 
 TypeScript types are generated from `schemas/web/*.schema.json`:
 
 ```bash
-cd web && npm run gen:types   # json-schema-to-typescript -> src/generated/schemas.ts
+uv run python -m metro_agh.schemas.export   # pydantic -> schemas/
+cd web && npm run gen:types                 # json-schema-to-typescript -> src/generated/schemas.ts
 ```
+
+Web schemas are exported in pydantic's *serialization* mode: every field is always present in
+the files, so the TypeScript types have no optional fields.
+
+```
+web/public/data/
+├── scene.json                  10.1  Scene: entry point
+├── status.json                 10.9  BuildStatus: written last by every export
+├── issues.json                 10.8  IssueList
+├── network.json + .bin         10.7  NetworkHeader: walk graph
+├── buildings/<id>.glb          10.2  one per building YAML
+├── buildings/<id>.json         10.3  BuildingInfo
+├── campus/context.glb + .json  10.4  every other OSM building, merged; ContextFeatures
+├── campus/ground.glb           10.5  ground, paths, boundary, fences
+├── campus/aerial.jpg           10.1  orthophoto underlay (optional, `--aerial`)
+└── replays/                    10.10 what can be played back
+    ├── index.json              ReplayCatalog
+    └── <id>/replay.json        Replay, plus its files (metro.json, trace.*, trips/, stats.json)
+```
+
+`06_export_web.py --campus` writes everything except the replays, which the metro, ACO and
+simulation exports add later. Each export rebuilds `replays/index.json` from the
+`replay.json` files it finds.
 
 ### 10.1 `scene.json`: `schemas.web.Scene`
 
-The entry point the viewer loads first: the frame (`origin_lonlat`, EPSG:2180 origin,
-`origin_z`), the list of buildings (`id, name, kind, lod, glb, levels[{id, floor_y,
-height}], bbox_min, bbox_max`), stops (`id, name, position`) and an optional `ground_glb`
-(terrain + outdoor paths).
+The entry point the viewer loads first:
+
+- `frame`: `origin_lonlat`, the EPSG:2180 origin, `origin_z`.
+- `extent`: the downloaded bbox in web coordinates (camera limits, ground).
+- `source_root`: the absolute repo path on the exporting machine, used for *Open YAML*
+  links (`vscode://file/…`).
+- `buildings[]`:
+  - identity: `id, name, kind, category` (kind, but with connectors `P-…` told apart),
+    `lod`;
+  - files: `glb`, `info` (10.3), `yaml` (source file, repo-relative), `osm_id`;
+  - geometry: `height_m`, `frame` (anchor in web coordinates + `bearing_deg`),
+    `levels[{id, floor_y, height}]`, `entrances[{id, position, main, metro_shaft}]`,
+    `bbox_min`, `bbox_max`;
+  - `rooms`: room ids (LOD3), for the search (`D-17/1.38`);
+  - `n_issues`, and `stale: true` when the YAML currently fails validation: the files are then
+    the last good build.
+- `stops[]`: the stops from `campus.yaml`. `other_stops[]`: OSM stops that are not in
+  `campus.yaml`, shown greyed out to help choose more.
+- Paths of the other files: `ground_glb`, `context {glb, features}`, `network`, `issues`,
+  `replays`.
+- `aerial`: `{image, min, max, attribution}` when an orthophoto was exported
+  (`campus/aerial.jpg`, an axis-aligned rectangle in web coordinates), else `null`.
+
+Local ↔ web for a building is a rotation plus a translation, because both frames are aligned
+to the EPSG:2180 grid:
+
+```
+web = anchor + x · (sin b, 0, −cos b) + y · (−cos b, 0, −sin b) + (0, h, 0)      b = bearing_deg
+```
+
+The viewer uses this for the cursor readout in local metres (`web/src/lib/frames.ts`).
 
 ### 10.2 `buildings/<id>.glb`
 
@@ -622,39 +749,89 @@ One glTF binary per building, so buildings load lazily and one edit re-exports o
 Positions are in web coordinates, so no transform is needed. glTF is Y-up, so it matches
 three.js directly.
 
-Node hierarchy and names (the viewer finds things by name, e.g. to highlight a room):
+**The viewer identifies nodes by their `extras` (three.js `userData`), not by name**:
+three.js `GLTFLoader` strips `.`, `:` and `/` from node names (`room:0.10` becomes
+`room010`).
+
+Node hierarchy:
 
 ```
-D-17                      root, extras {building: "D-17", lod: 3}
-├── L0                    one group per level, extras {level: 0}
-│   ├── slab
-│   ├── walls
-│   ├── corridor:c0
-│   ├── room:0.10         extras {kind: "room", id: "0.10", level: 0}
-│   ├── stairs:s1
-│   └── door:0.10#0
+D-17              extras {building: "D-17", lod: 3}
+├── shell         extras {part: "shell"}     outer walls, all levels       mat:wall
+├── roof          extras {part: "roof"}                                    mat:roof
+├── edges         extras {part: "edges"}     line segments: outline at every floor and corners  mat:edge
+├── L0            extras {level: 0}
+│   ├── slab      extras {part: "slab", level: 0}   floor plate minus stairwell openings  mat:slab
+│   ├── walls     extras {part: "walls", level: 0}  LOD2/3: walls with door gaps and lintels  mat:iwall
+│   ├── space:0.10  extras {part: "space", kind: "room", id: "0.10", level: 0, capacity?}  floor patch
+│   │               (kind corridor | room | stairs)   mat:room | mat:corridor | mat:stairs
+│   └── flight:s1 extras {part: "flight", kind: "stairs", id: "s1", level: 0}   stairs up to the next level  mat:flight
 ├── L1 …
-├── entrance:main
-└── roof                  hidden when the viewer enters the building
+├── shaft         extras {part: "shaft"}     line segments: metro shaft under the metro_shaft entrance  mat:shaft
+└── entrance:main extras {kind: "entrance", id, main, metro_shaft}   empty node at the entrance
 ```
 
-Materials are named by kind (`mat:wall`, `mat:slab`, `mat:room`, `mat:corridor`,
-`mat:stairs`, `mat:glass`, `mat:roof`). The viewer replaces them with its own palette, so
-the look is changed in TypeScript without re-exporting. The style is clean architectural:
-flat colours, no textures.
+LOD1 levels only have the `slab`. Slabs sit 0.15 m above their floor (above the path ribbons
+of the ground), space patches 0.02 m above the slab. Walls are closed solids from just above
+the patches to the next floor, so the viewer can cut a level with one clipping plane and
+draw the inside of cut walls as a section.
 
-### 10.3 `metro.json`: `schemas.web.Metro`
+Materials are named by kind (`mat:wall`, `mat:roof`, `mat:slab`, `mat:edge`, …). The viewer
+replaces them with its own palette (`web/src/scene/palette.ts`), so the look is changed in
+TypeScript without re-exporting. The style is clean architectural: flat colours, thin edges,
+no textures.
 
-`topology`, `stations[{building_id, top, platform}]` in line order, `tunnel` (platform-level
-polyline through the stations, closed for a loop), `headway_s`, `dwell_s`, `speed_mps`, and
-`runs[{run_id, train_id, weekday, direction, stops[{station, arrive_t, depart_t}]}]`
-(from `schedule.parquet`). The viewer builds shafts, platforms, tunnels and trains from this
-and interpolates train positions itself; no per-frame train data is stored.
+### 10.3 `buildings/<id>.json`: `schemas.web.BuildingInfo`
 
-### 10.4 Binary containers
+What the inspector shows about one building, without parsing the glb. All outlines are in
+**local metres**:
 
-Large arrays travel as a header + raw buffer pair: `<name>.json` (header) + `<name>.bin`
-(little-endian).
+- `frame`, `lod`, `area_m2`, `height_m`;
+- `footprint` and `footprint_holes`: counter-clockwise;
+- `levels[{id, elevation, height, floor_y, spaces[]}]`: `spaces` holds the corridors, rooms
+  and stairwells of LOD2/3 levels: `{id, kind, polygon, centre, size, area_m2, doors,
+  name, capacity, bbox_min, bbox_max}` (`centre` is the label point, `size` the sides of the
+  minimum rotated rectangle, `doors` the door positions, all local; the bbox is web);
+- `entrances[{id, local, position, main, metro_shaft, osm_node}]`;
+- `osm_outline` (rings) and `osm_hausdorff_m`: how far the modelled footprint is from OSM;
+- `issues`.
+
+### 10.4 `campus/context.glb` + `campus/context.json`: `schemas.web.ContextFeatures`
+
+Every OSM building not covered by a building YAML, merged into **one mesh** (one draw call)
+plus one `edges` line node.
+
+- The mesh carries a custom vertex attribute `_FEATURE_ID` (float; three.js:
+  `geometry.attributes._feature_id`).
+- `context.json` lists the features; feature id = position in `features[]`:
+  `{osm_id, name, building, height_m, height_source, index_start, index_count}`.
+- `index_start` / `index_count` are the feature's range in the index buffer, so a feature
+  can be highlighted with a draw range. Build BVHs over this mesh with
+  `{indirect: true}`, otherwise three-mesh-bvh reorders the index.
+
+### 10.5 `campus/ground.glb`
+
+One root `ground` node with children identified by `extras.layer`:
+
+- `ground`: the bbox plate, at y = 0.
+- `paths:road`, `paths:footway`, `paths:steps`: walk edges buffered into ribbons (5, 2 and
+  2.2 m wide), unioned per class.
+- `boundary:<kind>`: the campus and Miasteczko outlines, as lines.
+- `fences`: fences and walls, as lines.
+
+### 10.6 Metro, ACO trace, trips and stats (inside replays)
+
+These keep the formats below and now live inside a replay directory (10.10).
+
+**`replays/<id>/metro.json`: `schemas.web.Metro`.** `topology`, `stations[{building_id, top,
+platform}]` in line order, `tunnel` (platform-level polyline through the stations, closed for
+a loop), `headway_s`, `dwell_s`, `speed_mps`, and `runs[{run_id, train_id, weekday,
+direction, stops[{station, arrive_t, depart_t}]}]` (from `schedule.parquet`). The viewer
+builds shafts, platforms, tunnels and trains from this and interpolates train positions
+itself; no per-frame train data is stored.
+
+**Binary containers.** Large arrays travel as a header + raw buffer pair: `<name>.json`
+(header) + `<name>.bin` (little-endian).
 
 ```json
 {
@@ -672,13 +849,11 @@ Large arrays travel as a header + raw buffer pair: `<name>.json` (header) + `<na
   `new Float32Array(bin, v.offset, v.count)`.
 - `count` is in elements; `shape` is the logical shape, and its product equals `count`.
 
-### 10.5 Student trips `trips/<scenario>/…`
+**Student trips `replays/<id>/trips/<scenario>/…`.** 20 000 students × 5 days won't fit as
+one-polyline-per-trip, but most students on the same room-to-room leg walk the same path.
+Paths are therefore stored once and referenced by time-shifted segments.
 
-20 000 students × 5 days won't fit as one-polyline-per-trip, but most students on the same
-room-to-room leg walk the same path. Paths are therefore stored once and referenced by
-time-shifted segments.
-
-**`paths.json` + `paths.bin`**: `PathsHeader`, every distinct path of the scenario, shared
+`paths.json` + `paths.bin` (`PathsHeader`) holds every distinct path of the scenario, shared
 by all days:
 
 | buffer | dtype, shape | meaning |
@@ -688,7 +863,7 @@ by all days:
 | `t` | float32 (V) | seconds since the start of the path |
 | `mode` | uint8 (P) | `0` walk, `1` metro (train ride from platform to platform) |
 
-**`day-<weekday>.json` + `.bin`**: `DayHeader`, one row per segment, sorted by `t_start`:
+`day-<weekday>.json` + `.bin` (`DayHeader`) has one row per segment, sorted by `t_start`:
 
 | buffer | dtype | meaning |
 |---|---|---|
@@ -697,34 +872,119 @@ by all days:
 | `path_id` | uint32 (S) | into `paths` |
 | `t_start` | float32 (S) | seconds since 00:00 of that day |
 
-A walking leg is one segment. A metro leg has three: walk to the platform, the ride, and the
-walk out. Between segments of one leg the student stands at the end of the previous path
-(waiting on the platform). Between legs the student is in class and is not drawn. The student
-position at time `t` is the path interpolated at `t − t_start`.
+- A walking leg is one segment.
+- A metro leg has three: the walk to the platform, the ride, and the walk out. Between
+  segments of one leg the student stands at the end of the previous path (waiting on the
+  platform).
+- Between legs the student is in class and is not drawn.
+- The student position at time `t` is the path interpolated at `t − t_start`.
 
-### 10.6 `aco/trace.json` + `.bin`: `AcoTraceHeader`
+**`replays/<id>/trace.json` + `.bin`: `AcoTraceHeader`.** The same buffers as `trace.npz`
+(section 8.1), plus `run_id`, `algorithm`, `topology`, `candidate_ids` and
+`candidate_platforms` (web positions). The viewer draws candidates as cylinders, animates
+each sampled ant along its tour between platforms, and shows pheromone as tunnel thickness
+or opacity.
 
-Same buffers as `trace.npz` (section 8.1), plus `run_id`, `algorithm`, `topology`,
-`candidate_ids` and `candidate_platforms` (web positions). The viewer draws candidates as
-cylinders, animates each sampled ant along its tour between platforms, and shows pheromone
-as tunnel thickness or opacity.
-
-### 10.7 `stats.json`: `schemas.web.Stats`
+**`replays/<id>/stats.json`: `schemas.web.Stats`.**
 
 - `scenarios.{no_metro, metro}`: `n_legs, total_travel_s, mean_leg_s, n_late, late_share,
-  longer_than_break_share, metro_share`
-- `saving_s`: total no_metro − total metro
-- `per_hour[{weekday, hour, n_legs, no_metro_s, metro_s}]`: the time-of-day chart
-- `stations[{building_id, boardings, alightings}]`
-- `top_od[{from_key, to_key, n_legs, saving_s}]`: the 50 largest savings
+  longer_than_break_share, metro_share`.
+- `saving_s`: total no_metro − total metro.
+- `per_hour[{weekday, hour, n_legs, no_metro_s, metro_s}]`: the time-of-day chart.
+- `stations[{building_id, boardings, alightings}]`.
+- `top_od[{from_key, to_key, n_legs, saving_s}]`: the 50 largest savings.
 
 The notebooks use the same numbers, computed from `simulation/*/legs.parquet`.
+
+### 10.7 `network.json` + `.bin`: `schemas.web.NetworkHeader`
+
+The outdoor walk graph (the indoor graph is added with stage 2b):
+
+| buffer | dtype, shape | meaning |
+|---|---|---|
+| `node_xyz` | float32 (N, 3) | node positions |
+| `edge_nodes` | uint32 (E, 2) | the two node indices of each edge |
+| `edge_kind` | uint8 (E) | index into `edge_kind_names` (`footway`, `road`, `steps`) |
+| `length_m` | float32 (E) | edge length |
+| `segment_xyz` | float32 (S, 2, 3) | the edges' real polylines as segments, for drawing |
+| `segment_edge` | uint32 (S) | edge index of each segment |
+
+The header also carries `node_keys` (per node, e.g. `osm:123`; OSM ids exceed uint32) and
+`edge_sources` (per edge, e.g. `way/1|way/2`).
+
+### 10.8 `issues.json`: `schemas.web.IssueList`
+
+`issues[{severity, section, message, building_id, osm_id, position}]`, the viewer's issues
+panel. The list combines:
+
+- the OSM stage issues (`data/processed/osm/issues.json`, the same entries as `report.md`);
+- the checks the export runs on every building YAML:
+  - the file fails validation (`error`);
+  - the footprint is more than 1 m from the OSM outline;
+  - the `osm_id` was not found;
+  - the YAML has no entrances.
+
+`position` is filled in so every row can be jumped to.
+
+### 10.9 `status.json`: `schemas.web.BuildStatus`
+
+`{version, built_at, changed[], errors[{file, line, loc, message, building_id, element}]}`,
+written last by every export:
+
+- `version` increases on every export.
+- `changed` lists the data files written.
+- `errors` lists building files that failed validation. Their old glb/json files are kept,
+  so the viewer still shows the last good version. `line` is 1-based in the YAML, `loc` the
+  pydantic location (`levels.0.rooms.2.width`), `element` the room, corridor, stairs or
+  entrance id the error is about.
+
+The status bar shows it. In dev, `web/plugins/metroData.ts` watches this file and sends it to
+the page (HMR event `metro:data`), which refetches only the files in `changed`.
+
+### 10.10 Replays: `replays/index.json` (`ReplayCatalog`) and `replays/<id>/replay.json` (`Replay`)
+
+A **replay** is one thing the viewer can play back, chosen from the *Replays* menu: an
+optimisation run (`kind: "aco"`) or a simulation (`kind: "simulation"`). Each one lives in
+its own directory with a `replay.json`:
+
+```json
+{
+  "id": "mmas-k5-s42",
+  "kind": "simulation",
+  "title": "Week simulation, MMAS line k=5",
+  "description": null,
+  "created_at": "2026-10-09T09:00:00+02:00",
+  "run_id": "mmas-k5-s42",
+  "topology": "line",
+  "stations": ["A-0", "B-1", "C-2", "D-17", "DS-7"],
+  "scenarios": ["no_metro", "metro"],
+  "weekdays": [1, 2, 3, 4, 5],
+  "files": {
+    "metro": "replays/mmas-k5-s42/metro.json",
+    "aco_trace": null,
+    "trips": {
+      "no_metro": "replays/mmas-k5-s42/trips/no_metro",
+      "metro": "replays/mmas-k5-s42/trips/metro"
+    },
+    "stats": "replays/mmas-k5-s42/stats.json"
+  }
+}
+```
+
+- `id` matches the directory name (lower case, digits, `_ . -`).
+- File paths are relative to the data dir.
+- An ACO replay normally has `aco_trace` (and `metro` for the best line).
+- `replays/index.json` is rebuilt by every export from the `replay.json` files found,
+  newest first.
+- Several replays can exist side by side (different runs, configs or seeds). The viewer
+  plays one at a time; choosing one switches to the Metro (ACO) or Simulation workspace and
+  opens the playback dock.
 
 ---
 
 ## 11. Open questions
 
-- **Stops**: which three stops are used (Miasteczko Studenckie AGH is confirmed; its location is approximate).
+- **Stops**: which stops besides Miasteczko Studenckie AGH; `osm/report.md` lists all stops in the bbox.
 - **Group sizes and cohort sizes**: what the USOS API actually exposes. Until then
   `size_source = estimate`.
 - **Elevators**: not routed in v1 (stairs only).

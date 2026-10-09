@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../schemas/building.schema.json
+# Bootstrapped from OpenStreetMap (way/231815574) on 2026-10-09. LOD1.
+# Edit freely: the OSM bootstrap never overwrites this file.
+# Format: docs/data_contracts.md, section 3.1
+schema_version: 1
+id: D-14
+name: Wydział Zarządzania AGH
+kind: academic
+osm_id: way/231815574
+placement:
+  anchor: [19.906578, 50.0703151]
+  bearing_deg: 193.9
+footprint:
+- [25.2, -7.4]
+- [25.1, 7.3]
+- [24.2, 7.3]
+- [24.1, 19.9]
+- [15.0, 19.8]
+- [15.0, 7.3]
+- [0.4, 7.4]
+- [0.4, 7.6]
+- [-4.2, 7.6]
+- [-4.2, 7.4]
+- [-18.8, 7.4]
+- [-18.8, 19.9]
+- [-28.0, 19.9]
+- [-28.0, 7.4]
+- [-28.9, 7.3]
+- [-28.9, -7.4]
+- [8.5, -7.7]
+- [8.5, -7.4]
+n_levels: 4
+height_m: 14.0
+entrances:
+- {id: main, point: [0.0, 0.0], metro_shaft: true}

@@ -1,0 +1,597 @@
+{
+  "$defs": {
+    "BuildingFrame": {
+      "additionalProperties": false,
+      "description": "The building's local frame in web coordinates. local -> web:\n``web = anchor + x * (sin b, 0, -cos b) + y * (-cos b, 0, -sin b)`` with b = bearing.",
+      "properties": {
+        "anchor": {
+          "description": "web position of the local origin (ground level)",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Anchor",
+          "type": "array"
+        },
+        "bearing_deg": {
+          "description": "grid bearing of local +x (EPSG:2180 = web grid)",
+          "title": "Bearing Deg",
+          "type": "number"
+        }
+      },
+      "required": [
+        "anchor",
+        "bearing_deg"
+      ],
+      "title": "BuildingFrame",
+      "type": "object"
+    },
+    "InfoEntrance": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "local": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Local",
+          "type": "array"
+        },
+        "position": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Position",
+          "type": "array"
+        },
+        "main": {
+          "title": "Main",
+          "type": "boolean"
+        },
+        "metro_shaft": {
+          "title": "Metro Shaft",
+          "type": "boolean"
+        },
+        "osm_node": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Osm Node"
+        }
+      },
+      "required": [
+        "id",
+        "local",
+        "position",
+        "main",
+        "metro_shaft",
+        "osm_node"
+      ],
+      "title": "InfoEntrance",
+      "type": "object"
+    },
+    "InfoLevel": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
+        "elevation": {
+          "title": "Elevation",
+          "type": "number"
+        },
+        "height": {
+          "title": "Height",
+          "type": "number"
+        },
+        "floor_y": {
+          "title": "Floor Y",
+          "type": "number"
+        },
+        "spaces": {
+          "default": [],
+          "description": "LOD2/3 only",
+          "items": {
+            "$ref": "#/$defs/InfoSpace"
+          },
+          "title": "Spaces",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "elevation",
+        "height",
+        "floor_y",
+        "spaces"
+      ],
+      "title": "InfoLevel",
+      "type": "object"
+    },
+    "InfoSpace": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "corridor",
+            "room",
+            "stairs"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "polygon": {
+          "description": "outline, local metres",
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Polygon",
+          "type": "array"
+        },
+        "centre": {
+          "description": "label point inside the polygon, local metres",
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Centre",
+          "type": "array"
+        },
+        "size": {
+          "description": "sides of the minimum rotated rectangle, longer first",
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Size",
+          "type": "array"
+        },
+        "area_m2": {
+          "title": "Area M2",
+          "type": "number"
+        },
+        "doors": {
+          "default": [],
+          "description": "door positions, local metres",
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Doors",
+          "type": "array"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "capacity": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Capacity"
+        },
+        "bbox_min": {
+          "description": "web bounding box, for framing",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Bbox Min",
+          "type": "array"
+        },
+        "bbox_max": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Bbox Max",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "polygon",
+        "centre",
+        "size",
+        "area_m2",
+        "doors",
+        "name",
+        "capacity",
+        "bbox_min",
+        "bbox_max"
+      ],
+      "title": "InfoSpace",
+      "type": "object"
+    },
+    "Issue": {
+      "additionalProperties": false,
+      "properties": {
+        "severity": {
+          "default": "warning",
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "section": {
+          "description": "group heading, e.g. 'AGH buildings without entrances'",
+          "title": "Section",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "building_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Building Id"
+        },
+        "osm_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "e.g. way/123456",
+          "title": "Osm Id"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "web position to jump to",
+          "title": "Position"
+        }
+      },
+      "required": [
+        "severity",
+        "section",
+        "message",
+        "building_id",
+        "osm_id",
+        "position"
+      ],
+      "title": "Issue",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Attached to every generated JSON file, so stale outputs can be detected.",
+      "properties": {
+        "schema_version": {
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "generated_at": {
+          "description": "ISO 8601 timestamp",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "generator": {
+          "description": "script that produced the file, e.g. 04_optimize.py",
+          "title": "Generator",
+          "type": "string"
+        },
+        "config_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "sha256 of the resolved config",
+          "title": "Config Hash"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        }
+      },
+      "required": [
+        "schema_version",
+        "generated_at",
+        "generator",
+        "config_hash",
+        "git_commit"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Everything the inspector shows about one building, without parsing its glb.",
+  "properties": {
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "id": {
+      "pattern": "^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "lod": {
+      "enum": [
+        1,
+        2,
+        3
+      ],
+      "title": "Lod",
+      "type": "integer"
+    },
+    "frame": {
+      "$ref": "#/$defs/BuildingFrame"
+    },
+    "footprint": {
+      "description": "local metres, counter-clockwise",
+      "items": {
+        "maxItems": 2,
+        "minItems": 2,
+        "prefixItems": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "type": "array"
+      },
+      "title": "Footprint",
+      "type": "array"
+    },
+    "footprint_holes": {
+      "default": [],
+      "items": {
+        "items": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "type": "array"
+        },
+        "type": "array"
+      },
+      "title": "Footprint Holes",
+      "type": "array"
+    },
+    "area_m2": {
+      "title": "Area M2",
+      "type": "number"
+    },
+    "height_m": {
+      "title": "Height M",
+      "type": "number"
+    },
+    "levels": {
+      "items": {
+        "$ref": "#/$defs/InfoLevel"
+      },
+      "title": "Levels",
+      "type": "array"
+    },
+    "entrances": {
+      "items": {
+        "$ref": "#/$defs/InfoEntrance"
+      },
+      "title": "Entrances",
+      "type": "array"
+    },
+    "osm_outline": {
+      "default": [],
+      "description": "OSM outline rings in local metres, exterior first",
+      "items": {
+        "items": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "type": "array"
+        },
+        "type": "array"
+      },
+      "title": "Osm Outline",
+      "type": "array"
+    },
+    "osm_hausdorff_m": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "distance between the footprint and the OSM outline",
+      "title": "Osm Hausdorff M"
+    },
+    "issues": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Issue"
+      },
+      "title": "Issues",
+      "type": "array"
+    }
+  },
+  "required": [
+    "provenance",
+    "id",
+    "lod",
+    "frame",
+    "footprint",
+    "footprint_holes",
+    "area_m2",
+    "height_m",
+    "levels",
+    "entrances",
+    "osm_outline",
+    "osm_hausdorff_m",
+    "issues"
+  ],
+  "title": "BuildingInfo",
+  "type": "object"
+}

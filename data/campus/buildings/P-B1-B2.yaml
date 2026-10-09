@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../schemas/building.schema.json
+# Bootstrapped from OpenStreetMap (way/231815924) on 2026-10-09. LOD1.
+# Edit freely: the OSM bootstrap never overwrites this file.
+# Format: docs/data_contracts.md, section 3.1
+schema_version: 1
+id: P-B1-B2
+name: Łącznik B-1 – B-2
+kind: other
+osm_id: way/231815924
+placement:
+  anchor: [19.919214, 50.0661847]
+  bearing_deg: 19.2
+footprint:
+- [31.6, 16.0]
+- [26.8, 16.0]
+- [26.8, 13.3]
+- [22.6, 13.3]
+- [22.7, 11.9]
+- [-22.2, 11.8]
+- [-22.4, 12.8]
+- [-26.7, 12.9]
+- [-26.6, -12.9]
+- [-22.4, -12.9]
+- [-22.3, -11.9]
+- [22.5, -11.9]
+- [22.6, -13.2]
+- [26.8, -13.2]
+- [26.8, -16.2]
+- [31.6, -16.3]
+height_m: 10.5
+entrances:
+- {id: main, point: [0.0, 0.0]}

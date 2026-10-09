@@ -33,9 +33,13 @@ __all__ = [
 ]
 
 
+# libyaml is ~10x faster than the pure-Python loader; same results
+_Loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
+
 def load_building(path: Path) -> Building:
     path = Path(path)
-    building = Building.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
+    building = Building.model_validate(yaml.load(path.read_text(encoding="utf-8"), Loader=_Loader))
     if building.id != path.stem:
         raise ValueError(f"{path.name}: id {building.id!r} does not match the file name")
     return building

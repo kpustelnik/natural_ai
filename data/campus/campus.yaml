@@ -8,9 +8,11 @@ extra_paths: []
 removed_ways: []
 
 # Stops where commuting students arrive (id must start with "stop:").
-# TODO: verify the location on a map; add the remaining stops.
+# Locations = centre of the OSM platforms (data/processed/osm/campus.gpkg, layer "stops";
+# report.md lists every stop in the bbox).
+# TODO: add the remaining stops.
 stops:
   - id: "stop:miasteczko_studenckie_agh"
     name: Miasteczko Studenckie AGH
-    location: [19.9030, 50.0680]   # approximate
+    location: [19.905002, 50.069902]   # 4 platforms
     weight: 1

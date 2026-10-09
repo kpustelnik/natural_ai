@@ -1,0 +1,168 @@
+{
+  "$defs": {
+    "BufferView": {
+      "additionalProperties": false,
+      "properties": {
+        "dtype": {
+          "enum": [
+            "uint8",
+            "int16",
+            "uint16",
+            "int32",
+            "uint32",
+            "float32"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "offset": {
+          "description": "byte offset in the .bin file",
+          "minimum": 0,
+          "multipleOf": 4,
+          "title": "Offset",
+          "type": "integer"
+        },
+        "count": {
+          "description": "number of elements (not bytes)",
+          "minimum": 0,
+          "title": "Count",
+          "type": "integer"
+        },
+        "shape": {
+          "description": "logical shape; product == count",
+          "items": {
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dtype",
+        "offset",
+        "count",
+        "shape"
+      ],
+      "title": "BufferView",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Attached to every generated JSON file, so stale outputs can be detected.",
+      "properties": {
+        "schema_version": {
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "generated_at": {
+          "description": "ISO 8601 timestamp",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "generator": {
+          "description": "script that produced the file, e.g. 04_optimize.py",
+          "title": "Generator",
+          "type": "string"
+        },
+        "config_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "sha256 of the resolved config",
+          "title": "Config Hash"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        }
+      },
+      "required": [
+        "generated_at",
+        "generator"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "Scenario": {
+      "enum": [
+        "no_metro",
+        "metro"
+      ],
+      "title": "Scenario",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``trips/<scenario>/day-<weekday>.{json,bin}``: who walks which path when.\n\nOne row = one segment: student ``student_id`` starts path ``path_id`` at ``t_start``.\nA metro leg is three segments (walk to platform, ride, walk out); between segments of\none leg the student stands at the end of the previous path (waiting). Between legs the\nstudent is inside a room and not drawn. Rows are sorted by t_start.",
+  "properties": {
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "bin": {
+      "description": "file name of the .bin next to this header",
+      "title": "Bin",
+      "type": "string"
+    },
+    "buffers": {
+      "additionalProperties": {
+        "$ref": "#/$defs/BufferView"
+      },
+      "title": "Buffers",
+      "type": "object"
+    },
+    "kind": {
+      "const": "day",
+      "default": "day",
+      "title": "Kind",
+      "type": "string"
+    },
+    "scenario": {
+      "$ref": "#/$defs/Scenario"
+    },
+    "weekday": {
+      "maximum": 5,
+      "minimum": 1,
+      "title": "Weekday",
+      "type": "integer"
+    },
+    "n_students": {
+      "title": "N Students",
+      "type": "integer"
+    },
+    "t_min": {
+      "title": "T Min",
+      "type": "number"
+    },
+    "t_max": {
+      "title": "T Max",
+      "type": "number"
+    }
+  },
+  "required": [
+    "provenance",
+    "bin",
+    "buffers",
+    "scenario",
+    "weekday",
+    "n_students",
+    "t_min",
+    "t_max"
+  ],
+  "title": "DayHeader",
+  "type": "object"
+}

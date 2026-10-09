@@ -1,0 +1,261 @@
+{
+  "$defs": {
+    "HourStats": {
+      "additionalProperties": false,
+      "properties": {
+        "weekday": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Weekday",
+          "type": "integer"
+        },
+        "hour": {
+          "maximum": 23,
+          "minimum": 0,
+          "title": "Hour",
+          "type": "integer"
+        },
+        "n_legs": {
+          "title": "N Legs",
+          "type": "integer"
+        },
+        "no_metro_s": {
+          "title": "No Metro S",
+          "type": "number"
+        },
+        "metro_s": {
+          "title": "Metro S",
+          "type": "number"
+        }
+      },
+      "required": [
+        "weekday",
+        "hour",
+        "n_legs",
+        "no_metro_s",
+        "metro_s"
+      ],
+      "title": "HourStats",
+      "type": "object"
+    },
+    "OdStats": {
+      "additionalProperties": false,
+      "properties": {
+        "from_key": {
+          "title": "From Key",
+          "type": "string"
+        },
+        "to_key": {
+          "title": "To Key",
+          "type": "string"
+        },
+        "n_legs": {
+          "title": "N Legs",
+          "type": "integer"
+        },
+        "saving_s": {
+          "title": "Saving S",
+          "type": "number"
+        }
+      },
+      "required": [
+        "from_key",
+        "to_key",
+        "n_legs",
+        "saving_s"
+      ],
+      "title": "OdStats",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Attached to every generated JSON file, so stale outputs can be detected.",
+      "properties": {
+        "schema_version": {
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "generated_at": {
+          "description": "ISO 8601 timestamp",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "generator": {
+          "description": "script that produced the file, e.g. 04_optimize.py",
+          "title": "Generator",
+          "type": "string"
+        },
+        "config_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "sha256 of the resolved config",
+          "title": "Config Hash"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        }
+      },
+      "required": [
+        "generated_at",
+        "generator"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "Scenario": {
+      "enum": [
+        "no_metro",
+        "metro"
+      ],
+      "title": "Scenario",
+      "type": "string"
+    },
+    "ScenarioStats": {
+      "additionalProperties": false,
+      "properties": {
+        "n_legs": {
+          "title": "N Legs",
+          "type": "integer"
+        },
+        "total_travel_s": {
+          "title": "Total Travel S",
+          "type": "number"
+        },
+        "mean_leg_s": {
+          "title": "Mean Leg S",
+          "type": "number"
+        },
+        "n_late": {
+          "description": "legs arriving after the class start",
+          "title": "N Late",
+          "type": "integer"
+        },
+        "late_share": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Late Share",
+          "type": "number"
+        },
+        "longer_than_break_share": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Longer Than Break Share",
+          "type": "number"
+        },
+        "metro_share": {
+          "description": "0 for no_metro",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Metro Share",
+          "type": "number"
+        }
+      },
+      "required": [
+        "n_legs",
+        "total_travel_s",
+        "mean_leg_s",
+        "n_late",
+        "late_share",
+        "longer_than_break_share",
+        "metro_share"
+      ],
+      "title": "ScenarioStats",
+      "type": "object"
+    },
+    "StationStats": {
+      "additionalProperties": false,
+      "properties": {
+        "building_id": {
+          "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*[a-z]?$",
+          "title": "Building Id",
+          "type": "string"
+        },
+        "boardings": {
+          "title": "Boardings",
+          "type": "integer"
+        },
+        "alightings": {
+          "title": "Alightings",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "building_id",
+        "boardings",
+        "alightings"
+      ],
+      "title": "StationStats",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "scenarios": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ScenarioStats"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/Scenario"
+      },
+      "title": "Scenarios",
+      "type": "object"
+    },
+    "saving_s": {
+      "description": "no_metro total - metro total",
+      "title": "Saving S",
+      "type": "number"
+    },
+    "per_hour": {
+      "items": {
+        "$ref": "#/$defs/HourStats"
+      },
+      "title": "Per Hour",
+      "type": "array"
+    },
+    "stations": {
+      "items": {
+        "$ref": "#/$defs/StationStats"
+      },
+      "title": "Stations",
+      "type": "array"
+    },
+    "top_od": {
+      "description": "largest savings first, at most 50",
+      "items": {
+        "$ref": "#/$defs/OdStats"
+      },
+      "title": "Top Od",
+      "type": "array"
+    }
+  },
+  "required": [
+    "provenance",
+    "scenarios",
+    "saving_s",
+    "per_hour",
+    "stations",
+    "top_od"
+  ],
+  "title": "Stats",
+  "type": "object"
+}

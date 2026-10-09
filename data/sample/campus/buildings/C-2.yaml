@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../../../../schemas/building.schema.json
+# SAMPLE. LOD1: only an extruded outline, as produced by the OSM bootstrap.
+# Every class in C-2 ends at the building endpoint "C-2".
+schema_version: 1
+id: C-2
+kind: academic
+placement:
+  anchor: [19.9160, 50.0670]
+footprint: [[0, 0], [35, 0], [35, 15], [0, 15]]
+n_levels: 4
+height_m: 15.0
+entrances:
+  - { id: main, point: [17, 0], metro_shaft: true }

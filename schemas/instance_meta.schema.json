@@ -1,0 +1,88 @@
+{
+  "$defs": {
+    "MetroTopology": {
+      "enum": [
+        "line",
+        "loop"
+      ],
+      "title": "MetroTopology",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "name": {
+      "description": "'campus', 'sample', 'brute12', ...",
+      "title": "Name",
+      "type": "string"
+    },
+    "topology": {
+      "$ref": "#/$defs/MetroTopology"
+    },
+    "k": {
+      "description": "stations to place",
+      "minimum": 2,
+      "title": "K",
+      "type": "integer"
+    },
+    "metro_speed_mps": {
+      "exclusiveMinimum": 0,
+      "title": "Metro Speed Mps",
+      "type": "number"
+    },
+    "dwell_s": {
+      "description": "stop time at every intermediate station",
+      "minimum": 0,
+      "title": "Dwell S",
+      "type": "number"
+    },
+    "wait_s": {
+      "description": "expected platform wait (headway / 2)",
+      "minimum": 0,
+      "title": "Wait S",
+      "type": "number"
+    },
+    "shaft_down_s": {
+      "description": "shaft top -> platform",
+      "minimum": 0,
+      "title": "Shaft Down S",
+      "type": "number"
+    },
+    "shaft_up_s": {
+      "description": "platform -> shaft top",
+      "minimum": 0,
+      "title": "Shaft Up S",
+      "type": "number"
+    },
+    "source_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "hash of graph + demand inputs",
+      "title": "Source Hash"
+    }
+  },
+  "required": [
+    "name",
+    "topology",
+    "k",
+    "metro_speed_mps",
+    "dwell_s",
+    "wait_s",
+    "shaft_down_s",
+    "shaft_up_s"
+  ],
+  "title": "InstanceMeta",
+  "type": "object"
+}

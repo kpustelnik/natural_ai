@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../../../../schemas/building.schema.json
+# SAMPLE. A dorm: a home for students, never a class location. LOD1 is enough.
+schema_version: 1
+id: DS-7
+name: DS Zaścianek
+kind: dorm
+residents: 400
+placement:
+  anchor: [19.9035, 50.0690]
+footprint: [[0, 0], [60, 0], [60, 14], [0, 14]]
+n_levels: 11
+height_m: 33.0
+entrances:
+  - { id: main, point: [30, 0] }

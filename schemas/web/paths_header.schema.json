@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "BufferView": {
+      "additionalProperties": false,
+      "properties": {
+        "dtype": {
+          "enum": [
+            "uint8",
+            "int16",
+            "uint16",
+            "int32",
+            "uint32",
+            "float32"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "offset": {
+          "description": "byte offset in the .bin file",
+          "minimum": 0,
+          "multipleOf": 4,
+          "title": "Offset",
+          "type": "integer"
+        },
+        "count": {
+          "description": "number of elements (not bytes)",
+          "minimum": 0,
+          "title": "Count",
+          "type": "integer"
+        },
+        "shape": {
+          "description": "logical shape; product == count",
+          "items": {
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dtype",
+        "offset",
+        "count",
+        "shape"
+      ],
+      "title": "BufferView",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Attached to every generated JSON file, so stale outputs can be detected.",
+      "properties": {
+        "schema_version": {
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "generated_at": {
+          "description": "ISO 8601 timestamp",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "generator": {
+          "description": "script that produced the file, e.g. 04_optimize.py",
+          "title": "Generator",
+          "type": "string"
+        },
+        "config_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "sha256 of the resolved config",
+          "title": "Config Hash"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        }
+      },
+      "required": [
+        "generated_at",
+        "generator"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "Scenario": {
+      "enum": [
+        "no_metro",
+        "metro"
+      ],
+      "title": "Scenario",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``trips/<scenario>/paths.{json,bin}``: every distinct path, shared by all days.\n\nPath p has vertices ``path_offsets[p] .. path_offsets[p+1]-1``.\n``t`` is the time from the start of the path, so one path is reused by many students.",
+  "properties": {
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "bin": {
+      "description": "file name of the .bin next to this header",
+      "title": "Bin",
+      "type": "string"
+    },
+    "buffers": {
+      "additionalProperties": {
+        "$ref": "#/$defs/BufferView"
+      },
+      "title": "Buffers",
+      "type": "object"
+    },
+    "kind": {
+      "const": "paths",
+      "default": "paths",
+      "title": "Kind",
+      "type": "string"
+    },
+    "scenario": {
+      "$ref": "#/$defs/Scenario"
+    },
+    "n_paths": {
+      "title": "N Paths",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "provenance",
+    "bin",
+    "buffers",
+    "scenario",
+    "n_paths"
+  ],
+  "title": "PathsHeader",
+  "type": "object"
+}

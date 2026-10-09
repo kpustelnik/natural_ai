@@ -1,0 +1,270 @@
+{
+  "$defs": {
+    "ExtraPath": {
+      "additionalProperties": false,
+      "description": "Outdoor walkway missing from OSM. Its ends snap to the nearest walk-network nodes.",
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "path": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "maximum": 180,
+                "minimum": -180,
+                "type": "number"
+              },
+              {
+                "maximum": 90,
+                "minimum": -90,
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "minItems": 2,
+          "title": "Path",
+          "type": "array"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "id",
+        "path"
+      ],
+      "title": "ExtraPath",
+      "type": "object"
+    },
+    "Passage": {
+      "additionalProperties": false,
+      "description": "Connection between two buildings that does not go through the OSM walk network.",
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "a": {
+          "$ref": "#/$defs/PassageEnd"
+        },
+        "b": {
+          "$ref": "#/$defs/PassageEnd"
+        },
+        "kind": {
+          "default": "indoor",
+          "enum": [
+            "indoor",
+            "bridge",
+            "tunnel",
+            "covered"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "width": {
+          "default": 3.0,
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "number"
+        },
+        "waypoints": {
+          "default": [],
+          "description": "intermediate points for geometry",
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "maximum": 180,
+                "minimum": -180,
+                "type": "number"
+              },
+              {
+                "maximum": 90,
+                "minimum": -90,
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Waypoints",
+          "type": "array"
+        },
+        "length_m": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "override; default = length through waypoints",
+          "title": "Length M"
+        }
+      },
+      "required": [
+        "id",
+        "a",
+        "b"
+      ],
+      "title": "Passage",
+      "type": "object"
+    },
+    "PassageEnd": {
+      "additionalProperties": false,
+      "properties": {
+        "building": {
+          "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*[a-z]?$",
+          "title": "Building",
+          "type": "string"
+        },
+        "corridor": {
+          "description": "corridor id in that building (implies the level)",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+          "title": "Corridor",
+          "type": "string"
+        },
+        "at": {
+          "minimum": 0,
+          "title": "At",
+          "type": "number"
+        }
+      },
+      "required": [
+        "building",
+        "corridor",
+        "at"
+      ],
+      "title": "PassageEnd",
+      "type": "object"
+    },
+    "RemovedWay": {
+      "additionalProperties": false,
+      "description": "OSM way that students cannot use (fenced, closed gate, construction).",
+      "properties": {
+        "osm_way_id": {
+          "title": "Osm Way Id",
+          "type": "integer"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "osm_way_id",
+        "reason"
+      ],
+      "title": "RemovedWay",
+      "type": "object"
+    },
+    "Stop": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^stop:[a-z0-9_]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "location": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number"
+            },
+            {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number"
+            }
+          ],
+          "title": "Location",
+          "type": "array"
+        },
+        "weight": {
+          "default": 1.0,
+          "description": "relative share of commuting students arriving here",
+          "exclusiveMinimum": 0,
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "location"
+      ],
+      "title": "Stop",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "passages": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Passage"
+      },
+      "title": "Passages",
+      "type": "array"
+    },
+    "extra_paths": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ExtraPath"
+      },
+      "title": "Extra Paths",
+      "type": "array"
+    },
+    "removed_ways": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/RemovedWay"
+      },
+      "title": "Removed Ways",
+      "type": "array"
+    },
+    "stops": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Stop"
+      },
+      "title": "Stops",
+      "type": "array"
+    }
+  },
+  "title": "Campus",
+  "type": "object"
+}

@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../../../schemas/building.schema.json
+# SAMPLE (synthetic interior). LOD3 with a single level; connected to A-0 by a passage
+# (see ../campus.yaml).
+schema_version: 1
+id: B-1
+name: Pawilon B-1
+kind: academic
+placement:
+  anchor: [19.9218, 50.0652]
+  bearing_deg: 165
+footprint: [[0, -9], [30, -9], [30, 9], [0, 9]]
+
+levels:
+  - id: 0
+    elevation: 0.0
+    height: 3.8
+    corridors:
+      - id: c0
+        path: [[0, 0], [30, 0]]
+        width: 3.0
+    rooms:
+      - { id: "0.17", corridor: c0, side: left, at: 3, width: 12, depth: 7.5 }
+      - { id: "0.21", corridor: c0, side: right, at: 3, width: 12, depth: 7.5 }
+
+entrances:
+  - { id: main, corridor: c0, side: start, metro_shaft: true }

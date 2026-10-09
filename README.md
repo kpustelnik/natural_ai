@@ -4,9 +4,9 @@ Projekt semestralny z przedmiotu **Algorytmy inteligentne inspirowane naturą** 
 
 **Pytanie badawcze:** gdzie na kampusie AGH postawić linię metra (k stacji), aby zminimalizować łączny czas przemieszczania się studentów między budynkami w trakcie tygodnia zajęć?
 
-**Metoda:** algorytm mrówkowy (MAX-MIN Ant System) projektuje linię metra, a funkcja celu liczy czasy dojść na grafie *chodniki + metro* zbudowanym z OpenStreetMap, z popytem wyznaczonym z planów zajęć w USOS.
+**Metoda:** algorytm mrówkowy (MAX-MIN Ant System) projektuje linię metra, a funkcja celu liczy czasy dojść na grafie *chodniki (OpenStreetMap) + wnętrza budynków + szyby metra*, z popytem wyznaczonym z planów zajęć w USOS.
 
-**Wynik:** interaktywna mapa 3D kampusu (deck.gl) z animacją ruchu studentów w wariantach *bez metra* i *z metrem*.
+**Wynik:** interaktywny model 3D kampusu (three.js) z wnętrzami budynków, metrem i animacją ruchu 20 000 studentów w wariantach *bez metra* i *z metrem*.
 
 ---
 
@@ -28,21 +28,27 @@ Projekt semestralny z przedmiotu **Algorytmy inteligentne inspirowane naturą** 
 ## Pipeline
 
 ```
-USOS ──► data/raw/usos ──► timetable.csv ──► demand.parquet (macierz OD)
-                                                    │
-OSM  ──► data/raw/osm  ──► walk_graph.graphml ──────┤
-                           buildings.geojson         │
-                           candidates.geojson        ▼
-                                          ACO (MMAS) ──► best_line.json
-                                                    │
-                                                    ▼
-                                    symulacja: bez metra vs z metrem
-                                                    │
-                                                    ▼
-                                web/data/*.json ──► web/index.html (deck.gl)
+USOS ──► data/raw/usos ──► usos/timetable.csv, groups.csv, cohorts.csv
+                                    │
+                                    ▼
+                  populacja (20 000 studentów) ──► demand/legs.parquet, od.parquet
+                                                            │
+OSM ─────────────┐                                          │
+data/campus/     ├──► network/nodes.parquet, edges.parquet ─┤
+(budynki YAML)  ─┘    (chodniki + wnętrza + szyby metra)    ▼
+                                                  instance/instance.npz
+                                                            │
+                                                            ▼
+                                     ACO (MMAS) ──► best_line.json, trace.npz
+                                                            │
+                                                            ▼
+                                   symulacja: bez metra vs z metrem (każdy student)
+                                                            │
+                                                            ▼
+                         web/public/data/ ──► web/ (React + three.js)
 ```
 
-Każdy etap to osobny skrypt w `scripts/` czytający pliki z poprzedniego etapu. Dzięki temu da się pracować równolegle na danych testowych (`data/sample/`), zanim spłyną prawdziwe dane z USOS.
+Każdy etap to osobny skrypt w `scripts/` czytający pliki z poprzedniego etapu. Dzięki temu da się pracować równolegle na danych testowych (`data/sample/`), zanim spłyną prawdziwe dane z USOS. Formaty wszystkich plików między etapami: **[docs/data_contracts.md](docs/data_contracts.md)**.
 
 ---
 
@@ -65,16 +71,23 @@ metro-agh/
 │   └── pull_request_template.md
 ├── .vscode/                    # rekomendowane rozszerzenia i ustawienia
 │
+├── schemas/                    # [generowane, w repo] JSON Schema: podpowiedzi w YAML, typy TS
+│
 ├── data/
 │   ├── raw/                    # [gitignore] surowe dane, nie edytujemy ręcznie
 │   │   ├── usos/               #   odpowiedzi API / eksporty iCal
 │   │   └── osm/                #   cache osmnx
+│   ├── campus/                 # [w repo] ręcznie modelowany kampus
+│   │   ├── buildings/*.yaml    #   budynek: piętra, korytarze, sale, schody, wejścia
+│   │   ├── campus.yaml         #   przejścia między budynkami, poprawki OSM, przystanki
+│   │   └── usos_room_map.csv   #   poprawki mapowania sal z USOS
 │   ├── processed/              # [gitignore] wyniki etapów pipeline'u
-│   │   ├── timetable.csv
-│   │   ├── demand.parquet
-│   │   ├── walk_graph.graphml
-│   │   ├── buildings.geojson
-│   │   └── candidates.geojson
+│   │   ├── usos/               #   timetable.csv, groups.csv, cohorts.csv, group_cohorts.csv
+│   │   ├── population/         #   students.parquet, enrollments.parquet
+│   │   ├── demand/             #   legs.parquet, od.parquet
+│   │   ├── network/            #   nodes.parquet, edges.parquet
+│   │   ├── instance/           #   instance.npz (wejście ACO)
+│   │   └── simulation/         #   przejścia studentów i rozkład metra
 │   ├── sample/                 # [w repo] mały syntetyczny zestaw do testów i developmentu
 │   └── validation/             # [w repo] pomiary terenowe
 │       └── field_measurements.csv
@@ -82,18 +95,22 @@ metro-agh/
 ├── src/metro_agh/              # kod biblioteczny (importowany przez skrypty i notebooki)
 │   ├── __init__.py
 │   ├── config.py               # wczytanie config.yaml
+│   ├── schemas/                # kontrakty danych (pydantic + tabele), patrz docs/data_contracts.md
 │   ├── usos/
 │   │   ├── client.py           # USOS API (OAuth 1.0a) / plan B: iCal
 │   │   └── parse.py            # sala -> budynek, normalizacja do timetable.csv
 │   ├── campus/
 │   │   ├── osm.py              # pobranie grafu pieszego i obrysów budynków
-│   │   ├── buildings.py        # wysokości, mapowanie kod budynku -> geometria
-│   │   └── candidates.py       # kandydaci na stacje (wejścia do budynków)
+│   │   ├── bootstrap.py        # szkielety LOD1 budynków z OSM (nie nadpisuje istniejących)
+│   │   ├── interior.py         # YAML budynku -> geometria pięter i graf wewnętrzny
+│   │   └── candidates.py       # kandydaci na stacje (wejścia z metro_shaft)
 │   ├── demand/
-│   │   └── od_matrix.py        # kolejne zajęcia grupy -> przejścia A -> B z wagą
+│   │   ├── population.py       # syntetyczni studenci i ich grupy
+│   │   └── legs.py             # plan studenta -> przejścia A -> B
 │   ├── network/
-│   │   ├── graph.py            # graf multimodalny: chodniki + linia metra
-│   │   └── travel_time.py      # Dijkstra, czas dojścia z metrem i bez
+│   │   ├── graph.py            # graf: chodniki + wnętrza + przejścia + szyby metra
+│   │   ├── travel_time.py      # Dijkstra, czasy dojść
+│   │   └── instance.py         # budowa instance.npz dla ACO
 │   ├── aco/
 │   │   ├── mmas.py             # MAX-MIN Ant System
 │   │   ├── acs.py              # Ant Colony System (do porównania)
@@ -103,9 +120,11 @@ metro-agh/
 │   │   ├── greedy.py
 │   │   └── brute_force.py      # optimum dokładne na małych instancjach
 │   ├── simulation/
-│   │   └── trips.py            # trajektorie studentów z timestampami
+│   │   ├── schedule.py         # rozkład jazdy pociągów
+│   │   └── trips.py            # przejścia każdego studenta, wybór metro / pieszo
 │   └── export/
-│       └── deck.py             # eksport JSON dla wizualizacji
+│       ├── gltf.py             # budynki -> buildings/<id>.glb
+│       └── web.py              # scene, metro, trips, aco, stats dla przeglądarki
 │
 ├── scripts/                    # punkty wejścia, uruchamiane po kolei
 │   ├── 01_fetch_usos.py
@@ -124,11 +143,17 @@ metro-agh/
 │   ├── 01_eksploracja_danych.ipynb
 │   └── 02_wyniki_eksperymentow.ipynb
 │
-├── web/                        # wizualizacja, statyczna strona
+├── web/                        # wizualizacja: React + three.js (React Three Fiber), TypeScript, Vite
+│   ├── package.json
 │   ├── index.html
-│   ├── main.js                 # deck.gl: budynki, TripsLayer, metro, UI
-│   ├── style.css
-│   └── data/                   # [gitignore] JSON-y z 06_export_web.py
+│   ├── scripts/gen-types.mjs   # schemas/web/*.schema.json -> src/generated/schemas.ts
+│   ├── src/
+│   │   ├── App.tsx             # canvas + panel
+│   │   ├── data/loader.ts      # wczytywanie JSON i kontenerów binarnych
+│   │   ├── scene/              # kampus, kamera, three-mesh-bvh
+│   │   ├── ui/                 # panel sterowania
+│   │   └── generated/          # [generowane, w repo] typy TS (npm run gen:types)
+│   └── public/data/            # [gitignore] dane z 06_export_web.py
 │
 ├── docs/
 │   ├── literatura.md           # przegląd literatury z notatkami
@@ -138,7 +163,8 @@ metro-agh/
 └── tests/
     ├── test_aco.py             # ACO == brute force na małej instancji
     ├── test_travel_time.py
-    └── test_od_matrix.py
+    ├── test_od_matrix.py
+    └── test_schemas.py         # dane z data/sample zgodne z kontraktami
 ```
 
 ---
@@ -169,13 +195,14 @@ Główne zależności:
 
 | Obszar | Biblioteki |
 |---|---|
-| Dane | `requests`, `requests-oauthlib`, `pandas`, `pyarrow`, `icalendar` |
+| Dane | `requests`, `requests-oauthlib`, `pandas`, `pyarrow`, `icalendar`, `pydantic` |
 | Geo i grafy | `osmnx`, `geopandas`, `shapely`, `pyproj`, `networkx` |
 | Algorytmy | `numpy`, `numba` |
 | Eksperymenty | `scipy`, `matplotlib`, `seaborn`, `tqdm` |
 | Dev | `pytest`, `ruff`, `pre-commit`, `jupyterlab`, `nbstripout`, `nbdime` |
+| Web | `react`, `three`, `@react-three/fiber`, `three-mesh-bvh`, `vite`, `typescript` |
 
-Wizualizacja nie wymaga instalacji: deck.gl i MapLibre ładowane są z CDN.
+Wizualizacja wymaga **Node.js** (LTS): `cd web && npm install`. Zależności (React, three.js, React Three Fiber, three-mesh-bvh, Vite, TypeScript) są w `web/package.json`.
 
 ### Klucze USOS API
 
@@ -193,7 +220,7 @@ uv run scripts/02_build_campus.py        # -> graf, budynki, kandydaci na stacje
 uv run scripts/03_build_demand.py        # -> demand.parquet
 uv run scripts/04_optimize.py            # -> experiments/results/best_line.json
 uv run scripts/05_simulate.py            # -> trajektorie bez / z metrem
-uv run scripts/06_export_web.py          # -> web/data/*.json
+uv run scripts/06_export_web.py          # -> web/public/data/
 ```
 
 Praca na danych testowych (bez USOS) — flaga `--sample` czyta z `data/sample/`:
@@ -205,8 +232,15 @@ uv run scripts/03_build_demand.py --sample
 Podgląd wizualizacji:
 
 ```bash
-uv run python -m http.server -d web 8000
-# otwórz http://localhost:8000
+cd web
+npm run gen:types                        # typy TS z schemas/web
+npm run dev                              # otwórz adres wypisany przez Vite
+```
+
+Po zmianie modeli w `src/metro_agh/schemas/` (najpierw uzgodnić w zespole):
+
+```bash
+uv run python -m metro_agh.schemas.export   # odświeża schemas/*.schema.json
 ```
 
 Eksperymenty walidacyjne (config eksperymentu nadpisuje wybrane klucze z `config.yaml`):
@@ -229,45 +263,23 @@ uv run pre-commit run --all-files        # wszystkie hooki naraz
 ## Formaty danych
 
 Ustalone formaty plików to kontrakt między etapami. Zmiany tylko po uzgodnieniu w zespole.
+Pełny opis (po angielsku): **[docs/data_contracts.md](docs/data_contracts.md)**. Kod kontraktów: `src/metro_agh/schemas/`.
 
-### `timetable.csv`
+| Plik | Co zawiera | Kto pisze |
+|---|---|---|
+| `data/campus/buildings/<id>.yaml` | budynek: piętra, korytarze, sale, schody, wejścia, szyb metra | ręcznie |
+| `data/campus/campus.yaml` | przejścia między budynkami, poprawki OSM, 3 przystanki | ręcznie |
+| `usos/timetable.csv` + `groups.csv`, `cohorts.csv`, `group_cohorts.csv` | plan zajęć z USOS | osoba 1 |
+| `population/students.parquet`, `enrollments.parquet` | 20 000 syntetycznych studentów i ich grupy | osoba 1 |
+| `demand/legs.parquet`, `od.parquet` | każde przejście studenta / zagregowany popyt | osoba 1 |
+| `network/nodes.parquet`, `edges.parquet` | graf pieszy: OSM + wnętrza + szyby metra | osoba 2 |
+| `instance/instance.npz` | macierze czasów + popyt, jedyne wejście ACO | osoba 2 |
+| `results/<run_id>/run.json`, `convergence.csv`, `trace.npz` | przebieg ACO, mrówki i feromon | osoba 3 |
+| `results/best_line.json`, `runs.csv` | najlepsza linia / zestawienie uruchomień | osoby 3, 5 |
+| `simulation/<scenariusz>/legs.parquet`, `metro/schedule.parquet` | wynik symulacji, rozkład pociągów | osoba 4 |
+| `web/public/data/**` | scena, budynki `.glb`, metro, trajektorie (binarne), ślady mrówek, statystyki | osoba 4 |
 
-| kolumna | typ | przykład | opis |
-|---|---|---|---|
-| `group_id` | str | `ISI-3-g2` | identyfikator grupy zajęciowej |
-| `weekday` | int | `1` | 1 = poniedziałek … 5 = piątek |
-| `start` | str | `08:00` | początek zajęć |
-| `end` | str | `09:30` | koniec zajęć |
-| `building` | str | `D-17` | kod budynku |
-| `room` | str | `1.38` | sala (opcjonalnie) |
-| `size` | int | `15` | liczebność grupy |
-
-### `demand.parquet`
-
-Jeden wiersz to jedno przejście grupy między kolejnymi zajęciami tego samego dnia:
-
-`group_id, weekday, depart_time, from_building, to_building, weight, break_minutes`
-
-### `best_line.json`
-
-```json
-{
-  "stations": ["D-17", "C-2", "B-1", "A-0"],
-  "objective_minutes": 123456.7,
-  "baseline_minutes": 150234.1,
-  "params": { "n_ants": 50, "alpha": 1.0, "beta": 3.0, "rho": 0.1 }
-}
-```
-
-### `web/data/`
-
-| plik | zawartość |
-|---|---|
-| `buildings.json` | obrysy budynków + wysokość (`PolygonLayer`) |
-| `metro.json` | ścieżka linii i stacje |
-| `trips_before.json` | trajektorie `{path: [[lon, lat], …], timestamps: […]}` bez metra |
-| `trips_after.json` | to samo z metrem |
-| `stats.json` | podsumowanie do paneli UI |
+Konwencje: metry i sekundy (bez minut); `*_s` to czas trwania, `*_wt` to sekundy od poniedziałku 00:00; obliczenia w EPSG:2180; w przeglądarce układ three.js (x = wschód, y = góra, z = −północ).
 
 ---
 
@@ -275,19 +287,21 @@ Jeden wiersz to jedno przejście grupy między kolejnymi zajęciami tego samego 
 
 ### Graf
 
-Graf pieszy kampusu z OSM (`osmnx`, `network_type="walk"`). Każdy budynek jest podpięty do najbliższego węzła grafu. Linia metra dodawana jest jako osobne krawędzie między stacjami.
+Graf pieszy kampusu z OSM (`osmnx`, `network_type="walk"`) połączony z grafami wnętrz budynków generowanymi z `data/campus/buildings/*.yaml` (korytarze, drzwi sal, schody, wejścia) i z przejściami z `campus.yaml`. Budynki modelujemy stopniowo: LOD1 (bryła z OSM), LOD2 (piętra, korytarze, schody), LOD3 (sale). Kandydat na stację to szyb pod głównym wejściem budynku (`metro_shaft: true`); przejazd pociągiem nie jest krawędzią grafu, tylko jest liczony analitycznie.
 
 ### Czas przejścia z metrem
 
 ```
-t = dojście do stacji + t_wejścia + odległość_metrem / v_metra + dojście ze stacji do budynku
+t = dojście do szybu + zejście szybem + czekanie (headway / 2)
+  + tunel / v_metra + postoje na stacjach pośrednich
+  + wyjście szybem + dojście od szybu do sali
 ```
 
-Student wybiera metro tylko wtedy, gdy jest szybsze niż dojście pieszo (minimum z Dijkstry). Parametry (`v_pieszo`, `v_metra`, `t_wejścia`) są w `config.yaml`.
+Student wybiera metro tylko wtedy, gdy jest szybsze niż dojście pieszo (minimum z Dijkstry). Dojścia liczone są od sali do sali, razem ze schodami. Parametry są w `config.yaml` (`time_model`, `metro`). Linia może być otwarta (`line`) albo zamknięta (`loop`).
 
 ### Funkcja celu
 
-Ważona suma czasów wszystkich przejść w tygodniu (waga = liczebność grupy). Minimalizujemy.
+Suma czasów wszystkich przejść wszystkich studentów w modelowanym tygodniu. Minimalizujemy.
 
 ### ACO (MAX-MIN Ant System)
 
@@ -312,7 +326,7 @@ Ważona suma czasów wszystkich przejść w tygodniu (waga = liczebność grupy)
 
 Pomiary terenowe zapisujemy w `data/validation/field_measurements.csv`:
 
-`from_building, to_building, measured_seconds, date, who`
+`route_id, from_key, to_key, measured_s, date, who, notes` (`from_key` to budynek `D-17` albo sala `D-17/1.38`)
 
 **Metryki raportowane:** zaoszczędzone studento-minuty / tydzień, % przejść dłuższych niż przerwa, liczba „spóźnionych” grup.
 
@@ -320,21 +334,19 @@ Pomiary terenowe zapisujemy w `data/validation/field_measurements.csv`:
 
 ## Wizualizacja
 
-Statyczna strona `web/index.html` oparta na **deck.gl** i **MapLibre** (ciemny podkład, bez klucza API):
+Aplikacja w `web/`: **React + three.js** (React Three Fiber), TypeScript, Vite; `three-mesh-bvh` do szybkiego raycastingu (wybór sal, kolizje kamery we wnętrzach). Odtwarza gotowe dane z `web/public/data/`; wszystkie obliczenia są w Pythonie.
 
-- `PolygonLayer` (extruded): budynki 3D,
-- `TripsLayer`: animowane ślady studentów,
-- `PathLayer` + `ScatterplotLayer`: linia metra i stacje,
-- `TripsLayer`: kursujący pociąg,
-- UI: suwak godziny i dnia, przełącznik *bez metra / z metrem*, licznik zaoszczędzonych minut.
-
-Strona tylko odtwarza gotowe dane z `web/data/`; wszystkie obliczenia są w Pythonie.
+- kampus 3D: budynki z `.glb` (czysty styl architektoniczny), wejście do środka i poruszanie się po piętrach,
+- metro: szyby pod wejściami, perony, tunele, kursujące pociągi wg rozkładu,
+- 20 000 studentów odtwarzanych z danych binarnych, z suwakiem dnia i godziny,
+- przełącznik *bez metra / z metrem*, licznik zaoszczędzonych minut,
+- animacja mrówek (kandydaci jako cylindry, trasy mrówek, feromon) z `trace.npz`.
 
 ---
 
 ## Zasady pracy w repo
 
-- Na `main` tylko przez Pull Request; CI (ruff + pytest) musi przejść.
+- Na `main` tylko przez Pull Request; CI (ruff + pytest + build `web/`) musi przejść.
 - Gałęzie: `feat/<co>`, `fix/<co>`, np. `feat/aco-mmas`.
 - Parametry tylko w `config.yaml`, nigdy zahardkodowane w kodzie.
 - Notebooki są czyszczone z outputów przez `nbstripout`; wykresy do sprawozdania zapisujemy do `docs/figures/`.

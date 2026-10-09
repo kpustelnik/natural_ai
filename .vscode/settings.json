@@ -9,5 +9,12 @@
     }
   },
   "files.eol": "\n",
+  "yaml.schemas": {
+    "./schemas/building.schema.json": [
+      "data/campus/buildings/*.yaml",
+      "data/sample/campus/buildings/*.yaml"
+    ],
+    "./schemas/campus.schema.json": ["data/campus/campus.yaml", "data/sample/campus/campus.yaml"]
+  },
   "notebook.formatOnSave.enabled": true
 }

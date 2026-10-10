@@ -93,30 +93,37 @@ function DayControls({ replay, scenarios }: { replay: Replay; scenarios: boolean
       />
       <Speed options={DAY_SPEEDS} unit="×" />
       {replay.weekdays.length > 0 && (
-        <div className="segmented small">
+        <select
+          value={p.weekday}
+          onChange={(e) => setPlayback({ weekday: Number(e.target.value) })}
+          title="Weekday"
+          aria-label="Weekday"
+        >
           {replay.weekdays.map((d) => (
-            <button key={d} className={p.weekday === d ? "active" : ""} aria-pressed={p.weekday === d} onClick={() => setPlayback({ weekday: d })}>
+            <option key={d} value={d}>
               {WEEKDAYS[d - 1]}
-            </button>
+            </option>
           ))}
-        </div>
+        </select>
       )}
       {scenarios && replay.scenarios.length > 0 && (
         <div className="segmented small" role="group" aria-label="Scenario">
           {replay.scenarios.map((s) => (
             <button
               key={s}
-              className={!p.split && p.scenario === s ? "active" : ""} aria-pressed={!p.split && p.scenario === s}
+              className={!p.split && p.scenario === s ? "active" : ""}
+              aria-pressed={!p.split && p.scenario === s}
               onClick={() => setPlayback({ scenario: s, split: false })}
             >
-              {s === "metro" ? "Metro" : "No metro"}
+              {s === "metro" ? "Metro" : "Walk"}
             </button>
           ))}
           {replay.scenarios.length === 2 && (
             <button
-              className={p.split ? "active" : ""} aria-pressed={p.split}
+              className={p.split ? "active" : ""}
+              aria-pressed={p.split}
               onClick={() => setPlayback({ split: !p.split })}
-              title="Both scenarios side by side, one camera"
+              title="Both scenarios side by side"
             >
               Split
             </button>
@@ -143,15 +150,15 @@ function StudentLegend({ replay }: { replay: Replay }) {
   return (
     <div className="dock-legend">
       {STUDENTS.map((st, i) => (
-        <span key={st.label} className="legend-item">
-          <span className="dot" style={{ background: st.color }} /> {st.label}
-          {shown.length === 1 && <span className="mono"> {fmt(counts[shown[0]!]![i]!)}</span>}
+        <span key={st.label} className="legend-item" title={st.label}>
+          <span className="dot" style={{ background: st.color }} />
+          {shown.length === 1 && <span className="mono">{fmt(counts[shown[0]!]![i]!)}</span>}
         </span>
       ))}
       {shown.map((s) => (
         <span key={s} className="legend-item muted">
-          {split ? `${SCENARIOS[s].label}: ` : ""}
-          <span className="mono">{fmt(total(s))}</span> on the move
+          {split ? `${SCENARIOS[s].label} ` : ""}
+          <span className="mono">{fmt(total(s))}</span>
         </span>
       ))}
     </div>
@@ -182,12 +189,14 @@ function AntControls({ replay }: { replay: Replay }) {
   const best = Array.from((trace.arrays.best_tour as Int16Array).subarray(s * k, (s + 1) * k)).map((i) => h.candidate_ids[i]!);
   const bestCost = curve.best[Math.min(curve.best.length - 1, Math.max(0, Math.floor(iteration)))] ?? h.best_s;
   const saving = 1 - bestCost / h.baseline_s;
+  const delta = `${saving >= 0 ? "−" : "+"}${Math.abs(100 * saving).toFixed(1)}%`;
+  const line = best.join(" – ") + (h.topology === "loop" ? " (loop)" : "");
   return (
     <>
       <div className="dock-controls">
         <PlayButton />
         <span className="clock mono" title="Iteration">
-          {Math.floor(iteration)} / {end}
+          {Math.floor(iteration)}/{end}
         </span>
         <input
           className="time-slider"
@@ -199,7 +208,7 @@ function AntControls({ replay }: { replay: Replay }) {
           onChange={(e) => setPlayback({ iteration: Number(e.target.value), playing: false })}
           aria-label="Iteration"
         />
-        <Speed options={ITER_SPEEDS} unit=" it/s" />
+        <Speed options={ITER_SPEEDS} unit="/s" />
       </div>
       <div className="aco-body">
         <ConvergenceChart
@@ -209,28 +218,10 @@ function AntControls({ replay }: { replay: Replay }) {
           nIterations={h.n_iterations}
           onScrub={(it) => setPlayback({ iteration: it, playing: false })}
         />
-        <div className="aco-stats">
-          <div className="kv">
-            <span className="k">best so far</span>
-            <span className="v mono strong">{studentHours(bestCost)}</span>
-          </div>
-          <div className="kv">
-            <span className="k">vs no metro</span>
-            <span className="v mono">{saving >= 0 ? "−" : "+"}{Math.abs(100 * saving).toFixed(1)} %</span>
-          </div>
-          <div className="kv">
-            <span className="k">ants shown</span>
-            <span className="v mono">{h.buffers.tours!.shape[1]} per sample</span>
-          </div>
-          <div className="aco-line" title="Best line so far, in line order">
-            {best.map((id, i) => (
-              <span key={id}>
-                {i > 0 && <span className="muted"> – </span>}
-                <strong>{id}</strong>
-              </span>
-            ))}
-            {h.topology === "loop" && <span className="muted"> (loop)</span>}
-          </div>
+        <div className="aco-stats" title={line}>
+          <span className="mono strong">{studentHours(bestCost)}</span>
+          <span className="mono muted">{delta}</span>
+          <span className="aco-line">{line}</span>
         </div>
       </div>
     </>
@@ -254,22 +245,23 @@ function Dock({ replay }: { replay: Replay }) {
   return (
     <div className="dock">
       <div className="dock-title">
-        <span className="chip">{sim ? "simulation" : "ACO run"}</span>
-        <strong>{replay.title}</strong>
+        <strong title={replay.title}>{replay.title}</strong>
         {!sim && (
           <div className="segmented small" role="group" aria-label="Show">
             <button
-              className={acoView === "ants" ? "active" : ""} aria-pressed={acoView === "ants"}
+              className={acoView === "ants" ? "active" : ""}
+              aria-pressed={acoView === "ants"}
               onClick={() => setPlayback({ acoView: "ants", playing: false, speed: 5 })}
               disabled={!files.aco_trace}
             >
               Ants
             </button>
             <button
-              className={acoView === "trains" ? "active" : ""} aria-pressed={acoView === "trains"}
+              className={acoView === "trains" ? "active" : ""}
+              aria-pressed={acoView === "trains"}
               onClick={() => setPlayback({ acoView: "trains", playing: false, speed: 60 })}
               disabled={!files.metro}
-              title="The best line with its trains"
+              title="Best line with trains"
             >
               Trains
             </button>
@@ -280,17 +272,16 @@ function Dock({ replay }: { replay: Replay }) {
         </button>
       </div>
       {view === "ants" ? <AntControls replay={replay} /> : <DayControls replay={replay} scenarios={sim} />}
-      {replay.description && <div className="dock-note muted">{replay.description}</div>}
       {sim && hasTrips && <StudentLegend replay={replay} />}
       {sim && !hasTrips && (
         <div className="dock-note muted">
-          {files.metro ? "Only the trains: t" : "T"}his replay has no students yet. Simulate the week, then export it:
+          No students yet.
           <Command lines={["uv run scripts/05_simulate.py", "uv run scripts/06_export_web.py --sim"]} />
         </div>
       )}
       {!sim && !files.aco_trace && !files.metro && (
         <div className="dock-note muted">
-          This replay lists no playable files. Export the run again:
+          No playable files.
           <Command lines={["uv run scripts/06_export_web.py --aco"]} />
         </div>
       )}

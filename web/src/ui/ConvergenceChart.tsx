@@ -15,12 +15,12 @@ export interface Curve {
 }
 
 const W = 340;
-const H = 84;
-const PAD = { left: 4, right: 4, top: 6, bottom: 4 };
+const H = 52;
+const PAD = { left: 4, right: 4, top: 4, bottom: 3 };
 const SERIES = [
-  { key: "best", label: "best so far", color: ACCENT, width: 2, dash: undefined },
-  { key: "iterBest", label: "iteration best", color: "#5f656c", width: 1, dash: undefined },
-  { key: "iterMean", label: "iteration mean", color: "#8a9098", width: 1, dash: "2 2" },
+  { key: "best", label: "best", color: ACCENT, width: 2, dash: undefined },
+  { key: "iterBest", label: "iter", color: "#5f656c", width: 1, dash: undefined },
+  { key: "iterMean", label: "mean", color: "#8a9098", width: 1, dash: "2 2" },
 ] as const;
 
 export function ConvergenceChart({
@@ -67,18 +67,21 @@ export function ConvergenceChart({
     <div className="chart">
       <div className="chart-legend">
         {SERIES.map((s) => (
-          <span key={s.key} className="legend-item">
-            <svg width="16" height="8" aria-hidden>
-              <line x1="0" y1="4" x2="16" y2="4" stroke={s.color} strokeWidth={s.width + 0.5} strokeDasharray={s.dash} />
+          <span key={s.key} className="legend-item" title={`${s.label}: ${studentHours(curveAt(curve.iteration, curve[s.key], at))}`}>
+            <svg width="12" height="6" aria-hidden>
+              <line x1="0" y1="3" x2="12" y2="3" stroke={s.color} strokeWidth={s.width + 0.5} strokeDasharray={s.dash} />
             </svg>
-            {s.label} <span className="mono">{studentHours(curveAt(curve.iteration, curve[s.key], at))}</span>
+            {s.label}
           </span>
         ))}
-        <span className="legend-item muted">
-          <svg width="16" height="8" aria-hidden>
-            <line x1="0" y1="4" x2="16" y2="4" stroke="#9aa0a7" strokeDasharray="4 3" />
+        <span className="legend-item muted" title={`no metro: ${studentHours(baseline)}`}>
+          <svg width="12" height="6" aria-hidden>
+            <line x1="0" y1="3" x2="12" y2="3" stroke="#9aa0a7" strokeDasharray="4 3" />
           </svg>
-          no metro <span className="mono">{studentHours(baseline)}</span>
+          base
+        </span>
+        <span className="legend-item mono chart-hover">
+          {hover !== null ? `it ${hover}` : ""} {studentHours(curveAt(curve.iteration, curve.best, at))}
         </span>
       </div>
       <svg
@@ -109,11 +112,6 @@ export function ConvergenceChart({
           <line x1={x(hover)} x2={x(hover)} y1={PAD.top} y2={H - PAD.bottom} stroke="#9aa0a7" strokeDasharray="2 2" vectorEffect="non-scaling-stroke" />
         )}
       </svg>
-      <div className="chart-caption muted">
-        <span>0</span>
-        <span>{hover !== null ? `iteration ${hover} · click to jump` : "objective, student-hours per week"}</span>
-        <span>{nIterations - 1}</span>
-      </div>
     </div>
   );
 }

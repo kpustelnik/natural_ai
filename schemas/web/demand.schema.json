@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "EdgeLoad": {
+      "additionalProperties": false,
+      "description": "How many student-legs traverse one undirected network edge in the modelled week.",
+      "properties": {
+        "edge": {
+          "description": "index into network.json edges / edge_nodes",
+          "minimum": 0,
+          "title": "Edge",
+          "type": "integer"
+        },
+        "n_legs": {
+          "description": "legs whose shortest walk uses this edge",
+          "minimum": 1,
+          "title": "N Legs",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "edge",
+        "n_legs"
+      ],
+      "title": "EdgeLoad",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Attached to every generated JSON file, so stale outputs can be detected.",
+      "properties": {
+        "schema_version": {
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "generated_at": {
+          "description": "ISO 8601 timestamp",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "generator": {
+          "description": "script that produced the file, e.g. 04_optimize.py",
+          "title": "Generator",
+          "type": "string"
+        },
+        "config_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "sha256 of the resolved config",
+          "title": "Config Hash"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        }
+      },
+      "required": [
+        "schema_version",
+        "generated_at",
+        "generator",
+        "config_hash",
+        "git_commit"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``demand.json``: edge loads for the viewer's Demand colour mode on the walk graph.\n\nEach OD pair in ``demand/od.parquet`` is routed on ``network.json`` (Dijkstra on walk\ntimes). ``n_legs`` is added to every undirected edge on that path. Indices match the\nnetwork file the viewer draws.",
+  "properties": {
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "note": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Note"
+    },
+    "unit": {
+      "const": "legs_per_week",
+      "default": "legs_per_week",
+      "title": "Unit",
+      "type": "string"
+    },
+    "n_edges": {
+      "description": "must equal NetworkHeader.n_edges",
+      "minimum": 0,
+      "title": "N Edges",
+      "type": "integer"
+    },
+    "max_n_legs": {
+      "description": "max edge load (for the colour scale)",
+      "minimum": 0,
+      "title": "Max N Legs",
+      "type": "integer"
+    },
+    "edges": {
+      "description": "non-zero loads only, busiest first",
+      "items": {
+        "$ref": "#/$defs/EdgeLoad"
+      },
+      "title": "Edges",
+      "type": "array"
+    }
+  },
+  "required": [
+    "provenance",
+    "note",
+    "unit",
+    "n_edges",
+    "max_n_legs",
+    "edges"
+  ],
+  "title": "Demand",
+  "type": "object"
+}

@@ -21,6 +21,7 @@ export interface WebData {
   building_info: BuildingInfo;
   context_features: ContextFeatures;
   day_header: DayHeader;
+  demand: Demand;
   issues: IssueList;
   metro: Metro;
   network_header: NetworkHeader;
@@ -327,6 +328,49 @@ export interface DayHeader {
   n_students: number;
   t_min: number;
   t_max: number;
+}
+/**
+ * ``demand.json``: edge loads for the viewer's Demand colour mode on the walk graph.
+ *
+ * Each OD pair in ``demand/od.parquet`` is routed on ``network.json`` (Dijkstra on walk
+ * times). ``n_legs`` is added to every undirected edge on that path. Indices match the
+ * network file the viewer draws.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "Demand".
+ */
+export interface Demand {
+  provenance: Provenance;
+  note: string | null;
+  unit: "legs_per_week";
+  /**
+   * must equal NetworkHeader.n_edges
+   */
+  n_edges: number;
+  /**
+   * max edge load (for the colour scale)
+   */
+  max_n_legs: number;
+  /**
+   * non-zero loads only, busiest first
+   */
+  edges: EdgeLoad[];
+}
+/**
+ * How many student-legs traverse one undirected network edge in the modelled week.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "EdgeLoad".
+ */
+export interface EdgeLoad {
+  /**
+   * index into network.json edges / edge_nodes
+   */
+  edge: number;
+  /**
+   * legs whose shortest walk uses this edge
+   */
+  n_legs: number;
 }
 /**
  * ``issues.json`` (viewer) and ``data/processed/osm/issues.json`` (OSM stage).

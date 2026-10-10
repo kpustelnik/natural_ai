@@ -90,6 +90,7 @@ USOS (01, not written yet) ──────┘          │
 | file | contents |
 |---|---|
 | `web/export_campus.py` | `CampusExport` (`full`, `update` for watch mode, `_building`, `_network`); `export_context`, `export_ground`, `export_network`, `export_stops`, `export_aerial`, `write_replay_catalog`, `write_status_file` |
+| `web/export_demand.py` | `load_web_graph`, `edge_loads_from_od`, `export_demand` (OD → shortest-path edge loads on `network.json`) |
 | `web/export_metro.py` | `export_aco_run` (`--aco` → `replays/aco-<run>/`), `export_best_line` (`--metro` → `replays/sim-<run>/metro.json`), `metro_model`, `shafts`, `load_scene` |
 | `web/export_sim.py` | `export_simulation` (`--sim`: `trips/<scenario>/paths.*`, `day-N.*`, `stats.json`), `PathBuilder` (node paths → web polylines with times), `stats` |
 | `web/fake.py` | `--fake`: `fake_instance` + `mmas` (synthetic ACO run), `fake_population` (students, legs), `write_fake_results`, `write_fake_simulation` |
@@ -105,7 +106,7 @@ USOS (01, not written yet) ──────┘          │
 |---|---|
 | `scripts/02_build_campus.py` | OSM layers, report, `--bootstrap`, then `network/*.parquet` |
 | `scripts/05_simulate.py` | stage 5 on `data/processed` |
-| `scripts/06_export_web.py` | flags `--campus --sample --watch --aerial --aco --metro --sim --fake`; `export_replays` |
+| `scripts/06_export_web.py` | flags `--campus --sample --watch --aerial --aco --metro --sim --fake`; `export_replays` (+ `export_demand`) |
 | `tests/test_web_export.py` | fixture `exported` (sample campus + synthetic OSM in a temp dir), used by the other export tests |
 | `tests/test_network.py`, `test_interior.py`, `test_osm.py`, `test_schemas.py` | graph, geometry, OSM, contracts |
 | `tests/test_metro_export.py`, `test_simulation.py` | schedule, ACO / line replays, simulator, `--sim` export |
@@ -125,7 +126,7 @@ through the store (`state/app.ts`). Values read every frame (clock, iteration) a
 | `state/url.ts` | store ↔ `location.hash` (`stateFromHash`, `writeHash`): add new URL params here |
 | `state/store.ts` | the tiny external store (`createStore`, `useSlice`) |
 | `data/loader.ts` | `fetchJson`, `loadBinary` (typed-array views), `MissingDataError` |
-| `data/resource.ts` | cached hooks: `useScene`, `useNetwork`, `useMetro`, `useAcoTrace`, `useTrips`, `useStats`, …; `invalidate`, `useLoading`, the missing-file toast |
+| `data/resource.ts` | cached hooks: `useScene`, `useNetwork`, `useMetro`, `useAcoTrace`, `useTrips`, `useStats`, `useDemand`, …; `invalidate`, `useLoading`, the missing-file toast |
 | `data/live.ts` | live reload: `status.json` → refetch changed files |
 | `data/network.ts` | network index and routing helpers (`computeRoute`, `useRoute`, `resolveKey`, `nearestNode`) |
 | `generated/schemas.ts` | generated TS types (`npm run gen:types`) |
@@ -147,7 +148,7 @@ through the store (`state/app.ts`). Values read every frame (clock, iteration) a
 | `scene/Viewport.tsx` | the `<Canvas>`, lights, **which layers are mounted when**, pointer interaction (hover, select, measure, route clicks, Alt-capture) |
 | `scene/CameraRig.tsx` | orbit / plan cameras, framing flights (`ANIM_MS`), view reporting (azimuth, metres per pixel), split-view projection |
 | `scene/WalkRig.tsx` | first-person walk camera with collisions |
-| `scene/palette.ts` | **every colour** of the scene: categories, LOD, network kinds, route parts, `METRO`, `STUDENTS`, `SCENARIOS`, markers |
+| `scene/palette.ts` | **every colour** of the scene: categories, LOD, demand edge heatmap, network kinds, route parts, `METRO`, `STUDENTS`, `SCENARIOS`, markers; `indexDemand`, `demandColour` |
 | `scene/registry.ts` | loaded things non-scene code needs (`scene`, `network`, `infos`, split sides, `onScreen` counts, `perf`, `canvas`), `pickBox` |
 | `scene/picking.ts`, `bvh.ts`, `useGlb.ts` | hit → `Pick`, BVH setup, GLB loading |
 | `scene/Css2d.tsx` | one CSS2DRenderer for all HTML labels (`htmlLabel`) |
@@ -160,13 +161,13 @@ Layers (`scene/layers/`):
 
 | file | draws |
 |---|---|
-| `Buildings.tsx` | AGH buildings: materials, colour modes, ghosting, level isolation and section cut (`SECTION_HEIGHT`) |
+| `Buildings.tsx` | AGH buildings: materials, colour modes (muted under Demand), ghosting, level isolation and section cut (`SECTION_HEIGHT`) |
 | `Context.tsx` | the merged context buildings (one mesh) |
 | `Ground.tsx`, `Aerial.tsx` | ground plate, paths, boundary, fences (`seeThrough` for the metro); orthophoto |
 | `Labels.tsx` | building and stop labels with collision culling |
 | `BuildingHelpers.tsx` | `RoomLabels`, `BuildingGrid`, `OsmOutline` |
 | `Markers.tsx` | `Entrances`, `Stops`, `Barriers` (`MarkerSet`) |
-| `Network.tsx`, `Route.tsx` | walk graph lines (clipped at the active level); the route line |
+| `Network.tsx`, `Route.tsx` | walk graph lines (kind or Demand edge-load colours; clipped at the active level); the route line |
 | `Replay.tsx` | what a replay draws per workspace (`useOpenReplay`, `useReplayView`, `ReplayLayers`, `SimulationLayers`) |
 | `AcoTrace.tsx` | ACO player: candidate pins, pheromone ribbons, ants, best line |
 | `Metro.tsx` | shafts, platforms, tunnel, trains |

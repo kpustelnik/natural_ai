@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { live } from "../data/live";
 import { useBuildingInfo, useContextFeatures, useIssues } from "../data/resource";
-import type { BuildError, Issue, Scene, SceneBuilding } from "../generated/schemas";
+import type { BuildError, Issue, ReplayCatalog, Scene, SceneBuilding } from "../generated/schemas";
 import { area, duration, lonLat, metres, osmUrl } from "../lib/format";
 import { type Vec3, webToGeo } from "../lib/frames";
 import { useOpenReplay } from "../scene/layers/Replay";
@@ -11,6 +11,7 @@ import { useSlice } from "../state/store";
 import { IconAlert, IconCode, IconCopy, IconEnter, IconExternal, IconFrame, IconInfo } from "./icons";
 import { RoutePanel } from "./RoutePanel";
 import { StatsPanel } from "./StatsPanel";
+import { Timeline } from "./Timeline";
 
 /** vscode:// link to a repo file (and line), for the machine that exported the data. */
 export function editorUrl(scene: Scene, file: string, line?: number | null): string | null {
@@ -541,7 +542,7 @@ function sevRank(items: Issue[]): number {
   return items.some((i) => i.severity === "error") ? 2 : items.some((i) => i.severity === "warning") ? 1 : 0;
 }
 
-export function RightPanel({ scene }: { scene: Scene }) {
+export function RightPanel({ scene, catalog }: { scene: Scene; catalog: ReplayCatalog | undefined }) {
   const replay = useOpenReplay(scene);
   const simulation = useApp((s) => s.workspace === "simulation");
   const showStats = simulation || replay?.kind === "simulation";
@@ -549,6 +550,7 @@ export function RightPanel({ scene }: { scene: Scene }) {
   const count = useIssues(scene.issues).data?.issues.length ?? 0;
   return (
     <aside className="sidebar right">
+      <Timeline catalog={catalog} />
       <div className="panel-tabs">
         <button className={tab === "inspector" ? "active" : ""} aria-pressed={tab === "inspector"} onClick={() => app.set({ rightTab: "inspector" })}>
           <IconInfo size={14} /> Inspector

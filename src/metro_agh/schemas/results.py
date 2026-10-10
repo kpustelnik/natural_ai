@@ -89,12 +89,16 @@ class AcoTrace:
 
     def save(self, path: Path) -> None:
         self.validate()
-        np.savez_compressed(path, **{name: getattr(self, name) for name in self.ARRAYS})
+        # unicode, not object dtype — np.load(..., allow_pickle=False) rejects object arrays
+        arrays = {name: getattr(self, name) for name in self.ARRAYS}
+        arrays["candidate_ids"] = np.asarray(arrays["candidate_ids"], dtype="U64")
+        np.savez_compressed(path, **arrays)
 
     @classmethod
     def load(cls, path: Path) -> "AcoTrace":
         with np.load(path, allow_pickle=False) as z:
             trace = cls(**{name: z[name] for name in cls.ARRAYS})
+        trace.candidate_ids = np.asarray(trace.candidate_ids, dtype=object)
         trace.validate()
         return trace
 

@@ -1043,32 +1043,28 @@ kbd {
   font-weight: 500;
 }
 
-/* --- playback dock ------------------------------------------------------------------ */
+/* --- playback dock (lives at the top of the right panel) ----------------------------- */
 
 .dock {
-  position: absolute;
-  left: 50%;
-  bottom: 12px;
-  transform: translateX(-50%);
-  width: min(760px, calc(100% - 320px));
-  min-width: 420px;
+  flex: 0 1 auto;
+  max-height: min(48vh, 440px);
+  overflow: auto;
   padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.06);
-  z-index: 5;
 }
 
 .dock-title {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 8px;
 }
 
 .dock-title strong {
-  flex: 1;
+  flex: 1 1 8rem;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1077,7 +1073,8 @@ kbd {
 .dock-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px 10px;
 }
 
 .dock-controls select {
@@ -1155,10 +1152,6 @@ kbd {
   }
   .tabs .tab {
     padding: 0 8px;
-  }
-  .dock {
-    width: calc(100% - 24px);
-    min-width: 0;
   }
 }
 
@@ -1462,14 +1455,10 @@ kbd {
 
 /* --- phase 4/5: route tool, network legend, ACO player -------------------------------- */
 
-.dock.wide {
-  width: min(860px, calc(100% - 320px));
-}
-
 .aco-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
-  gap: 14px;
+  grid-template-columns: 1fr;
+  gap: 10px;
   margin-top: 8px;
 }
 

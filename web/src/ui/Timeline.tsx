@@ -1,5 +1,5 @@
-// Playback dock for the chosen replay. The clock runs here; the scene layers read it from
-// the store every frame.
+// Playback dock for the chosen replay (mounted at the top of the right panel). The clock
+// runs here; the scene layers read it from the store every frame.
 //
 // - ACO run, "ants" view: the iteration player (scrubber, iterations per second) with the
 //   convergence chart and the best line so far;
@@ -252,7 +252,7 @@ function Dock({ replay }: { replay: Replay }) {
   const view = sim ? "day" : acoView === "ants" && files.aco_trace ? "ants" : "day";
 
   return (
-    <div className={`dock ${view === "ants" ? "wide" : ""}`}>
+    <div className="dock">
       <div className="dock-title">
         <span className="chip">{sim ? "simulation" : "ACO run"}</span>
         <strong>{replay.title}</strong>

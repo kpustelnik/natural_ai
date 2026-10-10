@@ -189,13 +189,13 @@ Layers (`scene/layers/`):
 |---|---|
 | `TopBar.tsx` | panel toggles, workspace tabs, search, replay menu |
 | `LeftPanel.tsx` | layer checkboxes (`Layers`) and the building outliner (`Outliner`, `BuildingRow`, `LevelRow`) |
-| `RightPanel.tsx` | tabs Inspector / Issues / Route / Stats; `BuildingInspector`, `SpaceInspector`, edge / barrier inspector in `Inspector`, `IssuesPanel` |
+| `RightPanel.tsx` | playback dock (`Timeline`) when a replay is open; tabs Inspector / Issues / Route / Stats; `BuildingInspector`, `SpaceInspector`, edge / barrier inspector in `Inspector`, `IssuesPanel` |
 | `RoutePanel.tsx` | route tool tab: ends, totals, legs, field measurements |
 | `StatsPanel.tsx` | simulation stats tab: totals, `HourChart`, `Stations`, `TopOd` |
 | `ViewportOverlay.tsx` | over the 3D view: camera / colour mode buttons, tool buttons, `Compass`, view actions (screenshot, presentation, help), `LevelStepper`, legends, `ScaleBar`, measure / capture panels, `NoReplay` empty state, split captions, `PerfPanel`, `Toasts`, presentation overlay |
-| `Timeline.tsx` | the playback dock: `Dock`, `DayControls` (clock, speed, weekday, scenario / split), `AntControls` (iteration player), `StudentLegend`, speed presets |
+| `Timeline.tsx` | the playback dock (mounted in `RightPanel`): `Dock`, `DayControls` (clock, speed, weekday, scenario / split), `AntControls` (iteration player), `StudentLegend`, speed presets |
 | `ConvergenceChart.tsx` | ACO convergence chart (SVG) |
-| `ReplayMenu.tsx` | replay menu, `openReplay` (sets workspace, speed, scenario) |
+| `ReplayMenu.tsx` | replay menu, `openReplay` (sets workspace, opens right panel, speed, scenario) |
 | `Search.tsx` | search box |
 | `StatusBar.tsx` | build status, loading count, cursor coordinates, shortcuts button |
 | `HelpDialog.tsx` | keyboard help (`GROUPS`; update it when you add a shortcut) |

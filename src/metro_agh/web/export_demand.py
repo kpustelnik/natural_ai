@@ -32,7 +32,9 @@ def _buf(header: NetworkHeader, raw: bytes, name: str) -> np.ndarray:
 def load_web_graph(out_dir: Path) -> tuple[NetworkHeader, csr_matrix, dict[tuple[int, int], int]]:
     """CSR walk times + undirected (u,v)->edge index from the exported network files."""
     out_dir = Path(out_dir)
-    header = NetworkHeader.model_validate_json((out_dir / "network.json").read_text(encoding="utf-8"))
+    header = NetworkHeader.model_validate_json(
+        (out_dir / "network.json").read_text(encoding="utf-8")
+    )
     raw = (out_dir / header.bin).read_bytes()
     pairs = _buf(header, raw, "edge_nodes").astype(np.int32)
     time_uv = _buf(header, raw, "time_uv_s").astype(np.float64)

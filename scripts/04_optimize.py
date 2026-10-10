@@ -108,8 +108,12 @@ def main() -> None:
     saving = 100 * (1 - result.best_cost / result.objective.baseline)
     log.info(
         "done %s: %s, objective %.1f (%.1f%% below no metro), %d evals, %.1f s",
-        run_id, "-".join(stations), result.best_cost, saving,
-        result.objective.evaluations, wall,
+        run_id,
+        "-".join(stations),
+        result.best_cost,
+        saving,
+        result.objective.evaluations,
+        wall,
     )
     log.info("wrote %s and %s", run_dir, results_dir / "best_line.json")
 

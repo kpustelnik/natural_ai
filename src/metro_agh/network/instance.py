@@ -10,7 +10,6 @@ import logging
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 from scipy.sparse.csgraph import dijkstra
 
 from ..config import config_hash
@@ -127,7 +126,11 @@ def build_instance(
     inst.validate()
     log.info(
         "instance %s: %d candidates, %d endpoints, %d OD pairs, k=%d",
-        name, inst.n_candidates, len(endpoint_keys), len(od_from), k,
+        name,
+        inst.n_candidates,
+        len(endpoint_keys),
+        len(od_from),
+        k,
     )
     return inst
 

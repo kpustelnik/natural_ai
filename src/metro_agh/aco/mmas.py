@@ -81,7 +81,13 @@ def run_mmas(inst: Instance, cfg: dict, rng: np.random.Generator | None = None) 
 
     log.info(
         "MMAS: N=%d k=%d ants=%d iterations=%d α=%.2f β=%.2f ρ=%.3f",
-        n, k, n_ants, n_iter, alpha, beta, rho,
+        n,
+        k,
+        n_ants,
+        n_iter,
+        alpha,
+        beta,
+        rho,
     )
 
     for it in range(n_iter):
@@ -137,9 +143,7 @@ def run_mmas(inst: Instance, cfg: dict, rng: np.random.Generator | None = None) 
         else:
             entropy = 0.0
         iter_best, iter_mean = costs[ib], float(np.mean(costs))
-        rows.append(
-            (it, f.evaluations, best_cost, iter_best, iter_mean, tau_min, tau_max, entropy)
-        )
+        rows.append((it, f.evaluations, best_cost, iter_best, iter_mean, tau_min, tau_max, entropy))
         log.info(
             "it %d/%d | best=%.3e | iter_best=%.3e | iter_mean=%.3e | "
             "improvement=%.1f%%%s | paths=%d | H=%.3f",

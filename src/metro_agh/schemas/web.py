@@ -547,6 +547,32 @@ class Stats(StrictModel):
     top_od: list[OdStats] = Field(description="largest savings first, at most 50")
 
 
+# --- demand.json: weekly load on walk-graph edges (heatmap) ---------------------------
+
+
+class EdgeLoad(StrictModel):
+    """How many student-legs traverse one undirected network edge in the modelled week."""
+
+    edge: int = Field(ge=0, description="index into network.json edges / edge_nodes")
+    n_legs: int = Field(ge=1, description="legs whose shortest walk uses this edge")
+
+
+class Demand(StrictModel):
+    """``demand.json``: edge loads for the viewer's Demand colour mode on the walk graph.
+
+    Each OD pair in ``demand/od.parquet`` is routed on ``network.json`` (Dijkstra on walk
+    times). ``n_legs`` is added to every undirected edge on that path. Indices match the
+    network file the viewer draws.
+    """
+
+    provenance: Provenance
+    note: str | None = None
+    unit: Literal["legs_per_week"] = "legs_per_week"
+    n_edges: int = Field(ge=0, description="must equal NetworkHeader.n_edges")
+    max_n_legs: int = Field(ge=0, description="max edge load (for the colour scale)")
+    edges: list[EdgeLoad] = Field(description="non-zero loads only, busiest first")
+
+
 WEB_MODELS = {
     "scene": Scene,
     "building_info": BuildingInfo,
@@ -558,6 +584,7 @@ WEB_MODELS = {
     "replays": ReplayCatalog,
     "metro": Metro,
     "stats": Stats,
+    "demand": Demand,
     "paths_header": PathsHeader,
     "day_header": DayHeader,
     "aco_trace_header": AcoTraceHeader,

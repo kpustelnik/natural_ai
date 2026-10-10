@@ -15,11 +15,12 @@ from .schemas.common import Provenance
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def _merge(base: dict, override: dict) -> dict:
+def merge_config(base: dict, override: dict) -> dict:
+    """Deep-merge ``override`` onto ``base`` (dicts recurse; other values replace)."""
     out = dict(base)
     for key, value in override.items():
         if isinstance(value, dict) and isinstance(out.get(key), dict):
-            out[key] = _merge(out[key], value)
+            out[key] = merge_config(out[key], value)
         else:
             out[key] = value
     return out
@@ -31,7 +32,7 @@ def load_config(
     """config.yaml, optionally with keys overridden by an experiment config."""
     cfg = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
     if override is not None:
-        cfg = _merge(cfg, yaml.safe_load(Path(override).read_text(encoding="utf-8")))
+        cfg = merge_config(cfg, yaml.safe_load(Path(override).read_text(encoding="utf-8")))
     return cfg
 
 

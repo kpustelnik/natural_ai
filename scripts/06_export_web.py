@@ -25,6 +25,7 @@ from pathlib import Path
 
 from metro_agh.config import load_config, path
 from metro_agh.web.export_campus import CampusExport, write_replay_catalog, write_status_file
+from metro_agh.web.export_demand import export_demand
 from metro_agh.web.export_metro import export_aco_run, export_best_line, load_scene
 from metro_agh.web.export_sim import export_simulation
 from metro_agh.web.fake import NOTE, SIM_NOTE, write_fake_results, write_fake_simulation
@@ -69,9 +70,12 @@ def export_replays(cfg: dict, args: argparse.Namespace) -> int:
     if simulated is not None:
         sim_note = SIM_NOTE if args.fake else None
         export_simulation(cfg, simulated, best_line, out, changed, note=sim_note)
+        export_demand(cfg, simulated, out, changed, note=sim_note)
     elif best_line is not None:
         schedule = path(cfg, "processed") / "simulation" / "metro" / "schedule.parquet"
         export_best_line(cfg, best_line, out, changed, schedule_file=schedule, note=note)
+        # heatmap from whatever demand/ exists next to the real pipeline
+        export_demand(cfg, path(cfg, "processed"), out, changed)
     changed.append(write_replay_catalog(out, cfg))
     status = write_status_file(out, changed)
     log.info("status.json version %d, %d files", status.version, len(status.changed))
@@ -111,6 +115,11 @@ def main() -> None:
         for e in status.errors:
             where = f"{e.file}:{e.line}" if e.line else e.file
             log.error("%s: %s%s", where, f"{e.loc}: " if e.loc else "", e.message)
+        # if demand/od.parquet already exists (USOS or a prior --fake), publish the heatmap
+        demand_changed: list[str] = []
+        export_demand(cfg, path(cfg, "processed"), path(cfg, "web_data"), demand_changed)
+        if demand_changed:
+            write_status_file(path(cfg, "web_data"), demand_changed)
         log.info("status.json version %d, %d files", status.version, len(status.changed))
         code = 1 if status.errors else 0
     if replays:

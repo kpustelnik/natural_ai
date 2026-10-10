@@ -8,7 +8,18 @@ import { useBuildingInfo } from "../data/resource";
 import type { Replay, ReplayCatalog, Scene } from "../generated/schemas";
 import { registry } from "../scene/registry";
 import { screenshot } from "../scene/screenshot";
-import { CAPACITY, CAPACITY_UNKNOWN, legend, NETWORK, NETWORK_LABELS, SCENARIOS, SPACE_KIND } from "../scene/palette";
+import {
+  CAPACITY,
+  CAPACITY_UNKNOWN,
+  DEMAND,
+  DEMAND_NONE,
+  DEMAND_ZERO,
+  legend,
+  NETWORK,
+  NETWORK_LABELS,
+  SCENARIOS,
+  SPACE_KIND,
+} from "../scene/palette";
 import { segmentLength } from "../scene/tools/Tools";
 import {
   app,
@@ -31,6 +42,7 @@ const COLOR_MODES: { id: ColorMode; label: string }[] = [
   { id: "category", label: "Category" },
   { id: "lod", label: "Detail" },
   { id: "issues", label: "Issues" },
+  { id: "demand", label: "Demand" },
 ];
 
 const ROOM_MODES: { id: RoomColorMode; label: string }[] = [
@@ -223,6 +235,27 @@ function RoomLegend() {
   );
 }
 
+function DemandLegend() {
+  return (
+    <>
+      {DEMAND.map((b) => (
+        <div key={b.label} className="legend-row">
+          <span className="swatch line" style={{ background: b.color }} />
+          {b.label}
+        </div>
+      ))}
+      <div className="legend-row">
+        <span className="swatch line" style={{ background: DEMAND_ZERO.color }} />
+        {DEMAND_ZERO.label}
+      </div>
+      <div className="legend-row">
+        <span className="swatch line" style={{ background: DEMAND_NONE.color }} />
+        {DEMAND_NONE.label}
+      </div>
+    </>
+  );
+}
+
 function SplitCaptions() {
   return (
     <div className="split-overlay" aria-hidden>
@@ -328,7 +361,8 @@ export function ViewportOverlay({ scene, catalog }: { scene: Scene; catalog: Rep
   const selectedBuilding = useApp((s) => pickBuilding(s.selection));
   const level = useApp((s) => s.level);
   const workspace = useApp((s) => s.workspace);
-  const networkLegend = useApp((s) => s.workspace === "network" && s.layers.network);
+  const networkLegend = useApp((s) => s.workspace === "network" && s.layers.network && s.colorMode !== "demand");
+  const demandLegend = useApp((s) => s.colorMode === "demand" && s.layers.network);
   const split = useApp(splitActive);
   const openedB = opened ? scene.buildings.find((b) => b.id === opened) : undefined;
   const info = useBuildingInfo(openedB?.info).data;
@@ -392,7 +426,19 @@ export function ViewportOverlay({ scene, catalog }: { scene: Scene; catalog: Rep
         ) : (
           <div className="segmented" role="group" aria-label="Colour by">
             {COLOR_MODES.map((m) => (
-              <button key={m.id} className={colorMode === m.id ? "active" : ""} aria-pressed={colorMode === m.id} onClick={() => app.set({ colorMode: m.id })}>
+              <button
+                key={m.id}
+                className={colorMode === m.id ? "active" : ""}
+                aria-pressed={colorMode === m.id}
+                title={m.id === "demand" ? "Colour walk-graph edges by weekly OD load" : undefined}
+                onClick={() =>
+                  app.set((s) => ({
+                    colorMode: m.id,
+                    // demand lives on the network layer
+                    layers: m.id === "demand" ? { ...s.layers, network: true } : s.layers,
+                  }))
+                }
+              >
                 {m.label}
               </button>
             ))}
@@ -446,7 +492,11 @@ export function ViewportOverlay({ scene, catalog }: { scene: Scene; catalog: Rep
         {tool === "measure" && <MeasurePanel scene={scene} />}
         <CapturePanel />
       </div>
-      {networkLegend ? (
+      {demandLegend ? (
+        <div className="overlay-bottom-left legend">
+          <DemandLegend />
+        </div>
+      ) : networkLegend ? (
         <div className="overlay-bottom-left legend">
           {(Object.keys(NETWORK) as (keyof typeof NETWORK)[]).map((k) => (
             <div key={k} className="legend-row">

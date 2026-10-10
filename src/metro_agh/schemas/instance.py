@@ -97,10 +97,14 @@ class Instance:
     def save(self, path: Path) -> None:
         self.validate()
         path.parent.mkdir(parents=True, exist_ok=True)
+        # unicode, not object dtype — np.load(..., allow_pickle=False) rejects object arrays
+        arrays = {name: getattr(self, name) for name in self.ARRAYS}
+        for key in ("candidate_ids", "endpoint_keys"):
+            arrays[key] = np.asarray(arrays[key], dtype="U64")
         np.savez_compressed(
             path,
             meta_json=np.array(self.meta.model_dump_json()),
-            **{name: getattr(self, name) for name in self.ARRAYS},
+            **arrays,
         )
 
     @classmethod
@@ -108,5 +112,7 @@ class Instance:
         with np.load(path, allow_pickle=False) as z:
             meta = InstanceMeta.model_validate(json.loads(str(z["meta_json"])))
             inst = cls(meta=meta, **{name: z[name] for name in cls.ARRAYS})
+        inst.candidate_ids = np.asarray(inst.candidate_ids, dtype=object)
+        inst.endpoint_keys = np.asarray(inst.endpoint_keys, dtype=object)
         inst.validate()
         return inst

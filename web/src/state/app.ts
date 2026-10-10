@@ -7,7 +7,7 @@ import { createStore, useSlice } from "./store";
 
 export type Workspace = "campus" | "building" | "network" | "metro" | "simulation";
 export type CameraMode = "orbit" | "plan" | "walk";
-export type ColorMode = "category" | "lod" | "issues";
+export type ColorMode = "category" | "lod" | "issues" | "demand";
 export type RoomColorMode = "kind" | "capacity";
 export type Tool = "select" | "measure" | "route";
 export type RightTab = "inspector" | "issues" | "route" | "stats";

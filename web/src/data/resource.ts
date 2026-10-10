@@ -8,6 +8,7 @@ import type {
   BuildStatus,
   ContextFeatures,
   DayHeader,
+  Demand,
   IssueList,
   Metro,
   NetworkHeader,
@@ -142,6 +143,18 @@ export const useMetro = (path?: string | null) => useResource<Metro>(path, fetch
 export const useAcoTrace = (path?: string | null) =>
   useResource<BinaryFile<AcoTraceHeader>>(path, (p) => loadBinary<AcoTraceHeader>(p));
 export const useStats = (path?: string | null) => useResource<Stats>(path, fetchJson);
+
+/** Campus-wide weekly load for the Demand colour modes; null until `--fake` / `--sim`. */
+async function fetchDemand(path: string): Promise<Demand | null> {
+  try {
+    return await fetchJson<Demand>(path);
+  } catch (err) {
+    if (err instanceof MissingDataError) return null;
+    throw err;
+  }
+}
+
+export const useDemand = () => useResource<Demand | null>("demand.json", fetchDemand);
 
 export interface Trips {
   paths: Paths;

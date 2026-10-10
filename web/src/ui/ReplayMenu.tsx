@@ -25,6 +25,7 @@ export function openReplay(r: Replay | null): void {
   });
   if (r) {
     setWorkspace(r.kind === "aco" ? "metro" : "simulation");
+    app.set({ rightOpen: true });
     if (r.scenarios.length) setPlayback({ scenario: r.scenarios.includes("metro") ? "metro" : r.scenarios[0]! });
     if (r.weekdays.length) setPlayback({ weekday: r.weekdays[0]! });
   } else if (app.get().workspace === "metro" || app.get().workspace === "simulation") {
@@ -89,9 +90,14 @@ export function ReplayMenu({ catalog }: { catalog: ReplayCatalog | undefined }) 
           {replays.length === 0 && (
             <div className="empty">
               <p>No replays exported yet.</p>
-              <p className="muted">Optimisation runs and simulations appear here once they are exported:</p>
-              <Command lines={["uv run scripts/06_export_web.py --aco", "uv run scripts/06_export_web.py --sim"]} />
-              <p className="muted">Before the optimiser exists, a synthetic run, line and week:</p>
+              <p className="muted">Run the optimiser, then export:</p>
+              <Command
+                lines={[
+                  "uv run scripts/04_optimize.py --processed data/processed/fake",
+                  "uv run scripts/06_export_web.py --aco",
+                ]}
+              />
+              <p className="muted">Or a full synthetic week for the viewer:</p>
               <Command lines={["uv run scripts/06_export_web.py --fake"]} />
             </div>
           )}
@@ -115,7 +121,6 @@ export function ReplayMenu({ catalog }: { catalog: ReplayCatalog | undefined }) 
                       <span className="muted">{dateTime(r.created_at)}</span>
                     </div>
                     {details(r) && <div className="replay-meta">{details(r)}</div>}
-                    {r.description && <div className="replay-desc">{r.description}</div>}
                   </button>
                 ))}
               </div>

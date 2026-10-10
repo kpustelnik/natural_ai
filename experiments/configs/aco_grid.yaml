@@ -1,0 +1,21 @@
+# Small cartesian grid over α × β (example). Prefer aco_ablation.yaml for one-at-a-time.
+#
+#   uv run scripts/run_experiments.py --config experiments/configs/aco_grid.yaml --processed data/processed/fake
+
+name: aco_grid
+description: Grid search α × β
+mode: grid
+processed: data/processed/fake
+seeds: [42]
+save_trace: false
+
+defaults:
+  aco:
+    n_ants: 20
+    n_iterations: 40
+    rho: 0.1
+    trace: { every: 10, max_ants: 20 }
+
+sweep:
+  aco.alpha: [0.5, 1.0, 2.0]
+  aco.beta: [1.0, 3.0, 5.0]

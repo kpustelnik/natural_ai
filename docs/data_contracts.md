@@ -723,6 +723,7 @@ web/public/data/
 ├── status.json                 10.9  BuildStatus: written last by every export
 ├── issues.json                 10.8  IssueList
 ├── network.json + .bin         10.7  NetworkHeader: walk graph
+├── demand.json                 10.11 Demand: weekly walk-edge load (path heatmap)
 ├── buildings/<id>.glb          10.2  one per building YAML
 ├── buildings/<id>.json         10.3  BuildingInfo
 ├── campus/context.glb + .json  10.4  every other OSM building, merged; ContextFeatures
@@ -735,7 +736,8 @@ web/public/data/
 
 `06_export_web.py --campus` writes everything except the replays, which the metro, ACO and
 simulation exports add later. Each export rebuilds `replays/index.json` from the
-`replay.json` files it finds.
+`replay.json` files it finds. `demand.json` is written from `demand/od.parquet` routed on
+`network.json` when both exist (`--fake`, `--sim`, or a prior demand build next to `--campus`).
 
 ### 10.1 `scene.json`: `schemas.web.Scene`
 
@@ -1033,6 +1035,28 @@ its own directory with a `replay.json`:
 - Several replays can exist side by side (different runs, configs or seeds). The viewer
   plays one at a time; choosing one switches to the Metro (ACO) or Simulation workspace and
   opens the playback dock.
+
+### 10.11 `demand.json`: `schemas.web.Demand`
+
+Weekly load on **walk-graph edges** for the viewer's **Demand** colour mode (path heatmap).
+
+Built from `demand/od.parquet` routed on `network.json`: each OD pair's shortest walk
+(Dijkstra on walk times) adds `n_legs` to every undirected edge on that path. Edge indices
+match `NetworkHeader` / the polylines the viewer draws.
+
+```json
+{
+  "provenance": { "...": "..." },
+  "note": null,
+  "unit": "legs_per_week",
+  "n_edges": 6505,
+  "max_n_legs": 12000,
+  "edges": [{ "edge": 42, "n_legs": 12000 }, { "edge": 7, "n_legs": 9800 }]
+}
+```
+
+`edges` lists non-zero loads only, busiest first. Written by `06_export_web.py` whenever
+`od.parquet` is present (`--fake`, `--sim`, or next to `--campus`) and `network.json` exists.
 
 ---
 

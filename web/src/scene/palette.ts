@@ -1,7 +1,7 @@
 // Every colour used in the 3D scene, in one place. Flat, light, architectural.
 // UI colours live in theme.css; the few shared ones (accent) are repeated here on purpose.
 
-import type { SceneBuilding } from "../generated/schemas";
+import type { Demand, SceneBuilding } from "../generated/schemas";
 import type { ColorMode } from "../state/app";
 
 export const ACCENT = "#c8102e";
@@ -47,6 +47,40 @@ export const CAPACITY: { max: number; color: string; label: string }[] = [
   { max: Infinity, color: "#4f8cc2", label: "more than 150" },
 ];
 export const CAPACITY_UNKNOWN = { color: "#eeeeec", label: "capacity unknown" };
+
+/** Weekly student-leg load (heatmap). Bins are fractions of the max in the file. */
+export const DEMAND: { maxFrac: number; color: string; label: string }[] = [
+  { maxFrac: 0.25, color: "#ffe8a3", label: "low" },
+  { maxFrac: 0.5, color: "#f5b942", label: "medium" },
+  { maxFrac: 0.75, color: "#e07b39", label: "high" },
+  { maxFrac: 1, color: "#c8102e", label: "highest" },
+];
+export const DEMAND_NONE = { color: "#eeeeec", label: "no demand data" };
+export const DEMAND_ZERO = { color: "#f4f4f2", label: "no legs" };
+
+export function demandColour(nLegs: number | undefined, maxLegs: number): string {
+  if (maxLegs <= 0 || nLegs == null) return DEMAND_NONE.color;
+  if (nLegs <= 0) return DEMAND_ZERO.color;
+  const frac = nLegs / maxLegs;
+  return DEMAND.find((b) => frac <= b.maxFrac)!.color;
+}
+
+export function indexDemand(demand: Demand | null | undefined): {
+  edges: Map<number, number>;
+  maxLegs: number;
+  nEdges: number;
+} {
+  const edges = new Map<number, number>();
+  let maxLegs = 0;
+  if (demand) {
+    maxLegs = demand.max_n_legs;
+    for (const row of demand.edges) {
+      edges.set(row.edge, row.n_legs);
+      if (row.n_legs > maxLegs) maxLegs = row.n_legs;
+    }
+  }
+  return { edges, maxLegs, nEdges: demand?.n_edges ?? 0 };
+}
 
 export function spaceColour(kind: string, capacity: number | null | undefined, mode: "kind" | "capacity"): string {
   if (mode === "capacity" && kind === "room") {
@@ -142,9 +176,13 @@ export const MARKERS = {
   barrier: "#a08a6c",
 };
 
+const DEMAND_MUTE = { wall: "#ecebe8", roof: "#dddcd8" };
+
 export function buildingColours(b: SceneBuilding, mode: ColorMode): { wall: string; roof: string } {
   if (mode === "lod") return LOD_COLOURS[b.lod];
   if (mode === "issues") return (b.n_issues ?? 0) > 0 ? ISSUE_COLOURS.issues : ISSUE_COLOURS.ok;
+  // demand heatmap is on the walk graph; mute buildings so paths stand out
+  if (mode === "demand") return DEMAND_MUTE;
   return CATEGORY[b.category];
 }
 
@@ -165,6 +203,13 @@ export function legend(mode: ColorMode, buildings: SceneBuilding[]): LegendEntry
     return [
       { label: `${ISSUE_COLOURS.issues.label} (${count((b) => (b.n_issues ?? 0) > 0)})`, swatch: ISSUE_COLOURS.issues.swatch },
       { label: `${ISSUE_COLOURS.ok.label} (${count((b) => !b.n_issues)})`, swatch: ISSUE_COLOURS.ok.swatch },
+    ];
+  }
+  if (mode === "demand") {
+    return [
+      ...DEMAND.map((b) => ({ label: b.label, swatch: b.color })),
+      { label: DEMAND_ZERO.label, swatch: DEMAND_ZERO.color },
+      { label: DEMAND_NONE.label, swatch: DEMAND_NONE.color },
     ];
   }
   return (Object.keys(CATEGORY) as SceneBuilding["category"][]).map((c) => ({

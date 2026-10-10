@@ -85,6 +85,7 @@ USOS (01, not written yet) ──────┘          │
 |---|---|
 | `aco/objective.py` | `Objective` (weighted Σ min(walk, metro) over OD pairs) |
 | `aco/mmas.py` | `run_mmas` → `MmasResult` (best line, convergence, trace) |
+| `experiments.py` | parameter sweeps / ablations: `load_experiment`, `expand_jobs`, `execute_job`, `summarise`, `append_runs_csv` |
 
 ### Simulation (stage 5)
 
@@ -114,11 +115,14 @@ USOS (01, not written yet) ──────┘          │
 |---|---|
 | `scripts/02_build_campus.py` | OSM layers, report, `--bootstrap`, then `network/*.parquet` |
 | `scripts/04_optimize.py` | build/load instance, `run_mmas`, write `results/<run_id>/` + `best_line.json` |
+| `scripts/run_experiments.py` | YAML sweep / ablation → many runs + `runs.csv` + `summary_<name>.csv` |
 | `scripts/05_simulate.py` | stage 5 on `data/processed` |
 | `scripts/06_export_web.py` | flags `--campus --sample --watch --aerial --aco --metro --sim --fake`; `export_replays` (+ `export_demand`) |
+| `experiments/configs/*.yaml` | experiment specs (`aco_ablation.yaml`, `aco_grid.yaml`): mode, seeds, sweep / variants |
 | `tests/test_web_export.py` | fixture `exported` (sample campus + synthetic OSM in a temp dir), used by the other export tests |
 | `tests/test_network.py`, `test_interior.py`, `test_osm.py`, `test_schemas.py` | graph, geometry, OSM, contracts |
 | `tests/test_aco.py` | toy-instance objective + MMAS |
+| `tests/test_experiments.py` | experiment YAML expansion + `runs.csv` append |
 | `tests/test_metro_export.py`, `test_simulation.py` | schedule, ACO / line replays, simulator, `--sim` export |
 
 ## Viewer: `web/src/`

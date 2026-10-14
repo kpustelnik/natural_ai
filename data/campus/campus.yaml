@@ -7,12 +7,55 @@ passages: []
 extra_paths: []
 removed_ways: []
 
-# Stops where commuting students arrive (id must start with "stop:").
-# Locations = centre of the OSM platforms (data/processed/osm/campus.gpkg, layer "stops";
-# report.md lists every stop in the bbox).
-# TODO: add the remaining stops.
+# Stops where commuting students arrive (id must start with "stop:"), from the Krakow GTFS
+# feeds: `uv run scripts/01_fetch_transit.py --print-yaml` (centre of the platforms;
+# weight = vehicles arriving 7:00-10:00 on a Tuesday x seats / 1000).
 stops:
+  - id: "stop:plac_inwalidow"
+    name: "Plac Inwalidów"
+    location: [19.925925, 50.069518]   # bus: 124 139 169 179 192 199 301 304 307 469 503 513 601 608 664 704 708 902
+    weight: 38.88   # 432 vehicles in the peak (GTFS)
+  - id: "stop:agh_ur"
+    name: "AGH / UR"
+    location: [19.92375, 50.063555]   # bus: 124 144 164 169 173 179 192 194 301 304 307 310 469 494 503 513 608 708 902
+    weight: 30.69   # 341 vehicles in the peak (GTFS)
+  - id: "stop:biprostal"
+    name: "Biprostal"
+    location: [19.915432, 50.073014]   # bus: 102 144 194 494 664 704 708
+    weight: 21.6   # 240 vehicles in the peak (GTFS)
+  - id: "stop:czarnowiejska"
+    name: "Czarnowiejska"
+    location: [19.922625, 50.066375]   # bus: 139 144 164 173 194 199 310 494 601
+    weight: 16.74   # 186 vehicles in the peak (GTFS)
+  - id: "stop:uken"
+    name: "UKEN"
+    location: [19.910743, 50.07413]   # bus: 102 664 704 708
+    weight: 14.76   # 164 vehicles in the peak (GTFS)
+  - id: "stop:urzednicza"
+    name: "Urzędnicza"
+    location: [19.919565, 50.071885]   # bus: 664 704 708
+    weight: 13.95   # 155 vehicles in the peak (GTFS)
+  - id: "stop:przybyszewskiego"
+    name: "Przybyszewskiego"
+    location: [19.898365, 50.07084]   # bus: 139 164 173 199 310 601
+    weight: 10.44   # 116 vehicles in the peak (GTFS)
+  - id: "stop:cichy_kacik"
+    name: "Cichy Kącik"
+    location: [19.902918, 50.063138]   # bus|tram: 14 75 102
+    weight: 10.35   # 67 vehicles in the peak (GTFS)
+  - id: "stop:kawiory"
+    name: "Kawiory"
+    location: [19.913557, 50.068597]   # bus: 139 144 164 173 194 199 494 601
+    weight: 10.35   # 115 vehicles in the peak (GTFS)
   - id: "stop:miasteczko_studenckie_agh"
-    name: Miasteczko Studenckie AGH
-    location: [19.905002, 50.069902]   # 4 platforms
-    weight: 1
+    name: "Miasteczko Studenckie AGH"
+    location: [19.904998, 50.069905]   # bus: 102 139 164 173 199 601
+    weight: 9.9   # 110 vehicles in the peak (GTFS)
+  - id: "stop:reymana"
+    name: "Reymana"
+    location: [19.910942, 50.06136]   # tram: 14 75
+    weight: 8.64   # 48 vehicles in the peak (GTFS)
+  - id: "stop:chopina"
+    name: "Chopina"
+    location: [19.91725, 50.06753]   # bus: 139 144 164 173 194 199 494 601
+    weight: 7.65   # 85 vehicles in the peak (GTFS)

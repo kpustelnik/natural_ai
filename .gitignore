@@ -13,7 +13,9 @@ dist/
 
 # --- Dane generowane (odtwarzalne skryptami) ---
 data/raw/
-data/processed/
+data/processed/*
+!data/processed/usos/
+!data/processed/transit/
 web/public/data/
 experiments/results/
 cache/

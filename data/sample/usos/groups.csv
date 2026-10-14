@@ -1,8 +1,8 @@
-group_id,course_id,course_name,class_type,size,size_source
-ALG:WYK:1,ALG,Algorytmy i struktury danych,WYK,60,usos
-ALG:LAB:1,ALG,Algorytmy i struktury danych,LAB,30,usos
-ALG:LAB:2,ALG,Algorytmy i struktury danych,LAB,30,usos
-MAT:CW:1,MAT,Matematyka dyskretna,CW,60,estimate
-ROB:WYK:1,ROB,Robotyka,WYK,40,usos
-ROB:LAB:1,ROB,Robotyka,LAB,20,usos
-ROB:LAB:2,ROB,Robotyka,LAB,20,usos
+group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_capacity
+ALG:WYK:1,ALG,Algorytmy i struktury danych,WYK,60,usos,60,,120
+ALG:LAB:1,ALG,Algorytmy i struktury danych,LAB,30,usos,30,30,32
+ALG:LAB:2,ALG,Algorytmy i struktury danych,LAB,30,usos,30,30,32
+MAT:CW:1,MAT,Matematyka dyskretna,CW,60,estimate,,60,60
+ROB:WYK:1,ROB,Robotyka,WYK,40,usos,40,,120
+ROB:LAB:1,ROB,Robotyka,LAB,20,usos,20,20,24
+ROB:LAB:2,ROB,Robotyka,LAB,20,usos,20,20,24

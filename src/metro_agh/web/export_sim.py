@@ -124,11 +124,9 @@ class PathBuilder:
             t += dt
         return self._add(key, np.array(pts), np.array(ts), MODE_CODES["walk"])
 
-    def ride(self, key, xyz: list, t: list) -> int:
+    def ride(self, key, xyz: list, t: list, mode: str = "metro") -> int:
         p = self.index.get(key)
-        return (
-            p if p is not None else self._add(key, np.array(xyz), np.array(t), MODE_CODES["metro"])
-        )
+        return p if p is not None else self._add(key, np.array(xyz), np.array(t), MODE_CODES[mode])
 
     def arrays(self) -> dict[str, np.ndarray]:
         return {
@@ -189,6 +187,7 @@ def export_scenario(
     platform_nodes: dict[str, int],
     cfg: dict,
     changed: list[str],
+    stop_nodes: dict[str, int] | None = None,
 ) -> list[int]:
     """trips/<scenario>/paths.* and day-<weekday>.*; returns the weekdays written."""
     station_ix = {s.building_id: i for i, s in enumerate(metro.stations)} if metro else {}
@@ -209,6 +208,24 @@ def export_scenario(
 
     for r in df.itertuples(index=False):
         nodes = np.asarray(r.path_nodes, np.int64)
+        if r.mode == "transit":  # a bus or tram: straight from stop to stop, at street level
+            a, b = stop_nodes[r.board_station], stop_nodes[r.alight_station]
+            cut = np.flatnonzero((nodes[:-1] == a) & (nodes[1:] == b))
+            if not len(cut):
+                raise ValueError(f"leg {r.leg_id}: path_nodes has no {a} -> {b} ride")
+            c = int(cut[0])
+            walk_in, walk_out = pb.walk(nodes[: c + 1]), pb.walk(nodes[c + 1 :])
+            ride = pb.ride(
+                ("transit", a, b, round(r.ride_s)),
+                [pb.xyz[a], pb.xyz[b]],
+                [0.0, float(r.ride_s)],
+                mode="transit",
+            )
+            t_ride = r.depart_wt + pb.duration[walk_in] + r.wait_s
+            seg(r, walk_in, r.depart_wt)
+            seg(r, ride, t_ride)
+            seg(r, walk_out, t_ride + r.ride_s)
+            continue
         if r.mode != "metro":
             seg(r, pb.walk(nodes), r.depart_wt)
             continue
@@ -274,6 +291,7 @@ def _scenario_stats(sim: pd.DataFrame, legs: pd.DataFrame) -> ScenarioStats:
         late_share=float((sim.late_s > 0).mean()) if n else 0.0,
         longer_than_break_share=float((travel[known] > brk[known]).mean()) if known.any() else 0.0,
         metro_share=float((sim["mode"] == "metro").mean()) if n else 0.0,
+        transit_share=float((sim["mode"] == "transit").mean()) if n else 0.0,
     )
 
 
@@ -379,6 +397,7 @@ def export_simulation(
     platform_nodes = {
         s: int(key_to_id[f"{s}:platform"]) for s in line.stations if f"{s}:platform" in key_to_id
     }
+    stop_nodes = {k: int(i) for k, i in key_to_id.items() if str(k).startswith("stop:")}
     xyz = web(nodes.x.to_numpy(), nodes.y.to_numpy(), nodes.z.to_numpy() - float(o["z"]), origin)
 
     trips: dict[str, str] = {}
@@ -387,7 +406,7 @@ def export_simulation(
         pb = PathBuilder(nodes.key.to_numpy(), xyz, edges, polylines)
         weekdays |= set(
             export_scenario(out_dir, rel_dir, sc, sim, legs, pb, metro if sc == "metro" else None,
-                            platform_nodes, cfg, changed)
+                            platform_nodes, cfg, changed, stop_nodes)
         )  # fmt: skip
         trips[sc] = f"{rel_dir}/trips/{sc}"
     st = stats(sims, legs, line.stations, cfg)

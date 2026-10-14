@@ -6,6 +6,7 @@ schema_version: 1
 id: DS-Alfa
 name: Dom Studencki Alfa
 kind: dorm
+aliases: [DSALFA1]   # USOS building id
 osm_id: way/258940559
 placement:
   anchor: [19.9148909, 50.0659222]

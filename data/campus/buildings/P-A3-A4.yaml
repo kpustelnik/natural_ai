@@ -6,6 +6,7 @@ schema_version: 1
 id: P-A3-A4
 name: Łącznik A-3 – A-4
 kind: other
+aliases: ["A3/A4"]   # USOS building id
 osm_id: way/231815531
 placement:
   anchor: [19.9204288, 50.0654208]

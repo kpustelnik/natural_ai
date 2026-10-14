@@ -142,3 +142,27 @@ def test_save_run_appends_runs_csv(tmp_path: Path):
     df2 = RUNS.read(tmp_path / "runs.csv")
     assert len(df2) == 1
     assert float(df2.iloc[0]["wall_time_s"]) == 1.5
+
+
+def test_metro_overrides_reach_the_run(tmp_path: Path):
+    """metro.* of a job (k, dwell, ...) apply to a cached instance: a k sweep is real."""
+    from metro_agh.config import load_config
+    from metro_agh.experiments import execute_job
+
+    base = load_config()
+    defaults = {"aco": {"n_ants": 4, "n_iterations": 3, "trace": {"every": 1, "max_ants": 4}}}
+    metas = {
+        k: execute_job(
+            Job("unit", f"k{k}", 0, {"metro.n_stations": k, "metro.dwell_s": 5.0 * k}),
+            base_cfg=base,
+            defaults=defaults,
+            inst=_toy(),
+            inst_path=tmp_path / "instance.npz",
+            results_dir=tmp_path,
+            save_trace=False,
+        )
+        for k in (2, 4)
+    }
+    assert [len(m.best.stations) for m in metas.values()] == [2, 4]
+    runs = RUNS.read(tmp_path / "runs.csv").set_index("run_id")
+    assert sorted(runs["k"]) == [2, 4]

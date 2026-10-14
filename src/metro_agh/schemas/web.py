@@ -31,7 +31,7 @@ from .common import (
 
 DayTime = float  # seconds since 00:00 of the weekday
 
-MODE_CODES = {"walk": 0, "metro": 1}  # uint8 codes used in binary buffers
+MODE_CODES = {"walk": 0, "metro": 1, "transit": 2}  # uint8 codes used in binary buffers
 
 
 class WebFrame(StrictModel):
@@ -515,6 +515,9 @@ class ScenarioStats(StrictModel):
     late_share: float = Field(ge=0, le=1)
     longer_than_break_share: float = Field(ge=0, le=1)
     metro_share: float = Field(ge=0, le=1, description="0 for no_metro")
+    transit_share: float = Field(
+        default=0.0, ge=0, le=1, description="legs on a bus or tram (GTFS), both scenarios"
+    )
 
 
 class HourStats(StrictModel):

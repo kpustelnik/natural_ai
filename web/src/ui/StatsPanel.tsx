@@ -22,6 +22,7 @@ const ROWS: { label: string; value: (s: ScenarioStats) => string; title?: string
   { label: "late", value: (s) => pct(s.late_share), title: "Legs arriving after the class starts" },
   { label: "longer than the break", value: (s) => pct(s.longer_than_break_share), title: "Of the legs between two classes" },
   { label: "by metro", value: (s) => pct(s.metro_share) },
+  { label: "by bus / tram", value: (s) => pct(s.transit_share), title: "Rides between campus stops (GTFS timetable)" },
 ];
 
 function Totals({ stats }: { stats: Stats }) {

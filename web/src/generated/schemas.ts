@@ -860,6 +860,10 @@ export interface ScenarioStats {
    * 0 for no_metro
    */
   metro_share: number;
+  /**
+   * legs on a bus or tram (GTFS), both scenarios
+   */
+  transit_share: number;
 }
 /**
  * This interface was referenced by `WebData`'s JSON-Schema

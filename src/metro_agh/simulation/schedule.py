@@ -71,12 +71,12 @@ def build_schedule(
     run_id = 0
     for day in weekdays:
         base = (day - 1) * DAY_S
-        times = np.arange(start, end + 1e-6, headway)
-        departures = [(float(t), d) for t in times for d in (1, -1)]  # +1 first at equal times
+        starts = np.arange(start, end + 1e-6, headway)
+        departures = [(float(t), d) for t in starts for d in (1, -1)]  # +1 first at equal times
         free: list[tuple[float, int, int]] = []  # (free at, station, train) of finished runs
         n_trains = 0
         for t0, d in departures:
-            order, times = plans[d]
+            order, offsets = plans[d]
             first = order[0]
             ready = [f for f in free if f[1] == first and f[0] <= t0]
             if ready:
@@ -86,12 +86,12 @@ def build_schedule(
             else:
                 train = n_trains
                 n_trains += 1
-            for seq, (station, (arr, dep)) in enumerate(zip(order, times, strict=True)):
+            for seq, (station, (arr, dep)) in enumerate(zip(order, offsets, strict=True)):
                 rows.append(
                     (run_id, train, day, d, seq, stations[station],
                      round(base + t0 + arr), round(base + t0 + dep))
                 )  # fmt: skip
-            free.append((t0 + times[-1][1] + dwell, order[-1], train))
+            free.append((t0 + offsets[-1][1] + dwell, order[-1], train))
             run_id += 1
     df = pd.DataFrame(rows, columns=METRO_SCHEDULE.column_names)
     METRO_SCHEDULE.validate(df)

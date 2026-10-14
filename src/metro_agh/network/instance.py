@@ -5,19 +5,23 @@ The optimiser only reads the instance file (docs/data_contracts.md §7).
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
+import json
 import logging
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 from scipy.sparse.csgraph import dijkstra
 
-from ..config import config_hash
 from ..schemas.instance import Instance, InstanceMeta
-from ..schemas.tables import GRAPH_EDGES, GRAPH_NODES, OD
+from ..schemas.tables import GRAPH_EDGES, GRAPH_NODES, OD, TRANSIT_RIDES
 from ..simulation.simulate import BATCH, walk_matrix
 
 log = logging.getLogger(__name__)
+
+DAY_HEADWAY = 3600.0  # a pair served once a day: assume an hour's wait
 
 
 def build_instance(
@@ -63,13 +67,23 @@ def build_instance(
 
     # OD pairs that resolve to known endpoints
     rows = []
+    lost = 0.0
     for row in od.itertuples(index=False):
         a, b = key_to_ep.get(row.from_key), key_to_ep.get(row.to_key)
-        if a is None or b is None or a == b:
+        if a is None or b is None:
+            lost += float(row.n_legs)
+            continue
+        if a == b:
             continue
         rows.append((a, b, float(row.n_legs)))
     if not rows:
         raise ValueError("no OD pairs map to graph endpoints")
+    if lost:
+        log.warning(
+            "%.0f of %.0f student-legs (%.1f%%) have an endpoint missing from the graph: "
+            "left out of the instance (rebuild demand after the network)",
+            lost, od.n_legs.sum(), 100 * lost / od.n_legs.sum(),
+        )  # fmt: skip
     od_from = np.array([r[0] for r in rows], np.int32)
     od_to = np.array([r[1] for r in rows], np.int32)
     od_weight = np.array([r[2] for r in rows], np.float32)
@@ -93,23 +107,35 @@ def build_instance(
                     )
                 od_walk[idx] = d
 
-    m = cfg["metro"]
-    tm = cfg["time_model"]
-    depth = float(m["station_depth_m"])
-    k = max(2, min(int(m["n_stations"]), len(candidate_ids)))
-    meta = InstanceMeta(
-        name=name,
-        topology=m["topology"],
-        k=k,
-        metro_speed_mps=float(m["speed_mps"]),
-        dwell_s=float(m["dwell_s"]),
-        wait_s=float(m["headway_s"]) / 2.0,
-        shaft_down_s=depth / float(tm["stairs_down_mps"]),
-        shaft_up_s=depth / float(tm["stairs_up_mps"]),
-        source_hash=hashlib.sha256(
-            (config_hash(cfg) + str(len(nodes)) + str(len(od))).encode()
-        ).hexdigest()[:16],
-    )
+    # the no-metro time is the faster of walking and the bus / tram (when it is simulated too)
+    rides = transit_rides(processed, cfg)
+    if rides is not None and len(rides):
+        stop_ids = sorted(set(rides.from_stop) | set(rides.to_stop))
+        key_to_node = dict(zip(nodes.key, nodes.node_id, strict=True))
+        stop_ids = [s for s in stop_ids if s in key_to_node]
+        stop_node = np.array([key_to_node[s] for s in stop_ids], np.int32)
+        if len(stop_node):
+            to_stop = _times_to(mat, ep_node, stop_node)  # (E, S)
+            from_stop = _times_to(mat, stop_node, ep_node)  # (S, E)
+            col = {s: i for i, s in enumerate(stop_ids)}
+            by_transit = np.full(len(rows), np.inf)
+            for r in rides.itertuples(index=False):
+                if r.from_stop not in col or r.to_stop not in col:
+                    continue
+                wait = (r.median_headway_s if pd.notna(r.median_headway_s) else DAY_HEADWAY) / 2
+                t = (
+                    to_stop[od_from, col[r.from_stop]]
+                    + wait + r.median_ride_s
+                    + from_stop[col[r.to_stop], od_to]
+                )  # fmt: skip
+                by_transit = np.minimum(by_transit, t)
+            faster = by_transit < od_walk
+            share = 100 * od_weight[faster].sum() / od_weight.sum()
+            log.info("bus / tram faster than walking for %d of %d OD pairs (%.0f%% of legs)",
+                     faster.sum(), len(rows), share)  # fmt: skip
+            od_walk = np.minimum(od_walk, by_transit).astype(np.float32)
+
+    meta = metro_meta(cfg, len(candidate_ids), name=name, source_hash=inputs_hash(processed, cfg))
     inst = Instance(
         meta=meta,
         candidate_ids=candidate_ids,
@@ -130,8 +156,81 @@ def build_instance(
         inst.n_candidates,
         len(endpoint_keys),
         len(od_from),
-        k,
+        meta.k,
     )
+    return inst
+
+
+def metro_meta(
+    cfg: dict, n_candidates: int, *, name: str, source_hash: str | None = None
+) -> InstanceMeta:
+    """Line and train parameters of ``config.yaml`` -> ``metro``: they change no array, so a
+    cached instance takes them from the current config (``with_config``)."""
+    m, tm = cfg["metro"], cfg["time_model"]
+    depth = float(m["station_depth_m"])
+    return InstanceMeta(
+        name=name,
+        topology=m["topology"],
+        k=max(2, min(int(m["n_stations"]), n_candidates)),
+        metro_speed_mps=float(m["speed_mps"]),
+        dwell_s=float(m["dwell_s"]),
+        wait_s=float(m["headway_s"]) / 2.0,
+        shaft_down_s=depth / float(tm["stairs_down_mps"]),
+        shaft_up_s=depth / float(tm["stairs_up_mps"]),
+        source_hash=source_hash,
+    )
+
+
+def with_config(inst: Instance, cfg: dict) -> Instance:
+    """The same arrays with k, topology, speed, dwell, headway and shaft times from ``cfg``."""
+    meta = metro_meta(
+        cfg, inst.n_candidates, name=inst.meta.name, source_hash=inst.meta.source_hash
+    )
+    if meta.k != int(cfg["metro"]["n_stations"]):
+        log.warning("metro.n_stations=%s > %d candidates: k=%d", cfg["metro"]["n_stations"],
+                    inst.n_candidates, meta.k)  # fmt: skip
+    return dataclasses.replace(inst, meta=meta)
+
+
+def transit_rides(processed: Path, cfg: dict) -> pd.DataFrame | None:
+    """``transit/rides.csv`` when buses and trams are simulated (``simulation.transit``)."""
+    f = Path(processed) / TRANSIT_RIDES.path
+    if not cfg.get("simulation", {}).get("transit", True) or not f.exists():
+        return None
+    return TRANSIT_RIDES.read(f)
+
+
+def inputs_hash(processed: Path, cfg: dict) -> str | None:
+    """Hash of what the arrays are computed from: graph, OD, buses, time model, candidates."""
+    files = [processed / GRAPH_NODES.path, processed / GRAPH_EDGES.path, processed / OD.path]
+    if not all(f.exists() for f in files):
+        return None
+    h = hashlib.sha256()
+    for f in files:
+        h.update(f.read_bytes())
+    rides = processed / TRANSIT_RIDES.path
+    if cfg.get("simulation", {}).get("transit", True) and rides.exists():
+        h.update(rides.read_bytes())
+    h.update(json.dumps([cfg["time_model"], cfg["metro"].get("candidates", "all"),
+                         cfg["metro"]["station_depth_m"]], sort_keys=True).encode())  # fmt: skip
+    return h.hexdigest()[:16]
+
+
+def load_or_build(
+    processed: Path, cfg: dict, inst_path: Path, *, rebuild: bool = False, name: str = "campus"
+) -> Instance:
+    """``inst_path`` if it was built from the current inputs, else a fresh build (written
+    there); either way with the line parameters of ``cfg``."""
+    processed, inst_path = Path(processed), Path(inst_path)
+    want = inputs_hash(processed, cfg)
+    if not rebuild and inst_path.exists():
+        inst = Instance.load(inst_path)
+        if want is None or inst.meta.source_hash == want:
+            log.info("loaded %s (%d candidates)", inst_path, inst.n_candidates)
+            return with_config(inst, cfg)
+        log.info("%s is stale (network, demand or time model changed): rebuilding", inst_path)
+    inst = build_instance(processed, cfg, name=name)
+    write_instance(inst, inst_path)
     return inst
 
 

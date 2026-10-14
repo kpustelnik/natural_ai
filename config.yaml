@@ -35,16 +35,41 @@ osm:
   footprint_simplify_m: 0.2  # upraszczanie obrysów przy bootstrapie YAML
 
 usos:
-  # plan B, gdy API niedostępne: "ical"
-  source: api
-  term: "2026Z"
+  # publiczne API USOS (budynki, sale, pojemności) + publiczny katalog USOSweb (plany sal,
+  # grupy przedmiotów = kohorty, liczba osób w grupach i limity); bez logowania i klucza API
+  term: "26/27-Z"            # id cyklu w USOS AGH (services/terms/terms_index)
+  scope: all                 # all = cały USOS (wszystkie wydziały, kierunki, sale, daty
+                             # spotkań -> usos/all/); campus = tylko sale budynków kampusu
+  delay_s: 0.4               # odstęp między zapytaniami do USOS
+  cache_days:                # po ilu dniach strona z cache jest pobierana ponownie
+    web/unit: 3              # grupy zajęć: liczba zapisanych zmienia się do końca zapisów
+    web/course: 30           # strony przedmiotów: kohorty, jednostki cyklu
+    api/tt: 7                # daty spotkań (przesunięcia zajęć)
+    api: 90                  # budynki, sale, pojemności
+    web/catalogue: 30        # listy grup przedmiotów i ich przedmiotów
+                             # plany sal mają osobny folder na każdy tydzień (--week)
 
 population:
-  n_students: 20000
-  dorm_share: 0.35           # reszta przyjeżdża na przystanki z campus.yaml (wg weight)
+  n_students: auto           # auto = suma kohort z USOS; liczba = przeskalowanie kohort do niej
+  dorm_share: auto           # auto = łóżka w akademikach / studenci; reszta przyjeżdża na
+                             # przystanki z campus.yaml (wg weight)
+  dorm_beds: 7000            # miejsca dla studentów AGH na Miasteczku (z ponad 8000 łącznie)
+  m2_per_bed: 25             # gdy dorm_beds = 0: łóżko na tyle m² powierzchni kondygnacji
+
+transit:
+  feeds:                     # GTFS ZTP Kraków (otwarte dane)
+    bus: https://gtfs.ztp.krakow.pl/GTFS_KRK_A.zip
+    tram: https://gtfs.ztp.krakow.pl/GTFS_KRK_T.zip
+  date: auto                 # dzień rozkładu (YYYY-MM-DD); auto = najbliższy wtorek
+  peak_hours: [7, 10]        # okno szczytu porannego dla wag przystanków
+  margin_m: 150              # przystanki do tylu metrów poza campus.bbox też się liczą
+  seats: { bus: 90, tram: 180 }   # miejsc w pojeździe (waga przystanku)
 
 demand:
-  week_parity: odd           # który tydzień modelujemy: odd | even
+  week: auto                 # tydzień popytu: auto = najruchliwszy tydzień kalendarza z
+                             # usos/all/meetings.csv, YYYY-MM-DD = ten poniedziałek,
+                             # typical = typowy tydzień z timetable.csv (wg week_parity)
+  week_parity: odd           # tylko dla week: typical: odd | even
   arrival_buffer_s: 300      # student chce być 5 min przed zajęciami
   max_break_s: 10800         # przerwa > 3 h: wraca do domu (akademik) / zostaje (przystanek)
 
@@ -84,4 +109,6 @@ aco:
 
 simulation:
   scenarios: [no_metro, metro]
+  transit: true              # autobusy i tramwaje z GTFS (transit/trips.parquet) w obu
+                             # scenariuszach i w czasie "bez metra" instancji ACO
   weekdays: [1, 2, 3, 4, 5]

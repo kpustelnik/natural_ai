@@ -314,19 +314,10 @@ def execute_job(
 ) -> RunMeta:
     cfg = apply_overrides(apply_overrides(base_cfg, defaults), job.overrides)
     cfg = {**cfg, "seed": job.seed}
-    # metro.n_stations only affects a newly built instance; warn if it was overridden
-    if "metro.n_stations" in job.overrides or (
-        isinstance(job.overrides.get("metro"), dict) and "n_stations" in job.overrides["metro"]
-    ):
-        want = int(get_path(cfg, "metro.n_stations"))
-        if want != inst.meta.k:
-            log.warning(
-                "%s: metro.n_stations=%d but instance has k=%d (rebuild instance to vary k)",
-                job.tag,
-                want,
-                inst.meta.k,
-            )
+    # metro.* (k, speed, dwell, headway, topology) only change the instance's meta
+    from .network.instance import with_config
 
+    inst = with_config(inst, cfg)
     t0 = time.perf_counter()
     result = run_mmas(inst, cfg, rng=np.random.default_rng(job.seed))
     wall = time.perf_counter() - t0
@@ -392,15 +383,9 @@ def summarise(results_dir: Path, experiment: str) -> pd.DataFrame | None:
 
 
 def resolve_instance(cfg: dict, processed: Path | None, rebuild: bool) -> tuple[Instance, Path]:
-    from .network.instance import build_instance, write_instance
+    from .network.instance import load_or_build
 
     root = Path(processed) if processed else path(cfg, "processed")
     inst_path = root / "instance" / "instance.npz"
-    if rebuild or not inst_path.exists():
-        name = "fake" if root.name == "fake" else "campus"
-        inst = build_instance(root, cfg, name=name)
-        write_instance(inst, inst_path)
-    else:
-        inst = Instance.load(inst_path)
-        log.info("loaded %s (%d candidates, k=%d)", inst_path, inst.n_candidates, inst.meta.k)
-    return inst, inst_path
+    name = "fake" if root.name == "fake" else "campus"
+    return load_or_build(root, cfg, inst_path, rebuild=rebuild, name=name), inst_path

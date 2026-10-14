@@ -16,6 +16,9 @@ data/raw/
 data/processed/*
 !data/processed/usos/
 !data/processed/transit/
+!data/processed/population/
+data/processed/population/*
+!data/processed/population/dorms.csv
 web/public/data/
 experiments/results/
 cache/

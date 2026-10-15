@@ -28,10 +28,12 @@ Projekt semestralny z przedmiotu **Algorytmy inteligentne inspirowane naturą** 
 ## Pipeline
 
 ```
-USOS ──► data/raw/usos ──► usos/timetable.csv, groups.csv, cohorts.csv
+USOS ──► data/raw/usos ──► usos/timetable.csv, groups.csv, cohorts.csv, rooms.csv
+GTFS ──► data/raw/gtfs ──► transit/stops.csv, rides.csv ──► przystanki w campus.yaml
                                     │
                                     ▼
-                  populacja (20 000 studentów) ──► demand/legs.parquet, od.parquet
+     populacja (kohorty i liczebności grup z USOS) ──► demand/legs.parquet, od.parquet,
+                                                       migrations.csv
                                                             │
 OSM ─────────────┐                                          │
 data/campus/     ├──► network/nodes.parquet, edges.parquet ─┤
@@ -63,7 +65,7 @@ metro-agh/
 ├── uv.lock                     # zamrożone wersje zależności (generuje `uv lock`)
 ├── .python-version             # wersja Pythona dla uv
 ├── config.yaml                 # wszystkie parametry (ACO, model czasu, obszar kampusu)
-├── .env.example                # szablon kluczy USOS -> skopiuj do .env
+├── .env.example                # szablon zmiennych środowiska (USOS nie wymaga kluczy)
 ├── .gitignore
 ├── .gitattributes              # LF wszędzie, diffy notebooków
 ├── .editorconfig               # wcięcia, kodowanie, końce linii
@@ -77,7 +79,8 @@ metro-agh/
 │
 ├── data/
 │   ├── raw/                    # [gitignore] surowe dane, nie edytujemy ręcznie
-│   │   ├── usos/               #   odpowiedzi API / eksporty iCal
+│   │   ├── usos/               #   cache odpowiedzi USOS API i stron USOSweb
+│   │   ├── gtfs/               #   GTFS ZTP Kraków (autobusy, tramwaje)
 │   │   └── osm/                #   features.osm, walk.osm (surowe odpowiedzi Overpass)
 │   ├── campus/                 # [w repo] ręcznie modelowany kampus
 │   │   ├── buildings/*.yaml    #   budynek: piętra, korytarze, sale, schody, wejścia
@@ -86,9 +89,10 @@ metro-agh/
 │   │   └── usos_room_map.csv   #   poprawki mapowania sal z USOS
 │   ├── processed/              # [gitignore] wyniki etapów pipeline'u
 │   │   ├── osm/                #   campus.gpkg (QGIS), report.md, preview.html
-│   │   ├── usos/               #   timetable.csv, groups.csv, cohorts.csv, group_cohorts.csv
+│   │   ├── usos/               #   timetable.csv, groups.csv, cohorts.csv, group_cohorts.csv, rooms.csv
+│   │   ├── transit/            #   stops.csv, rides.csv (GTFS)
 │   │   ├── population/         #   students.parquet, enrollments.parquet
-│   │   ├── demand/             #   legs.parquet, od.parquet
+│   │   ├── demand/             #   legs.parquet, od.parquet, migrations.csv
 │   │   ├── network/            #   nodes.parquet, edges.parquet
 │   │   ├── instance/           #   instance.npz (wejście ACO)
 │   │   └── simulation/         #   przejścia studentów i rozkład metra
@@ -100,9 +104,13 @@ metro-agh/
 │   ├── __init__.py
 │   ├── config.py               # wczytanie config.yaml, provenance plików
 │   ├── schemas/                # kontrakty danych (pydantic + tabele), patrz docs/data_contracts.md
-│   ├── usos/
-│   │   ├── client.py           # USOS API (OAuth 1.0a) / plan B: iCal
-│   │   └── parse.py            # sala -> budynek, normalizacja do timetable.csv
+│   ├── usos/                   # publiczne USOS API + katalog USOSweb, bez logowania
+│   │   ├── http.py             # zapytania z cache na dysku i limitem tempa
+│   │   ├── pages.py            # parsery stron: plan sali, grupy zajęć, przedmiot
+│   │   ├── fetch.py            # crawl: sale -> przedmioty -> grupy (liczba osób, limity)
+│   │   └── parse.py            # sala -> budynek, parzystość, liczebności, kohorty -> CSV
+│   ├── transit/
+│   │   └── gtfs.py             # przystanki kampusu, kursy w szczycie, przejazdy między nimi
 │   ├── campus/
 │   │   ├── osm.py              # pobranie danych z Overpass (z cache i serwerami zapasowymi)
 │   │   ├── osm_process.py      # warstwy: budynki, wejścia, przystanki, bariery, graf pieszy
@@ -112,8 +120,9 @@ metro-agh/
 │   │   ├── interior.py         # YAML budynku -> geometria pięter i graf wewnętrzny
 │   │   └── candidates.py       # kandydaci na stacje (wejścia z metro_shaft)
 │   ├── demand/
+│   │   ├── dorms.py            # miejsca w akademikach (YAML albo z powierzchni)
 │   │   ├── population.py       # syntetyczni studenci i ich grupy
-│   │   └── legs.py             # plan studenta -> przejścia A -> B
+│   │   └── legs.py             # plan studenta -> przejścia A -> B, OD, migracje
 │   ├── network/
 │   │   ├── indoor.py           # graf jednego budynku: korytarze, sale, schody, wejścia, szyb
 │   │   ├── graph.py            # graf: chodniki + wnętrza + przejścia + przystanki + szyby metra
@@ -147,6 +156,7 @@ metro-agh/
 │
 ├── scripts/                    # punkty wejścia, uruchamiane po kolei
 │   ├── 01_fetch_usos.py
+│   ├── 01_fetch_transit.py
 │   ├── 02_build_campus.py
 │   ├── 03_build_demand.py
 │   ├── 04_optimize.py
@@ -207,7 +217,7 @@ cd metro-agh
 uv sync                              # tworzy .venv i instaluje wszystko (z grupą dev)
 uv run pre-commit install            # hooki przed każdym commitem
 uv run nbdime config-git --enable    # czytelne diffy notebooków (opcjonalnie)
-cp .env.example .env                 # i uzupełnij klucze USOS
+cp .env.example .env                 # opcjonalnie (USOS i GTFS są publiczne)
 ```
 
 Dodawanie zależności: `uv add <pakiet>` (lub `uv add --dev <pakiet>`). Commitujemy zmieniony `pyproject.toml` **i** `uv.lock`.
@@ -227,9 +237,18 @@ Główne zależności:
 
 Wizualizacja wymaga **Node.js** (LTS): `cd web && npm install`. Zależności (React, three.js, React Three Fiber, three-mesh-bvh, Vite, TypeScript) są w `web/package.json`.
 
-### Klucze USOS API
+### Dane z USOS i komunikacji miejskiej
 
-Klucze trzymamy w pliku `.env` (szablon: `.env.example`). Plik `.env` jest w `.gitignore`, a hook `detect-private-key` dodatkowo pilnuje, żeby nic nie wyciekło.
+`01_fetch_usos.py` korzysta wyłącznie z publicznych źródeł AGH: anonimowych metod USOS API
+(`apps.usos.agh.edu.pl`: budynki, sale, pojemności) i publicznego katalogu USOSweb (plany sal,
+grupy przedmiotów = kohorty, liczba osób w grupach i limity miejsc), a domyślnie
+(`usos.scope: all`) także katalog wszystkich jednostek AGH i daty wszystkich spotkań semestru:
+`usos/all/` ma wszystkie kierunki i semestry, przedmioty, grupy zajęć i spotkania w każdej sali
+(`--campus-only` ogranicza crawl do sal kampusu). Nie trzeba kluczy ani
+logowania; nazwiska prowadzących nie są zapisywane. Pierwszy pełny crawl to kilka tysięcy stron
+(około godziny przy `usos.delay_s`), potem wszystko jest w cache `data/raw/usos/`
+(`--offline` przebudowuje CSV bez sieci). Uruchamiaj go w tygodniu zajęć: plany sal pokazują
+bieżący tydzień. `01_fetch_transit.py` pobiera otwarte GTFS ZTP Kraków.
 
 ---
 
@@ -238,9 +257,10 @@ Klucze trzymamy w pliku `.env` (szablon: `.env.example`). Plik `.env` jest w `.g
 Pipeline krok po kroku (każdy skrypt czyta parametry z `config.yaml`):
 
 ```bash
-uv run scripts/01_fetch_usos.py          # -> data/raw/usos, data/processed/timetable.csv
+uv run scripts/01_fetch_usos.py          # -> data/raw/usos, data/processed/usos/*.csv + usos/all/ (cały USOS)
+uv run scripts/01_fetch_transit.py       # -> data/processed/transit/ (przystanki, przejazdy)
 uv run scripts/02_build_campus.py        # -> data/processed/osm/ (campus.gpkg, report.md, issues.json, preview.html) + network/*.parquet
-uv run scripts/03_build_demand.py        # -> demand.parquet
+uv run scripts/03_build_demand.py        # -> population/, demand/legs, od, migrations.csv (najruchliwszy tydzień kalendarza)
 uv run scripts/04_optimize.py            # -> experiments/results/best_line.json
 uv run scripts/05_simulate.py            # -> simulation/{no_metro,metro}/legs.parquet, schedule.parquet
 uv run scripts/06_export_web.py --campus # -> web/public/data/ (kampus dla przeglądarki)

@@ -1,0 +1,63 @@
+from_stop,to_stop,lines,trips_day,min_ride_s,median_ride_s,median_headway_s
+stop:agh_ur,stop:biprostal,708,89,300,300,600
+stop:agh_ur,stop:plac_inwalidow,124 169 179 192 301 304 307 503 513 708,619,120,120,60
+stop:agh_ur,stop:uken,708,89,420,420,600
+stop:agh_ur,stop:urzednicza,708,89,240,240,600
+stop:biprostal,stop:agh_ur,144 194 494 708,246,300,480,240
+stop:biprostal,stop:chopina,144 194 494,157,180,240,300
+stop:biprostal,stop:cichy_kacik,102,43,420,420,1200
+stop:biprostal,stop:czarnowiejska,144 194 494,157,240,360,300
+stop:biprostal,stop:kawiory,144 194 494,157,60,120,300
+stop:biprostal,stop:miasteczko_studenckie_agh,102,43,300,300,1200
+stop:biprostal,stop:plac_inwalidow,704 708,331,120,120,180
+stop:biprostal,stop:uken,102 704 708,375,60,120,150
+stop:biprostal,stop:urzednicza,704 708,332,60,60,180
+stop:chopina,stop:agh_ur,144 164 173 194 494,261,180,240,180
+stop:chopina,stop:czarnowiejska,139 144 164 173 194 199 494,361,60,120,120
+stop:chopina,stop:plac_inwalidow,139 199,100,240,300,480
+stop:cichy_kacik,stop:biprostal,102,44,360,480,1200
+stop:cichy_kacik,stop:miasteczko_studenckie_agh,102,44,120,180,1200
+stop:cichy_kacik,stop:reymana,14 75,111,60,60,480
+stop:czarnowiejska,stop:agh_ur,144 164 173 194 310 494,309,120,120,180
+stop:czarnowiejska,stop:biprostal,144 194 494,154,240,300,300
+stop:czarnowiejska,stop:kawiory,139 144 164 173 194 199 494,356,120,120,180
+stop:czarnowiejska,stop:miasteczko_studenckie_agh,139 164 173 199,202,180,240,300
+stop:czarnowiejska,stop:plac_inwalidow,139 199,100,180,180,480
+stop:czarnowiejska,stop:przybyszewskiego,139 164 173 199 310,248,240,360,240
+stop:kawiory,stop:agh_ur,144 194 494,157,300,360,300
+stop:kawiory,stop:biprostal,144 194 494,155,120,180,300
+stop:kawiory,stop:chopina,144 194 494,157,120,120,300
+stop:kawiory,stop:czarnowiejska,144 194 494,157,180,240,300
+stop:kawiory,stop:miasteczko_studenckie_agh,139 164 173 199,203,60,120,300
+stop:kawiory,stop:przybyszewskiego,139 164 173 199,202,180,240,300
+stop:miasteczko_studenckie_agh,stop:agh_ur,164 173,104,300,360,540
+stop:miasteczko_studenckie_agh,stop:biprostal,102,44,240,300,1200
+stop:miasteczko_studenckie_agh,stop:chopina,139 164 173 199,204,120,120,300
+stop:miasteczko_studenckie_agh,stop:cichy_kacik,102,44,120,120,1200
+stop:miasteczko_studenckie_agh,stop:czarnowiejska,139 164 173 199,204,180,240,300
+stop:miasteczko_studenckie_agh,stop:plac_inwalidow,139 199,100,360,420,480
+stop:miasteczko_studenckie_agh,stop:przybyszewskiego,139 164 173 199,202,120,120,300
+stop:plac_inwalidow,stop:agh_ur,124 169 179 192 301 304 307 469 503 513 708,615,120,120,60
+stop:plac_inwalidow,stop:biprostal,704 708,331,120,120,180
+stop:plac_inwalidow,stop:czarnowiejska,139 199,98,120,120,540
+stop:plac_inwalidow,stop:kawiory,139 199,98,240,240,540
+stop:plac_inwalidow,stop:miasteczko_studenckie_agh,139 199,98,300,360,540
+stop:plac_inwalidow,stop:przybyszewskiego,139 199,98,420,480,540
+stop:plac_inwalidow,stop:uken,704 708,331,240,240,180
+stop:plac_inwalidow,stop:urzednicza,704 708,331,60,60,180
+stop:przybyszewskiego,stop:agh_ur,164 173 310,151,420,480,300
+stop:przybyszewskiego,stop:chopina,139 164 173 199,203,240,240,300
+stop:przybyszewskiego,stop:czarnowiejska,139 164 173 199 310,251,300,360,180
+stop:przybyszewskiego,stop:miasteczko_studenckie_agh,139 164 173 199,203,120,120,300
+stop:przybyszewskiego,stop:plac_inwalidow,139 199,100,480,540,480
+stop:reymana,stop:cichy_kacik,14 75,113,120,120,480
+stop:uken,stop:agh_ur,708,89,360,360,600
+stop:uken,stop:biprostal,704 708,332,60,60,180
+stop:uken,stop:cichy_kacik,102,43,360,360,1200
+stop:uken,stop:miasteczko_studenckie_agh,102,43,240,240,1200
+stop:uken,stop:plac_inwalidow,704 708,331,180,180,180
+stop:uken,stop:urzednicza,704 708,332,120,120,180
+stop:urzednicza,stop:agh_ur,708,89,240,240,600
+stop:urzednicza,stop:biprostal,704 708,332,60,60,180
+stop:urzednicza,stop:plac_inwalidow,704 708,332,60,60,180
+stop:urzednicza,stop:uken,704 708,332,180,180,180

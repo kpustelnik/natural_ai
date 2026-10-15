@@ -1,0 +1,21 @@
+building_id,name,floor_area_m2,levels,residents,source
+DS-1,Olimp,12322.5,17,764,estimate
+DS-10,Dom Studencki Hajduczek,3389.3,5,210,estimate
+DS-11,Dom Studencki Bonus,3343.6,5,207,estimate
+DS-12,Dom Studencki Promyk,3915.6,5,243,estimate
+DS-13,Dom Studencki Straszny Dwór,3933.6,5,244,estimate
+DS-14,Dom Studencki Kapitol,10948.1,15,679,estimate
+DS-15,Dom Studencki Maraton,3923.7,5,243,estimate
+DS-16,Dom Studencki Itaka,3874.7,5,240,estimate
+DS-17,Dom Studencki Arkadia,3839.5,5,238,estimate
+DS-18,Dom Studencki Odyseja,3882.0,5,241,estimate
+DS-19,Dom Studencki Apollo,3878.8,5,241,estimate
+DS-2,Babilon,11624.5,16,721,estimate
+DS-3,Dom Studencki Akropol,11736.2,16,728,estimate
+DS-4,Dom Studencki Filutek,3923.3,5,243,estimate
+DS-5,Dom Studencki Strumyk,3927.8,5,244,estimate
+DS-6,Dom Studencki Bratek,3344.0,5,207,estimate
+DS-7,Dom Studencki Zaścianek,3272.5,5,203,estimate
+DS-8,Dom Studencki Stokrotka,3905.2,5,242,estimate
+DS-9,Dom Studencki Omega,3923.7,5,243,estimate
+DS-Alfa,Dom Studencki Alfa,9925.7,3,616,estimate

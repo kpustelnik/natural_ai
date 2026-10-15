@@ -79,3 +79,15 @@ def test_mmas_improves_on_baseline():
     assert 0 in result.best_line and 3 in result.best_line  # ends of the corridor
     assert len(result.convergence) == 20
     result.trace.validate()
+
+
+def test_reversed_line_is_one_evaluation():
+    from metro_agh.aco.objective import canonical
+
+    f = Objective(_toy_instance())
+    a = f([0, 1, 3])
+    assert f([3, 1, 0]) == a
+    assert f.evaluations == 1
+    assert canonical([2, 0, 1], "loop") == canonical([0, 1, 2], "loop")
+    assert canonical([0, 2, 1], "loop") == canonical([1, 2, 0], "loop")  # reflected
+    assert canonical([0, 1, 2], "line") != canonical([1, 0, 2], "line")

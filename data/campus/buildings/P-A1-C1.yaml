@@ -6,6 +6,7 @@ schema_version: 1
 id: P-A1-C1
 name: Łącznik A-1 – C-1
 kind: other
+aliases: [A1C1]   # USOS building id
 osm_id: way/231815866
 placement:
   anchor: [19.9226445, 50.065205]

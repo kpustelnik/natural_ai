@@ -18,6 +18,7 @@ from .common import (
     BUILDING_ID_PATTERN,
     ENDPOINT_KEY_PATTERN,
     ROOM_ID_PATTERN,
+    STOP_ID_PATTERN,
     EdgeKind,
     HomeKind,
     LegKind,
@@ -223,8 +224,21 @@ GROUPS = Table(
         Column("course_id", "str", "USOS course id"),
         Column("course_name", "str", "human readable name", nullable=True),
         Column("class_type", "str", "USOS class type code: WYK, CW, LAB, PROJ, SEM, ..."),
-        Column("size", "int", "number of students", min=1),
+        Column("size", "int", "number of students used by the demand", min=1),
         Column("size_source", "str", "where size comes from", allowed=_values(SizeSource)),
+        Column(
+            "enrolled", "int", "USOS 'liczba osób w grupie'; null if unknown", nullable=True, min=0
+        ),
+        Column(
+            "limit",
+            "int",
+            "USOS 'limit miejsc' (group, else unit); null = none",
+            nullable=True,
+            min=0,
+        ),
+        Column(
+            "room_capacity", "int", "seats of the smallest room it meets in", nullable=True, min=0
+        ),
     ),
 )
 
@@ -236,7 +250,13 @@ COHORTS = Table(
     columns=(
         Column("cohort_id", "str", "programme + semester, e.g. 'IS-ISI-3'"),
         Column("programme", "str", "programme code"),
-        Column("semester", "int", "semester number", min=1),
+        Column(
+            "semester",
+            "int",
+            "semester number; null for a single-course cohort",
+            nullable=True,
+            min=0,
+        ),
         Column("n_students", "int", "cohort size", min=1),
         Column("size_source", "str", "where size comes from", allowed=_values(SizeSource)),
     ),
@@ -253,6 +273,119 @@ GROUP_COHORTS = Table(
     ),
 )
 
+ROOMS = Table(
+    name="rooms",
+    path="usos/rooms.csv",
+    description="Every USOS room with its seats and the canonical building / room it maps to.",
+    primary_key=("room_usos_id",),
+    columns=(
+        Column("room_usos_id", "str", "USOS room id"),
+        Column("building_usos_id", "str", "USOS building id, e.g. D17", nullable=True),
+        Column("number", "str", "room number as in USOS, e.g. 1.38", nullable=True),
+        Column(
+            "building_id",
+            "str",
+            "canonical building; null = not modelled",
+            nullable=True,
+            pattern=BUILDING_ID_PATTERN,
+        ),
+        Column("room_id", "str", "room id in the building", nullable=True, pattern=ROOM_ID_PATTERN),
+        Column("capacity", "int", "seats (USOS geo/rooms)", nullable=True, min=0),
+    ),
+)
+
+# --- the whole USOS term (usos/all/, full crawl) --------------------------------
+
+_DATE = r"^\d{4}-\d{2}-\d{2}$"
+
+COURSE_GROUPS = Table(
+    name="course_groups",
+    path="usos/all/course_groups.csv",
+    description="Every USOS course group ('grupa przedmiotów'): programme x semester, or a pool.",
+    primary_key=("code",),
+    columns=(
+        Column("code", "str", "USOS code, e.g. 240-INF-1S-1R-Z"),
+        Column("cohort_id", "str", "the code as a cohort id in cohorts.csv"),
+        Column("label", "str", "USOS name, e.g. '240_Informatyka, stacjonarne, 1 semestr'"),
+        Column("faculty_id", "str", "unit listing it, e.g. 240-000", nullable=True),
+        Column("programme", "str", "code without the semester part"),
+        Column("semester", "int", "null for pools (electives, languages)", nullable=True, min=0),
+        Column("level", "str", "cycle and mode: 1S, 2S, 1N, ...", nullable=True),
+        Column("n_courses", "int", "courses listed in the group", min=0),
+    ),
+)
+
+COURSES = Table(
+    name="courses",
+    path="usos/all/courses.csv",
+    description="Every course found in the term (catalogue of every faculty + room plans).",
+    primary_key=("course_id",),
+    columns=(
+        Column("course_id", "str", "USOS course code"),
+        Column("course_name", "str", "name", nullable=True),
+        Column("faculty_id", "str", "unit running it", nullable=True),
+        Column("course_groups", "str", "course groups listing it, '|'-joined", nullable=True),
+        Column("n_units", "int", "class types (units) in the term", min=0),
+        Column("n_groups", "int", "class groups in the term", min=0),
+        Column("enrolled", "int", "registered students of its largest unit", nullable=True, min=0),
+    ),
+)
+
+CLASS_GROUPS = Table(
+    name="class_groups",
+    path="usos/all/class_groups.csv",
+    description="Every class group of the term, wherever and whenever it meets.",
+    primary_key=("group_id",),
+    columns=(
+        Column("group_id", "str", "same id as groups.csv / timetable.csv"),
+        Column("unit_id", "int", "USOS zaj_cyk_id", min=0),
+        Column("course_id", "str", "course code"),
+        Column("class_type", "str", "W, CWA, CWL, CWP, LEKT, WF, ...", nullable=True),
+        Column("class_type_name", "str", "e.g. 'ćwiczenia laboratoryjne'", nullable=True),
+        Column("group_nr", "int", "group number in the unit", min=0),
+        Column("enrolled", "int", "USOS 'liczba osób w grupie'", nullable=True, min=0),
+        Column("limit", "int", "USOS 'limit miejsc' (group, else unit)", nullable=True, min=0),
+        Column("hours", "int", "hours of the unit in the term", nullable=True, min=0),
+        Column("terms", "str", "meeting texts, e.g. 'każdy wtorek, 09:45-11:15'", nullable=True),
+        Column("rooms", "str", "USOS room ids, '|'-joined", nullable=True),
+    ),
+)
+
+MEETINGS = Table(
+    name="meetings",
+    path="usos/all/meetings.csv",
+    description="Every dated meeting of every class group in the term (USOS tt/classgroups).",
+    columns=(
+        Column("date", "str", "YYYY-MM-DD", pattern=_DATE),
+        Column("weekday", "int", "1 = Monday ... 7 = Sunday", min=1, max=7),
+        Column("start", "str", "HH:MM", pattern=_HHMM),
+        Column("end", "str", "HH:MM", pattern=_HHMM),
+        Column("unit_id", "int", "USOS zaj_cyk_id", nullable=True, min=0),
+        Column("group_nr", "int", "group number", nullable=True, min=0),
+        Column("group_id", "str", "class_groups.group_id", nullable=True),
+        Column("course_id", "str", "course code", nullable=True),
+        Column("class_type", "str", "class type code", nullable=True),
+        Column(
+            "kind",
+            "str",
+            "USOS activity type: classgroup (from the weekly pattern), "
+            "classgroup2 (a confirmed meeting), ...",
+            nullable=True,
+        ),
+        Column("building_usos_id", "str", "USOS building id", nullable=True),
+        Column(
+            "building_id",
+            "str",
+            "canonical building; null = not in the campus model",
+            nullable=True,
+            pattern=BUILDING_ID_PATTERN,
+        ),
+        Column("room_usos_id", "str", "USOS room id", nullable=True),
+        Column("room_number", "str", "room number", nullable=True),
+        Column("frequency", "str", "USOS frequency code (classgroup only)", nullable=True),
+    ),
+)
+
 ROOM_MAP = Table(
     name="usos_room_map",
     path="data/campus/usos_room_map.csv",
@@ -260,7 +393,7 @@ ROOM_MAP = Table(
     primary_key=("usos_room",),
     hand_written=True,
     columns=(
-        Column("usos_room", "str", "room string exactly as USOS returns it"),
+        Column("usos_room", "str", "USOS building id / room number, e.g. 'D17/1.38'"),
         Column("building_id", "str", "canonical building", pattern=BUILDING_ID_PATTERN),
         Column("room_id", "str", "room in that building", nullable=True, pattern=ROOM_ID_PATTERN),
         Column("note", "str", "why", nullable=True),
@@ -290,6 +423,21 @@ ENROLLMENTS = Table(
     columns=(
         Column("student_id", "int", "student", min=0),
         Column("group_id", "str", "class group"),
+    ),
+)
+
+DORMS = Table(
+    name="dorms",
+    path="population/dorms.csv",
+    description="Beds per dorm: from the YAML, or estimated from the floor area.",
+    primary_key=("building_id",),
+    columns=(
+        Column("building_id", "str", "dorm building", pattern=BUILDING_ID_PATTERN),
+        Column("name", "str", "dorm name", nullable=True),
+        Column("floor_area_m2", "float", "footprint x storeys", nullable=True, min=0),
+        Column("levels", "int", "storeys above ground", min=1),
+        Column("residents", "int", "AGH students living there", min=0),
+        Column("source", "str", "yaml or estimate", allowed=("yaml", "estimate")),
     ),
 )
 
@@ -337,6 +485,79 @@ OD = Table(
         Column("from_key", "str", "endpoint key", pattern=ENDPOINT_KEY_PATTERN),
         Column("to_key", "str", "endpoint key", pattern=ENDPOINT_KEY_PATTERN),
         Column("n_legs", "int", "student-legs per week", min=1),
+    ),
+)
+
+MIGRATIONS = Table(
+    name="migrations",
+    path="demand/migrations.csv",
+    description="Student flows between buildings (and stops) per weekday and departure hour.",
+    primary_key=("weekday", "hour", "kind", "from_place", "to_place"),
+    columns=(
+        Column("weekday", "int", "1..5", min=1, max=5),
+        Column(
+            "hour",
+            "int",
+            "hour of the departure (end of class, or deadline from home)",
+            min=0,
+            max=23,
+        ),
+        Column("kind", "str", "leg type", allowed=_values(LegKind)),
+        Column("from_place", "str", "building id or stop id", pattern=ENDPOINT_KEY_PATTERN),
+        Column("to_place", "str", "building id or stop id", pattern=ENDPOINT_KEY_PATTERN),
+        Column("n_legs", "int", "student-legs", min=1),
+        Column("median_break_s", "int", "median time between the classes", nullable=True, min=0),
+    ),
+)
+
+# --- public transport (GTFS) --------------------------------------------------
+
+TRANSIT_STOPS = Table(
+    name="transit_stops",
+    path="transit/stops.csv",
+    description="Bus / tram stops in the campus bbox (platforms merged by name), one weekday.",
+    primary_key=("stop_id",),
+    columns=(
+        Column("stop_id", "str", "stop:<slug of the name>", pattern=STOP_ID_PATTERN),
+        Column("name", "str", "GTFS stop name"),
+        Column("lon", "float", "mean of the platforms", min=-180, max=180),
+        Column("lat", "float", "mean of the platforms", min=-90, max=90),
+        Column("modes", "str", "bus, tram or bus|tram"),
+        Column("n_platforms", "int", "GTFS stops merged", min=1),
+        Column("lines", "str", "line numbers, space separated"),
+        Column("arrivals_peak", "int", "vehicles arriving in transit.peak_hours", min=0),
+        Column("arrivals_day", "int", "vehicles arriving 06:00-21:00", min=0),
+        Column("headway_peak_s", "int", "peak hours / arrivals_peak", nullable=True, min=0),
+        Column("weight", "float", "peak arrivals x seats / 1000: campus.yaml stop weight", min=0),
+    ),
+)
+
+TRANSIT_RIDES = Table(
+    name="transit_rides",
+    path="transit/rides.csv",
+    description="Direct bus / tram rides between two campus stops, 06:00-21:00 of one weekday.",
+    primary_key=("from_stop", "to_stop"),
+    columns=(
+        Column("from_stop", "str", "stop id", pattern=STOP_ID_PATTERN),
+        Column("to_stop", "str", "stop id", pattern=STOP_ID_PATTERN),
+        Column("lines", "str", "line numbers, space separated"),
+        Column("trips_day", "int", "trips serving the pair", min=1),
+        Column("min_ride_s", "int", "shortest in-vehicle time", min=0),
+        Column("median_ride_s", "int", "median in-vehicle time", min=0),
+        Column("median_headway_s", "int", "median gap between departures", nullable=True, min=0),
+    ),
+)
+
+TRANSIT_TRIPS = Table(
+    name="transit_trips",
+    path="transit/trips.parquet",
+    description="Every direct ride between two campus stops on the GTFS day (06:00-21:00).",
+    columns=(
+        Column("from_stop", "str", "stop id", pattern=STOP_ID_PATTERN),
+        Column("to_stop", "str", "stop id", pattern=STOP_ID_PATTERN),
+        Column("line", "str", "line number"),
+        Column("dep_s", "int", "departure from from_stop, seconds after midnight", min=0),
+        Column("arr_s", "int", "arrival at to_stop, seconds after midnight", min=0),
     ),
 )
 
@@ -601,10 +822,24 @@ SIM_LEGS = Table(
         Column("walk_s", "float", "time walking incl. stairs and shafts", min=0),
         Column("wait_s", "float", "time waiting on the platform", min=0),
         Column("ride_s", "float", "time in the train", min=0),
-        Column("board_station", "str", "building id", nullable=True, pattern=BUILDING_ID_PATTERN),
-        Column("alight_station", "str", "building id", nullable=True, pattern=BUILDING_ID_PATTERN),
+        Column(
+            "board_station",
+            "str",
+            "metro: station building id; transit: stop id",
+            nullable=True,
+            pattern=ENDPOINT_KEY_PATTERN,
+        ),
+        Column(
+            "alight_station",
+            "str",
+            "metro: station building id; transit: stop id",
+            nullable=True,
+            pattern=ENDPOINT_KEY_PATTERN,
+        ),
         Column("late_s", "float", "max(0, arrive - deadline); 0 if no deadline", min=0),
-        Column("path_nodes", "list[int]", "node_ids walked, metro ride is board->alight"),
+        Column(
+            "path_nodes", "list[int]", "node_ids walked; a ride (metro, transit) is board->alight"
+        ),
     ),
 )
 
@@ -700,11 +935,21 @@ ALL_TABLES: tuple[Table, ...] = (
     GROUPS,
     COHORTS,
     GROUP_COHORTS,
+    ROOMS,
+    COURSE_GROUPS,
+    COURSES,
+    CLASS_GROUPS,
+    MEETINGS,
     ROOM_MAP,
+    DORMS,
     STUDENTS,
     ENROLLMENTS,
     LEGS,
     OD,
+    MIGRATIONS,
+    TRANSIT_STOPS,
+    TRANSIT_RIDES,
+    TRANSIT_TRIPS,
     GRAPH_NODES,
     GRAPH_EDGES,
     SIM_LEGS,

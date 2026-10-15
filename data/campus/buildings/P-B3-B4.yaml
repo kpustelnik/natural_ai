@@ -6,6 +6,7 @@ schema_version: 1
 id: P-B3-B4
 name: Łącznik B-3 – B-4
 kind: other
+aliases: ["B3/B4"]   # USOS building id
 osm_id: way/231815909
 placement:
   anchor: [19.9178861, 50.0662389]

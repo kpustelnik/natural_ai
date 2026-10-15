@@ -168,6 +168,14 @@
           "minimum": 0,
           "title": "Metro Share",
           "type": "number"
+        },
+        "transit_share": {
+          "default": 0.0,
+          "description": "legs on a bus or tram (GTFS), both scenarios",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Transit Share",
+          "type": "number"
         }
       },
       "required": [
@@ -177,7 +185,8 @@
         "n_late",
         "late_share",
         "longer_than_break_share",
-        "metro_share"
+        "metro_share",
+        "transit_share"
       ],
       "title": "ScenarioStats",
       "type": "object"

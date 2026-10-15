@@ -12,8 +12,10 @@ here in the same change.
 
 ```
 data/campus/*.yaml, campus.yaml ─┐
-OSM (02_build_campus) ───────────┼─► data/processed/  (gpkg, network/, demand/, simulation/, fake/)
-USOS (01, not written yet) ──────┘          │
+OSM (02_build_campus) ───────────┤
+USOS (01_fetch_usos) ────────────┼─► data/processed/  (usos/, transit/, gpkg, network/,
+GTFS (01_fetch_transit) ─────────┘     population/, demand/, simulation/, fake/)
+                                            │  03_build_demand: usos + campus -> legs, od
                                             ▼
                     06_export_web.py ─► web/public/data/  (scene.json, glb, network.bin, replays/)
                                             │
@@ -32,9 +34,10 @@ USOS (01, not written yet) ──────┘          │
 | path | what |
 |---|---|
 | `config.yaml` | every parameter (paths, campus bbox, time model, metro, ACO, population). Comments are Polish |
-| `data/campus/buildings/*.yaml` | hand-modelled buildings (88, mostly LOD1) |
+| `data/campus/buildings/*.yaml` | hand-modelled buildings (89, mostly LOD1; U-13 from `osm_building_map.csv`) |
 | `data/campus/campus.yaml` | passages, extra paths, removed ways, stops with weights |
-| `data/campus/osm_building_map.csv`, `usos_room_map.csv` | hand-written mappings |
+| `data/campus/osm_building_map.csv`, `usos_room_map.csv` | hand-written mappings (USOS building ids: `aliases` in the building YAML) |
+| `data/campus/campus.yaml` `stops` | the 12 stops from GTFS (`01_fetch_transit.py --print-yaml`) |
 | `data/sample/campus/` | 5 buildings with interiors (D-17 is LOD3, A-0 is LOD2): use `--sample` |
 | `data/processed/` | generated, gitignored: `osm/campus.gpkg`, `network/*.parquet`, `fake/…` |
 | `web/public/data/` | generated, gitignored: everything the viewer loads |
@@ -52,6 +55,30 @@ USOS (01, not written yet) ──────┘          │
 | `schemas/instance.py`, `results.py` | ACO instance (`Instance`), results (`RunMeta`, `BestLine`, `AcoTrace`) |
 | `schemas/web.py` | **every viewer file format** (`Scene`, `BuildingInfo`, `NetworkHeader`, `Metro`, `PathsHeader`, `DayHeader`, `AcoTraceHeader`, `Stats`, `Replay`, …) |
 | `schemas/export.py` | `python -m metro_agh.schemas.export`: models → `schemas/*.json` |
+
+### USOS (stage 1): `usos/`
+
+| file | contents |
+|---|---|
+| `usos/http.py` | `CachedHttp` (polite GET with a disk cache in `data/raw/usos/`: expiry per kind `max_age_s` from `usos.cache_days`, `refresh`, `offline`, request budget, old copy when a refetch fails), `OfflineMiss` |
+| `usos/pages.py` | pure parsers of public USOSweb pages: `parse_room_week` (`Tile`), `parse_unit_groups` (`UnitPage`, `GroupRow`, `Meeting`), `parse_course` (`CoursePage`, `CourseGroup`), `parse_faculty_groups`, `parse_group_courses`; `parity_of`, `weekday_of`, `cohort_of` |
+| `usos/fetch.py` | `crawl` (rooms -> room plans -> courses -> class groups, one term; `full=True`: + every unit's catalogue and dated meetings) -> `Crawl`; `fetch_rooms`, `fetch_terms`, `fetch_faculties`, `fetch_catalogue`, `fetch_meetings` (`tt/classgroups`) |
+| `usos/full.py` | `full_tables` (Crawl -> `FullTables`: course_groups, courses, class_groups, meetings in `usos/all/`) |
+| `usos/parse.py` | `build_tables` (Crawl -> `UsosTables`: timetable, groups with sizes, cohorts, group_cohorts, rooms); `group_ids`, `building_resolver`, `room_key`, `semester_of`, `study_level` + `pool_members` (courses in no cohort -> `pool:1S`) |
+
+### Public transport: `transit/`
+
+| file | contents |
+|---|---|
+| `transit/gtfs.py` | `download`, `services_on`, `default_date`, `campus_transit` (campus stops with peak arrivals and weights, direct rides between them, every single ride), `campus_yaml_stops` |
+
+### Demand (stage 3): `demand/`
+
+| file | contents |
+|---|---|
+| `demand/dorms.py` | `estimate_dorms` (beds per dorm: YAML `residents`, else `population.dorm_beds` by floor area) |
+| `demand/population.py` | `synthesize` (students per cohort, homes, course take-up, dean's-group quantile, clash-free group choice), `calendar_slots` + `busiest_week` (a real week from `meetings.csv`), `modelled_slots` (typical week), `Homes` |
+| `demand/legs.py` | `build_legs` (section 5.4 rules), `resolve_keys` (room or building endpoint), `od_matrix`, `migrations` (flows between buildings per weekday and hour) |
 
 ### Campus and OSM (stage 2)
 
@@ -77,13 +104,13 @@ USOS (01, not written yet) ──────┘          │
 |---|---|
 | `network/indoor.py` | one building's graph: `building_part` (corridor chains, rooms, stairs, entrances, shaft → platform), `TimeModel`, `GraphIssue`, `Part` |
 | `network/graph.py` | `outdoor_part` (OSM paths), `passage_part`, `stop_part`, `assemble` (links, dedupe, issues), `build_campus_graph`, `Graph.write` |
-| `network/instance.py` | `build_instance`, `write_instance` (network + OD → `instance/instance.npz`) |
+| `network/instance.py` | `build_instance`, `write_instance` (network + OD → `instance/instance.npz`); `load_or_build` (rebuilds when `inputs_hash` changed), `with_config` / `metro_meta` (k, speed, dwell, headway, shafts from the current config), `transit_rides` (no-metro time = min(walk, bus / tram)) |
 
 ### ACO (stage 4): `aco/`
 
 | file | contents |
 |---|---|
-| `aco/objective.py` | `Objective` (weighted Σ min(walk, metro) over OD pairs) |
+| `aco/objective.py` | `Objective` (weighted Σ min(walk, metro) over OD pairs; cache keyed by `canonical`: a reversed line / rotated loop is one line) |
 | `aco/mmas.py` | `run_mmas` → `MmasResult` (best line, convergence, trace) |
 | `experiments.py` | parameter sweeps / ablations: `load_experiment`, `expand_jobs`, `execute_job`, `summarise`, `append_runs_csv` |
 
@@ -92,7 +119,7 @@ USOS (01, not written yet) ──────┘          │
 | file | contents |
 |---|---|
 | `simulation/schedule.py` | train timetable: `build_schedule`, `station_order`, `run_times`, `hhmm` |
-| `simulation/simulate.py` | `simulate` (both scenarios: Dijkstra per origin in batches, metro choice from the timetable via `Connections.earliest/latest`), `run_simulation` (reads a processed dir, writes schedule + legs) |
+| `simulation/simulate.py` | `simulate` (both scenarios: Dijkstra per origin in batches; walk vs bus / tram (`Transit`) vs metro (`Line`), each a timetabled `_Net` boarded via `Connections.earliest/latest` in `_best_rides`), `load_transit`, `run_simulation` (reads a processed dir, writes schedule + legs) |
 
 ### Web export (stage 6): `web/`
 
@@ -102,7 +129,7 @@ USOS (01, not written yet) ──────┘          │
 | `web/export_demand.py` | `load_web_graph`, `edge_loads_from_od`, `export_demand` (OD → shortest-path edge loads on `network.json`) |
 | `web/export_metro.py` | `export_aco_run` (`--aco` → `replays/aco-<run>/`), `export_best_line` (`--metro` → `replays/sim-<run>/metro.json`), `metro_model`, `shafts`, `load_scene` |
 | `web/export_sim.py` | `export_simulation` (`--sim`: `trips/<scenario>/paths.*`, `day-N.*`, `stats.json`), `PathBuilder` (node paths → web polylines with times), `stats` |
-| `web/fake.py` | `--fake`: `fake_instance` + `mmas` (synthetic ACO run), `fake_population` (students, legs), `write_fake_results`, `write_fake_simulation` |
+| `web/fake.py` | `--fake`: `fake_instance` + `mmas` (synthetic ACO run on `aco.objective.Objective`), `fake_population` (students, legs), `write_fake_results`, `write_fake_simulation` |
 | `web/gltf.py` | minimal GLB writer (`Node`, `write_glb`) |
 | `web/binary.py` | header `.json` + `.bin` containers (`write_binary`, `pack`) |
 | `web/watch.py` | `--watch` polling loop → `CampusExport.update` |
@@ -113,7 +140,12 @@ USOS (01, not written yet) ──────┘          │
 
 | file | contents |
 |---|---|
+| `scripts/01_fetch_usos.py` | crawl + `build_tables` -> `usos/*.csv`, + `full_tables` -> `usos/all/*.csv` (`--campus-only`, `--buildings`, `--offline`, `--refresh`, `--max-requests`) |
+| `scripts/01_fetch_transit.py` | GTFS -> `transit/stops.csv`, `rides.csv`, `trips.parquet` (`--print-yaml` for campus.yaml) |
 | `scripts/02_build_campus.py` | OSM layers, report, `--bootstrap`, then `network/*.parquet` |
+| `scripts/03_build_demand.py` | dorms, population, legs, OD, migrations for a calendar week (`--week`, default busiest; `--typical`); rooms when `network/nodes.parquet` exists |
+| `scripts/plot_experiments.py` | `runs.csv` -> `docs/figures/<experiment>.png` + `.csv` (saving vs k) |
+| `experiments/configs/k_sweep.yaml` | k = 2 … 10 × 5 seeds on the USOS demand |
 | `scripts/04_optimize.py` | build/load instance, `run_mmas`, write `results/<run_id>/` + `best_line.json` |
 | `scripts/run_experiments.py` | YAML sweep / ablation → many runs + `runs.csv` + `summary_<name>.csv` |
 | `scripts/05_simulate.py` | stage 5 on `data/processed` |
@@ -122,7 +154,11 @@ USOS (01, not written yet) ──────┘          │
 | `tests/test_web_export.py` | fixture `exported` (sample campus + synthetic OSM in a temp dir), used by the other export tests |
 | `tests/test_network.py`, `test_interior.py`, `test_osm.py`, `test_schemas.py` | graph, geometry, OSM, contracts |
 | `tests/test_aco.py` | toy-instance objective + MMAS |
-| `tests/test_experiments.py` | experiment YAML expansion + `runs.csv` append |
+| `tests/test_usos_http.py` | cache expiry, refresh, offline, failed refetch |
+| `tests/test_usos.py` (+ `tests/fixtures/usos/*.html`) | USOSweb parsers on trimmed pages, ids, parity, semesters, `build_tables`, size fallbacks, catalogue pages, `full_tables` |
+| `tests/test_demand.py` | dorm beds, population on `data/sample/usos`, legs rules, OD, migrations |
+| `tests/test_transit.py` | GTFS stops / rides on a synthetic feed |
+| `tests/test_experiments.py` | experiment YAML expansion + `runs.csv` append, `metro.*` overrides reach the run |
 | `tests/test_metro_export.py`, `test_simulation.py` | schedule, ACO / line replays, simulator, `--sim` export |
 
 ## Viewer: `web/src/`
@@ -152,7 +188,7 @@ through the store (`state/app.ts`). Values read every frame (clock, iteration) a
 | `lib/frames.ts` | web ↔ lon/lat ↔ building local |
 | `lib/graph.ts` | Dijkstra on the CSR graph, route summary (legs, outdoor / indoor / stairs) |
 | `lib/metro.ts` | train positions from the timetable (`trainsAt`), ACO sample interpolation (`sampleAt`, `curveAt`) |
-| `lib/trips.ts` | students: `prepareDay`, `studentsAt` (who is where at t), `spiral` (crowd layout), `peakCount` |
+| `lib/trips.ts` | students: `prepareDay`, `studentsAt` (who is where at t; any non-walk path is a ride: metro or bus / tram), `spiral` (crowd layout), `peakCount` |
 | `lib/search.ts`, `lib/format.ts` | search ranking; number / time / duration formatting, `WEEKDAYS` |
 
 ### 3D scene (`scene/`)
@@ -228,8 +264,13 @@ finish: focus rings, modal, presentation, spinner). Search for the class name us
 | student size / colour / crowd spread | `scene/layers/Students.tsx` (`MIN_R`, `PX_R`, `SPACING`), colours in `palette.ts` `STUDENTS` |
 | a new field in an exported file | `schemas/web.py` → `python -m metro_agh.schemas.export` → `npm run gen:types` → the exporter in `web/export_*.py` → `docs/data_contracts.md` section 10 |
 | how walking times are computed | `network/indoor.py` `TimeModel`, `network/graph.py`, `config.yaml` `time_model` |
-| metro choice in the simulation | `simulation/simulate.py` |
+| metro / bus choice in the simulation | `simulation/simulate.py` (`simulation.transit` turns buses off) |
 | synthetic data for the viewer | `web/fake.py` |
+| a USOSweb page changed its HTML | `usos/pages.py` (+ the trimmed page in `tests/fixtures/usos/`) |
+| a USOS building id maps wrongly | `aliases:` in that building YAML; single rooms: `usos_room_map.csv` |
+| group size / cohort size rules | `usos/parse.py` (`_sizes`, `_cohorts`) |
+| who takes which group | `demand/population.py` (`synthesize`, `_pick`) |
+| stops and their weights | `scripts/01_fetch_transit.py --print-yaml` -> `campus.yaml` `stops` |
 
 ## Checks before finishing
 

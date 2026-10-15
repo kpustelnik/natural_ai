@@ -10,8 +10,18 @@ import numpy as np
 from ..schemas.instance import Instance
 
 
+def canonical(line: list[int], topology: str) -> tuple[int, ...]:
+    """One key per physical line: A-B-C = C-B-A, and a loop is the same from any station
+    in either direction."""
+    t = tuple(line)
+    if topology == "loop":
+        turns = [t[i:] + t[:i] for i in range(len(t))]
+        return min(turns + [r[::-1] for r in turns])
+    return min(t, t[::-1])
+
+
 class Objective:
-    """Vectorised over OD pairs; caches distinct lines."""
+    """Vectorised over OD pairs; caches distinct lines (a reversed line is the same line)."""
 
     def __init__(self, inst: Instance):
         self.i = inst
@@ -33,7 +43,7 @@ class Objective:
         return gap / meta.metro_speed_mps + meta.dwell_s * np.maximum(hops - 1, 0)
 
     def __call__(self, line: list[int]) -> float:
-        key = tuple(line)
+        key = canonical(line, self.i.meta.topology)
         if key in self.cache:
             return self.cache[key]
         self.evaluations += 1

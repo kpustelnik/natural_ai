@@ -35,9 +35,11 @@ the code disagree, the code wins and this document has a bug.
 ```
  hand-written (git)                    generated (data/processed, gitignored)
  ─────────────────                     ──────────────────────────────────────
-                       01_fetch_usos
- usos_room_map.csv ──────────────────► usos/timetable.csv, groups.csv,
+                       01_fetch_usos (USOS API + USOSweb, public)
+ usos_room_map.csv ──────────────────► usos/timetable.csv, groups.csv, rooms.csv,
                                        cohorts.csv, group_cohorts.csv
+                       01_fetch_transit (GTFS ZTP Kraków)
+                     ────────────────► transit/stops.csv, rides.csv (──► campus.yaml stops)
                                               │
  OSM (raw/osm/cache) ── 02_build_campus ──► osm/campus.gpkg, report.md, issues.json, preview.html
                           --bootstrap ──────► buildings/*.yaml (LOD1, new files only)
@@ -45,8 +47,9 @@ the code disagree, the code wins and this document has a bug.
  campus.yaml ───────┼── 02_build_campus ──► network/nodes.parquet, edges.parquet
                                               │
                        03_build_demand        ▼
- config: population ─────────────────► population/students.parquet, enrollments.parquet
-                                       demand/legs.parquet, od.parquet
+ config: population ─────────────────► population/dorms.csv, students.parquet,
+ usos/*, campus dorms + stops,          enrollments.parquet
+ network/nodes.parquet                  demand/legs.parquet, od.parquet, migrations.csv
                                               │
                        (end of 03)            ▼
                                        instance/instance.npz ◄── network + od
@@ -74,9 +77,11 @@ Paths of generated files are relative to `paths.processed` (`data/processed`), o
 | `osm_building_map.csv` | `tables.OSM_BUILDING_MAP` | by hand | campus |
 | `buildings/*.yaml`, `campus.yaml` | `schemas.building`, `schemas.campus` | bootstrap, then by hand | campus, network, export |
 | `usos_room_map.csv` | `tables.ROOM_MAP` | by hand | usos |
-| `usos/*.csv` | `tables.TIMETABLE`, `GROUPS`, `COHORTS`, `GROUP_COHORTS` | person 1 | demand |
-| `population/*.parquet` | `tables.STUDENTS`, `ENROLLMENTS` | person 1 | demand, simulation |
+| `usos/*.csv` | `tables.TIMETABLE`, `GROUPS`, `COHORTS`, `GROUP_COHORTS`, `ROOMS` | person 1 (`01_fetch_usos.py`) | demand |
+| `transit/*.csv` | `tables.TRANSIT_STOPS`, `TRANSIT_RIDES` | `01_fetch_transit.py` | campus.yaml stops, notebooks |
+| `population/dorms.csv`, `*.parquet` | `tables.DORMS`, `STUDENTS`, `ENROLLMENTS` | person 1 (`03_build_demand.py`) | demand, simulation |
 | `demand/legs.parquet`, `od.parquet` | `tables.LEGS`, `OD` | person 1 | network (instance), simulation |
+| `demand/migrations.csv` | `tables.MIGRATIONS` | person 1 | notebooks, report |
 | `network/*.parquet` | `tables.GRAPH_NODES`, `GRAPH_EDGES` | person 2 | instance, simulation, export |
 | `instance/instance.npz` | `schemas.instance.Instance` | person 2 | aco, baselines, tests |
 | `results/<run_id>/*`, `best_line.json` | `schemas.results`, `tables.CONVERGENCE` | person 3 | experiments, simulation, export |
@@ -312,11 +317,13 @@ with corridors (LOD2+).
 
 ### 3.3 `usos_room_map.csv`
 
-Fixes for raw USOS room strings that automatic parsing gets wrong. Contract: `tables.ROOM_MAP`.
+Fixes for USOS rooms that automatic parsing gets wrong. Contract: `tables.ROOM_MAP`.
+A whole USOS building that maps to the wrong id gets an `aliases` entry in its building YAML
+instead (`DS-Alfa`: `aliases: [DSALFA1]`).
 
 | column | type | example |
 |---|---|---|
-| `usos_room` | str | `D-17 Sala 1.38 (lab)` |
+| `usos_room` | str | `D17/1.38` (USOS building id / room number) |
 | `building_id` | str | `D-17` |
 | `room_id` | str, nullable | `1.38` |
 | `note` | str, nullable | `USOS uses an old building name` |
@@ -334,9 +341,24 @@ or at a building's main entrance (`D-17`).
 
 ## 4. USOS
 
-Raw API responses are stored as-is in `data/raw/usos/` (gitignored). Lecturer names and any
-other personal data are dropped in `usos/parse.py`; nothing personal reaches
-`data/processed`.
+Source: the **public** USOS of AGH, no login and no API key (`metro_agh.usos`):
+
+| what | where |
+|---|---|
+| buildings, rooms, seats | USOS API `apps.usos.agh.edu.pl/services/geo/{building_index,building2,rooms}` (anonymous) |
+| which courses meet in a room | USOSweb room plan `kontroler.php?_action=katalog2/jednostki/pokazSale&sala_id=…` (current week) |
+| cohorts of a course, its units per term | course page `…katalog2/przedmioty/pokazPrzedmiot&prz_kod=…` ("Grupy:", "Zajęcia w cyklu") |
+| groups: meetings, frequency, room, registered / limit | `…katalog2/przedmioty/pokazGrupyZajec&zaj_cyk_id=…` |
+| every unit of the university | USOS API `fac/subfaculties_deep?fac_id=000-000` (full crawl) |
+| course groups of a unit, courses of a group | `…szukajPrzedmiotu&method=faculty_groups&jed_org_kod=…[&grupaKod=…]` (full crawl) |
+| every dated meeting of a group | USOS API `tt/classgroups` (anonymous, 300 groups x 7 days a call; full crawl) |
+
+Every response is cached as-is in `data/raw/usos/` (gitignored), so a crawl resumes and
+`--offline` rebuilds the CSVs. Pages older than `usos.cache_days` (class groups: 3 days, since the
+registered counts change until registration closes) are fetched again; `--refresh` fetches all. Lecturer names are on those pages; the parsers never read them,
+so nothing personal reaches `data/processed`. The room plans only discover courses (they show
+the current week: run the crawl in a teaching week); the course page lists every unit of the
+term, so a group that meets only in even weeks is still found.
 
 ### 4.1 `usos/timetable.csv`: `tables.TIMETABLE`
 
@@ -344,34 +366,82 @@ One row per **weekly meeting slot** of a class group.
 
 | column | type | example | note |
 |---|---|---|---|
-| `activity_id` | str | `a002` | unique |
-| `group_id` | str | `ALG:LAB:1` | → `groups.csv` |
+| `activity_id` | str | `a000002` | unique |
+| `group_id` | str | `240-INF-1S-436:CWL:3` | `<course>:<class type>:<group nr>` → `groups.csv` |
 | `weekday` | int | `1` | 1–5 |
 | `start`, `end` | str | `09:45`, `11:15` | `HH:MM` |
 | `week_parity` | str | `all` | `all` / `odd` / `even` |
 | `building_id` | str | `D-17` | canonical, after aliases and `usos_room_map.csv` |
-| `room_id` | str, nullable | `0.10` | null when USOS has no room |
+| `room_id` | str, nullable | `1.38` | null when USOS has no room; `-1.15c` becomes `m1.15c` |
 
-Only slots matching `demand.week_parity` (or `all`) enter the modelled week.
+Only slots matching `demand.week_parity` (or `all`) enter the modelled week. Parity comes from
+the group's frequency text ("każdy wtorek" → `all`, "co drugi wtorek (nieparzyste)" → `odd`).
+Weekend meetings, one-off and monthly ones, and meetings in buildings the campus does not
+model are dropped; "wielokrotnie" (several dates) is kept as `all` when the crawled week has it.
 
 ### 4.2 `usos/groups.csv`: `tables.GROUPS`
 
-`group_id, course_id, course_name, class_type (WYK/CW/LAB/PROJ/SEM/…), size, size_source`
+`group_id, course_id, course_name, class_type, size, size_source, enrolled, limit, room_capacity`
 
-`size_source` is `usos` when USOS returns the count, `room_capacity` when it is taken from
-the room, and `estimate` otherwise.
+`class_type` is the USOS code (`W` lecture, `CWA` / `CWL` / `CWP` exercises / lab / project, …).
+`enrolled` is USOS "liczba osób w grupie", `limit` the group's (else the unit's) "limit miejsc",
+`room_capacity` the seats of the smallest room it meets in. `size` is what the demand uses:
+`enrolled` when positive (`size_source = usos`), else `limit` (`estimate`), else 60 % of
+`room_capacity` (`room_capacity`), else the median of the class type (`estimate`).
 
 ### 4.3 `usos/cohorts.csv` and `usos/group_cohorts.csv`
 
-A **cohort** is the students of one programme and semester (`IS-ISI-3`); they share a
-timetable apart from their choice of groups.
+A **cohort** is the students of one programme and semester; they share a timetable apart from
+their choice of groups. They are the USOS course groups ("grupy przedmiotów") of the course
+pages that name a semester: `240-INF-1S-1R-Z` = "240_Informatyka, stacjonarne, 1 semestr".
 
-- `cohorts.csv`: `cohort_id, programme, semester, n_students, size_source`
+- `cohorts.csv`: `cohort_id, programme, semester, n_students, size_source`. `n_students` is the
+  75th percentile, over the cohort's courses, of the course's registered students split evenly
+  between the cohorts sharing it (compulsory lectures dominate the upper quantiles).
 - `group_cohorts.csv`: `group_id, cohort_id` (many-to-many; a lecture usually belongs to
-  several cohorts)
+  several cohorts). A specialisation (`ELT_1S_sem_5_A`) is also linked to the groups of its
+  parent (`ELT_1S_sem_5`). A course in no cohort (languages `440-…`, PE, humanities) is linked
+  to a **pool** instead: `pool:1S` stands for every cohort whose code has that cycle and mode
+  (`1S`, `2S`, `1N`, …), `pool:all` for every cohort. Its students are regular students of
+  those cohorts, not extra people.
 
 These two files are what makes individual students possible (section 5) and stop
 overlapping groups from being counted twice.
+
+### 4.4 `usos/rooms.csv`: `tables.ROOMS`
+
+`room_usos_id, building_usos_id, number, building_id, room_id, capacity`: every USOS room, the
+canonical building and room it maps to (null = not modelled) and its seats.
+
+### 4.5 `usos/all/`: the whole term (`usos.scope: all`)
+
+The full crawl starts from the catalogue of every unit, not from the campus rooms, so it covers
+every programme, semester and course of the term, every room of every building (including
+`poza AGH` and `online`), and every dated meeting: weekends, one-off dates and rooms outside
+the campus model are kept here. Code: `metro_agh.usos.full`.
+
+| file | contract | one row per |
+|---|---|---|
+| `course_groups.csv` | `tables.COURSE_GROUPS` | course group (programme × semester, or a pool): `code, cohort_id, label, faculty_id, programme, semester, level, n_courses` |
+| `courses.csv` | `tables.COURSES` | course: `course_id, course_name, faculty_id, course_groups, n_units, n_groups, enrolled` |
+| `class_groups.csv` | `tables.CLASS_GROUPS` | class group: `group_id, unit_id, course_id, class_type, class_type_name, group_nr, enrolled, limit, hours, terms, rooms` |
+| `meetings.csv` | `tables.MEETINGS` | dated meeting: `date, weekday, start, end, unit_id, group_nr, group_id, course_id, class_type, kind, building_usos_id, building_id, room_usos_id, room_number, frequency` |
+
+`group_id` is the same as in `groups.csv` and `timetable.csv`. In `meetings.csv`, `kind` is the
+USOS activity type: `classgroup2` is a confirmed meeting, `classgroup` one derived from the
+weekly pattern; `building_id` is null where the campus model has no such building.
+
+### 4.6 `transit/stops.csv`, `transit/rides.csv`: `tables.TRANSIT_STOPS`, `TRANSIT_RIDES`
+
+From the Kraków GTFS feeds (`transit.feeds`; `metro_agh.transit.gtfs`) for one weekday
+(`transit.date`). **Stops**: every stop within `transit.margin_m` of `campus.bbox`, platforms
+merged by name: lines, vehicles arriving in `transit.peak_hours` and all day, peak headway and
+`weight` = peak vehicles × `transit.seats` / 1000, which is the `weight` of the stop in
+campus.yaml (`01_fetch_transit.py --print-yaml`). **Rides**: every pair of campus stops a line
+joins without a change: trips 06:00–21:00, shortest and median in-vehicle time, median headway.
+**Trips** (`transit/trips.parquet`, `tables.TRANSIT_TRIPS`): each of those rides,
+`from_stop, to_stop, line, dep_s, arr_s` (seconds after midnight), which the simulation
+boards (section 9).
 
 ---
 
@@ -388,16 +458,37 @@ Synthetic students, `population.n_students` in total (20 000).
 | `home_kind` | str | `dorm` / `stop` |
 | `home_key` | str | dorm building id (`DS-7`) or stop id (`stop:miasteczko_studenckie_agh`) |
 
-`population.dorm_share` of students get a dorm, chosen in proportion to `residents`; the rest
-get a stop, chosen in proportion to the stop `weight`.
+Each cohort contributes `n_students` students (`population.n_students: auto`; a number scales
+the cohorts to that total). `population.dorm_share` of them (`auto`: dorm beds / students) get
+a dorm, chosen in proportion to its beds (`population/dorms.csv`); the rest get a stop, chosen
+in proportion to the stop `weight`.
+
+`population/dorms.csv` (`tables.DORMS`): `building_id, name, floor_area_m2, levels, residents,
+source`. `residents` comes from the building YAML when given (`source = yaml`); otherwise
+`population.dorm_beds` (minus the known beds) is spread over the dorms by floor area
+(footprint × storeys), since AGH publishes only the total (about 7000 of 8000+ places).
 
 ### 5.2 `population/enrollments.parquet`: `tables.ENROLLMENTS`
 
-`student_id, group_id`. Each student attends every group of their cohort that has only one
-group for its (course, class type), such as the lecture. For a course with several groups of
-one type (e.g. LAB 1 and LAB 2), the student is in exactly one, and group sizes are respected.
+`student_id, group_id`. A course shared by cohorts S with `total` registered students (its
+largest class type) is taken by each student of S with probability
+`min(1, total / Σ n_students of S)`: compulsory courses by all, electives by enough to match the
+USOS count. In every class type of a taken course the student is in exactly one group: each
+student draws one place q ∈ [0, 1) (a dean's group) and goes to the group where q falls on the
+cumulative group sizes, so group sizes are respected and lab partners share their other groups.
+A group that clashes with a class already taken is swapped for the nearest one that does not.
 
-### 5.3 `demand/legs.parquet`: `tables.LEGS`
+### 5.3 Which week
+
+`demand.week: auto` (default) models a **real calendar week**: the dated meetings of
+`usos/all/meetings.csv` from Monday to Friday of the week with the most meetings, in buildings of
+the campus model (`03_build_demand.py --week 2026-10-26` picks another Monday). Holidays, moved
+classes, one-off dates and fortnightly classes are then as USOS has them, so no week parity is
+chosen. Groups that meet on campus only on such dates ("wielokrotnie") are in `groups.csv` for
+this. `demand.week: typical` (or `--typical`, or no `meetings.csv`) uses the weekly pattern of
+`timetable.csv` with `demand.week_parity` instead.
+
+### 5.4 `demand/legs.parquet`: `tables.LEGS`
 
 One row per movement one student must make in the modelled week.
 
@@ -421,9 +512,16 @@ Rules:
   commuters stay on campus (one `class_to_class` leg).
 - `home_to_class` targets `deadline − demand.arrival_buffer_s`.
 
-### 5.4 `demand/od.parquet`: `tables.OD`
+### 5.5 `demand/od.parquet`: `tables.OD`
 
 `from_key, to_key, n_legs`: legs summed over the week. This is the demand ACO optimises.
+
+### 5.6 `demand/migrations.csv`: `tables.MIGRATIONS`
+
+`weekday, hour, kind, from_place, to_place, n_legs, median_break_s`: legs between places
+(buildings, dorms, stops; rooms folded into their building) per weekday and hour of departure
+(end of the previous class, or the deadline for legs from home). The `class_to_class` rows are
+the student migrations between buildings; `median_break_s` is the time they have for it.
 
 ---
 
@@ -578,7 +676,7 @@ N candidate stations, E endpoints, M OD pairs.
 | `egress_s` | (N, E) f32 | walk shaft top → endpoint |
 | `od_from`, `od_to` | (M,) i32 | endpoint indices |
 | `od_weight` | (M,) f32 | student-legs per week |
-| `od_walk_s` | (M,) f32 | walking time without metro |
+| `od_walk_s` | (M,) f32 | time without metro: the faster of walking and the expected bus / tram ride (below) |
 | `meta_json` | str | `InstanceMeta`: `name, topology, k, metro_speed_mps, dwell_s, wait_s, shaft_down_s, shaft_up_s, source_hash` |
 
 **Objective** for a line `s_0 … s_{k-1}` (candidate indices, in line order):
@@ -658,9 +756,16 @@ The line used by simulation and export.
 
 ## 9. Simulation
 
-Every student, every leg, both scenarios. Deterministic shortest paths. In the `metro`
-scenario a student takes the metro only when it gets them there earlier than walking, given
-the actual train timetable. No congestion or train capacity in v1.
+Every student, every leg, both scenarios. Deterministic shortest paths. With
+`simulation.transit` (default) **both** scenarios may ride a bus or tram between two campus
+stops, from the GTFS rides of `transit/trips.parquet`: `no_metro` is "walk or public
+transport", the fair baseline, and `metro` adds the train. A leg takes a ride only when it
+gets the student there earlier than the options before it (walk, then bus / tram, then metro).
+No congestion or vehicle capacity in v1.
+
+The instance (section 7) uses the same baseline: `od_walk_s` is the faster of the walk and
+the expected ride walk → stop + `median_headway_s` / 2 + `median_ride_s` + stop → walk over
+the stop pairs of `transit/rides.csv` (`metro_agh.network.instance`).
 
 ### 9.1 `simulation/metro/schedule.parquet`: `tables.METRO_SCHEDULE`
 
@@ -678,12 +783,12 @@ leaving from that station, so `train_id` counts the trains a day needs.
 |---|---|---|
 | `leg_id`, `student_id` | int | same ids as `demand/legs.parquet` |
 | `scenario` | str | `no_metro` / `metro` |
-| `mode` | str | `walk` / `metro` |
+| `mode` | str | `walk` / `metro` / `transit` (bus or tram) |
 | `depart_wt`, `arrive_wt` | int | |
 | `walk_s`, `wait_s`, `ride_s` | float | walk includes stairs and shafts |
-| `board_station`, `alight_station` | str, nullable | building ids |
+| `board_station`, `alight_station` | str, nullable | metro: building ids; transit: stop ids |
 | `late_s` | float | `max(0, arrive − deadline)` |
-| `path_nodes` | list[int] | node ids walked; a metro ride appears as platform → platform |
+| `path_nodes` | list[int] | node ids walked; a ride appears as platform → platform (metro) or stop → stop (transit) |
 
 Departure rule: `class_to_class` legs leave at `earliest_depart_wt`. `home_to_class` legs
 leave so that they arrive at `deadline − arrival_buffer_s`. `class_to_home` legs leave right
@@ -695,7 +800,9 @@ platform of station i (the shaft is in the graph), takes the first train of the 
 reaches station j, and walks out of j; `wait_s` runs from reaching the platform to the train's
 departure, `ride_s` from that departure to the arrival at j. It is taken only when it arrives
 earlier than walking (`class_to_class`, `class_to_home`), or, for `home_to_class`, when it lets
-the student leave later and still arrive by `deadline − arrival_buffer_s`.
+the student leave later and still arrive by `deadline − arrival_buffer_s`. A bus or tram
+leg works the same way from the stop node to the stop node, with the GTFS departures of that
+stop pair on every weekday.
 
 ---
 
@@ -891,7 +998,7 @@ by all days:
 | `path_offsets` | uint32 (P+1) | path p = vertices `path_offsets[p] … path_offsets[p+1]−1` |
 | `xyz` | float32 (V, 3) | vertex positions |
 | `t` | float32 (V) | seconds since the start of the path |
-| `mode` | uint8 (P) | `0` walk, `1` metro (train ride from platform to platform) |
+| `mode` | uint8 (P) | `0` walk, `1` metro (train ride from platform to platform), `2` bus / tram (stop to stop, straight, at street level) |
 
 `day-<weekday>.json` + `.bin` (`DayHeader`) has one row per segment, sorted by `t_start`:
 
@@ -937,7 +1044,7 @@ replays. It is only for developing the viewer.
 **`replays/<id>/stats.json`: `schemas.web.Stats`.**
 
 - `scenarios.{no_metro, metro}`: `n_legs, total_travel_s, mean_leg_s, n_late, late_share,
-  longer_than_break_share, metro_share`.
+  longer_than_break_share, metro_share, transit_share` (bus / tram).
 - `saving_s`: total no_metro − total metro.
 - `per_hour[{weekday, hour, n_legs, no_metro_s, metro_s}]`: the time-of-day chart; a leg
   counts in the hour it leaves in when walking (`no_metro` `depart_wt`), and `*_s` sum the
@@ -1062,9 +1169,17 @@ match `NetworkHeader` / the polylines the viewer draws.
 
 ## 11. Open questions
 
-- **Stops**: which stops besides Miasteczko Studenckie AGH; `osm/report.md` lists all stops in the bbox.
-- **Group sizes and cohort sizes**: what the USOS API actually exposes. Until then
-  `size_source = estimate`.
+- **Buildings in USOS but not in the campus model**: `D12` (Kawiory 40, 173 meetings a term;
+  OSM has no clear outline there), `U4` (no location in USOS), `U8` (Budryka 6, no classes).
+  Their classes are dropped until they are modelled or aliased. `U13` (sports hall, 3200 PE
+  meetings) is `U-13`, bootstrapped from OSM way/1166315212 via `osm_building_map.csv`. `D8`
+  (51 rooms) is aliased to `H-D8` (same address, Reymonta 23; OSM has one outline there) until
+  D-8 gets its own YAML.
+- **Students in several course groups** (a base cohort and an elective pool) are modelled in one
+  cohort; two USOS course groups for the same students (`ZIP-1S_2s_PP` and `ZIP-1S_2sem_PP`)
+  are two cohorts, so the total is somewhat high.
+- **Commuters' arrival**: stops are weighted by peak vehicles; the timetable of the ride itself
+  (`transit/rides.csv`) is not yet used by the simulation.
 - **Elevators**: not routed in v1 (stairs only).
 - **Time-dependent closures** (gates open only at certain hours): not in v1; such ways go to
   `removed_ways` or stay open.

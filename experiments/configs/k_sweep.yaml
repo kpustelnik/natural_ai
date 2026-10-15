@@ -1,0 +1,15 @@
+# How many stations make sense: the saving for k = 2 ... 10 on the USOS demand
+# (MAIN_IDEA.md, "Co z tym k"). Every k runs on the same instance; metro.* overrides only
+# change the instance's line parameters.
+#
+#   uv run scripts/run_experiments.py --config experiments/configs/k_sweep.yaml
+#   uv run scripts/plot_experiments.py k_sweep
+
+name: k_sweep
+description: Saving vs number of stations k (MMAS, USOS demand)
+mode: grid
+seeds: [42, 43, 44, 45, 46]
+save_trace: false
+
+sweep:
+  metro.n_stations: [2, 3, 4, 5, 6, 7, 8, 9, 10]

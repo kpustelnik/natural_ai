@@ -21,6 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from ..aco.objective import Objective
 from ..config import config_hash, provenance
 from ..schemas.instance import Instance, InstanceMeta
 from ..schemas.results import AcoTrace, BestLine, RunMeta
@@ -101,45 +102,6 @@ def fake_instance(scene: Scene, cfg: dict, rng: np.random.Generator) -> Instance
     )
     inst.validate()
     return inst
-
-
-class Objective:
-    """docs/data_contracts.md, section 7, vectorised over the OD pairs."""
-
-    def __init__(self, inst: Instance):
-        self.i = inst
-        self.cache: dict[tuple[int, ...], float] = {}
-        self.evaluations = 0
-        self.baseline = float((inst.od_weight * inst.od_walk_s).sum())
-
-    def ride(self, line: list[int]) -> np.ndarray:
-        meta, tun = self.i.meta, self.i.tunnel_m
-        steps = [tun[a, b] for a, b in zip(line, line[1:], strict=False)]
-        pos = np.concatenate([[0.0], np.cumsum(steps)])
-        gap = np.abs(pos[:, None] - pos[None])
-        hops = np.abs(np.arange(len(line))[:, None] - np.arange(len(line))[None])
-        if meta.topology == "loop":
-            total = pos[-1] + tun[line[-1], line[0]]
-            gap = np.minimum(gap, total - gap)
-            hops = np.minimum(hops, len(line) - hops)
-        return gap / meta.metro_speed_mps + meta.dwell_s * np.maximum(hops - 1, 0)
-
-    def __call__(self, line: list[int]) -> float:
-        key = tuple(line)
-        if key in self.cache:
-            return self.cache[key]
-        self.evaluations += 1
-        i, meta = self.i, self.i.meta
-        a = i.access_s[i.od_from][:, line]  # (M, k)
-        e = i.egress_s[line][:, i.od_to].T  # (M, k)
-        fixed = meta.shaft_down_s + meta.wait_s + meta.shaft_up_s
-        total = a[:, :, None] + (self.ride(line) + fixed)[None] + e[:, None, :]
-        k = len(line)
-        total[:, np.arange(k), np.arange(k)] = np.inf
-        metro = total.reshape(len(a), -1).min(axis=1)
-        cost = float((i.od_weight * np.minimum(i.od_walk_s, metro)).sum())
-        self.cache[key] = cost
-        return cost
 
 
 def mmas(inst: Instance, cfg: dict, rng: np.random.Generator):
@@ -276,6 +238,8 @@ N_CLASSES_P = [0.08, 0.12, 0.25, 0.3, 0.18, 0.07]  # 0..5 classes a day
 FIRST_SLOT_P = [0.3, 0.25, 0.18, 0.12, 0.08, 0.05, 0.02]
 GAP_P = [0.7, 0.18, 0.12]  # free slots between two classes: 0, 1, 2
 SAME_ROOM_P = 0.2
+FAKE_STUDENTS = 20_000  # population.n_students: auto (a USOS count) means this here
+FAKE_DORM_SHARE = 0.35
 OWN_FACULTY_P = 0.6
 SIM_NOTE = (
     "Synthetic week from 06_export_web.py --fake: random students and timetables (not USOS) "
@@ -314,8 +278,11 @@ def fake_population(
     xz = np.array([[b.frame.anchor[0], b.frame.anchor[2]] for b in academic])
     w_size = np.array([size(b) for b in academic])
 
-    n = int(cfg["population"]["n_students"])
-    dorm_share = float(cfg["population"]["dorm_share"]) if dorms and stops else float(bool(dorms))
+    n = cfg["population"].get("n_students", "auto")
+    n = FAKE_STUDENTS if n in (None, "auto") else int(n)
+    share = cfg["population"].get("dorm_share", "auto")
+    share = FAKE_DORM_SHARE if share in (None, "auto") else float(share)
+    dorm_share = share if dorms and stops else float(bool(dorms))
     max_break = float(cfg["demand"]["max_break_s"])
     weekdays = list(cfg.get("simulation", {}).get("weekdays", [1, 2, 3, 4, 5]))
 

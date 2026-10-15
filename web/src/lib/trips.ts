@@ -23,6 +23,7 @@ export interface Day {
 
 export const WALK = 0;
 export const METRO = 1;
+export const TRANSIT = 2; // bus or tram between campus stops (GTFS)
 
 /** Student states, for colour: walking, waiting (standing between two segments), riding. */
 export const State = { Walk: 0, Wait: 1, Ride: 2 } as const;
@@ -155,7 +156,7 @@ export function studentsAt(paths: Paths, day: Day, t: number, f: Frame): Frame {
     if (day.end[i]! <= t) continue;
     const p = day.path[i]!;
     const moving = positionAt(paths, p, t - day.start[i]!, f.xyz, 3 * n);
-    const s: State = paths.mode[p] === METRO ? State.Ride : moving ? State.Walk : State.Wait;
+    const s: State = paths.mode[p] !== WALK ? State.Ride : moving ? State.Walk : State.Wait;
     f.state[n] = s;
     f.student[n] = day.student[i]!;
     f.rank[n] = day.rank[i]!;

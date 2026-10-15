@@ -5,6 +5,7 @@
 schema_version: 1
 id: H-D8
 kind: academic
+aliases: [D8]   # USOS D-8 (Reymonta 23, same address; OSM has no separate outline)
 osm_id: way/231815586
 placement:
   anchor: [19.9108676, 50.0666834]

@@ -92,6 +92,7 @@ class Scenario(StrEnum):
 class Mode(StrEnum):
     WALK = "walk"
     METRO = "metro"
+    TRANSIT = "transit"  # bus / tram between campus stops (GTFS)
 
 
 class MetroTopology(StrEnum):

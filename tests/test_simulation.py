@@ -168,3 +168,48 @@ def test_sim_stats(sim_replay):
     sim = SIM_LEGS.read(root / SIM_LEGS.path.format(scenario="metro"))
     assert sum(s.boardings for s in st.stations) == int((sim["mode"] == "metro").sum())
     assert all(o.saving_s > 0 for o in st.top_od)
+
+
+def test_buses_are_part_of_both_scenarios():
+    """A bus between stops next to A-0 and B-1 beats the 13-minute walk: the no-metro
+    scenario takes it, so the metro is compared with walking *or* public transport."""
+    from metro_agh.simulation.simulate import Transit
+
+    nodes, edges = _graph()
+    stops = pd.DataFrame(
+        [
+            (6, "stop:a", "stop", 0.0, -20.0, 200.0, None, None, "stop:a"),
+            (7, "stop:b", "stop", 1000.0, -20.0, 200.0, None, None, "stop:b"),
+        ],
+        columns=nodes.columns,
+    )
+    nodes = pd.concat([nodes, stops], ignore_index=True)
+    links = pd.DataFrame(
+        [
+            (0, 6, "link", 20.0, 20 / 1.3, 20 / 1.3, None),
+            (2, 7, "link", 20.0, 20 / 1.3, 20 / 1.3, None),
+        ],
+        columns=edges.columns,
+    )
+    edges = pd.concat([edges, links], ignore_index=True)
+    trips = pd.DataFrame(
+        {"from_stop": ["stop:a"], "to_stop": ["stop:b"], "line": ["164"],
+         "dep_s": [hhmm("09:31")], "arr_s": [hhmm("09:33")]}
+    )  # fmt: skip
+    schedule = build_schedule(["A-0", "B-1"], np.array([[0, 0], [1000, 0]]), "line", CFG, [1])
+    out = simulate(
+        nodes, edges, _legs(), Line(["A-0", "B-1"], "line", schedule), CFG,
+        transit=Transit(["stop:a", "stop:b"], trips),
+    )  # fmt: skip
+    nm = out["no_metro"].set_index("leg_id")
+    SIM_LEGS.validate(out["no_metro"])
+    assert nm.loc[0, "mode"] == "transit"
+    assert (nm.loc[0, "board_station"], nm.loc[0, "alight_station"]) == ("stop:a", "stop:b")
+    assert nm.loc[0, "ride_s"] == 120
+    assert nm.loc[0, "arrive_wt"] == pytest.approx(hhmm("09:33") + 20 / 1.3, abs=1)
+    path = list(nm.loc[0, "path_nodes"])
+    assert path[0] == 0 and path[-1] == 2 and path[path.index(6) : path.index(6) + 2] == [6, 7]
+    assert nm.loc[2, "mode"] == "walk"  # A-0 -> C-2: no bus there
+    # the metro scenario keeps the bus where the train is not faster
+    m = out["metro"].set_index("leg_id")
+    assert m.loc[0, "arrive_wt"] <= nm.loc[0, "arrive_wt"]

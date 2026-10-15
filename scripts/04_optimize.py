@@ -4,7 +4,8 @@
     uv run scripts/04_optimize.py --processed data/processed/fake
     uv run scripts/04_optimize.py --instance path/to/instance.npz
 
-Reads ``instance/instance.npz`` (builds it from network + demand if missing),
+Reads ``instance/instance.npz`` (built from network + demand when missing or stale; k, speed,
+dwell, headway and shaft times always come from the current config),
 writes ``experiments/results/<run_id>/`` and ``experiments/results/best_line.json``.
 
 Does not export to the viewer; use ``06_export_web.py --aco`` / ``--metro`` later.
@@ -21,7 +22,7 @@ import numpy as np
 
 from metro_agh.aco import run_mmas
 from metro_agh.config import load_config, path, provenance
-from metro_agh.network.instance import build_instance, write_instance
+from metro_agh.network.instance import load_or_build, with_config
 from metro_agh.schemas.instance import Instance
 from metro_agh.schemas.results import BestLine, RunMeta
 from metro_agh.schemas.tables import CONVERGENCE
@@ -59,13 +60,11 @@ def main() -> None:
     processed = Path(args.processed) if args.processed else path(cfg, "processed")
     inst_path = Path(args.instance) if args.instance else processed / "instance" / "instance.npz"
 
-    if args.rebuild_instance or not inst_path.exists():
-        name = "fake" if processed.name == "fake" else "campus"
-        inst = build_instance(processed, cfg, name=name)
-        write_instance(inst, inst_path)
+    if args.instance:
+        inst = with_config(Instance.load(inst_path), cfg)
     else:
-        inst = Instance.load(inst_path)
-        log.info("loaded %s (%d candidates, k=%d)", inst_path, inst.n_candidates, inst.meta.k)
+        name = "fake" if processed.name == "fake" else "campus"
+        inst = load_or_build(processed, cfg, inst_path, rebuild=args.rebuild_instance, name=name)
 
     t0 = time.perf_counter()
     result = run_mmas(inst, cfg, rng=np.random.default_rng(int(cfg["seed"])))

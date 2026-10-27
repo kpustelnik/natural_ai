@@ -57,7 +57,7 @@ def main() -> int:
     parser.add_argument("--max-requests", type=int, default=None, help="stop after N requests")
     parser.add_argument("--week", default=None, help="cache folder of room plans (ISO week)")
     parser.add_argument("--sample", action="store_true", help="campus from data/sample/campus")
-    parser.add_argument("--config", default=None, help="experiment config overriding keys")
+    parser.add_argument("--config", default=None, help="YAML of config.yaml keys merged over it")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -95,9 +95,7 @@ def main() -> int:
             return 1
 
     result = crawl(http, str(u["term"]), crawl_ids, week=args.week, full=full)
-    room_map_file = campus_dir.parent / "usos_room_map.csv"
-    if not room_map_file.exists():
-        room_map_file = path(cfg, "campus") / "usos_room_map.csv"
+    room_map_file = path(cfg, "campus") / "usos_room_map.csv"  # also with --sample
     room_map = ROOM_MAP.read(room_map_file) if room_map_file.exists() else None
     tables = build_tables(result, known, aliases, room_map)
     out = path(cfg, "processed")

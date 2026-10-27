@@ -1,0 +1,28 @@
+# Validation test 2 (README): the colonies vs random search vs greedy, 30 seeds, the same
+# budget of distinct lines evaluated (optimize.max_evaluations), each with and without local
+# search, so the comparison shows what the search strategy adds over the local search.
+# Greedy ignores the seed, so its 30 runs are one result.
+#
+#   uv run scripts/run_experiments.py --config experiments/configs/compare_algorithms.yaml
+#   uv run scripts/plot_experiments.py compare_algorithms
+
+name: compare_algorithms
+description: MMAS vs ACS vs random search vs greedy, with and without local search, at 5000 evaluations
+mode: variants
+seeds: [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56,
+        57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
+save_trace: false
+
+defaults:
+  optimize: { max_evaluations: 5000 }
+  aco: { n_ants: 20, n_iterations: 1000 }   # iterations: an upper bound, the budget ends a run
+
+variants:
+  - { name: mmas-ls, optimize.algorithm: mmas, optimize.local_search: true }
+  - { name: acs-ls, optimize.algorithm: acs, optimize.local_search: true }
+  - { name: random-ls, optimize.algorithm: random, optimize.local_search: true }
+  - { name: greedy-ls, optimize.algorithm: greedy, optimize.local_search: true }
+  - { name: mmas, optimize.algorithm: mmas, optimize.local_search: false }
+  - { name: acs, optimize.algorithm: acs, optimize.local_search: false }
+  - { name: random, optimize.algorithm: random, optimize.local_search: false }
+  - { name: greedy, optimize.algorithm: greedy, optimize.local_search: false }

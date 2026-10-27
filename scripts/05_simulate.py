@@ -21,7 +21,7 @@ log = logging.getLogger("05_simulate")
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--line", default=None, help="best_line.json (default: results/)")
-    parser.add_argument("--config", default=None, help="experiment config overriding keys")
+    parser.add_argument("--config", default=None, help="YAML of config.yaml keys merged over it")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     cfg = load_config(override=args.config)

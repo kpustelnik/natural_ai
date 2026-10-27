@@ -39,7 +39,7 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | `data/campus/osm_building_map.csv`, `usos_room_map.csv` | hand-written mappings (USOS building ids: `aliases` in the building YAML) |
 | `data/campus/campus.yaml` `stops` | the 12 stops from GTFS (`01_fetch_transit.py --print-yaml`) |
 | `data/sample/campus/` | 5 buildings with interiors (D-17 is LOD3, A-0 is LOD2): use `--sample` |
-| `data/processed/` | generated, gitignored: `osm/campus.gpkg`, `network/*.parquet`, `fake/…` |
+| `data/processed/` | generated, gitignored (except `usos/`, `transit/`, `population/dorms.csv`, committed): `osm/campus.gpkg`, `network/*.parquet`, `fake/…` |
 | `web/public/data/` | generated, gitignored: everything the viewer loads |
 
 ## Python: `src/metro_agh/`
@@ -49,10 +49,12 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | file | contents |
 |---|---|
 | `config.py` | `load_config`, `path(cfg, key)` (repo-absolute paths), `provenance`, `ROOT` |
+| `figures.py` | report figures in one style (dataviz palette): `axes`, `finish`, `save`, `band_line`, `dots`, `lines` |
+| `validation.py` | field measurements vs the walk graph: `compare_field`, `summary` (MAE, bias, MAPE) |
 | `schemas/tables.py` | every table contract (`Table`, `Column`): `GRAPH_NODES/EDGES`, `LEGS`, `SIM_LEGS`, `METRO_SCHEDULE`, `CONVERGENCE`, `OSM_*` …; `Table.read/write/validate` |
 | `schemas/common.py` | enums (`NodeKind`, `LegKind`, `Scenario`, `Mode`, …), id patterns |
-| `schemas/building.py`, `campus.py` | YAML models (`load_building`, `Campus`) |
-| `schemas/instance.py`, `results.py` | ACO instance (`Instance`), results (`RunMeta`, `BestLine`, `AcoTrace`) |
+| `schemas/building.py`, `campus.py` | YAML models (`Building`, `Campus`); `load_building(s)` in `schemas/__init__.py` |
+| `schemas/instance.py`, `results.py` | ACO instance (`Instance`, `Instance.subset`: fewer candidates), results (`RunMeta`, `BestLine` with `lower_bound_s`, `AcoTrace`) |
 | `schemas/web.py` | **every viewer file format** (`Scene`, `BuildingInfo`, `NetworkHeader`, `Metro`, `PathsHeader`, `DayHeader`, `AcoTraceHeader`, `Stats`, `Replay`, …) |
 | `schemas/export.py` | `python -m metro_agh.schemas.export`: models → `schemas/*.json` |
 
@@ -61,8 +63,8 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | file | contents |
 |---|---|
 | `usos/http.py` | `CachedHttp` (polite GET with a disk cache in `data/raw/usos/`: expiry per kind `max_age_s` from `usos.cache_days`, `refresh`, `offline`, request budget, old copy when a refetch fails), `OfflineMiss` |
-| `usos/pages.py` | pure parsers of public USOSweb pages: `parse_room_week` (`Tile`), `parse_unit_groups` (`UnitPage`, `GroupRow`, `Meeting`), `parse_course` (`CoursePage`, `CourseGroup`), `parse_faculty_groups`, `parse_group_courses`; `parity_of`, `weekday_of`, `cohort_of` |
-| `usos/fetch.py` | `crawl` (rooms -> room plans -> courses -> class groups, one term; `full=True`: + every unit's catalogue and dated meetings) -> `Crawl`; `fetch_rooms`, `fetch_terms`, `fetch_faculties`, `fetch_catalogue`, `fetch_meetings` (`tt/classgroups`) |
+| `usos/pages.py` | pure parsers of public USOSweb pages: `parse_room_week` (`Tile`), `parse_unit_groups` (`UnitPage`, `GroupRow`, `Meeting`), `parse_course` (`CoursePage`, `CourseGroup`), `parse_faculty_groups`, `parse_group_courses`; `parity_of`, `weekday_of` |
+| `usos/fetch.py` | `crawl` (rooms -> room plans -> courses -> class groups, one term; `full=True`: + every unit's catalogue and dated meetings) -> `Crawl`; `fetch_rooms`, `fetch_terms`, `fetch_faculties`, `fetch_catalogue` (every page of the catalogue lists, `_pages`), `fetch_meetings` (`tt/classgroups`) |
 | `usos/full.py` | `full_tables` (Crawl -> `FullTables`: course_groups, courses, class_groups, meetings in `usos/all/`) |
 | `usos/parse.py` | `build_tables` (Crawl -> `UsosTables`: timetable, groups with sizes, cohorts, group_cohorts, rooms); `group_ids`, `building_resolver`, `room_key`, `semester_of`, `study_level` + `pool_members` (courses in no cohort -> `pool:1S`) |
 
@@ -94,7 +96,7 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 
 | file | contents |
 |---|---|
-| `geometry/building.py` | `place` (YAML → `PlacedBuilding`: levels, entrances, frame), `lod1_meshes`, `match_osm`, `osm_index` |
+| `geometry/building.py` | `place` (YAML → `PlacedBuilding`: levels, entrances, frame), `level_spans` (storeys, also for dorm beds), `lod1_meshes`, `match_osm`, `osm_index` |
 | `geometry/interior.py` | LOD2/3: `plan_levels` (rooms, corridors, doors, stairs), `interior_meshes` (walls with door gaps, slabs, flights), `shaft_lines` |
 | `geometry/mesh.py` | `TriMesh`, `Lines`, `web()` (EPSG:2180 → web), `flat`, `prism`, `walls`, `outline`, `polyline` |
 
@@ -104,35 +106,43 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 |---|---|
 | `network/indoor.py` | one building's graph: `building_part` (corridor chains, rooms, stairs, entrances, shaft → platform), `TimeModel`, `GraphIssue`, `Part` |
 | `network/graph.py` | `outdoor_part` (OSM paths), `passage_part`, `stop_part`, `assemble` (links, dedupe, issues), `build_campus_graph`, `Graph.write` |
-| `network/instance.py` | `build_instance`, `write_instance` (network + OD → `instance/instance.npz`); `load_or_build` (rebuilds when `inputs_hash` changed), `with_config` / `metro_meta` (k, speed, dwell, headway, shafts from the current config), `transit_rides` (no-metro time = min(walk, bus / tram)) |
+| `network/instance.py` | `build_instance`, `write_instance` (network + OD → `instance/instance.npz`); `load_or_build` (rebuilds when `inputs_hash` changed), `with_config` / `metro_meta` (k, speed, dwell, headway, shafts from the current config; a `metro.candidates` list subsets the instance), `transit_rides` (no-metro time = min(walk, bus / tram)) |
 
-### ACO (stage 4): `aco/`
+### Optimisation (stage 4): `aco/`, `baselines/`, `optimize.py`
 
 | file | contents |
 |---|---|
-| `aco/objective.py` | `Objective` (weighted Σ min(walk, metro) over OD pairs; cache keyed by `canonical`: a reversed line / rotated loop is one line) |
-| `aco/mmas.py` | `run_mmas` → `MmasResult` (best line, convergence, trace) |
-| `experiments.py` | parameter sweeps / ablations: `load_experiment`, `expand_jobs`, `execute_job`, `summarise`, `append_runs_csv` |
+| `aco/objective.py` | `Objective` (weighted Σ min(walk, metro) over OD pairs; cache keyed by `canonical`: a reversed line / rotated loop is one line; `budget` / `spent`: the evaluation budget), `teleport_bound` (lower bound over every line) |
+| `aco/common.py` | `RunResult` (what every algorithm returns: best line, convergence, trace or None, params, `eval_budget`), `convergence_frame`, `check_k`, `max_evaluations` (`optimize.max_evaluations`), `uses_local_search`; for the colonies `heuristic`, `pick` (next station, `q0` rule), `entropy`, `TraceSampler` |
+| `aco/local_search.py` | `neighbours` (replace / swap / move a station), `improve` (best-improvement descent; MMAS, ACS and random polish the iteration best, greedy its line) |
+| `aco/mmas.py` | `run_mmas`: MAX-MIN Ant System |
+| `aco/acs.py` | `run_acs`: Ant Colony System (`aco.q0`, local update `aco.xi`, global update by the best so far) |
+| `baselines/random_search.py` | `run_random`: `n_ants × n_iterations` random lines (same budget as the colonies) |
+| `baselines/greedy.py` | `run_greedy`: best pair, then the station + place that lower the objective most |
+| `baselines/brute_force.py` | `run_brute_force` (exact optimum, refuses more than `optimize.brute_force_max_lines`), `count_lines`, `all_lines` |
+| `optimize.py` | `ALGORITHMS`, `run_algorithm` (picks `optimize.algorithm`) |
+| `experiments.py` | parameter sweeps / ablations: `load_experiment`, `expand_jobs`, `execute_job`, `check_overrides` (refuses keys that change the instance arrays), `summarise`, `append_runs_csv` |
 
 ### Simulation (stage 5)
 
 | file | contents |
 |---|---|
 | `simulation/schedule.py` | train timetable: `build_schedule`, `station_order`, `run_times`, `hhmm` |
-| `simulation/simulate.py` | `simulate` (both scenarios: Dijkstra per origin in batches; walk vs bus / tram (`Transit`) vs metro (`Line`), each a timetabled `_Net` boarded via `Connections.earliest/latest` in `_best_rides`), `load_transit`, `run_simulation` (reads a processed dir, writes schedule + legs) |
+| `simulation/simulate.py` | `simulate` (both scenarios: Dijkstra per origin in batches; walk vs bus / tram (`Transit`) vs metro (`Line`), each a timetabled `_Net` boarded via `Connections.earliest/latest` in `_best_rides`; `connections` + `loop_successors`: a loop ride may pass station 0 into the next run), `walk_matrix` / `csr_walk` (the walk graph as CSR), `load_transit`, `run_simulation` (reads a processed dir, writes schedule + legs) |
+| `simulation/metrics.py` | `scenario_metrics`: the report's metrics of one scenario (time, legs longer than the break, late legs and classes, mode shares) |
 
 ### Web export (stage 6): `web/`
 
 | file | contents |
 |---|---|
 | `web/export_campus.py` | `CampusExport` (`full`, `update` for watch mode, `_building`, `_network`); `export_context`, `export_ground`, `export_network`, `export_stops`, `export_aerial`, `write_replay_catalog`, `write_status_file` |
-| `web/export_demand.py` | `load_web_graph`, `edge_loads_from_od`, `export_demand` (OD → shortest-path edge loads on `network.json`) |
+| `web/export_demand.py` | `load_web_graph`, `edge_loads_from_od`, `export_demand` (OD → shortest-path edge loads on `network.json`), `refresh_demand` (again after `network.json` changes, + status) |
 | `web/export_metro.py` | `export_aco_run` (`--aco` → `replays/aco-<run>/`), `export_best_line` (`--metro` → `replays/sim-<run>/metro.json`), `metro_model`, `shafts`, `load_scene` |
 | `web/export_sim.py` | `export_simulation` (`--sim`: `trips/<scenario>/paths.*`, `day-N.*`, `stats.json`), `PathBuilder` (node paths → web polylines with times), `stats` |
-| `web/fake.py` | `--fake`: `fake_instance` + `mmas` (synthetic ACO run on `aco.objective.Objective`), `fake_population` (students, legs), `write_fake_results`, `write_fake_simulation` |
+| `web/fake.py` | `--fake`: `fake_instance` + `weak_aco` (synthetic ACO run: `aco.run_mmas`, short and with a weak heuristic), `fake_population` (students, legs), `write_fake_results`, `write_fake_simulation` |
 | `web/gltf.py` | minimal GLB writer (`Node`, `write_glb`) |
 | `web/binary.py` | header `.json` + `.bin` containers (`write_binary`, `pack`) |
-| `web/watch.py` | `--watch` polling loop → `CampusExport.update` |
+| `web/watch.py` | `--watch` polling loop → `CampusExport.update`, then `refresh_demand` |
 | `web/yaml_errors.py` | pydantic errors → YAML line numbers |
 | `web/aerial.py` | GUGiK orthophoto download (`--aerial`) |
 
@@ -144,22 +154,26 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | `scripts/01_fetch_transit.py` | GTFS -> `transit/stops.csv`, `rides.csv`, `trips.parquet` (`--print-yaml` for campus.yaml) |
 | `scripts/02_build_campus.py` | OSM layers, report, `--bootstrap`, then `network/*.parquet` |
 | `scripts/03_build_demand.py` | dorms, population, legs, OD, migrations for a calendar week (`--week`, default busiest; `--typical`); rooms when `network/nodes.parquet` exists |
-| `scripts/plot_experiments.py` | `runs.csv` -> `docs/figures/<experiment>.png` + `.csv` (saving vs k) |
+| `scripts/plot_experiments.py` | `runs.csv` -> `docs/figures/<experiment>.png` + `.csv`, chosen by what the runs vary: saving vs k (`curve`, `plot_k`); algorithms: per-seed savings + Wilcoxon vs the first variant (`by_algorithm`, `plot_algorithms`) and `<experiment>_convergence` (`convergence`, `plot_convergence`); else one panel per parameter (`by_parameter`, `plot_parameters`) |
+| `scripts/validate_optimum.py` | tests 1 + 6: sub-instances (`Instance.subset`), brute-force optimum vs every algorithm -> `gap_to_optimum.png/.csv`, `bounds.csv` (no metro ≥ optimum ≥ `teleport_bound`) |
+| `scripts/validate_field.py` | test 5: `field_measurements.csv` vs the graph -> `field_validation.png/.csv` |
+| `scripts/report_metrics.py` | the simulated week's metrics -> `docs/figures/simulation_metrics.csv` |
 | `experiments/configs/k_sweep.yaml` | k = 2 … 10 × 5 seeds on the USOS demand |
-| `scripts/04_optimize.py` | build/load instance, `run_mmas`, write `results/<run_id>/` + `best_line.json` |
+| `scripts/04_optimize.py` | build/load instance, `run_algorithm`, write `results/<run_id>/` + `best_line.json` |
 | `scripts/run_experiments.py` | YAML sweep / ablation → many runs + `runs.csv` + `summary_<name>.csv` |
 | `scripts/05_simulate.py` | stage 5 on `data/processed` |
 | `scripts/06_export_web.py` | flags `--campus --sample --watch --aerial --aco --metro --sim --fake`; `export_replays` (+ `export_demand`) |
-| `experiments/configs/*.yaml` | experiment specs (`aco_ablation.yaml`, `aco_grid.yaml`): mode, seeds, sweep / variants |
+| `experiments/configs/*.yaml` | experiment specs: mode, seeds, sweep / variants. `compare_algorithms.yaml` (8 variants, with / without local search, k = 5), `compare_algorithms_hard.yaml` (k = 10), `aco_ablation.yaml` (MMAS parameters, real data), `aco_grid.yaml` (example on fake data), `k_sweep.yaml` |
 | `tests/test_web_export.py` | fixture `exported` (sample campus + synthetic OSM in a temp dir), used by the other export tests |
 | `tests/test_network.py`, `test_interior.py`, `test_osm.py`, `test_schemas.py` | graph, geometry, OSM, contracts |
-| `tests/test_aco.py` | toy-instance objective + MMAS |
+| `tests/test_aco.py` | toy-instance objective, MMAS, every algorithm vs the brute-force optimum, brute-force enumeration |
 | `tests/test_usos_http.py` | cache expiry, refresh, offline, failed refetch |
 | `tests/test_usos.py` (+ `tests/fixtures/usos/*.html`) | USOSweb parsers on trimmed pages, ids, parity, semesters, `build_tables`, size fallbacks, catalogue pages, `full_tables` |
 | `tests/test_demand.py` | dorm beds, population on `data/sample/usos`, legs rules, OD, migrations |
 | `tests/test_transit.py` | GTFS stops / rides on a synthetic feed |
-| `tests/test_experiments.py` | experiment YAML expansion + `runs.csv` append, `metro.*` overrides reach the run |
+| `tests/test_experiments.py` | experiment YAML expansion + `runs.csv` append (brute force: `optimum_s`), `metro.*` overrides reach the run (k, dwell), array-changing overrides refused |
 | `tests/test_metro_export.py`, `test_simulation.py` | schedule, ACO / line replays, simulator, `--sim` export |
+| `tests/test_export_demand.py` | OD -> edge loads (`edge_loads_from_od`) |
 
 ## Viewer: `web/src/`
 
@@ -171,15 +185,17 @@ through the store (`state/app.ts`). Values read every frame (clock, iteration) a
 
 | file | contents |
 |---|---|
-| `App.tsx` | layout (top bar, panels, viewport, dock, status bar), **all keyboard shortcuts** (`useShortcuts`), presentation mode, the "no data" screen |
-| `state/app.ts` | the store: `AppState`, workspaces, `LAYER_GROUPS` + `WORKSPACE_LAYERS` (default layers per workspace), `Pick` (selection kinds), `Playback`, actions (`select`, `setPlayback`, `setRouteEnd`, `focusBox`, `toast`, `splitActive`, …) |
+| `main.tsx` | entry: mounts `App`, imports `scene/bvh` and `theme.css` |
+| `App.tsx` | layout (top bar, panels, viewport, dock, status bar), **all keyboard shortcuts** (`useShortcuts`), presentation mode, the "no data" screen, `PlaybackClock` (always mounted) |
+| `state/app.ts` | the store: `AppState`, workspaces, `LAYER_GROUPS` + `WORKSPACE_LAYERS` (default layers per workspace), `Pick` (selection kinds), `Playback`, actions (`select`, `setPlayback`, `setRouteEnd`, `focusBox`, `focusPoint` + `boxAround`, `toast`, `splitActive`, …) |
 | `state/url.ts` | store ↔ `location.hash` (`stateFromHash`, `writeHash`): add new URL params here |
 | `state/store.ts` | the tiny external store (`createStore`, `useSlice`) |
 | `data/loader.ts` | `fetchJson`, `loadBinary` (typed-array views), `MissingDataError` |
 | `data/resource.ts` | cached hooks: `useScene`, `useNetwork`, `useMetro`, `useAcoTrace`, `useTrips`, `useStats`, `useDemand`, …; `invalidate`, `useLoading`, the missing-file toast |
 | `data/live.ts` | live reload: `status.json` → refetch changed files |
 | `data/network.ts` | network index and routing helpers (`computeRoute`, `useRoute`, `resolveKey`, `nearestNode`) |
-| `generated/schemas.ts` | generated TS types (`npm run gen:types`) |
+| `generated/schemas.ts` | generated TS types (`npm run gen:types`, `web/scripts/gen-types.mjs`) |
+| `web/plugins/metroData.ts` | Vite plugin: pushes `status.json` changes for live reload; `npm run model` starts the Python watcher |
 
 ### Pure logic (`lib/`, unit-tested)
 
@@ -187,9 +203,10 @@ through the store (`state/app.ts`). Values read every frame (clock, iteration) a
 |---|---|
 | `lib/frames.ts` | web ↔ lon/lat ↔ building local |
 | `lib/graph.ts` | Dijkstra on the CSR graph, route summary (legs, outdoor / indoor / stairs) |
-| `lib/metro.ts` | train positions from the timetable (`trainsAt`), ACO sample interpolation (`sampleAt`, `curveAt`) |
+| `lib/metro.ts` | train positions from the timetable (`trainsAt`), ACO sample interpolation (`sampleAt`, `curveAt`), `heading` |
 | `lib/trips.ts` | students: `prepareDay`, `studentsAt` (who is where at t; any non-walk path is a ride: metro or bus / tram), `spiral` (crowd layout), `peakCount` |
 | `lib/search.ts`, `lib/format.ts` | search ranking; number / time / duration formatting, `WEEKDAYS` |
+| `lib/commands.ts` | `commandFor(path)`: the export that writes a missing file |
 
 ### 3D scene (`scene/`)
 
@@ -233,13 +250,13 @@ Layers (`scene/layers/`):
 | `RoutePanel.tsx` | route tool tab: ends, totals, legs, field measurements |
 | `StatsPanel.tsx` | simulation stats tab: totals, `HourChart`, `Stations`, `TopOd` |
 | `ViewportOverlay.tsx` | over the 3D view: camera / colour mode buttons, tool buttons, `Compass`, view actions (screenshot, presentation, help), `LevelStepper`, legends, `ScaleBar`, measure / capture panels, `NoReplay` empty state, split captions, `PerfPanel`, `Toasts`, presentation overlay |
-| `Timeline.tsx` | the playback dock (mounted in `RightPanel`): `Dock`, `DayControls` (clock, speed, weekday, scenario / split), `AntControls` (iteration player), `StudentLegend`, speed presets |
+| `Timeline.tsx` | the playback dock (mounted in `RightPanel`): `Dock`, `DayControls` (clock, speed, weekday, scenario / split), `AntControls` (iteration player), `StudentLegend`, speed presets; `PlaybackClock` (the clock, mounted by `App` so playback runs with the panel hidden) |
 | `ConvergenceChart.tsx` | ACO convergence chart (SVG) |
 | `ReplayMenu.tsx` | replay menu, `openReplay` (sets workspace, opens right panel, speed, scenario) |
 | `Search.tsx` | search box |
 | `StatusBar.tsx` | build status, loading count, cursor coordinates, shortcuts button |
 | `HelpDialog.tsx` | keyboard help (`GROUPS`; update it when you add a shortcut) |
-| `Command.tsx` | copyable command box, `commandFor(path)` (missing file → export command) |
+| `Command.tsx` | copyable command box |
 | `icons.tsx` | inline SVG icons (`icon()` helper) |
 
 ### Styles

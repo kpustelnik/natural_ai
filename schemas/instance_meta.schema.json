@@ -17,7 +17,7 @@
       "type": "integer"
     },
     "name": {
-      "description": "'campus', 'sample', 'brute12', ...",
+      "description": "'campus', 'fake', ...",
       "title": "Name",
       "type": "string"
     },

@@ -215,3 +215,18 @@ def test_watch_rebuilds_after_a_save(campus):
     status = BuildStatus.model_validate_json(status_file.read_text(encoding="utf-8"))
     assert status.version == v0 + 1 and "buildings/C-2.glb" in status.changed
     assert "campus/context.glb" not in status.changed
+
+
+def test_crossing_corridor_keeps_both_arms(tmp_path):
+    src = (SAMPLE / "D-17.yaml").read_text(encoding="utf-8")
+    cross = "      - id: cx\n        path: [[20, -6], [20, 6]]\n        width: 2.0\n"
+    old = "        width: 2.5\n    rooms:"
+    assert old in src
+    src = src.replace(old, "        width: 2.5\n" + cross + "    rooms:", 1)
+    f = tmp_path / "D-17.yaml"
+    f.write_text(src, encoding="utf-8")
+    p = place(load_building(f), CFG, 200.0, None)
+    l0 = next(pl for pl in plan_levels(p) if pl.span.id == 0)
+    cx = next(s for s in l0.spaces if s.id == "cx")
+    assert cx.polygon.area == pytest.approx(12 * 2.0, rel=0.05)  # both arms, not one
+    assert cx.polygon.bounds[1] < -5 and cx.polygon.bounds[3] > 5

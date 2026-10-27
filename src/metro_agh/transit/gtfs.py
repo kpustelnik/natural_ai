@@ -185,9 +185,15 @@ def campus_transit(
     a = ev.merge(ev, on="trip_id", suffixes=("_a", "_b"))
     a = a[(a["seq_b"] > a["seq_a"]) & (a["campus_stop_a"] != a["campus_stop_b"])]
     a = a.assign(ride_s=a["arr_s_b"] - a["dep_s_a"])
-    # a trip passing a stop twice: keep its shortest ride per pair
-    a = a.groupby(["trip_id", "campus_stop_a", "campus_stop_b"], as_index=False).agg(
-        ride_s=("ride_s", "min"), dep_s=("dep_s_a", "min"), line=("route_short_name_a", "first")
+    # a trip passing a stop twice: keep its shortest ride per pair (departure of that ride)
+    a = (
+        a.sort_values(["ride_s", "dep_s_a"])
+        .drop_duplicates(["trip_id", "campus_stop_a", "campus_stop_b"])
+        .rename(columns={"dep_s_a": "dep_s", "route_short_name_a": "line"})
+        .sort_values(["trip_id", "campus_stop_a", "campus_stop_b"])[
+            ["trip_id", "campus_stop_a", "campus_stop_b", "ride_s", "dep_s", "line"]
+        ]
+        .reset_index(drop=True)
     )
     rides = []
     for (fa, fb), g in a.groupby(["campus_stop_a", "campus_stop_b"]):

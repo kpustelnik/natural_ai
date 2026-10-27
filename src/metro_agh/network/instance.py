@@ -21,7 +21,7 @@ from ..simulation.simulate import BATCH, walk_matrix
 
 log = logging.getLogger(__name__)
 
-DAY_HEADWAY = 3600.0  # a pair served once a day: assume an hour's wait
+DAY_HEADWAY = 3600.0  # a pair served once a day: assume an hourly service (30 min wait)
 
 
 def build_instance(
@@ -182,7 +182,16 @@ def metro_meta(
 
 
 def with_config(inst: Instance, cfg: dict) -> Instance:
-    """The same arrays with k, topology, speed, dwell, headway and shaft times from ``cfg``."""
+    """The same arrays with k, topology, speed, dwell, headway and shaft times from ``cfg``;
+    a ``metro.candidates`` list keeps only those candidates (``Instance.subset``)."""
+    wanted = cfg["metro"].get("candidates", "all")
+    if wanted != "all":
+        ids = [str(c) for c in inst.candidate_ids]
+        missing = sorted(set(wanted) - set(ids))
+        if missing:
+            raise ValueError(f"metro.candidates not in the instance: {missing}")
+        if sorted(wanted) != sorted(ids):
+            inst = inst.subset([ids.index(c) for c in sorted(set(wanted))])
     meta = metro_meta(
         cfg, inst.n_candidates, name=inst.meta.name, source_hash=inst.meta.source_hash
     )

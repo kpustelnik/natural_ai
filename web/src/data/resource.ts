@@ -17,10 +17,10 @@ import type {
   Scene,
   Stats,
 } from "../generated/schemas";
+import { commandFor } from "../lib/commands";
 import { type Day, type Paths, prepareDay } from "../lib/trips";
 import { registry } from "../scene/registry";
 import { toast } from "../state/app";
-import { commandFor } from "../ui/Command";
 import { type BinaryFile, fetchJson, loadBinary, MissingDataError } from "./loader";
 
 const cache = new Map<string, Promise<unknown>>();

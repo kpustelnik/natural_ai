@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 import yaml
 from shapely.affinity import rotate
-from shapely.geometry import LineString, Point, Polygon, box
+from shapely.geometry import LineString, Point, box
 
 from metro_agh.campus.bootstrap import bootstrap
 from metro_agh.campus.geo import LocalFrame, long_axis_bearing, to_geo, to_metric
@@ -196,7 +196,3 @@ def test_bootstrap_yaml_is_readable(layers, tmp_path):
     assert text.startswith("# yaml-language-server")
     assert "- [0.0, 0.0]" in text or "[0.0, 0.0]" in text  # flow-style coordinates
     assert yaml.safe_load(text)["placement"]["bearing_deg"] in (90.0, 270.0)
-
-
-def test_unused_polygon_import_guard():
-    assert Polygon  # keeps the import used for readers extending these fixtures

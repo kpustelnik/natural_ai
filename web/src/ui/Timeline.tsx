@@ -1,5 +1,5 @@
 // Playback dock for the chosen replay (mounted at the top of the right panel). The clock
-// runs here; the scene layers read it from the store every frame.
+// (PlaybackClock, mounted by App) advances the store; the scene layers read it every frame.
 //
 // - ACO run, "ants" view: the iteration player (scrubber, iterations per second) with the
 //   convergence chart and the best line so far;
@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAcoTrace } from "../data/resource";
 import type { Replay, ReplayCatalog } from "../generated/schemas";
 import { clock, studentHours, WEEKDAYS } from "../lib/format";
-import { sampleAt } from "../lib/metro";
+import { curveAt, sampleAt } from "../lib/metro";
 import { STUDENTS, SCENARIOS } from "../scene/palette";
 import { registry } from "../scene/registry";
 import { app, setPlayback, useApp } from "../state/app";
@@ -25,11 +25,15 @@ const DAY_END = 22 * 3600;
 const DAY_SPEEDS = [1, 10, 60, 300, 600];
 const ITER_SPEEDS = [1, 2, 5, 10, 20]; // iterations per second
 
-/** Advances the playback while playing: the iteration (ants) or the day time. */
-function useClock(mode: "iteration" | "day", end: number) {
+/** Advances the playback while playing: the iteration (ants) or the day time. Play at the
+ *  end starts over. ``end`` null (no replay, trace still loading): no clock. */
+function useClock(mode: "iteration" | "day", end: number | null) {
   const playing = useApp((s) => s.playback.playing);
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || end === null) return;
+    const start = app.get().playback;
+    if (mode === "iteration" && start.iteration >= end) setPlayback({ iteration: 0 });
+    if (mode === "day" && start.t >= end) setPlayback({ t: DAY_START });
     let last = performance.now();
     let raf = 0;
     const tick = (now: number) => {
@@ -48,6 +52,18 @@ function useClock(mode: "iteration" | "day", end: number) {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [playing, mode, end]);
+}
+
+/** The playback clock of the open replay. Mounted by App, not by the dock, so a replay keeps
+ *  playing with the right panel hidden or in presentation mode. */
+export function PlaybackClock({ catalog }: { catalog: ReplayCatalog | undefined }) {
+  const id = useApp((s) => s.playback.replayId);
+  const acoView = useApp((s) => s.playback.acoView);
+  const replay = catalog?.replays.find((r) => r.id === id);
+  const ants = replay?.kind === "aco" && acoView === "ants" && !!replay.files.aco_trace;
+  const trace = useAcoTrace(ants ? replay!.files.aco_trace : null).data;
+  useClock(ants ? "iteration" : "day", !replay ? null : ants ? (trace ? trace.header.n_iterations - 1 : null) : DAY_END);
+  return null;
 }
 
 function PlayButton() {
@@ -76,7 +92,6 @@ function Speed({ options, unit }: { options: number[]; unit: string }) {
 
 function DayControls({ replay, scenarios }: { replay: Replay; scenarios: boolean }) {
   const p = useApp((s) => s.playback);
-  useClock("day", DAY_END);
   return (
     <div className="dock-controls">
       <PlayButton />
@@ -115,7 +130,7 @@ function DayControls({ replay, scenarios }: { replay: Replay; scenarios: boolean
               aria-pressed={!p.split && p.scenario === s}
               onClick={() => setPlayback({ scenario: s, split: false })}
             >
-              {s === "metro" ? "Metro" : "Walk"}
+              {SCENARIOS[s].label}
             </button>
           ))}
           {replay.scenarios.length === 2 && (
@@ -169,7 +184,6 @@ function AntControls({ replay }: { replay: Replay }) {
   const trace = useAcoTrace(replay.files.aco_trace).data;
   const iteration = useApp((s) => s.playback.iteration);
   const end = trace ? trace.header.n_iterations - 1 : 0;
-  useClock("iteration", end);
   const curve = useMemo<Curve | null>(
     () =>
       trace
@@ -187,7 +201,7 @@ function AntControls({ replay }: { replay: Replay }) {
   const { s } = sampleAt(trace.arrays.iterations as Int32Array, iteration);
   const k = h.k;
   const best = Array.from((trace.arrays.best_tour as Int16Array).subarray(s * k, (s + 1) * k)).map((i) => h.candidate_ids[i]!);
-  const bestCost = curve.best[Math.min(curve.best.length - 1, Math.max(0, Math.floor(iteration)))] ?? h.best_s;
+  const bestCost = curve.best.length ? curveAt(curve.iteration, curve.best, iteration) : h.best_s;
   const saving = 1 - bestCost / h.baseline_s;
   const delta = `${saving >= 0 ? "−" : "+"}${Math.abs(100 * saving).toFixed(1)}%`;
   const line = best.join(" – ") + (h.topology === "loop" ? " (loop)" : "");

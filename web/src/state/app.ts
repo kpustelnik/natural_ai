@@ -211,7 +211,7 @@ export interface AppState {
   playback: Playback;
   searchFocus: number; // bumped to focus the search box
   northRequest: number; // bumped by the compass: turn the camera to north-up
-  present: boolean; // presentation mode: only the view (and the playback dock)
+  present: boolean; // presentation mode: only the view (a replay keeps playing)
   help: boolean; // keyboard help dialog
   perf: "off" | "on" | "log"; // frame-rate probe: overlay, or overlay + console lines
 }
@@ -322,8 +322,15 @@ export function focusBox(min: Vec3, max: Vec3): void {
   app.set({ focus: { seq: ++focusSeq, min, max } });
 }
 
+/** A box of half-width ``r`` around a point, half as tall, from its height up: what framing
+ *  a point (a stop, an entrance, an issue) shows. */
+export function boxAround(p: Vec3, r: number): { min: Vec3; max: Vec3 } {
+  return { min: [p[0] - r, p[1], p[2] - r], max: [p[0] + r, p[1] + r / 2, p[2] + r] };
+}
+
 export function focusPoint(p: Vec3, radius = 40): void {
-  focusBox([p[0] - radius, p[1], p[2] - radius], [p[0] + radius, p[1] + radius / 2, p[2] + radius]);
+  const { min, max } = boxAround(p, radius);
+  focusBox(min, max);
 }
 
 /** Whether the view is split into the two scenarios right now. */

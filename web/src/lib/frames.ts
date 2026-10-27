@@ -72,11 +72,6 @@ export function webToGeo(frame: WebFrame, p: Vec3): [number, number] {
   return metricToGeo(e, n);
 }
 
-export function geoToWeb(frame: WebFrame, lon: number, lat: number, y = 0): Vec3 {
-  const [e, n] = geoToMetric(lon, lat);
-  return [e - frame.origin_x, y, -(n - frame.origin_y)];
-}
-
 // --- building local frame -------------------------------------------------------------
 
 /** Web position -> building local [x, y] (metres) and height above the building ground. */

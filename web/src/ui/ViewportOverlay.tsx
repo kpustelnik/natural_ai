@@ -1,7 +1,7 @@
 // Controls drawn over the 3D view: camera mode, colour mode, level stepper, compass,
 // scale bar, legend, tool panels (measure, captured points), toasts and hints; the empty
 // state of the Metro and Simulation workspaces, the split-view captions, the frame-rate
-// probe. In presentation mode only the compass, scale bar, legend and captions stay.
+// probe. In presentation mode only the compass, scale bar, captions, toasts and the probe stay.
 
 import { useEffect, useState } from "react";
 import { useBuildingInfo } from "../data/resource";
@@ -35,7 +35,7 @@ import {
   useApp,
 } from "../state/app";
 import { Command } from "./Command";
-import { IconCamera, IconClose, IconCopy, IconDown, IconHelp, IconOrbit, IconPlan, IconPresent, IconRuler, IconUp, IconWalk } from "./icons";
+import { IconCamera, IconClose, IconChevronDown, IconCopy, IconHelp, IconOrbit, IconPlan, IconPresent, IconRuler, IconUp, IconWalk } from "./icons";
 import { openReplay } from "./ReplayMenu";
 
 const COLOR_MODES: { id: ColorMode; label: string }[] = [
@@ -125,7 +125,7 @@ function LevelStepper({ scene }: { scene: Scene }) {
         </button>
       ))}
       <button title="Level down (PageDown)" onClick={() => stepLevel(levels, -1)}>
-        <IconDown size={14} />
+        <IconChevronDown size={14} />
       </button>
     </div>
   );

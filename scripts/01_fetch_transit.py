@@ -26,7 +26,7 @@ def main() -> int:
     parser.add_argument("--date", default=None, help="service day YYYY-MM-DD")
     parser.add_argument("--refresh", action="store_true", help="download the feeds again")
     parser.add_argument("--print-yaml", action="store_true", help="print campus.yaml stops")
-    parser.add_argument("--config", default=None, help="experiment config overriding keys")
+    parser.add_argument("--config", default=None, help="YAML of config.yaml keys merged over it")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     cfg = load_config(override=args.config)

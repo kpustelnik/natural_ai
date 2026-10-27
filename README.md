@@ -65,7 +65,6 @@ metro-agh/
 ├── uv.lock                     # zamrożone wersje zależności (generuje `uv lock`)
 ├── .python-version             # wersja Pythona dla uv
 ├── config.yaml                 # wszystkie parametry (ACO, model czasu, obszar kampusu)
-├── .env.example                # szablon zmiennych środowiska (USOS nie wymaga kluczy)
 ├── .gitignore
 ├── .gitattributes              # LF wszędzie, diffy notebooków
 ├── .editorconfig               # wcięcia, kodowanie, końce linii
@@ -87,10 +86,10 @@ metro-agh/
 │   │   ├── campus.yaml         #   przejścia między budynkami, poprawki OSM, przystanki
 │   │   ├── osm_building_map.csv #  poprawki klasyfikacji budynków z OSM
 │   │   └── usos_room_map.csv   #   poprawki mapowania sal z USOS
-│   ├── processed/              # [gitignore] wyniki etapów pipeline'u
+│   ├── processed/              # wyniki etapów pipeline'u ([gitignore] poza usos/, transit/, population/dorms.csv)
 │   │   ├── osm/                #   campus.gpkg (QGIS), report.md, preview.html
 │   │   ├── usos/               #   timetable.csv, groups.csv, cohorts.csv, group_cohorts.csv, rooms.csv
-│   │   ├── transit/            #   stops.csv, rides.csv (GTFS)
+│   │   ├── transit/            #   stops.csv, rides.csv, trips.parquet (GTFS)
 │   │   ├── population/         #   students.parquet, enrollments.parquet
 │   │   ├── demand/             #   legs.parquet, od.parquet, migrations.csv
 │   │   ├── network/            #   nodes.parquet, edges.parquet
@@ -108,6 +107,7 @@ metro-agh/
 │   │   ├── http.py             # zapytania z cache na dysku i limitem tempa
 │   │   ├── pages.py            # parsery stron: plan sali, grupy zajęć, przedmiot
 │   │   ├── fetch.py            # crawl: sale -> przedmioty -> grupy (liczba osób, limity)
+│   │   ├── full.py             # tabele usos/all/ (cały semestr, wszystkie wydziały)
 │   │   └── parse.py            # sala -> budynek, parzystość, liczebności, kohorty -> CSV
 │   ├── transit/
 │   │   └── gtfs.py             # przystanki kampusu, kursy w szczycie, przejazdy między nimi
@@ -116,9 +116,7 @@ metro-agh/
 │   │   ├── osm_process.py      # warstwy: budynki, wejścia, przystanki, bariery, graf pieszy
 │   │   ├── osm_report.py       # report.md, issues.json i preview.html
 │   │   ├── geo.py              # układy współrzędnych: lon/lat, EPSG:2180, lokalny, web
-│   │   ├── bootstrap.py        # szkielety LOD1 budynków z OSM (nie nadpisuje istniejących)
-│   │   ├── interior.py         # YAML budynku -> geometria pięter i graf wewnętrzny
-│   │   └── candidates.py       # kandydaci na stacje (wejścia z metro_shaft)
+│   │   └── bootstrap.py        # szkielety LOD1 budynków z OSM (nie nadpisuje istniejących)
 │   ├── demand/
 │   │   ├── dorms.py            # miejsca w akademikach (YAML albo z powierzchni)
 │   │   ├── population.py       # syntetyczni studenci i ich grupy
@@ -126,19 +124,25 @@ metro-agh/
 │   ├── network/
 │   │   ├── indoor.py           # graf jednego budynku: korytarze, sale, schody, wejścia, szyb
 │   │   ├── graph.py            # graf: chodniki + wnętrza + przejścia + przystanki + szyby metra
-│   │   ├── travel_time.py      # Dijkstra, czasy dojść
 │   │   └── instance.py         # budowa instance.npz dla ACO
 │   ├── aco/
+│   │   ├── objective.py        # funkcja celu: ważony łączny czas przejść
 │   │   ├── mmas.py             # MAX-MIN Ant System
-│   │   ├── acs.py              # Ant Colony System (do porównania)
-│   │   └── objective.py        # funkcja celu: ważony łączny czas przejść
+│   │   ├── acs.py              # Ant Colony System
+│   │   ├── local_search.py     # dopracowanie linii: zamiana / przestawienie stacji
+│   │   └── common.py           # wynik przebiegu, heurystyka, zapis trace (wspólne)
 │   ├── baselines/
-│   │   ├── random_search.py
-│   │   ├── greedy.py
+│   │   ├── random_search.py    # losowe linie, ten sam budżet co mrówki
+│   │   ├── greedy.py           # zachłanne dokładanie stacji
 │   │   └── brute_force.py      # optimum dokładne na małych instancjach
+│   ├── optimize.py             # wybór algorytmu: optimize.algorithm
+│   ├── experiments.py          # serie uruchomień: przeglądy parametrów, ablacje, runs.csv
+│   ├── validation.py           # pomiary terenowe vs graf (MAE)
+│   ├── figures.py              # wspólny styl wykresów do sprawozdania
 │   ├── simulation/
 │   │   ├── schedule.py         # rozkład jazdy pociągów
-│   │   └── simulate.py         # przejścia każdego studenta, wybór metro / pieszo wg rozkładu
+│   │   ├── simulate.py         # przejścia każdego studenta, wybór metro / pieszo wg rozkładu
+│   │   └── metrics.py          # metryki tygodnia: czas, spóźnienia, przejścia dłuższe niż przerwa
 │   ├── geometry/
 │   │   ├── mesh.py             # obrysy (EPSG:2180) -> trójkąty i linie w układzie web
 │   │   ├── building.py         # YAML budynku -> położenie, piętra, wejścia, bryła LOD1
@@ -149,6 +153,7 @@ metro-agh/
 │       ├── export_campus.py    # scene, budynki, kontekst, teren, sieć, issues, katalog replayów
 │       ├── export_metro.py     # replaye: przebieg ACO (trace) i linia metra z pociągami
 │       ├── export_sim.py       # replay symulacji: ścieżki, odcinki na każdy dzień, stats.json
+│       ├── export_demand.py    # OD -> obciążenie krawędzi grafu (demand.json)
 │       ├── fake.py             # --fake: syntetyczny przebieg ACO i tydzień studentów (do rozwijania przeglądarki)
 │       ├── yaml_errors.py      # błędy walidacji YAML z numerem linii
 │       ├── aerial.py           # ortofotomapa GUGiK (WMS) jako podkład
@@ -162,15 +167,17 @@ metro-agh/
 │   ├── 04_optimize.py
 │   ├── 05_simulate.py
 │   ├── 06_export_web.py
-│   └── run_experiments.py      # seria uruchomień do walidacji (seedy, parametry)
+│   ├── run_experiments.py      # seria uruchomień do walidacji (seedy, parametry)
+│   ├── plot_experiments.py     # runs.csv -> wykresy w docs/figures/
+│   ├── validate_optimum.py     # luka do optimum (brute force) i granice
+│   ├── validate_field.py       # pomiary terenowe vs graf
+│   └── report_metrics.py       # metryki symulowanego tygodnia
 │
 ├── experiments/
 │   ├── configs/                # konfiguracje eksperymentów (YAML)
 │   └── results/                # [gitignore] CSV z wynikami, logi zbieżności
 │
 ├── notebooks/                  # eksploracja i wykresy do sprawozdania
-│   ├── 01_eksploracja_danych.ipynb
-│   └── 02_wyniki_eksperymentow.ipynb
 │
 ├── web/                        # wizualizacja: React + three.js (React Three Fiber), TypeScript, Vite
 │   ├── package.json
@@ -189,15 +196,17 @@ metro-agh/
 │   └── public/data/            # [gitignore] dane z 06_export_web.py
 │
 ├── docs/
+│   ├── data_contracts.md       # formaty wszystkich plików między etapami
 │   ├── literatura.md           # przegląd literatury z notatkami
+│   ├── pomiary_terenowe.md     # jak mierzyć i które trasy (walidacja 5)
+│   ├── viewer_plan.md          # plan i notatki z budowy przeglądarki
 │   ├── figures/                # wykresy do sprawozdania
 │   └── sprawozdanie/           # finalny raport
 │
-└── tests/
-    ├── test_aco.py             # ACO == brute force na małej instancji
-    ├── test_travel_time.py
-    ├── test_od_matrix.py
-    └── test_schemas.py         # dane z data/sample zgodne z kontraktami
+└── tests/                      # pytest, jeden plik na moduł (lista w ARCHITECTURE.md)
+    ├── test_aco.py             # funkcja celu + MMAS na małej instancji
+    ├── test_schemas.py         # dane z data/sample zgodne z kontraktami
+    └── fixtures/usos/          # zapisane strony USOSweb dla parserów
 ```
 
 ---
@@ -217,7 +226,6 @@ cd metro-agh
 uv sync                              # tworzy .venv i instaluje wszystko (z grupą dev)
 uv run pre-commit install            # hooki przed każdym commitem
 uv run nbdime config-git --enable    # czytelne diffy notebooków (opcjonalnie)
-cp .env.example .env                 # opcjonalnie (USOS i GTFS są publiczne)
 ```
 
 Dodawanie zależności: `uv add <pakiet>` (lub `uv add --dev <pakiet>`). Commitujemy zmieniony `pyproject.toml` **i** `uv.lock`.
@@ -228,10 +236,10 @@ Główne zależności:
 
 | Obszar | Biblioteki |
 |---|---|
-| Dane | `requests`, `requests-oauthlib`, `pandas`, `pyarrow`, `icalendar`, `pydantic` |
+| Dane | `requests`, `pandas`, `pyarrow`, `pydantic`, `pillow` |
 | Geo i grafy | `osmnx`, `geopandas`, `shapely`, `pyproj`, `networkx` |
-| Algorytmy | `numpy`, `numba` |
-| Eksperymenty | `scipy`, `matplotlib`, `seaborn`, `tqdm` |
+| Algorytmy | `numpy` |
+| Eksperymenty | `scipy`, `matplotlib`, `tqdm` |
 | Dev | `pytest`, `ruff`, `pre-commit`, `jupyterlab`, `nbstripout`, `nbdime` |
 | Web | `react`, `three`, `@react-three/fiber`, `three-mesh-bvh`, `vite`, `typescript` |
 
@@ -261,7 +269,7 @@ uv run scripts/01_fetch_usos.py          # -> data/raw/usos, data/processed/usos
 uv run scripts/01_fetch_transit.py       # -> data/processed/transit/ (przystanki, przejazdy)
 uv run scripts/02_build_campus.py        # -> data/processed/osm/ (campus.gpkg, report.md, issues.json, preview.html) + network/*.parquet
 uv run scripts/03_build_demand.py        # -> population/, demand/legs, od, migrations.csv (najruchliwszy tydzień kalendarza)
-uv run scripts/04_optimize.py            # -> experiments/results/best_line.json
+uv run scripts/04_optimize.py            # -> experiments/results/best_line.json (algorytm: optimize.algorithm)
 uv run scripts/05_simulate.py            # -> simulation/{no_metro,metro}/legs.parquet, schedule.parquet
 uv run scripts/06_export_web.py --campus # -> web/public/data/ (kampus dla przeglądarki)
 ```
@@ -287,7 +295,7 @@ uv run scripts/02_build_campus.py --refresh     # pobierz OSM ponownie (zamiast 
 
 Wynik: `data/processed/osm/campus.gpkg` (otwórz w QGIS), `preview.html` (mapa w przeglądarce) i `report.md` (lista rzeczy do sprawdzenia ręcznie). Istniejące pliki w `data/campus/buildings/` nigdy nie są nadpisywane.
 
-Praca na danych testowych (bez USOS) — flaga `--sample` czyta z `data/sample/`:
+Kampus testowy: `--sample` bierze budynki, akademiki i przystanki z `data/sample/campus/`, ale plan zajęć nadal czyta z `data/processed/usos/` i zapisuje wyniki do `data/processed/` (nadpisuje śledzony `population/dorms.csv`):
 
 ```bash
 uv run scripts/03_build_demand.py --sample
@@ -317,8 +325,18 @@ uv run python -m metro_agh.schemas.export   # odświeża schemas/*.schema.json
 Eksperymenty walidacyjne (config eksperymentu nadpisuje wybrane klucze z `config.yaml`):
 
 ```bash
-uv run scripts/run_experiments.py --config experiments/configs/compare_baselines.yaml
+uv run scripts/run_experiments.py --config experiments/configs/k_sweep.yaml
+uv run scripts/plot_experiments.py k_sweep
+uv run scripts/run_experiments.py --config experiments/configs/compare_algorithms.yaml   # MMAS vs ACS vs losowe vs zachłanne
+uv run scripts/plot_experiments.py compare_algorithms                                   # wykres, test Wilcoxona, zbieżność
+uv run scripts/run_experiments.py --config experiments/configs/compare_algorithms_hard.yaml
+uv run scripts/run_experiments.py --config experiments/configs/aco_ablation.yaml        # wrażliwość parametrów
+uv run scripts/validate_optimum.py       # luka do optimum (brute force) + granice
+uv run scripts/validate_field.py         # pomiary terenowe vs graf
+uv run scripts/report_metrics.py         # metryki symulowanego tygodnia
 ```
+
+Wszystkie wykresy i tabele trafiają do `docs/figures/`.
 
 Jakość kodu:
 
@@ -339,7 +357,7 @@ Pełny opis (po angielsku): **[docs/data_contracts.md](docs/data_contracts.md)**
 | Plik | Co zawiera | Kto pisze |
 |---|---|---|
 | `data/campus/buildings/<id>.yaml` | budynek: piętra, korytarze, sale, schody, wejścia, szyb metra | ręcznie |
-| `data/campus/campus.yaml` | przejścia między budynkami, poprawki OSM, 3 przystanki | ręcznie |
+| `data/campus/campus.yaml` | przejścia między budynkami, poprawki OSM, przystanki (12, z GTFS) | ręcznie |
 | `usos/timetable.csv` + `groups.csv`, `cohorts.csv`, `group_cohorts.csv` | plan zajęć z USOS | osoba 1 |
 | `population/students.parquet`, `enrollments.parquet` | 20 000 syntetycznych studentów i ich grupy | osoba 1 |
 | `demand/legs.parquet`, `od.parquet` | każde przejście studenta / zagregowany popyt | osoba 1 |
@@ -380,26 +398,34 @@ Suma czasów wszystkich przejść wszystkich studentów w modelowanym tygodniu. 
 - Mrówka buduje linię z **k** stacji, wybierając kolejną stację z prawdopodobieństwem ∝ τ^α · η^β.
 - Heurystyka η: popyt w pobliżu kandydata / odległość od poprzedniej stacji.
 - Feromon odkłada tylko najlepsza mrówka (iteracji lub globalnie), z ograniczeniem τ ∈ [τ_min, τ_max].
-- Wariant ACS jako drugi algorytm do porównania.
+
+### Pozostałe algorytmy (`optimize.algorithm` w `config.yaml`)
+
+- **ACS** (Ant Colony System): z prawdopodobieństwem `q0` mrówka bierze najlepszą następną stację; każdy krok mrówki zbliża feromon na tej parze do τ0 (lokalne parowanie `xi`), więc mrówki jednej iteracji się rozchodzą; feromon odkłada tylko najlepsza dotąd linia.
+- **Losowe** (`random`): tyle losowych linii, ile zbudowałyby mrówki (`n_ants × n_iterations`).
+- **Zachłanne** (`greedy`): najlepsza para stacji, potem k − 2 razy stacja i miejsce w linii, które najbardziej obniżają funkcję celu.
+- **Local search** (`optimize.local_search`, domyślnie włączone): najlepsza linia iteracji jest dopracowywana (wymiana stacji na inną, zamiana dwóch, przestawienie jednej), aż nic nie pomaga; w MMAS / ACS jak u Stützlego i Hoosa, w losowym to multi-start local search, w zachłannym poprawka końcowej linii. Bez niej mrówki ledwo biją losowe linie.
+- **Budżet** (`optimize.max_evaluations`): ta sama liczba różnych linii dla każdego algorytmu losowego; iteracje są wtedy tylko górną granicą.
+- **Brute force**: każda linia raz, optimum dokładne; tylko małe instancje (`optimize.brute_force_max_lines`; kampus przy k = 5 ma ok. 2·10⁸ linii).
 
 ---
 
 ## Walidacja
 
-| # | Test | Cel |
-|---|---|---|
-| 1 | ACO vs brute force (np. 12 kandydatów, k = 4) | czy ACO znajduje optimum, luka % |
-| 2 | ACO vs losowe vs zachłanne, 30 seedów, ten sam budżet ewaluacji | przewaga metody; boxploty, test Wilcoxona |
-| 3 | Krzywe zbieżności MMAS vs ACS | zachowanie algorytmu |
-| 4 | Analiza wrażliwości: liczba mrówek, ρ, β, liczba stacji k | stabilność wyniku |
-| 5 | Pomiary terenowe ~10 tras vs czasy z grafu | wiarygodność modelu świata (MAE) |
-| 6 | Granice: bez metra (baseline) i teleportacja (dolne ograniczenie) | sanity check |
+| # | Test | Cel | Gdzie |
+|---|---|---|---|
+| 1 | ACO vs brute force (podinstancje: 12 kandydatów, k = 4) | czy ACO znajduje optimum, luka % | `validate_optimum.py` → `gap_to_optimum.png` |
+| 2 | ACO vs losowe vs zachłanne, 30 seedów, ten sam budżet ewaluacji, z i bez local search; też k = 10 | przewaga metody; wykres punktowy, test Wilcoxona | `compare_algorithms(_hard).yaml` |
+| 3 | Krzywe zbieżności MMAS vs ACS (vs losowe) | zachowanie algorytmu | `compare_algorithms_convergence.png` |
+| 4 | Analiza wrażliwości: liczba mrówek, iteracji, α, β, ρ; liczba stacji k | stabilność wyniku | `aco_ablation.yaml`, `k_sweep.yaml` |
+| 5 | Pomiary terenowe ~10 tras vs czasy z grafu | wiarygodność modelu świata (MAE) | `validate_field.py` (gdy są pomiary) |
+| 6 | Granice: bez metra (baseline) i teleportacja (dolne ograniczenie) | sanity check | `validate_optimum.py` → `bounds.csv`, `best_line.json` |
 
-Pomiary terenowe zapisujemy w `data/validation/field_measurements.csv`:
+Pomiary terenowe (protokół i 10 tras: [docs/pomiary_terenowe.md](docs/pomiary_terenowe.md)) zapisujemy w `data/validation/field_measurements.csv`:
 
 `route_id, from_key, to_key, measured_s, date, who, notes` (`from_key` to budynek `D-17` albo sala `D-17/1.38`)
 
-**Metryki raportowane:** zaoszczędzone studento-minuty / tydzień, % przejść dłuższych niż przerwa, liczba „spóźnionych” grup.
+**Metryki raportowane** (`report_metrics.py` → `simulation_metrics.csv`): zaoszczędzone studento-minuty / tydzień, % przejść dłuższych niż przerwa, liczba spóźnionych przejść i zajęć (zajęcia = dzień, sala, godzina; spóźnione, gdy choć jeden student dociera po starcie).
 
 ---
 
@@ -423,7 +449,7 @@ Aplikacja w `web/`: **React + three.js** (React Three Fiber), TypeScript, Vite; 
 - Gałęzie: `feat/<co>`, `fix/<co>`, np. `feat/aco-mmas`.
 - Parametry tylko w `config.yaml`, nigdy zahardkodowane w kodzie.
 - Notebooki są czyszczone z outputów przez `nbstripout`; wykresy do sprawozdania zapisujemy do `docs/figures/`.
-- Danych z `data/raw` i `data/processed` nie commitujemy; muszą dać się odtworzyć skryptami.
+- Danych z `data/raw` nie commitujemy; z `data/processed` tylko `usos/`, `transit/` i `population/dorms.csv` (pobieranie trwa długo), reszta musi dać się odtworzyć skryptami.
 
 ---
 

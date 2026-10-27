@@ -32,6 +32,10 @@ function Highlight({ source, start, count, color }: { source: BufferGeometry; st
   useEffect(() => geometry.setDrawRange(start, count), [geometry, start, count]);
   useEffect(
     () => () => {
+      // the buffers belong to the context mesh: detach them, or dispose() deletes them on the GPU
+      geometry.setIndex(null);
+      geometry.deleteAttribute("position");
+      geometry.deleteAttribute("normal");
       geometry.dispose();
       material.dispose();
     },

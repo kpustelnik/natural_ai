@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from metro_agh.aco import run_mmas
 from metro_agh.experiments import (
@@ -95,6 +96,34 @@ def test_apply_overrides_dotted_and_nested():
     assert out["aco"]["alpha"] == 2.0
     assert out["aco"]["beta"] == 3.0
     assert out["aco"]["rho"] == 0.2
+    # a dotted key with a dict value merges into that sub-dict
+    cfg = {"aco": {"trace": {"every": 5, "max_ants": 50}}}
+    out = apply_overrides(cfg, {"aco.trace": {"every": 1}})
+    assert out["aco"]["trace"] == {"every": 1, "max_ants": 50}
+
+
+def test_brute_force_run_records_the_optimum(tmp_path: Path):
+    from metro_agh.optimize import run_algorithm
+
+    inst = _toy()
+    cfg = {"seed": 0, "optimize": {"algorithm": "brute_force"}}
+    result = run_algorithm(inst, cfg)
+    meta = save_run(
+        cfg=cfg,
+        inst=inst,
+        inst_path=tmp_path / "instance.npz",
+        result=result,
+        job=Job("gap", "base", 0, {}),
+        wall_s=0.01,
+        results_dir=tmp_path,
+        save_trace=True,  # nothing to save: no pheromone
+        update_best_line=False,
+    )
+    assert meta.algorithm == "brute_force" and "brute_force" in meta.run_id
+    assert not (tmp_path / meta.run_id / "trace.npz").exists()
+    row = RUNS.read(tmp_path / "runs.csv").iloc[0]
+    assert row["optimum_s"] == row["best_s"]
+    assert row["eval_budget"] == row["evaluations"] == result.params["n_lines"]
 
 
 def test_save_run_appends_runs_csv(tmp_path: Path):
@@ -166,3 +195,24 @@ def test_metro_overrides_reach_the_run(tmp_path: Path):
     assert [len(m.best.stations) for m in metas.values()] == [2, 4]
     runs = RUNS.read(tmp_path / "runs.csv").set_index("run_id")
     assert sorted(runs["k"]) == [2, 4]
+    # the dwell of each job is in its objective: the best line costs what it costs with it
+    from metro_agh.aco.objective import Objective
+    from metro_agh.network.instance import with_config
+
+    for k, m in metas.items():
+        cfg = {**base, "metro": {**base["metro"], "n_stations": k, "dwell_s": 5.0 * k}}
+        inst = with_config(_toy(), cfg)
+        ids = [str(c) for c in inst.candidate_ids]
+        line = [ids.index(s) for s in m.best.stations]
+        assert m.best.objective_s == pytest.approx(Objective(inst)(line), abs=0.1)
+        assert inst.meta.dwell_s == 5.0 * k
+
+
+def test_overrides_that_change_the_instance_are_refused():
+    from metro_agh.experiments import check_overrides
+
+    check_overrides({"aco.alpha": 2.0, "metro": {"n_stations": 6, "candidates": ["A", "B"]}})
+    with pytest.raises(ValueError, match="time_model.walk_mps"):
+        check_overrides({"time_model": {"walk_mps": 1.0}})
+    with pytest.raises(ValueError, match="simulation.transit"):
+        check_overrides({"simulation.transit": False})

@@ -49,7 +49,7 @@ def main() -> int:
     parser.add_argument("--typical", action="store_true", help="typical week (timetable.csv)")
     parser.add_argument("--parity", choices=["odd", "even"], default=None, help="with --typical")
     parser.add_argument("--sample", action="store_true", help="campus from data/sample/campus")
-    parser.add_argument("--config", default=None, help="experiment config overriding keys")
+    parser.add_argument("--config", default=None, help="YAML of config.yaml keys merged over it")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     cfg = load_config(override=args.config)

@@ -158,8 +158,8 @@ export const METRO = {
 /** Students by what they are doing (simulation replays). */
 export const STUDENTS = [
   { color: "#2a6fb0", label: "walking" },
-  { color: "#e8a33d", label: "waiting for a train" },
-  { color: ACCENT, label: "on the train" },
+  { color: "#e8a33d", label: "waiting (platform or stop)" },
+  { color: ACCENT, label: "riding (metro, bus, tram)" },
 ] as const;
 
 /** The two scenarios in charts and the split view. */

@@ -17,14 +17,17 @@ campus room during the term is lost. Everything is cached in ``data/raw/usos/``.
 from __future__ import annotations
 
 import datetime as dt
+import html as htmllib
 import logging
-from collections.abc import Iterable
+import re
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass, field
+from urllib.parse import unquote
 
 import pandas as pd
 from tqdm import tqdm
 
-from .http import CachedHttp, OfflineMiss
+from .http import CachedHttp, FetchFailed, OfflineMiss
 from .pages import (
     CourseGroup,
     CoursePage,
@@ -112,29 +115,26 @@ def fetch_faculties(http: CachedHttp, root: str = "000-000") -> list[str]:
 
 
 def fetch_catalogue(http: CachedHttp, faculties: list[str], progress: bool = True):
-    """Course groups of every faculty and the courses of every group (paged by 100)."""
+    """Course groups of every faculty and the courses of every group (every page of both
+    lists, see ``_pages``)."""
     groups: dict[str, CourseGroup] = {}
     faculty_of: dict[str, str] = {}
     for fac in _each(faculties, "faculties", progress):
-        page = _page(http, "web/catalogue", {**_FACULTY_GROUPS, "jed_org_kod": fac})
-        for g in parse_faculty_groups(page or ""):
-            groups.setdefault(g.code, g)
-            faculty_of.setdefault(g.code, fac)
+        for page in _pages(http, "web/catalogue", {**_FACULTY_GROUPS, "jed_org_kod": fac}):
+            for g in parse_faculty_groups(page):
+                groups.setdefault(g.code, g)
+                faculty_of.setdefault(g.code, fac)
     courses: dict[str, list[str]] = {}
     for code in _each(sorted(groups), "course groups", progress):
-        found: list[str] = []
-        for offset in range(0, 5000, 100):
-            page = _page(
-                http,
-                "web/catalogue",
-                {**_FACULTY_GROUPS, "jed_org_kod": faculty_of[code], "grupaKod": code,
-                 "tabea00_limit": 100, "tabea00_offset": offset},
-            )  # fmt: skip
-            new = [c for c in parse_group_courses(page or "") if c not in found]
-            found += new
-            if len(new) < 100:
-                break
-        courses[code] = found
+        # the code as the link sends it is URL-encoded (``1S%2C7sem``): decode it, or
+        # urlencode sends %252C and USOSweb finds no such group. tabea00_*: ignored by
+        # USOSweb, kept so the first pages cached with them stay valid.
+        params = {**_FACULTY_GROUPS, "jed_org_kod": faculty_of[code], "grupaKod": unquote(code),
+                  "tabea00_limit": 100, "tabea00_offset": 0}  # fmt: skip
+        found = [
+            c for page in _pages(http, "web/catalogue", params) for c in parse_group_courses(page)
+        ]
+        courses[code] = list(dict.fromkeys(found))
     return groups, courses, faculty_of
 
 
@@ -170,17 +170,55 @@ def fetch_meetings(
             )
         except OfflineMiss:
             continue
-        for a in d.get("partial_response") or []:
+        except FetchFailed as err:
+            _skip(http, err)
+            continue
+        if "partial_response" not in d:  # an error answer (cached): these groups are lost
+            log.warning("tt/classgroups %s, %d groups: %s", week, len(batch), str(d)[:200])
+            continue
+        for a in d["partial_response"] or []:
             rows.append({k: a.get(k) for k in TT_FIELDS.split("|")})
     df = pd.DataFrame(rows, columns=TT_FIELDS.split("|"))
     return df.drop_duplicates().reset_index(drop=True)
 
 
-def _page(http: CachedHttp, kind: str, params: dict) -> str | None:
+FAILED_IN_A_ROW = 20  # this many pages failing one after another: stop, USOS is down
+
+
+def _skip(http: CachedHttp, err: FetchFailed) -> None:
+    """One page that keeps failing is skipped (and counted) rather than ending an hours-long
+    crawl; a rerun fetches it, since failures are not cached. A run of them is an outage."""
+    if http.failed_in_a_row >= FAILED_IN_A_ROW:
+        raise RuntimeError(f"{http.failed_in_a_row} pages failed in a row: {err}") from err
+    log.warning("%s: skipped", err)
+
+
+def _page(http: CachedHttp, kind: str, params: dict | None, url: str = WEB) -> str | None:
     try:
-        return http.text(kind, WEB, params)
+        return http.text(kind, url, params)
     except OfflineMiss:
         return None
+    except FetchFailed as err:
+        _skip(http, err)
+        return None
+
+
+_NEXT_PAGE = re.compile(r"next-page-url='([^']+)'")
+
+
+def _pages(http: CachedHttp, kind: str, params: dict) -> Iterator[str]:
+    """A catalogue list page by page. USOSweb shows 30 rows a page and ignores any other
+    paging parameters; the page's ``table-nav-bar`` names the next one (its table id differs
+    per list), and the last page has none."""
+    page = _page(http, kind, params)
+    seen: set[str] = set()
+    while page is not None:
+        yield page
+        m = _NEXT_PAGE.search(page)
+        if not m or m.group(1) in seen:
+            return
+        seen.add(m.group(1))
+        page = _page(http, kind, None, htmllib.unescape(m.group(1)))
 
 
 _FACULTY_GROUPS = {"_action": "katalog2/przedmioty/szukajPrzedmiotu", "method": "faculty_groups"}
@@ -280,6 +318,8 @@ def crawl(
                  len(meetings), len(pairs), start, end)  # fmt: skip
     if misses:
         log.warning("%d pages missing (offline cache / request budget)", misses)
+    if http.n_failed:
+        log.warning("%d pages failed and were skipped: run again to fetch them", http.n_failed)
     log.info(
         "crawl %s: %d units, %d groups (%d requests, %d from cache, %d stale)",
         term, len(units), sum(len(u.groups) for u in units.values()),

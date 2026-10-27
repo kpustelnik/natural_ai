@@ -25,7 +25,7 @@ from pathlib import Path
 
 from metro_agh.config import load_config, path
 from metro_agh.web.export_campus import CampusExport, write_replay_catalog, write_status_file
-from metro_agh.web.export_demand import export_demand
+from metro_agh.web.export_demand import export_demand, refresh_demand
 from metro_agh.web.export_metro import export_aco_run, export_best_line, load_scene
 from metro_agh.web.export_sim import export_simulation
 from metro_agh.web.fake import NOTE, SIM_NOTE, write_fake_results, write_fake_simulation
@@ -94,7 +94,7 @@ def main() -> None:
     parser.add_argument("--metro", action="store_true", help="the line in best_line.json")
     parser.add_argument("--sim", action="store_true", help="the simulated week (stage 5)")
     parser.add_argument("--fake", action="store_true", help="synthetic ACO run, line and week")
-    parser.add_argument("--config", default=None, help="experiment config overriding keys")
+    parser.add_argument("--config", default=None, help="YAML of config.yaml keys merged over it")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -115,11 +115,7 @@ def main() -> None:
         for e in status.errors:
             where = f"{e.file}:{e.line}" if e.line else e.file
             log.error("%s: %s%s", where, f"{e.loc}: " if e.loc else "", e.message)
-        # if demand/od.parquet already exists (USOS or a prior --fake), publish the heatmap
-        demand_changed: list[str] = []
-        export_demand(cfg, path(cfg, "processed"), path(cfg, "web_data"), demand_changed)
-        if demand_changed:
-            write_status_file(path(cfg, "web_data"), demand_changed)
+        refresh_demand(cfg, ex.out_dir)  # the heatmap, if demand/od.parquet exists (03)
         log.info("status.json version %d, %d files", status.version, len(status.changed))
         code = 1 if status.errors else 0
     if replays:

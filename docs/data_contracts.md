@@ -33,15 +33,16 @@ the code disagree, the code wins and this document has a bug.
 ## 1. Pipeline and ownership
 
 ```
- hand-written (git)                    generated (data/processed, gitignored)
- ─────────────────                     ──────────────────────────────────────
+ hand-written (git)                    generated (data/processed; gitignored except
+ ─────────────────                     usos/, transit/, population/dorms.csv)
+                                       ──────────────────────────────────────
                        01_fetch_usos (USOS API + USOSweb, public)
  usos_room_map.csv ──────────────────► usos/timetable.csv, groups.csv, rooms.csv,
                                        cohorts.csv, group_cohorts.csv
                        01_fetch_transit (GTFS ZTP Kraków)
                      ────────────────► transit/stops.csv, rides.csv (──► campus.yaml stops)
                                               │
- OSM (raw/osm/cache) ── 02_build_campus ──► osm/campus.gpkg, report.md, issues.json, preview.html
+ OSM (raw/osm/*.osm) ── 02_build_campus ──► osm/campus.gpkg, report.md, issues.json, preview.html
                           --bootstrap ──────► buildings/*.yaml (LOD1, new files only)
  buildings/*.yaml ──┐                         │
  campus.yaml ───────┼── 02_build_campus ──► network/nodes.parquet, edges.parquet
@@ -51,7 +52,7 @@ the code disagree, the code wins and this document has a bug.
  usos/*, campus dorms + stops,          enrollments.parquet
  network/nodes.parquet                  demand/legs.parquet, od.parquet, migrations.csv
                                               │
-                       (end of 03)            ▼
+                       load_or_build (04)     ▼
                                        instance/instance.npz ◄── network + od
                                               │
                        04_optimize            ▼
@@ -67,9 +68,9 @@ the code disagree, the code wins and this document has a bug.
                                        web/public/data/  (scene, glb, network, issues, replays/<id>/…)
 ```
 
-Paths of generated files are relative to `paths.processed` (`data/processed`), or to
-`paths.sample` when a script runs with `--sample`. Hand-written campus data lives in
-`paths.campus` (`data/campus`, sample: `data/sample/campus`).
+Paths of generated files are relative to `paths.processed` (`data/processed`), also with
+`--sample`: that flag only swaps the hand-written campus for `data/sample/campus` (no script
+writes under `paths.sample`). Hand-written campus data lives in `paths.campus` (`data/campus`).
 
 | Contract | Code | Written by | Read by |
 |---|---|---|---|
@@ -83,7 +84,7 @@ Paths of generated files are relative to `paths.processed` (`data/processed`), o
 | `demand/legs.parquet`, `od.parquet` | `tables.LEGS`, `OD` | person 1 | network (instance), simulation |
 | `demand/migrations.csv` | `tables.MIGRATIONS` | person 1 | notebooks, report |
 | `network/*.parquet` | `tables.GRAPH_NODES`, `GRAPH_EDGES` | person 2 | instance, simulation, export |
-| `instance/instance.npz` | `schemas.instance.Instance` | person 2 | aco, baselines, tests |
+| `instance/instance.npz` | `schemas.instance.Instance` | `network/instance.py` (built by `04_optimize.py`, `run_experiments.py`) | aco, experiments, tests |
 | `results/<run_id>/*`, `best_line.json` | `schemas.results`, `tables.CONVERGENCE` | person 3 | experiments, simulation, export |
 | `results/runs.csv` | `tables.RUNS` | person 5 (`run_experiments.py`) | notebooks |
 | `simulation/**` | `tables.SIM_LEGS`, `METRO_SCHEDULE` | person 4 | export, notebooks |
@@ -308,7 +309,7 @@ extra_paths:       # outdoor walkways missing in OSM; ends snap to the nearest w
   - { id: shortcut, path: [[19.9131, 50.0681], [19.9140, 50.0676]] }
 removed_ways:      # OSM ways students cannot use
   - { osm_way_id: 123456789, reason: gate closed }
-stops:             # where commuting students arrive (3 stops)
+stops:             # where commuting students arrive
   - { id: "stop:czarnowiejska", name: Czarnowiejska, location: [19.9172, 50.0665], weight: 2 }
 ```
 
@@ -530,8 +531,8 @@ the student migrations between buildings; `median_break_s` is the time they have
 ### 6.1 `osm/campus.gpkg`: `tables.OSM_*`
 
 Written by `scripts/02_build_campus.py` from one Overpass query for features and one for the
-walk network over `campus.bbox`. Raw responses are cached in `data/raw/osm/cache`
-(`--refresh` downloads again). One GeoPackage, **all layers in EPSG:2180**; open it in
+walk network over `campus.bbox`. Raw responses are cached as `data/raw/osm/features.osm` and
+`walk.osm` (`--refresh` downloads again). One GeoPackage, **all layers in EPSG:2180**; open it in
 QGIS to inspect, or open `osm/preview.html` in a browser. `osm/report.md` lists everything a
 human should check. `osm/issues.json` (`schemas.web.IssueList`) holds the same issues with
 `building_id` / `osm_id`, for the viewer's issues panel (section 10.8).
@@ -699,22 +700,43 @@ and the difference between the two is reported.
 
 ## 8. Optimisation results
 
+`optimize.algorithm` picks the optimiser (`optimize.run_algorithm`); all of them read only the
+instance (section 7) and return the same result:
+
+| `algorithm` | what | `eval_budget` | `trace.npz` |
+|---|---|---|---|
+| `mmas` | MAX-MIN Ant System (`aco.*`, `aco.tau_min_ratio`) | `n_ants × n_iterations` lines | yes |
+| `acs` | Ant Colony System (`aco.*`, `aco.q0`, `aco.xi`) | `n_ants × n_iterations` lines | yes |
+| `random` | random lines | `n_ants × n_iterations` lines | no |
+| `greedy` | best pair, then the station + place that help most | evaluations it made | no |
+| `brute_force` | every distinct line (refuses more than `optimize.brute_force_max_lines`) | number of lines | no |
+
+`evaluations` counts distinct lines (a reversed line or a rotated loop is evaluated once), so
+it can be below the budget. `optimize.max_evaluations` gives every stochastic algorithm the
+same budget of distinct lines (it then stops after the iteration that reaches it, and
+`eval_budget` is that number). `optimize.local_search` polishes lines with a best-improvement
+descent (`aco/local_search.py`): MMAS, ACS and random search their iteration best, greedy its
+final line; its evaluations count too.
+
 ### 8.1 Run directory `experiments/results/<run_id>/`
 
-`run_id` = `<experiment>-<algorithm>-k<k>-s<seed>`, e.g. `baselines-mmas-k5-s3`.
+`run_id` = `<algorithm>-k<k>-s<seed>` from `04_optimize` (e.g. `mmas-k5-s42`),
+`<experiment>-<tag>-<algorithm>-k<k>-s<seed>` from `run_experiments`, `fake-mmas-k<k>-s<seed>`
+from `06_export_web.py --fake`.
 
 **`run.json`**: `schemas.results.RunMeta`: provenance, experiment, algorithm, instance path +
 hash, seed, `params` (exactly what was used), eval budget, evaluations, wall time, and the
 `best` line.
 
-**`convergence.csv`**: `tables.CONVERGENCE`, one row per iteration:
+**`convergence.csv`**: `tables.CONVERGENCE`, one row per iteration (greedy: per added station;
+brute force: per 1 % of the lines):
 
 `iteration, evaluations, best_s, iter_best_s, iter_mean_s, tau_min, tau_max, pheromone_entropy`
 
 The pheromone columns are null for the baselines; `evaluations` is cumulative, so curves of
 different algorithms are compared at equal budget.
 
-**`trace.npz`**: `schemas.results.AcoTrace`, ACO only. Sampled every `aco.trace.every`
+**`trace.npz`**: `schemas.results.AcoTrace`, MMAS and ACS only. Sampled every `aco.trace.every`
 iterations, at most `aco.trace.max_ants` ants. The same file feeds the analysis notebooks
 and the web animation.
 
@@ -729,12 +751,15 @@ and the web animation.
 
 ### 8.2 `experiments/results/runs.csv`: `tables.RUNS`
 
-One row per run, appended by `run_experiments.py`. It's the input for the boxplots, the
-Wilcoxon tests and the gap-to-optimum table:
+One row per run, appended by `run_experiments.py`. It's the input for the algorithm
+comparison (`plot_experiments.py`: per-seed savings, Wilcoxon tests against MMAS) and the
+gap-to-optimum table:
 
 `run_id, experiment, algorithm, topology, k, n_candidates, seed, eval_budget, evaluations,
 evaluations_to_best, best_s, baseline_s, optimum_s, wall_time_s, stations ('|'-joined),
 params_json`
+
+`optimum_s` is set on brute-force rows (their `best_s`), null otherwise.
 
 ### 8.3 `experiments/results/best_line.json`: `schemas.results.BestLine`
 
@@ -743,7 +768,7 @@ The line used by simulation and export.
 ```json
 {
   "provenance": { "schema_version": 1, "generated_at": "…", "generator": "04_optimize.py" },
-  "run_id": "main-mmas-k5-s42",
+  "run_id": "mmas-k5-s42",
   "topology": "line",
   "stations": ["D-17", "C-2", "B-1", "A-0", "U-2"],
   "objective_s": 7407402.0,
@@ -751,6 +776,16 @@ The line used by simulation and export.
   "lower_bound_s": 5120000.0
 }
 ```
+
+`lower_bound_s` (`aco.objective.teleport_bound`): the objective if the train took 0 s and
+every OD pair had its two best different candidates as stations (shafts and wait still
+counted). No line of any k beats it: `baseline_s ≥ objective_s ≥ lower_bound_s`.
+
+An experiment (`run_experiments.py`) shares one instance between its jobs, so a job may vary
+`metro.*` (k, speed, dwell, headway, topology, a `candidates` list: a subset of the
+instance's columns), `aco.*` and `optimize.*`, but not keys the arrays are computed from
+(`time_model`, `demand`, `population`, `simulation.transit`, `metro.station_depth_m`): those
+are refused (`experiments.check_overrides`).
 
 ---
 
@@ -953,7 +988,8 @@ One root `ground` node with children identified by `extras.layer`:
 - `ground`: the bbox plate, at y = 0.
 - `paths:road`, `paths:footway`, `paths:steps`: walk edges buffered into ribbons (5, 2 and
   2.2 m wide), unioned per class.
-- `boundary:<kind>`: the campus and Miasteczko outlines, as lines.
+- `boundary` (node name `boundary:<kind>`, extras `kind`, `name`): the campus and Miasteczko
+  outlines, as lines.
 - `fences`: fences and walls, as lines.
 
 ### 10.6 Metro, ACO trace, trips and stats (inside replays)
@@ -1178,8 +1214,9 @@ match `NetworkHeader` / the polylines the viewer draws.
 - **Students in several course groups** (a base cohort and an elective pool) are modelled in one
   cohort; two USOS course groups for the same students (`ZIP-1S_2s_PP` and `ZIP-1S_2sem_PP`)
   are two cohorts, so the total is somewhat high.
-- **Commuters' arrival**: stops are weighted by peak vehicles; the timetable of the ride itself
-  (`transit/rides.csv`) is not yet used by the simulation.
+- **Commuters' arrival**: stops are weighted by peak vehicles. Buses and trams between campus
+  stops are simulated from `transit/trips.parquet`; the ACO instance uses the shortest rides of
+  `transit/rides.csv`.
 - **Elevators**: not routed in v1 (stairs only).
 - **Time-dependent closures** (gates open only at certain hours): not in v1; such ways go to
   `removed_ways` or stay open.

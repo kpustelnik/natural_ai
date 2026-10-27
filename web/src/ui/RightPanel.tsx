@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 import { live } from "../data/live";
-import { useBuildingInfo, useContextFeatures, useIssues } from "../data/resource";
+import { useBuildingInfo, useContextFeatures, useIssues, useNetwork } from "../data/resource";
 import type { BuildError, Issue, ReplayCatalog, Scene, SceneBuilding } from "../generated/schemas";
 import { area, duration, lonLat, metres, osmUrl } from "../lib/format";
 import { type Vec3, webToGeo } from "../lib/frames";
 import { useOpenReplay } from "../scene/layers/Replay";
-import { pickBox, registry } from "../scene/registry";
+import { pickBox } from "../scene/registry";
 import { app, enterBuilding, focusBox, focusPoint, openedBuilding, type Pick, select, setRouteEnd, useApp } from "../state/app";
 import { useSlice } from "../state/store";
 import { IconAlert, IconCode, IconCopy, IconEnter, IconExternal, IconFrame, IconInfo } from "./icons";
@@ -262,6 +262,7 @@ function SpaceInspector({ scene, sel }: { scene: Scene; sel: Extract<Pick, { kin
 function Inspector({ scene }: { scene: Scene }) {
   const sel = useApp((s) => s.selection);
   const features = useContextFeatures(scene.context?.features).data;
+  const net = useNetwork(sel?.kind === "edge" || sel?.kind === "barrier" ? scene.network : null).data;
 
   if (!sel) {
     return (
@@ -365,7 +366,6 @@ function Inspector({ scene }: { scene: Scene }) {
       );
     }
     case "edge": {
-      const net = registry.network;
       if (!net) return <p className="muted">Loading…</p>;
       const h = net.header;
       const kind = h.edge_kind_names[(net.arrays.edge_kind as Uint8Array)[sel.index]!];
@@ -436,7 +436,7 @@ function Inspector({ scene }: { scene: Scene }) {
       );
     }
     case "barrier": {
-      const b = registry.network?.header.barriers[sel.index];
+      const b = net?.header.barriers[sel.index];
       if (!b) return <p className="muted">Loading…</p>;
       return (
         <>

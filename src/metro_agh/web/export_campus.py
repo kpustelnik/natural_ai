@@ -30,13 +30,20 @@ from shapely.geometry import LineString, MultiPolygon, Polygon, box
 
 from ..campus.geo import to_metric
 from ..config import ROOT, path, provenance
-from ..geometry.building import PlacedBuilding, lod1_meshes, match_osm, osm_index, place
+from ..geometry.building import (
+    PlacedBuilding,
+    largest_polygon,
+    lod1_meshes,
+    match_osm,
+    osm_index,
+    place,
+)
 from ..geometry.interior import interior_meshes, plan_levels, shaft_lines, space_size
 from ..geometry.mesh import Lines, Origin, TriMesh, flat, outline, polygons, polyline, prism, web
 from ..network.graph import (
     Graph,
     assemble,
-    edge_class,  # noqa: F401  (re-exported: the export's path classes)
+    edge_class,
     outdoor_part,
     passage_ats,
     passage_part,
@@ -271,7 +278,7 @@ class CampusExport:
         placed = osm_geom = row = None
         if b is not None:
             row, osm_geom = match_osm(b, self.osm_buildings, self.osm_index)
-            outline_geom = max(polygons(osm_geom), key=lambda p: p.area) if osm_geom else None
+            outline_geom = largest_polygon(osm_geom)
             try:
                 placed = place(b, self.cfg, self.origin_z, outline_geom)
             except ValueError as err:

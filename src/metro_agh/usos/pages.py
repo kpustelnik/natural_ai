@@ -17,6 +17,7 @@ from __future__ import annotations
 import html as htmllib
 import re
 from dataclasses import dataclass, field
+from urllib.parse import unquote
 
 WEEKDAY_STEMS = (
     ("poniedzia", 1),
@@ -58,7 +59,7 @@ def parity_of(frequency: str) -> str | None:
         return "odd"
     if "parzyst" in f:
         return "even"
-    if re.search(r"\bkażd[yaey]\b|\bco tydzień\b", f):
+    if re.search(r"\bkażd[yaeą]\b|\bco tydzień\b", f):  # każdy, każda, każde, każdą
         return "all"
     return None
 
@@ -262,23 +263,6 @@ def parse_course(page: str, course_code: str) -> CoursePage:
     )
 
 
-# --- cohorts from course-group codes --------------------------------------------------------
-
-_COHORT = re.compile(r"^(?P<prog>.+?)-(?P<year>\d+)R-(?P<half>[ZL])$")
-
-
-def cohort_of(group: CourseGroup) -> tuple[str, int] | None:
-    """(programme, semester) of a course group like ``240-INF-1S-1R-Z`` (year 1, winter =
-    semester 1) or a label ending "3 semestr"; None for elective pools and the like."""
-    m = _COHORT.match(group.code)
-    if m:
-        return m["prog"], 2 * int(m["year"]) - (1 if m["half"] == "Z" else 0)
-    sem = re.search(r"(\d+)\s*semestr", group.label)
-    if sem:
-        return re.sub(r"-?\d+R.*$", "", group.code) or group.code, int(sem.group(1))
-    return None
-
-
 # --- faculty catalogue: course groups and their courses ------------------------------------
 
 
@@ -296,6 +280,7 @@ def parse_faculty_groups(page: str) -> list[CourseGroup]:
 
 
 def parse_group_courses(page: str) -> list[str]:
-    """Course codes on one page of a course group's list of courses."""
+    """Course codes on one page of a course group's list of courses, decoded like the room
+    plans' (``JA-3%2F4`` -> ``JA-3/4``; the encoded one fetches a "400" page)."""
     codes = re.findall(r"pokazPrzedmiot&(?:amp;)?prz_kod=([^'\"&]+)", page)
-    return list(dict.fromkeys(htmllib.unescape(c) for c in codes))
+    return list(dict.fromkeys(unquote(htmllib.unescape(c)) for c in codes))

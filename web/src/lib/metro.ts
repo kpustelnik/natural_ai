@@ -62,8 +62,9 @@ export function trainsAt(metro: Metro, day: DayRuns, t: number): TrainState[] {
   return out;
 }
 
-function heading(a: Vec3, b: Vec3): number {
-  return Math.atan2(b[0] - a[0], b[2] - a[2]);
+/** Rotation about y that faces from ``a`` to ``b`` (web frame). */
+export function heading(a: readonly number[], b: readonly number[]): number {
+  return Math.atan2(b[0]! - a[0]!, b[2]! - a[2]!);
 }
 
 export function lerp(a: Vec3, b: Vec3, f: number): Vec3 {

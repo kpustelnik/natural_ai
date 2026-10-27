@@ -7,6 +7,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import { BufferAttribute, BufferGeometry, Color, LineBasicMaterial, LineSegments, Plane, Vector3 } from "three";
 import type { BinaryFile } from "../../data/loader";
+import { networkIndex } from "../../data/network";
 import { useDemand } from "../../data/resource";
 import type { NetworkHeader } from "../../generated/schemas";
 import { app, useApp } from "../../state/app";
@@ -18,11 +19,9 @@ const LIFT = 0.4;
 
 function edgeGeometry(net: BinaryFile<NetworkHeader>, edge: number): BufferGeometry {
   const seg = net.arrays.segment_xyz as Float32Array;
-  const ids = net.arrays.segment_edge as Uint32Array;
-  const out: number[] = [];
-  for (let s = 0; s < ids.length; s++) if (ids[s] === edge) for (let k = 0; k < 6; k++) out.push(seg[s * 6 + k]!);
+  const { segStart } = networkIndex(net);
   const g = new BufferGeometry();
-  g.setAttribute("position", new BufferAttribute(new Float32Array(out), 3));
+  g.setAttribute("position", new BufferAttribute(seg.slice(segStart[edge]! * 6, segStart[edge + 1]! * 6), 3));
   return g;
 }
 

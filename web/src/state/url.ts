@@ -115,6 +115,7 @@ function writeHash(): void {
       q.set("it", String(Math.round(p.iteration * 10) / 10));
       if (p.acoView === "trains") q.set("view", "trains");
     }
+    q.set("speed", String(p.speed));
     if (s.workspace === "simulation") {
       if (p.split) q.set("split", "1");
       else if (p.scenario !== "metro") q.set("sc", p.scenario);
@@ -124,6 +125,7 @@ function writeHash(): void {
   if (s.route.from) q.set("from", s.route.from);
   if (s.route.to) q.set("to", s.route.to);
   if (s.present) q.set("present", "1");
+  if (s.perf !== "off") q.set("perf", s.perf === "log" ? "log" : "1");
   if (lastPose) q.set("pose", formatPose(lastPose));
   const hash = `#${q.toString()}`;
   if (hash !== location.hash) history.replaceState(null, "", hash);
@@ -132,6 +134,7 @@ function writeHash(): void {
 /** Load state from the URL once, then keep the URL in sync. */
 export function bindUrl(): () => void {
   app.set(stateFromHash(location.hash));
+  lastPose = app.get().initialPose; // keep a shared pose until the camera moves
   let prev = app.get();
   return app.subscribe(() => {
     const s = app.get();
@@ -146,6 +149,7 @@ export function bindUrl(): () => void {
       s.route.to !== prev.route.to ||
       s.rightTab !== prev.rightTab ||
       s.present !== prev.present ||
+      s.perf !== prev.perf ||
       s.playback.split !== prev.playback.split ||
       s.playback.scenario !== prev.playback.scenario
     ) {

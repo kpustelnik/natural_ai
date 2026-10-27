@@ -1,7 +1,7 @@
 """Building YAML -> placed geometry (footprint, levels, entrances) and LOD1 meshes.
 
-LOD2/3 interiors (slabs with openings, walls, rooms, stairs) come in phase 3; until then
-every building is drawn as its shell, split by levels so the viewer can isolate floors.
+The shell is split by levels so the viewer can isolate floors; LOD2/3 interiors (walls,
+rooms, stairs, floor plates) are built from the same placement in ``interior.py``.
 """
 
 import math
@@ -76,7 +76,8 @@ def point_along(path: list[tuple[float, float]], at: float) -> tuple[np.ndarray,
     raise ValueError("empty path")
 
 
-def _levels(b: Building, cfg: dict) -> list[LevelSpan]:
+def level_spans(b: Building, cfg: dict) -> list[LevelSpan]:
+    """Storeys of a building: its YAML levels, else n_levels or height_m / floor height."""
     if b.levels:
         return [
             LevelSpan(lvl.id, lvl.elevation, lvl.height)
@@ -168,7 +169,7 @@ def place(b: Building, cfg: dict, origin_z: float, osm_outline: Polygon | None) 
             )
         )  # fmt: skip
     return PlacedBuilding(
-        b, frame, ground_y, local, orient(metric, 1.0), _levels(b, cfg), entrances
+        b, frame, ground_y, local, orient(metric, 1.0), level_spans(b, cfg), entrances
     )
 
 

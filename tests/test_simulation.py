@@ -11,7 +11,7 @@ from metro_agh.schemas.results import BestLine, load_json
 from metro_agh.schemas.tables import LEGS, SIM_LEGS
 from metro_agh.schemas.web import DayHeader, PathsHeader, Replay, Stats
 from metro_agh.simulation.schedule import build_schedule, hhmm
-from metro_agh.simulation.simulate import Line, simulate
+from metro_agh.simulation.simulate import Line, connections, simulate
 from metro_agh.web.export_metro import load_scene
 from metro_agh.web.export_sim import export_simulation
 from metro_agh.web.fake import write_fake_results, write_fake_simulation
@@ -102,6 +102,23 @@ def test_metro_when_it_is_earlier(simulated):
     assert m.late_s[1] == 0
     # leg 2: 50 m, walking wins
     assert m["mode"][2] == "walk"
+
+
+def test_loop_rides_through_station_0():
+    # loop A-B-C-D-A: D -> B is 600 m through A, 1400 m the other way round
+    names = ["A", "B", "C", "D"]
+    xy = np.array([[0, 0], [100, 0], [1000, 0], [500, 10]], float)
+    cfg = {"metro": {"speed_mps": 10, "dwell_s": 30, "headway_s": 60,
+                     "service": {"start": "08:00", "end": "09:00"}}}  # fmt: skip
+    schedule = build_schedule(names, xy, "loop", cfg, [1])
+
+    def fastest(conns):
+        c = conns[(3, 1)]
+        return (c.best_arr - c.best_dep).min()
+
+    # the next run leaves A 10 s after this one is back: 50 s + 10 s wait + 10 s
+    assert fastest(connections(schedule, names, "loop")) == pytest.approx(70, abs=2)
+    assert fastest(connections(schedule, names)) == pytest.approx(170, abs=2)  # within runs
 
 
 def test_unknown_endpoint_is_an_error():
@@ -213,3 +230,21 @@ def test_buses_are_part_of_both_scenarios():
     # the metro scenario keeps the bus where the train is not faster
     m = out["metro"].set_index("leg_id")
     assert m.loc[0, "arrive_wt"] <= nm.loc[0, "arrive_wt"]
+
+
+def test_field_measurements_vs_the_graph():
+    from metro_agh.validation import compare_field, summary
+
+    nodes, edges = _graph()
+    measured = pd.DataFrame({
+        "route_id": ["r1", "r2", "r3"], "from_key": ["A-0", "A-0", "A-0"],
+        "to_key": ["B-1", "C-2", "Z-9"], "measured_s": [800.0, 40.0, 60.0],
+        "date": ["2026-10-27"] * 3, "who": ["kp"] * 3, "notes": [None] * 3,
+    })  # fmt: skip
+    cmp = compare_field(measured, nodes, edges).set_index("route_id")
+    assert cmp.model_s["r1"] == pytest.approx(1000 / 1.3, abs=0.1)
+    assert cmp.error_s["r2"] == pytest.approx(50 / 1.3 - 40, abs=0.1)
+    assert np.isnan(cmp.model_s["r3"])  # Z-9 is not in the graph
+    s = summary(cmp.reset_index())
+    assert s["routes"] == 2 and s["unknown_keys"] == 1
+    assert s["mae_s"] == pytest.approx((abs(1000 / 1.3 - 800) + abs(50 / 1.3 - 40)) / 2, abs=0.1)

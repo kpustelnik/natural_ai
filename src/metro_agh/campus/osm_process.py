@@ -227,7 +227,7 @@ def buildings_layer(
             levels_underground=group.levels_underground.max(),
             roof_levels=group.roof_levels.max(),
             height_tag=group.height_tag.max(),
-            name=next((n for n in group.name if n), None),
+            name=next((n for n in group.name if isinstance(n, str) and n), None),  # NaN is truthy
         )
         merged.append(rec)
 
@@ -456,7 +456,6 @@ def walk_layers(graph: nx.MultiDiGraph) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFr
             "osm_ways": col(edges, "osmid"),
             "highway": highway,
             "name": col(edges, "name"),
-            "length_m": edges.length.astype(float) if "length" in edges else edges.geometry.length,
             "is_steps": highway.str.contains("steps"),
             "step_count": col(edges, "step_count").map(parse_number),
             **{
@@ -477,7 +476,9 @@ def walk_layers(graph: nx.MultiDiGraph) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFr
         geometry=edges.geometry.to_numpy(),
         crs=METRIC_CRS,
     )
-    e["length_m"] = e.geometry.length  # metric 2D length (osmnx length is geodesic, equal here)
+    # metric 2D length (osmnx's length column is geodesic, equal here), placed before
+    # is_steps as in the contract
+    e.insert(int(e.columns.get_loc("is_steps")), "length_m", e.geometry.length)
     return n, e
 
 
@@ -515,15 +516,14 @@ def build_layers(
         "walk_edges": walk_edges,
     }
 
-    if "boundary" in layers:
-        campus = layers["boundary"]
-        area = unary_union(list(campus[campus.kind != "bbox"].geometry))
-        if not area.is_empty:
-            outside = buildings[buildings.building_id.notna() & ~buildings.intersects(area)]
-            for code in outside.building_id:
-                issues.add(
-                    "AGH codes outside the campus area (check they are AGH)",
-                    code,
-                    building_id=code,
-                )
+    campus = layers["boundary"]
+    area = unary_union(list(campus[campus.kind != "bbox"].geometry))
+    if not area.is_empty:
+        outside = buildings[buildings.building_id.notna() & ~buildings.intersects(area)]
+        for code in outside.building_id:
+            issues.add(
+                "AGH codes outside the campus area (check they are AGH)",
+                code,
+                building_id=code,
+            )
     return layers, issues

@@ -17,7 +17,7 @@ import {
 } from "three";
 import { useMetro } from "../../data/resource";
 import type { Metro } from "../../generated/schemas";
-import { dayRuns, trainsAt } from "../../lib/metro";
+import { dayRuns, heading, trainsAt } from "../../lib/metro";
 import { app, useApp } from "../../state/app";
 import { METRO } from "../palette";
 import { setPickable } from "../picking";
@@ -28,10 +28,6 @@ const TRAIN = { length: 24, width: 2.8, height: 3.2 };
 const PLATFORM = { length: 40, width: 8, height: 0.6 };
 const SHAFT_SIDE = 5;
 const UP = new Vector3(0, 1, 0);
-
-function heading(a: number[], b: number[]): number {
-  return Math.atan2(b[0]! - a[0]!, b[2]! - a[2]!);
-}
 
 /** Shafts, platforms and the tunnel: static meshes built once per metro.json. */
 function buildLine(metro: Metro): { group: Group; dispose: () => void } {

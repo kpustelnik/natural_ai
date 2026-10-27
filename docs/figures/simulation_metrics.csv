@@ -1,0 +1,3 @@
+scenario,student_hours,n_legs,total_travel_s,mean_leg_s,n_late,late_pct,longer_than_break_pct,metro_pct,transit_pct,n_classes,n_late_classes,saved_student_min_per_week,saved_min_per_student
+no_metro,41275.0,285279.0,148591606.0,520.9,1368.0,0.48,1.33,0.0,40.92,2283.0,479.0,,
+metro,36312.0,285279.0,130722029.0,458.2,1164.0,0.41,1.13,30.98,22.46,2283.0,431.0,297826.0,14.5

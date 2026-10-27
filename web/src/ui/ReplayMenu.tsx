@@ -54,7 +54,11 @@ export function ReplayMenu({ catalog }: { catalog: ReplayCatalog | undefined }) 
     const close = (e: MouseEvent) => {
       if (!box.current?.contains(e.target as Node)) setOpen(false);
     };
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const esc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation(); // only close the menu: App's Escape would also clear the selection
+      setOpen(false);
+    };
     document.addEventListener("mousedown", close);
     document.addEventListener("keydown", esc);
     return () => {

@@ -9,7 +9,6 @@ from metro_agh.usos.fetch import Crawl
 from metro_agh.usos.pages import (
     CourseGroup,
     CoursePage,
-    cohort_of,
     parity_of,
     parse_course,
     parse_room_week,
@@ -62,12 +61,12 @@ def test_course_page():
     assert c.faculty == "240-000"
     assert [g.code for g in c.groups] == ["240-INF-1S-1R-Z", "240_INF-1S%2C7sem%2Cpo"]
     assert c.units == {"25/26-Z": [174070], "26/27-Z": [191280, 191334]}
-    assert cohort_of(c.groups[0]) == ("240-INF-1S", 1)
 
 
 def test_frequency_and_weekday_texts():
     assert parity_of("każdy wtorek") == "all"
     assert parity_of("każda środa") == "all"
+    assert parity_of("w każdą sobotę i niedzielę") == "all"
     assert parity_of("co drugi piątek (nieparzyste)") == "odd"
     assert parity_of("co druga środa (parzyste)") == "even"
     assert parity_of("wielokrotnie") is None
@@ -204,6 +203,36 @@ def test_faculty_catalogue_pages():
         ("240_INF-1S%2C7sem%2Cpo", "240_INF,stacjonarne, 1S,przedmioty obieralne"),
     ]
     assert parse_group_courses(page_) == ["240-INF-1S-007", "240-INF-1S-023"]
+    link = "<a href='kontroler.php?_action=katalog2/przedmioty/pokazPrzedmiot&prz_kod=JA-3%2F4'>"
+    assert parse_group_courses(link) == ["JA-3/4"]  # as the room plans name it
+
+
+def test_catalogue_follows_every_page():
+    """USOSweb lists 30 rows a page; the next page is named in the table-nav-bar, with the
+    group code decoded in the first request."""
+    from metro_agh.usos.fetch import WEB, fetch_catalogue
+
+    nav = "<table-nav-bar next-page-url='{}'>"
+    row = "<tr><td><a href='x?grupaKod={0}'>{0}</a></td><td>{0}</td></tr>"
+    course = "<a href='kontroler.php?_action=katalog2/przedmioty/pokazPrzedmiot&prz_kod={}'>"
+    pages = {
+        "fac": row.format("G-1") + nav.format("fac2"),
+        "fac2": row.format("G%2C2"),
+        "G-1": course.format("C-1") + nav.format("g1p2&amp;x=1"),
+        "g1p2&x=1": course.format("C-2"),
+        "G,2": course.format("C-3"),
+    }
+
+    class Http:
+        def text(self, kind, base, params=None):
+            key = base if params is None else params.get("grupaKod", "fac")
+            assert base == WEB or params is None
+            return pages[key]
+
+    groups, courses, faculty = fetch_catalogue(Http(), ["100-000"], progress=False)
+    assert sorted(groups) == ["G%2C2", "G-1"]
+    assert courses == {"G%2C2": ["C-3"], "G-1": ["C-1", "C-2"]}
+    assert faculty == {"G-1": "100-000", "G%2C2": "100-000"}
 
 
 def test_full_tables_cover_everything():

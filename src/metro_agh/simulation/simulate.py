@@ -39,11 +39,15 @@ EPS_S = 1e-3  # scipy drops explicit zeros: every edge costs at least this
 
 def walk_matrix(nodes: pd.DataFrame, edges: pd.DataFrame) -> csr_matrix:
     """Directed graph: u -> v costs time_uv_s, v -> u costs time_vu_s."""
-    n = len(nodes)
-    u, v = edges.u.to_numpy(), edges.v.to_numpy()
+    return csr_walk(len(nodes), edges.u.to_numpy(), edges.v.to_numpy(),
+                    edges.time_uv_s.to_numpy(), edges.time_vu_s.to_numpy())  # fmt: skip
+
+
+def csr_walk(n: int, u, v, time_uv, time_vu) -> csr_matrix:
+    """``walk_matrix`` from plain arrays (also the exported network.bin)."""
     rows = np.concatenate([u, v])
     cols = np.concatenate([v, u])
-    w = np.concatenate([edges.time_uv_s.to_numpy(), edges.time_vu_s.to_numpy()]) + EPS_S
+    w = np.concatenate([np.asarray(time_uv, float), np.asarray(time_vu, float)]) + EPS_S
     keep = rows != cols
     # parallel edges were merged by the builder; keep the shorter one if any slipped through
     df = pd.DataFrame({"r": rows[keep], "c": cols[keep], "w": w[keep]})
@@ -119,21 +123,54 @@ class Connections:
         return np.where(ok, self.late_dep[n], -np.inf), np.where(ok, self.late_arr[n], -np.inf)
 
 
-def connections(schedule: pd.DataFrame, stations: list[str]) -> dict[tuple[int, int], Connections]:
-    """Every (board, alight) pair any run serves, over the whole week."""
+def loop_successors(schedule: pd.DataFrame) -> dict[int, int]:
+    """Loop runs: run_id -> the next run of the same direction and weekday leaving station 0
+    once this one is back there. A rider passing station 0 stays on (or changes on the
+    platform) into it, so the loop serves every pair the short way round, as the objective
+    assumes."""
+    first = schedule[schedule.stop_seq == 0].set_index("run_id").depart_wt
+    last = schedule.sort_values("stop_seq").groupby("run_id").arrive_wt.last()
+    runs = schedule.drop_duplicates("run_id").set_index("run_id")[["weekday", "direction"]]
+    runs = runs.assign(dep=first, back=last).sort_values("dep")
+    out = {}
+    for _, g in runs.groupby(["weekday", "direction"]):
+        n = np.searchsorted(g.dep.to_numpy(), g.back.to_numpy(), side="left")
+        out.update({int(r): int(g.index[i]) for r, i in zip(g.index, n, strict=True) if i < len(g)})
+    return out
+
+
+def connections(
+    schedule: pd.DataFrame, stations: list[str], topology: str = "line"
+) -> dict[tuple[int, int], Connections]:
+    """Every (board, alight) pair any run serves, over the whole week; on a loop also the
+    rides through station 0 into the next run (``loop_successors``)."""
     idx = {s: i for i, s in enumerate(stations)}
     pairs: dict[tuple[int, int], tuple[list, list]] = {}
     s = schedule.sort_values(["run_id", "stop_seq"])
     st = s.station.map(idx).to_numpy()
     arr, dep = s.arrive_wt.to_numpy(float), s.depart_wt.to_numpy(float)
-    bounds = np.flatnonzero(np.diff(s.run_id.to_numpy())) + 1
-    for lo, hi in zip(np.r_[0, bounds], np.r_[bounds, len(s)], strict=True):
+    run_ids = s.run_id.to_numpy()
+    bounds = np.flatnonzero(np.diff(run_ids)) + 1
+    starts, ends = np.r_[0, bounds], np.r_[bounds, len(s)]
+    spans = dict(zip(run_ids[starts], zip(starts, ends, strict=True), strict=True))
+    succ = loop_successors(schedule) if topology == "loop" else {}
+
+    def add(a: int, b: int) -> None:
+        p = pairs.setdefault((int(st[a]), int(st[b])), ([], []))
+        p[0].append(dep[a])
+        p[1].append(arr[b])
+
+    for run, (lo, hi) in spans.items():
         for a in range(lo, hi):
             for b in range(a + 1, hi):
                 if st[a] != st[b]:
-                    p = pairs.setdefault((int(st[a]), int(st[b])), ([], []))
-                    p[0].append(dep[a])
-                    p[1].append(arr[b])
+                    add(a, b)
+        if run in succ:
+            # board at stop i of this run (not station 0), alight at stop j < i of the next
+            lo2 = spans[succ[run]][0]
+            for a in range(lo + 1, hi - 1):
+                for b in range(lo2 + 1, lo2 + (a - lo)):
+                    add(a, b)
     return {k: Connections.build(np.array(d), np.array(a)) for k, (d, a) in pairs.items()}
 
 
@@ -251,7 +288,7 @@ def simulate(
         if missing:
             raise ValueError(f"stations without a metro shaft in the graph: {missing}")
         platforms = [key_to_id[f"{s}:platform"] for s in line.stations]
-        conns = connections(line.schedule, line.stations)
+        conns = connections(line.schedule, line.stations, line.topology)
         nets.append(_net("metro", line.stations, platforms, conns, graph))
     scenarios = {"no_metro": [n for n in nets if n.mode != "metro"]}
     if line:

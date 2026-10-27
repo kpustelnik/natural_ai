@@ -102,7 +102,8 @@ def overpass(query: str, cfg: dict, what: str) -> bytes:
                 log.warning("%s: HTTP %s from %s", what, r.status_code, url)
         except requests.RequestException as err:
             log.warning("%s: %s on %s", what, err, url)
-        time.sleep(min(120, 10 * 2**attempt))
+        if attempt < attempts - 1:
+            time.sleep(min(120, 10 * 2**attempt))
     raise RuntimeError(f"{what}: all {attempts} Overpass attempts failed; try again later")
 
 

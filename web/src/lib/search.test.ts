@@ -17,6 +17,8 @@ describe("search", () => {
     expect(search(items, "alfa")[0]?.id).toBe("DS-Alfa");
     expect(search(items, "czarno")[0]?.group).toBe("Stops");
     expect(search(items, "zzz")).toEqual([]);
+    expect(search(items, "-")).toEqual([]); // separators alone match nothing
+    expect(search(items, " / ")).toEqual([]);
   });
 });
 

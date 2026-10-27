@@ -2,7 +2,8 @@
 
 An experiment YAML (``experiments/configs/*.yaml``) names the study, lists seeds, and
 declares either explicit ``variants`` or a ``sweep`` of dotted keys. Each expanded job
-runs MMAS once, writes ``experiments/results/<run_id>/``, and appends ``runs.csv``.
+runs the configured algorithm (``optimize.algorithm``) once, writes
+``experiments/results/<run_id>/``, and appends ``runs.csv``.
 """
 
 from __future__ import annotations
@@ -21,8 +22,10 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from .aco import run_mmas
+from .aco.common import RunResult
+from .aco.objective import teleport_bound
 from .config import merge_config, path, provenance
+from .optimize import run_algorithm
 from .schemas.instance import Instance
 from .schemas.results import BestLine, RunMeta
 from .schemas.tables import CONVERGENCE, RUNS
@@ -41,12 +44,13 @@ _SHORT = {
     "aco.n_iterations": "it",
     "aco.tau_min_ratio": "tmin",
     "metro.n_stations": "k",
+    "optimize.algorithm": "",
 }
 
 
 @dataclass(frozen=True)
 class Job:
-    """One MMAS run: experiment name, variant tag, seed, config overrides."""
+    """One optimiser run: experiment name, variant tag, seed, config overrides."""
 
     experiment: str
     tag: str
@@ -93,13 +97,20 @@ def apply_overrides(cfg: dict, overrides: dict[str, Any]) -> dict:
     dotted: dict[str, Any] = {}
     nested: dict[str, Any] = {}
     for key, value in overrides.items():
-        if "." in key and not isinstance(value, dict):
+        if "." in key:
             dotted[key] = value
         else:
             nested[key] = value
     if nested:
         out = merge_config(out, nested)
     for key, value in dotted.items():
+        if isinstance(value, dict):  # aco.trace: {every: 1} merges into aco.trace
+            try:
+                current = get_path(out, key)
+            except (KeyError, TypeError):
+                current = None
+            if isinstance(current, dict):
+                value = merge_config(current, value)
         out = set_path(out, key, value)
     return out
 
@@ -200,7 +211,9 @@ def evaluations_to_best(convergence: pd.DataFrame) -> int:
     if convergence.empty:
         return 0
     best = float(convergence["best_s"].iloc[-1])
-    hit = convergence.loc[np.isclose(convergence["best_s"], best), "evaluations"]
+    # exact: best_s carries best_cost unchanged, and isclose's rtol would match a best ~100 s
+    # above the final one at these magnitudes (1e7 s)
+    hit = convergence.loc[convergence["best_s"] == best, "evaluations"]
     return int(hit.iloc[0]) if len(hit) else int(convergence["evaluations"].iloc[-1])
 
 
@@ -233,7 +246,7 @@ def save_run(
     cfg: dict,
     inst: Instance,
     inst_path: Path,
-    result: Any,
+    result: RunResult,
     job: Job,
     wall_s: float,
     results_dir: Path,
@@ -241,7 +254,7 @@ def save_run(
     update_best_line: bool,
 ) -> RunMeta:
     stations = [str(inst.candidate_ids[i]) for i in result.best_line]
-    algorithm = str(result.params.get("variant", "mmas"))
+    algorithm = result.algorithm
     rid = run_id_for(job, algorithm, int(inst.meta.k))
     run_dir = results_dir / rid
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -254,6 +267,7 @@ def save_run(
         stations=stations,
         objective_s=round(result.best_cost, 1),
         baseline_s=round(result.objective.baseline, 1),
+        lower_bound_s=round(teleport_bound(inst), 1),
     )
     meta = RunMeta(
         provenance=prov,
@@ -264,14 +278,14 @@ def save_run(
         instance_hash=inst.meta.source_hash or "",
         seed=job.seed,
         params={**result.params, "overrides": job.overrides, "tag": job.tag},
-        eval_budget=int(result.params["n_ants"]) * int(result.params["n_iterations"]),
+        eval_budget=result.eval_budget,
         evaluations=max(1, result.objective.evaluations),
         wall_time_s=round(wall_s, 2),
         best=best,
     )
     (run_dir / "run.json").write_text(meta.model_dump_json(indent=2), encoding="utf-8")
     CONVERGENCE.write(result.convergence, run_dir / "convergence.csv")
-    if save_trace:
+    if save_trace and result.trace is not None:
         result.trace.save(run_dir / "trace.npz")
     if update_best_line:
         best_path = results_dir / "best_line.json"
@@ -292,13 +306,39 @@ def save_run(
             "evaluations_to_best": evaluations_to_best(result.convergence),
             "best_s": float(best.objective_s),
             "baseline_s": float(best.baseline_s),
-            "optimum_s": math.nan,
+            "optimum_s": float(best.objective_s) if algorithm == "brute_force" else math.nan,
             "wall_time_s": float(meta.wall_time_s),
             "stations": "|".join(stations),
             "params_json": json.dumps(meta.params, sort_keys=True),
         },
     )
     return meta
+
+
+# config keys the instance arrays are computed from (network.instance.inputs_hash): a job
+# cannot change them, since every job of an experiment shares one instance
+ARRAY_KEYS = ("time_model", "demand", "population", "simulation.transit", "metro.station_depth_m")
+
+
+def _dotted(d: dict[str, Any], prefix: str = "") -> list[str]:
+    out = []
+    for k, v in d.items():
+        key = f"{prefix}{k}"
+        out += _dotted(v, key + ".") if isinstance(v, dict) else [key]
+    return out
+
+
+def check_overrides(overrides: dict[str, Any]) -> None:
+    """Raise for overrides an experiment cannot apply (they need another instance: run them
+    as separate experiments with their own ``processed`` dir)."""
+    bad = [
+        k for k in _dotted(overrides) if any(k == a or k.startswith(a + ".") for a in ARRAY_KEYS)
+    ]
+    if bad:
+        raise ValueError(
+            f"{bad} change the instance arrays, which every job shares; metro.* (k, speed, "
+            "dwell, headway, topology, candidates), aco.* and optimize.* can vary"
+        )
 
 
 def execute_job(
@@ -312,14 +352,17 @@ def execute_job(
     save_trace: bool,
     update_best_line: bool = False,
 ) -> RunMeta:
+    check_overrides(defaults)
+    check_overrides(job.overrides)
     cfg = apply_overrides(apply_overrides(base_cfg, defaults), job.overrides)
     cfg = {**cfg, "seed": job.seed}
-    # metro.* (k, speed, dwell, headway, topology) only change the instance's meta
+    # metro.* (k, speed, dwell, headway, topology) only change the instance's meta, a
+    # candidate list takes a subset of its columns
     from .network.instance import with_config
 
     inst = with_config(inst, cfg)
     t0 = time.perf_counter()
-    result = run_mmas(inst, cfg, rng=np.random.default_rng(job.seed))
+    result = run_algorithm(inst, cfg, rng=np.random.default_rng(job.seed))
     wall = time.perf_counter() - t0
     meta = save_run(
         cfg=cfg,

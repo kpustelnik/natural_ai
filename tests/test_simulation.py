@@ -116,9 +116,12 @@ def test_loop_rides_through_station_0():
         c = conns[(3, 1)]
         return (c.best_arr - c.best_dep).min()
 
-    # the next run leaves A 10 s after this one is back: 50 s + 10 s wait + 10 s
-    assert fastest(connections(schedule, names, "loop")) == pytest.approx(70, abs=2)
+    # the train goes on round the loop after the dwell at A: 50 s + 30 s + 10 s, exactly
+    # what the objective counts for a ride with one station in between
+    assert fastest(connections(schedule, names, "loop")) == pytest.approx(90, abs=2)
     assert fastest(connections(schedule, names)) == pytest.approx(170, abs=2)  # within runs
+    gaps = schedule[(schedule.direction == 1) & (schedule.stop_seq == 0)].depart_wt.diff()
+    assert gaps.max() <= 60  # never less often than the headway
 
 
 def test_unknown_endpoint_is_an_error():

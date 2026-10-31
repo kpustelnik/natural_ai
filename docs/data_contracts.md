@@ -810,7 +810,10 @@ These are train runs between `metro.service.start` and `end`, every `metro.headw
 web viewer animates trains from the same data. `metro_agh.simulation.schedule.build_schedule`
 writes it from the line and the config: straight tunnels at `speed_mps`, `dwell_s` at every
 intermediate station, runs in both directions; a train finishing a run takes the next one
-leaving from that station, so `train_id` counts the trains a day needs.
+leaving from that station, so `train_id` counts the trains a day needs. A loop runs
+continuously: a train back at station 0 leaves on its next round after `dwell_s`, so its
+runs are one round + dwell apart divided by the trains (never more than `headway_s`), and a
+rider passing station 0 stays on board, as the objective (section 7) assumes.
 
 ### 9.2 `simulation/<scenario>/legs.parquet`: `tables.SIM_LEGS`
 

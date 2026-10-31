@@ -5,6 +5,9 @@ directions:
 
 - ``line`` A-B-C-D: direction +1 runs A -> D, direction -1 runs D -> A;
 - ``loop`` A-B-C-D-A: direction +1 runs A -> B -> ... -> A, direction -1 the other way round.
+  Trains go round and round: a run back at A leaves again after ``dwell_s``, like at any
+  station, so departures are ``cycle / n`` apart (cycle = one round + dwell, n trains: the
+  fewest that keep it within ``headway_s``) and a rider passing A only waits the dwell.
 
 Trains run at ``metro.speed_mps`` on straight tunnels between platforms and stop
 ``metro.dwell_s`` at every station in between. A train that finishes a run takes the next
@@ -67,6 +70,9 @@ def build_schedule(
         d: (order := station_order(k, topology, d), run_times(order, platforms, speed, dwell))
         for d in (1, -1)
     }
+    if topology == "loop":  # continuous service: see the module docstring
+        cycle = plans[1][1][-1][0] + dwell
+        headway = cycle / math.ceil(cycle / headway)
     rows = []
     run_id = 0
     for day in weekdays:

@@ -198,7 +198,6 @@ metro-agh/
 ├── docs/
 │   ├── data_contracts.md       # formaty wszystkich plików między etapami
 │   ├── literatura.md           # przegląd literatury z notatkami
-│   ├── pomiary_terenowe.md     # jak mierzyć i które trasy (walidacja 5)
 │   ├── viewer_plan.md          # plan i notatki z budowy przeglądarki
 │   ├── figures/                # wykresy do sprawozdania
 │   └── sprawozdanie/           # finalny raport
@@ -332,7 +331,7 @@ uv run scripts/plot_experiments.py compare_algorithms                           
 uv run scripts/run_experiments.py --config experiments/configs/compare_algorithms_hard.yaml
 uv run scripts/run_experiments.py --config experiments/configs/aco_ablation.yaml        # wrażliwość parametrów
 uv run scripts/validate_optimum.py       # luka do optimum (brute force) + granice
-uv run scripts/validate_field.py         # pomiary terenowe vs graf
+uv run scripts/validate_field.py         # pomiary terenowe vs graf (opcjonalnie, gdy są pomiary)
 uv run scripts/report_metrics.py         # metryki symulowanego tygodnia
 ```
 
@@ -418,10 +417,10 @@ Suma czasów wszystkich przejść wszystkich studentów w modelowanym tygodniu. 
 | 2 | ACO vs losowe vs zachłanne, 30 seedów, ten sam budżet ewaluacji, z i bez local search; też k = 10 | przewaga metody; wykres punktowy, test Wilcoxona | `compare_algorithms(_hard).yaml` |
 | 3 | Krzywe zbieżności MMAS vs ACS (vs losowe) | zachowanie algorytmu | `compare_algorithms_convergence.png` |
 | 4 | Analiza wrażliwości: liczba mrówek, iteracji, α, β, ρ; liczba stacji k | stabilność wyniku | `aco_ablation.yaml`, `k_sweep.yaml` |
-| 5 | Pomiary terenowe ~10 tras vs czasy z grafu | wiarygodność modelu świata (MAE) | `validate_field.py` (gdy są pomiary) |
+| 5 | Pomiary terenowe ~10 tras vs czasy z grafu | wiarygodność modelu świata (MAE) | **pominięte**; narzędzie gotowe: `validate_field.py` |
 | 6 | Granice: bez metra (baseline) i teleportacja (dolne ograniczenie) | sanity check | `validate_optimum.py` → `bounds.csv`, `best_line.json` |
 
-Pomiary terenowe (protokół i 10 tras: [docs/pomiary_terenowe.md](docs/pomiary_terenowe.md)) zapisujemy w `data/validation/field_measurements.csv`:
+Pomiarów terenowych nie wykonaliśmy (czasy przejść z grafu są niezweryfikowane, patrz ograniczenia w sprawozdaniu). Gdyby powstały, trafiają do `data/validation/field_measurements.csv`:
 
 `route_id, from_key, to_key, measured_s, date, who, notes` (`from_key` to budynek `D-17` albo sala `D-17/1.38`)
 
@@ -471,7 +470,7 @@ Aplikacja w `web/`: **React + three.js** (React Three Fiber), TypeScript, Vite; 
 - [ ] **Tydzień 2:** pipeline end-to-end na `data/sample/` (5 budynków, sztuczny popyt), aż do animacji w przeglądarce
 - [ ] **Tydzień 3–4:** prawdziwe dane: graf kampusu, budynki, popyt z USOS
 - [ ] **Tydzień 5–6:** ACO (MMAS + ACS), baseline'y, testy vs brute force
-- [ ] **Tydzień 7:** eksperymenty walidacyjne, pomiary terenowe
+- [ ] **Tydzień 7:** eksperymenty walidacyjne (pomiary terenowe pominięte)
 - [ ] **Tydzień 8:** dopracowanie wizualizacji, przegląd literatury, sprawozdanie, prezentacja
 
 ---

@@ -93,6 +93,20 @@ def plot_k(c: pd.DataFrame, out: Path) -> None:
 # --- algorithms ------------------------------------------------------------------------------
 
 
+def check_budget(runs: pd.DataFrame) -> str | None:
+    """A warning when the runs do not share one budget: the randomised algorithms with
+    different ``eval_budget``, or greedy (which cannot stop halfway) using more than it."""
+    rand = runs[runs.algorithm != "greedy"]
+    budgets = set(rand["eval_budget"])
+    if len(budgets) > 1:
+        return f"different budgets: {sorted(budgets)} (stale runs? rerun the experiment)"
+    over = runs[(runs.algorithm == "greedy") & (runs.evaluations > max(budgets, default=0))]
+    if budgets and len(over):
+        return (f"greedy used {int(over.evaluations.max())} evaluations, over the budget "
+                f"{max(budgets)}: raise optimize.max_evaluations")  # fmt: skip
+    return None
+
+
 def by_algorithm(runs: pd.DataFrame) -> pd.DataFrame:
     r = _saving(runs).assign(variant=variants(runs))
     g = r.groupby("variant")
@@ -118,9 +132,13 @@ def plot_algorithms(t: pd.DataFrame, runs: pd.DataFrame, out: Path) -> None:
     fg.dots(ax, [(label(v), r.loc[r.variant == v, "saving"].to_numpy()) for v in t["variant"]])
     fg.finish(ax, "Metro saving by algorithm", ylabel=fg.SAVING)
     k = int(runs["k"].iloc[0])
-    fg.save(fig, out, f"USOS demand, k = {k}; {int(t['runs'].max())} seeds, one dot per seed, "
-                      "tick = mean; same budget of lines evaluated; LS = local search "
-                      "(greedy: deterministic)")  # fmt: skip
+    budget = int(runs.loc[runs.algorithm != "greedy", "eval_budget"].max())
+    fg.save(
+        fig,
+        out,
+        f"USOS demand, k = {k}; {int(t['runs'].max())} seeds, a dot per seed, "
+        f"tick = mean; {budget} lines evaluated per run; LS = local search",
+    )
 
 
 def convergence(runs: pd.DataFrame, results: Path, points: int = 120) -> pd.DataFrame:
@@ -230,6 +248,9 @@ def main() -> int:
         t = curve(runs)
         plot_k(t, out.with_suffix(".png"))
     elif all(k.startswith("optimize.") for k in keys):
+        warning = check_budget(runs)
+        if warning:
+            print(f"WARNING: {warning}", file=sys.stderr)
         t = by_algorithm(runs)
         plot_algorithms(t, runs, out.with_suffix(".png"))
         c = convergence(runs, results)

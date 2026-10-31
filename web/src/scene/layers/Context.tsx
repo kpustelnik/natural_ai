@@ -22,20 +22,25 @@ import { registry } from "../registry";
 
 function Highlight({ source, start, count, color }: { source: BufferGeometry; start: number; count: number; color: string }) {
   const { geometry, material } = useMemo(() => {
-    const g = new BufferGeometry();
-    g.setAttribute("position", source.getAttribute("position"));
-    g.setAttribute("normal", source.getAttribute("normal"));
-    g.setIndex(source.getIndex());
     const m = new MeshLambertMaterial({ color, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -4 });
-    return { geometry: g, material: m };
-  }, [source, color]);
-  useEffect(() => geometry.setDrawRange(start, count), [geometry, start, count]);
-  useEffect(
-    () => () => {
-      // the buffers belong to the context mesh: detach them, or dispose() deletes them on the GPU
+    return { geometry: new BufferGeometry(), material: m };
+  }, [color]);
+  useEffect(() => {
+    // the buffers belong to the context mesh: borrow them while mounted and give them back
+    // before dispose(), which would delete them on the GPU (attach here, not in useMemo, so a
+    // StrictMode remount gets them again)
+    geometry.setAttribute("position", source.getAttribute("position"));
+    geometry.setAttribute("normal", source.getAttribute("normal"));
+    geometry.setIndex(source.getIndex());
+    return () => {
       geometry.setIndex(null);
       geometry.deleteAttribute("position");
       geometry.deleteAttribute("normal");
+    };
+  }, [geometry, source]);
+  useEffect(() => geometry.setDrawRange(start, count), [geometry, start, count]);
+  useEffect(
+    () => () => {
       geometry.dispose();
       material.dispose();
     },

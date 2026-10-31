@@ -1,0 +1,54 @@
+{
+  "provenance": {
+    "schema_version": 1,
+    "generated_at": "2026-10-28T21:36:17+01:00",
+    "generator": "run_experiments.py",
+    "config_hash": "07574ea9bd8b5989",
+    "git_commit": "e3e521c"
+  },
+  "run_id": "compare_algorithms_hard-greedy-ls-greedy-k10-s56",
+  "experiment": "compare_algorithms_hard",
+  "algorithm": "greedy",
+  "instance": "C:/Users/kampu/Desktop/natural_ai/data/processed/instance/instance.npz",
+  "instance_hash": "394d9afdefbb7e71",
+  "seed": 56,
+  "params": {
+    "k": 10,
+    "topology": "line",
+    "n_candidates": 55,
+    "local_search": true,
+    "overrides": {
+      "optimize.algorithm": "greedy"
+    },
+    "tag": "greedy-ls"
+  },
+  "eval_budget": 5605,
+  "evaluations": 5605,
+  "wall_time_s": 2.9,
+  "best": {
+    "provenance": {
+      "schema_version": 1,
+      "generated_at": "2026-10-28T21:36:17+01:00",
+      "generator": "run_experiments.py",
+      "config_hash": "07574ea9bd8b5989",
+      "git_commit": "e3e521c"
+    },
+    "run_id": "compare_algorithms_hard-greedy-ls-greedy-k10-s56",
+    "topology": "line",
+    "stations": [
+      "U-13",
+      "D-14",
+      "D-10",
+      "C-7",
+      "C-4",
+      "U-9",
+      "H-D8",
+      "B-4",
+      "A-0",
+      "C-2"
+    ],
+    "objective_s": 131289608.4,
+    "baseline_s": 153888800.0,
+    "lower_bound_s": 90917717.8
+  }
+}

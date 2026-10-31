@@ -1,0 +1,307 @@
+{
+ "provenance": {
+  "schema_version": 1,
+  "generated_at": "2026-10-14T16:37:31+02:00",
+  "generator": "02_build_campus.py",
+  "config_hash": "99f741f43331fef9",
+  "git_commit": "5db004c"
+ },
+ "issues": [
+  {
+   "severity": "warning",
+   "section": "Dorms without an AGH code (context; add to osm_building_map.csv if AGH)",
+   "message": "way/230301584: DS \"Za Kolumnami\"",
+   "building_id": null,
+   "osm_id": "way/230301584",
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "Dorms without an AGH code (context; add to osm_building_map.csv if AGH)",
+   "message": "way/230301981: DS \"Krakowiak\"",
+   "building_id": null,
+   "osm_id": "way/230301981",
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "Dorms without an AGH code (context; add to osm_building_map.csv if AGH)",
+   "message": "way/231815487: None",
+   "building_id": null,
+   "osm_id": "way/231815487",
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "Dorms without an AGH code (context; add to osm_building_map.csv if AGH)",
+   "message": "way/231815488: Dom Studencki Piast",
+   "building_id": null,
+   "osm_id": "way/231815488",
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "Dorms without an AGH code (context; add to osm_building_map.csv if AGH)",
+   "message": "way/231815507: Dom Studencki Nawojka",
+   "building_id": null,
+   "osm_id": "way/231815507",
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "Dorms without an AGH code (context; add to osm_building_map.csv if AGH)",
+   "message": "way/231815935: None",
+   "building_id": null,
+   "osm_id": "way/231815935",
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "Buildings merged from several OSM elements",
+   "message": "D-1: way/231815562, way/231815564 (touching)",
+   "building_id": "D-1",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "Buildings merged from several OSM elements",
+   "message": "D-15: way/306183303, way/231815486 (disjoint)",
+   "building_id": "D-15",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "B-1",
+   "building_id": "B-1",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "B-2",
+   "building_id": "B-2",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "B-3",
+   "building_id": "B-3",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "B-4",
+   "building_id": "B-4",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "B-6",
+   "building_id": "B-6",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "C-6",
+   "building_id": "C-6",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "D-1",
+   "building_id": "D-1",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "D-13",
+   "building_id": "D-13",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "D-2",
+   "building_id": "D-2",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "D-3",
+   "building_id": "D-3",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "D-4",
+   "building_id": "D-4",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "D-6",
+   "building_id": "D-6",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "DS-Alfa",
+   "building_id": "DS-Alfa",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "H-B1B2",
+   "building_id": "H-B1B2",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "H-B3B4",
+   "building_id": "H-B3B4",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "H-B6",
+   "building_id": "H-B6",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "H-D8",
+   "building_id": "H-D8",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "P-B1-B2",
+   "building_id": "P-B1-B2",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "P-B2-B3",
+   "building_id": "P-B2-B3",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "P-B3-B4",
+   "building_id": "P-B3-B4",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "U-13",
+   "building_id": "U-13",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "U-2",
+   "building_id": "U-2",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH buildings without building:levels (default height used)",
+   "message": "U-7",
+   "building_id": "U-7",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "Buildings with several entrance=main (first by node id used)",
+   "message": "A-3",
+   "building_id": "A-3",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "Buildings with several entrance=main (first by node id used)",
+   "message": "D-7",
+   "building_id": "D-7",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "Buildings with several entrance=main (first by node id used)",
+   "message": "S-2",
+   "building_id": "S-2",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH codes outside the campus area (check they are AGH)",
+   "message": "U-10",
+   "building_id": "U-10",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH codes outside the campus area (check they are AGH)",
+   "message": "U-12",
+   "building_id": "U-12",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "AGH codes outside the campus area (check they are AGH)",
+   "message": "Z-2",
+   "building_id": "Z-2",
+   "osm_id": null,
+   "position": null
+  }
+ ]
+}

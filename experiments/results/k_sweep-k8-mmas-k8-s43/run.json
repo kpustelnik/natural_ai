@@ -1,0 +1,58 @@
+{
+  "provenance": {
+    "schema_version": 1,
+    "generated_at": "2026-10-28T21:45:54+01:00",
+    "generator": "run_experiments.py",
+    "config_hash": "e15b3802f7ff39f2",
+    "git_commit": "e3e521c"
+  },
+  "run_id": "k_sweep-k8-mmas-k8-s43",
+  "experiment": "k_sweep",
+  "algorithm": "mmas",
+  "instance": "C:/Users/kampu/Desktop/natural_ai/data/processed/instance/instance.npz",
+  "instance_hash": "394d9afdefbb7e71",
+  "seed": 43,
+  "params": {
+    "n_ants": 50,
+    "n_iterations": 200,
+    "alpha": 1.0,
+    "beta": 1.0,
+    "rho": 0.1,
+    "tau_min_ratio": 0.01,
+    "local_search": true,
+    "k": 8,
+    "topology": "line",
+    "n_candidates": 55,
+    "overrides": {
+      "metro.n_stations": 8
+    },
+    "tag": "k8"
+  },
+  "eval_budget": 10000,
+  "evaluations": 89626,
+  "wall_time_s": 51.98,
+  "best": {
+    "provenance": {
+      "schema_version": 1,
+      "generated_at": "2026-10-28T21:45:54+01:00",
+      "generator": "run_experiments.py",
+      "config_hash": "e15b3802f7ff39f2",
+      "git_commit": "e3e521c"
+    },
+    "run_id": "k_sweep-k8-mmas-k8-s43",
+    "topology": "line",
+    "stations": [
+      "D-14",
+      "H-D8",
+      "C-7",
+      "B-4",
+      "U-9",
+      "D-10",
+      "C-4",
+      "A-0"
+    ],
+    "objective_s": 132372708.7,
+    "baseline_s": 153888800.0,
+    "lower_bound_s": 90917717.8
+  }
+}

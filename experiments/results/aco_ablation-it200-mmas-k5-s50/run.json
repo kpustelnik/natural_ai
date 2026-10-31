@@ -1,0 +1,55 @@
+{
+  "provenance": {
+    "schema_version": 1,
+    "generated_at": "2026-10-28T21:38:50+01:00",
+    "generator": "run_experiments.py",
+    "config_hash": "581d3e2ca41bb07d",
+    "git_commit": "e3e521c"
+  },
+  "run_id": "aco_ablation-it200-mmas-k5-s50",
+  "experiment": "aco_ablation",
+  "algorithm": "mmas",
+  "instance": "C:/Users/kampu/Desktop/natural_ai/data/processed/instance/instance.npz",
+  "instance_hash": "394d9afdefbb7e71",
+  "seed": 50,
+  "params": {
+    "n_ants": 20,
+    "n_iterations": 200,
+    "alpha": 1.0,
+    "beta": 1.0,
+    "rho": 0.1,
+    "tau_min_ratio": 0.01,
+    "local_search": false,
+    "k": 5,
+    "topology": "line",
+    "n_candidates": 55,
+    "overrides": {
+      "aco.n_iterations": 200
+    },
+    "tag": "it200"
+  },
+  "eval_budget": 4000,
+  "evaluations": 3117,
+  "wall_time_s": 1.44,
+  "best": {
+    "provenance": {
+      "schema_version": 1,
+      "generated_at": "2026-10-28T21:38:50+01:00",
+      "generator": "run_experiments.py",
+      "config_hash": "581d3e2ca41bb07d",
+      "git_commit": "e3e521c"
+    },
+    "run_id": "aco_ablation-it200-mmas-k5-s50",
+    "topology": "line",
+    "stations": [
+      "D-10",
+      "C-4",
+      "U-9",
+      "H-D8",
+      "A-0"
+    ],
+    "objective_s": 136557993.3,
+    "baseline_s": 153888800.0,
+    "lower_bound_s": 90917717.8
+  }
+}

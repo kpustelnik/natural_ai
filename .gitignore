@@ -11,16 +11,13 @@ dist/
 # --- Sekrety ---
 .env
 
-# --- Dane generowane (odtwarzalne skryptami) ---
+# --- Dane ---
+# surowe odpowiedzi (cache USOS ~750 MB, GTFS, OSM) i eksport przeglądarki: odtwarzalne
+# skryptami; wyniki etapów (data/processed/) i przebiegi (experiments/results/) SĄ w repo,
+# żeby nikt nie musiał pobierać USOS ani liczyć pipeline'u od nowa
 data/raw/
-data/processed/*
-!data/processed/usos/
-!data/processed/transit/
-!data/processed/population/
-data/processed/population/*
-!data/processed/population/dorms.csv
+data/processed/fake/
 web/public/data/
-experiments/results/
 cache/
 
 # data/sample/ i data/validation/ SĄ w repo

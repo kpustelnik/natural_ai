@@ -1,6 +1,6 @@
 """Objective for a metro line: weighted sum of min(walk, metro) over OD pairs.
 
-Contract: docs/data_contracts.md, section 7.
+Contract: docs/data_contracts.md, section 7. How it is used: docs/aco.md.
 """
 
 from __future__ import annotations
@@ -21,14 +21,22 @@ def canonical(line: list[int], topology: str) -> tuple[int, ...]:
 
 
 class Objective:
-    """Vectorised over OD pairs; caches distinct lines (a reversed line is the same line)."""
+    """Vectorised over OD pairs; caches distinct lines (a reversed line is the same line).
 
-    def __init__(self, inst: Instance, budget: int | None = None):
+    The inner loop runs compiled (numba, ``_batch_loop``) when available, else in NumPy
+    (``travel_numpy``, the reference). With ``tunnel_penalty_per_km`` > 0 the value adds that
+    share of the no-metro baseline per km of tunnel (``travel`` leaves it out).
+    """
+
+    def __init__(
+        self, inst: Instance, budget: int | None = None, tunnel_penalty_per_km: float = 0.0
+    ):
         self.i = inst
         self.cache: dict[tuple[int, ...], float] = {}
         self.evaluations = 0
         self.budget = budget  # distinct lines an algorithm may evaluate (None: no limit)
         self.baseline = float((inst.od_weight * inst.od_walk_s).sum())
+        self.penalty_per_m = float(tunnel_penalty_per_km) * self.baseline / 1000.0
         # walk times of every candidate to / from every OD pair, gathered once: (N, M)
         self._access = np.ascontiguousarray(inst.access_s[inst.od_from].T)  # (N, M)
         self._egress = np.ascontiguousarray(inst.egress_s[:, inst.od_to])  # (N, M)
@@ -55,6 +63,13 @@ class Objective:
         return ride
 
     def __call__(self, line: list[int]) -> float:
+        cost = self.travel(line)
+        if self.penalty_per_m:
+            cost += self.penalty_per_m * self.tunnel_m(line)
+        return cost
+
+    def travel(self, line: list[int]) -> float:
+        """Weighted total travel time with this line (no tunnel penalty); cached."""
         key = canonical(line, self.i.meta.topology)
         if key in self.cache:
             return self.cache[key]
@@ -62,6 +77,59 @@ class Objective:
         # the key's order: a line and its reverse (or a rotated loop) cost exactly the same,
         # not two values a float rounding apart
         line = list(key)
+        if _PARALLEL is not None:
+            cost = float(self._compiled(np.asarray([line], dtype=np.int64))[0])
+        else:
+            cost = self.travel_numpy(line)
+        self.cache[key] = cost
+        return cost
+
+    def tunnel_m(self, line: list[int]) -> float:
+        """Tunnel length of the line: neighbours, plus the closing edge of a loop."""
+        tun = self.i.tunnel_m
+        total = float(sum(tun[a, b] for a, b in zip(line, line[1:], strict=False)))
+        if self.i.meta.topology == "loop" and len(line) > 2:
+            total += float(tun[line[-1], line[0]])
+        return total
+
+    def many(self, lines: np.ndarray) -> np.ndarray:
+        """The objective of B lines at once, (B, k) candidate indices -> (B,): no cache, and
+        ``evaluations`` += B (for brute force and greedy, which see every line once)."""
+        lines = np.asarray(lines, dtype=np.int64)
+        if _PARALLEL is not None:
+            out = self._compiled(lines)
+        else:
+            out = np.array([self.travel_numpy(list(ln)) for ln in lines])
+        if self.penalty_per_m:
+            tun = self.i.tunnel_m
+            km = tun[lines[:, :-1], lines[:, 1:]].sum(axis=1).astype(np.float64)
+            if self.i.meta.topology == "loop" and lines.shape[1] > 2:
+                km += tun[lines[:, -1], lines[:, 0]]
+            out = out + self.penalty_per_m * km
+        self.evaluations += len(lines)
+        return out
+
+    def _compiled(self, lines: np.ndarray) -> np.ndarray:
+        if not hasattr(self, "_k_args"):
+            i = self.i
+            self._k_args = (
+                np.ascontiguousarray(self._access.T, dtype=np.float64),  # (M, N)
+                np.ascontiguousarray(self._egress.T, dtype=np.float64),  # (M, N)
+                i.od_walk_s.astype(np.float64),
+                i.od_weight.astype(np.float64),
+            )
+        ride = np.stack([self.ride(list(ln)) for ln in lines]) + self.fixed_s
+        kernel = _PARALLEL if len(lines) >= 64 else _SERIAL
+        return kernel(*self._k_args, lines, ride)
+
+    @property
+    def fixed_s(self) -> float:
+        """Shaft down + platform wait + shaft up: paid once by every metro trip."""
+        m = self.i.meta
+        return m.shaft_down_s + m.wait_s + m.shaft_up_s
+
+    def travel_numpy(self, line: list[int]) -> float:
+        """The reference implementation of contracts §7 in NumPy (no cache, no count)."""
         i, meta = self.i, self.i.meta
         a, e = self._access[line], self._egress[line]  # (k, M) each
         fixed = meta.shaft_down_s + meta.wait_s + meta.shaft_up_s
@@ -72,9 +140,7 @@ class Objective:
         for b in range(len(line)):
             via = e + ride[b][:, None]  # (k, M): alight j after boarding at b
             np.minimum(metro, a[b] + via.min(axis=0), out=metro)
-        cost = float((i.od_weight * np.minimum(i.od_walk_s, metro)).sum())
-        self.cache[key] = cost
-        return cost
+        return float((i.od_weight * np.minimum(i.od_walk_s, metro)).sum())
 
 
 def teleport_bound(inst: Instance) -> float:
@@ -95,3 +161,47 @@ def teleport_bound(inst: Instance) -> float:
     best = np.where(ia != ie, a1 + e1, np.minimum(a1 + e2, a2 + e1))  # board != alight
     metro = best + meta.shaft_down_s + meta.wait_s + meta.shaft_up_s
     return float((inst.od_weight * np.minimum(inst.od_walk_s, metro)).sum())
+
+
+def objective_for(inst: Instance, cfg: dict, budget: int | None = None) -> Objective:
+    """The objective with ``metro.tunnel_penalty_per_km`` (default 0) from ``cfg``."""
+    share = float((cfg.get("metro") or {}).get("tunnel_penalty_per_km") or 0.0)
+    return Objective(inst, budget, tunnel_penalty_per_km=share)
+
+
+try:
+    from numba import njit, prange
+except ImportError:  # pragma: no cover
+    njit, prange = None, range
+
+
+def _batch_loop(acc, egr, walk, weight, lines, ride):  # pragma: no cover (compiled)
+    """For each line and OD pair the best (board i, alight j) pair of its stations, or the
+    no-metro time. A boarding station whose walk alone is already slower is skipped: rides
+    and egress are ≥ 0, so this is exact."""
+    b_all, k = lines.shape
+    m_all = acc.shape[0]
+    out = np.empty(b_all)
+    for b in prange(b_all):
+        s = 0.0
+        for m in range(m_all):
+            best = walk[m]
+            for i in range(k):
+                ai = acc[m, lines[b, i]]
+                if ai >= best:
+                    continue
+                for j in range(k):
+                    if i != j:
+                        t = ai + ride[b, i, j] + egr[m, lines[b, j]]
+                        if t < best:
+                            best = t
+            s += weight[m] * best
+        out[b] = s
+    return out
+
+
+if njit is not None:
+    _PARALLEL = njit(parallel=True, cache=True)(_batch_loop)
+    _SERIAL = njit(cache=True)(_batch_loop)  # prange is range here: no thread start-up
+else:  # pragma: no cover
+    _PARALLEL = _SERIAL = None

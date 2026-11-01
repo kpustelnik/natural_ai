@@ -44,3 +44,6 @@ Thumbs.db
 *.synctex.gz
 *.fdb_latexmk
 *.fls
+
+# --- Literatura (PDF tylko lokalnie) ---
+/references/

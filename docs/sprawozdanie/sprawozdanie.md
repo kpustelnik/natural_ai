@@ -198,6 +198,60 @@ domyślne β zmieniono z 3 na 1. α ma optimum w wartości domyślnej; szybsze p
 (ρ = 0,2) przy 100 iteracjach daje więcej niż domyślne 0,1. Więcej mrówek i iteracji
 pomaga, ale coraz mniej; to także więcej ocenionych linii (budżet nie jest tu wyrównany).
 
+### 5.7 Dodatkowe eksperymenty (`scripts/plot_extra.py`)
+
+Testy jak w 5.3: Mann–Whitney względem pierwszego wariantu, korekta Holma, A₁₂.
+
+**Dokładne optimum całego kampusu** (`exact_full.png`). Przegląd zupełny pełnej instancji
+(N = 55): k = 2 (1 485 linii, optimum 6,56 %), k = 3 (78 705 linii, 8,90 %), k = 4 (4,1 mln
+linii, 15 min, **10,23 %**). Budżet 5 000 linii (przy k = 4 to 0,12 % wszystkich), 10 seedów:
+
+| k | MMAS + LS | MMAS | ACS + LS | ACS | zachłanny (z LS i bez) |
+|---|---|---|---|---|---|
+| 2, 3 | 100 % | 100 % | 100 % | 100 % | optimum |
+| 4 | **100 %** | 80 % | 70 % | 50 % | brak (luka 0,07 %) |
+
+Wynik z podinstancji (5.4) potwierdza się na prawdziwej instancji: MMAS + LS znajduje dokładne
+optimum przy każdym seedzie, zachłanny utyka w lokalnym optimum. Wartość k = 4 z 5.2 jest
+optymalna.
+
+**Heurystyka η** (`heuristic.png`). MMAS bez local search, k = 5, 5 000 linii, 20 seedów;
+odpowiednik porównania „zmodyfikowane vs klasyczne ACO” Korzenia i Kruszyny (2025):
+
+| heurystyka η | średnio | zakres | względem naszej |
+|---|---|---|---|
+| popyt / odległość (nasza) | 11,43 % | 11,31–11,60 | — |
+| 1 / odległość (klasyczna, jak w TSP) | 10,98 % | 10,15–11,60 | gorsza: A₁₂ = 0,87, p_Holm = 2·10⁻⁴ |
+| tylko popyt | 11,52 % | 11,39–11,60 | lepsza: A₁₂ = 0,26, p_Holm = 0,013 |
+| brak (β = 0) | 11,37 % | 10,97–11,60 | bez istotnej różnicy (A₁₂ = 0,56) |
+
+Klasyczna heurystyka odległości szkodzi, i to bardziej niż brak heurystyki (p = 0,001,
+A₁₂ = 0,80): pcha mrówki ku krótkim odcinkom, a dobre linie mają długie przeskoki. Pomaga
+składnik popytu; to uzupełnia wniosek z 5.6 (β = 1).
+
+**Linia czy pętla** (`topology.png`; MMAS + LS, 10 seedów). Pętla wygrywa przy każdym
+seedzie: k = 5 **11,98 %** zamiast 11,60 % (te same stacje C-4, U-9, H-D8, A-0, D-10 w innej
+kolejności), k = 7 13,88 % zamiast 13,37 %. Pętla nie ma końców, więc dwie stacje dzieli co
+najwyżej połowa obwodu; płaci za to dłuższym tunelem (k = 5: 3,85 km zamiast 3,22 km).
+
+**Wrażliwość na założenia o pociągach** (`sensitivity.png`; MMAS + LS, k = 5, 10 seedów,
+jeden parametr naraz):
+
+| parametr | wartości → oszczędność | podobieństwo stacji do linii bazowej (Jaccard) |
+|---|---|---|
+| postój | 15 s → 12,0 %; **30 s → 11,6 %**; 60 s → 11,4 % | 0,94; 1; 1 |
+| odstęp pociągów | 120 s → 13,3 %; **180 s → 11,6 %**; 300 s → 8,4 % | 0,97; 1; 1 |
+| prędkość | 8 m/s → 10,2 %; **10 m/s → 11,6 %**; 15 m/s → 13,6 % | 1; 1; 1 |
+
+Wybór stacji praktycznie nie zależy od założeń, których nie da się sprawdzić; zależy od nich
+tylko wielkość oszczędności. Najsilniej działa częstotliwość, bo czekanie płaci każdy pasażer.
+
+**Długość tunelu** (`tunnel.png`, najlepsza linia z 5.2 dla każdego k): k = 2: 1,1 km, k = 4:
+1,4 km, **k = 5: 3,2 km**, k = 7: 2,7 km, k = 10: 5,1 km. Funkcja celu nie zawiera kosztu
+budowy, więc linia może „zygzakować”: k = 4 daje 3 070 studento-godzin tygodniowo na km tunelu,
+k = 5 tylko 1 530. Przy koszcie tunelu k = 4 lub k = 7 byłyby lepsze od k = 5 (opcja
+`metro.tunnel_penalty_per_km` pozwala uwzględnić to w optymalizacji).
+
 ## 6. Symulacja tygodnia (`simulation_metrics.csv`)
 
 Każde z 286 265 przejść, bez metra i z linią z 5.1, z prawdziwym rozkładem (metro co 180 s
@@ -241,11 +295,17 @@ prędkości) oszczędza więcej, jeśli szybciej, mniej. Narzędzie do porównan
    wygrywa. Dopiero z lokalnym przeszukiwaniem znajdują optimum niezawodnie (84–94 % przy
    3 % budżetu); to zgodne z literaturą (Stützle, Hoos 2000).
 4. Heurystyka popytu musi być słaba (β = 1): popyt blisko stacji nie mówi, czy metro się
-   przyda, bo liczą się długie przejścia.
+   przyda, bo liczą się długie przejścia. Klasyczna heurystyka odległości z TSP szkodzi
+   (5.7).
+5. Na całym kampusie dla k ≤ 4 (do 4,1 mln linii) MMAS + LS znajduje dokładne optimum przy
+   każdym seedzie, mając 0,12 % przestrzeni; metoda zachłanna go nie znajduje (5.7).
+6. Pętla zamiast linii daje ok. 0,4–0,5 p.p. więcej, kosztem dłuższego tunelu; wybór stacji
+   nie zależy od założeń o postoju, częstotliwości i prędkości pociągów (5.7).
 
 **Ograniczenia:** populacja syntetyczna (rozkład studentów na grupy z liczebności USOS),
 jeden tydzień, brak tłoku i pojemności pociągów, brak kosztu budowy, tunel po prostej, wszystkie
-budynki jako bryły bez wnętrz (LOD1: przejście kończy się przy głównym wejściu, nie w sali), czasy przejść niezweryfikowane pomiarami w terenie.
+budynki jako bryły bez wnętrz (LOD1: przejście kończy się przy głównym wejściu, nie w sali), czasy przejść niezweryfikowane pomiarami w terenie. Brak kosztu budowy widać w długości
+tunelu: najlepsza linia k = 5 ma 3,2 km, więcej niż linia k = 7 (5.7).
 
 ## 9. Odtworzenie wyników
 
@@ -266,6 +326,12 @@ for e in compare_algorithms compare_algorithms_hard aco_ablation k_sweep; do
 done
 uv run scripts/validate_optimum.py
 uv run scripts/report_metrics.py
+for e in exact_full_brute exact_full heuristic topology sensitivity; do   # 5.7, ok. 30 min
+  uv run scripts/run_experiments.py --config experiments/configs/$e.yaml
+done
+uv run scripts/plot_extra.py all
 ```
+
+Opis całej części optymalizacyjnej dla prezentującego: [`docs/aco.md`](../aco.md).
 
 Literatura: [`docs/literatura.md`](../literatura.md).

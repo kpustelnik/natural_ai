@@ -42,6 +42,9 @@ search, refaktoryzacja MMAS, runner i skrypt wykresów, klucze `aco.variant` / `
 - [x] P0-5 README: roadmapa → ten plik.
 - [x] P1-7…11 eksperymenty: dokładne optimum całego kampusu (k ≤ 4), heurystyka, linia vs
       pętla, wrażliwość, długość tunelu (`scripts/plot_extra.py`, `docs/aco.md` §9.7).
+- [x] Wyniki P1 w sprawozdaniu (§5.7, wnioski 5–6, odtworzenie §9).
+- [x] P0-4 konspekt dwóch prezentacji (pośrednia i końcowa, sekcje zwijane, demo):
+      `docs/prezentacja.md`; slajdy robimy poza repo.
 - [x] P1-12 statystyka: `metro_agh/stats.py`, kolumny `p_mw`, `p_holm`, `a12`, `effect`
       (kolumna Kamila z Wilcoxonem sparowanym zostaje).
 
@@ -54,7 +57,7 @@ search, refaktoryzacja MMAS, runner i skrypt wykresów, klucze `aco.variant` / `
 
 ## 2. Do zrobienia
 
-### Zostało (stan po §1.3): P0-4 prezentacja, P0-6 PR, wyniki P1 do sprawozdania, P2
+### Zostało (stan po §1.3): slajdy według konspektu, P0-6 PR do `main`, P2
 
 ### P0: żeby projekt był skończony
 

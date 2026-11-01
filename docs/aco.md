@@ -4,7 +4,8 @@ Jedyny plik, który trzeba przeczytać przed prezentacją części optymalizacyj
 funkcja celu, wszystkie algorytmy i metody odniesienia, uczciwe porównanie, eksperymenty z
 wynikami oraz związek z trzema pracami w `references/`. Nazwy z kodu podane są `tak`, żeby
 dało się je znaleźć, ale do prezentacji kod nie jest potrzebny. Liczby pochodzą z plików w
-`docs/figures/` (każdy wykres ma obok tabelę `.csv`).
+`docs/figures/` (każdy wykres ma obok tabelę `.csv`). Konspekt obu prezentacji (pośredniej i
+końcowej): [`docs/prezentacja.md`](prezentacja.md).
 
 Spis: [1 Problem](#1-problem) · [2 Funkcja celu](#2-funkcja-celu) ·
 [3 Heurystyka](#3-heurystyka-η) · [4 MMAS](#4-max-min-ant-system-mmas) ·

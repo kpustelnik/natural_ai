@@ -1,0 +1,48 @@
+{
+  "provenance": {
+    "schema_version": 1,
+    "generated_at": "2026-11-01T17:26:39+01:00",
+    "generator": "run_experiments.py",
+    "config_hash": "6f2c6f59a2d2cf79",
+    "git_commit": "81d4b15"
+  },
+  "run_id": "exact_full-k2-greedy-local_searchFalse-greedy-k2-s47",
+  "experiment": "exact_full",
+  "algorithm": "greedy",
+  "instance": "D:/mateusz/studia/7_semestr/natural_ai/data/processed/instance/instance.npz",
+  "instance_hash": "8c0ccb8b16174a29",
+  "seed": 47,
+  "params": {
+    "k": 2,
+    "topology": "line",
+    "n_candidates": 55,
+    "local_search": false,
+    "overrides": {
+      "optimize.algorithm": "greedy",
+      "optimize.local_search": false,
+      "metro.n_stations": 2
+    },
+    "tag": "k2-greedy-local_searchFalse"
+  },
+  "eval_budget": 1485,
+  "evaluations": 1485,
+  "wall_time_s": 0.22,
+  "best": {
+    "provenance": {
+      "schema_version": 1,
+      "generated_at": "2026-11-01T17:26:39+01:00",
+      "generator": "run_experiments.py",
+      "config_hash": "6f2c6f59a2d2cf79",
+      "git_commit": "81d4b15"
+    },
+    "run_id": "exact_full-k2-greedy-local_searchFalse-greedy-k2-s47",
+    "topology": "line",
+    "stations": [
+      "C-4",
+      "U-9"
+    ],
+    "objective_s": 143038518.1,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
+  }
+}

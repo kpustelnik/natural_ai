@@ -1,6 +1,6 @@
 # Roadmapa: co jest zrobione, co zostało
 
-Stan na 2026-11-01. Gałąź robocza: `feat/aco-merge`, zbudowana na `feat/usos` (Kamil
+Stan na 2026-11-01, 17:45. Gałąź robocza: `feat/aco-merge`, zbudowana na `feat/usos` (Kamil
 Pustelnik, ostatni commit 2929b71). **Zasada: kod z `feat/usos` zostaje taki, jaki jest;
 dokładamy tylko rzeczy, które go nie zmieniają (nowe pliki, nowe opcjonalne klucze z
 domyślną wartością równą obecnemu zachowaniu, dokumentacja).**
@@ -34,6 +34,17 @@ search, refaktoryzacja MMAS, runner i skrypt wykresów, klucze `aco.variant` / `
 
 ### 1.3 Już na `feat/aco-merge`
 
+- [x] P0-1 literatura: Goss 1989, Korzeń i Kruszyna 2023 / 2025, Mann–Whitney, Holm, A₁₂
+      (`docs/literatura.md` §0, §1.1, §3; sprawozdanie §1, §4, §5.3).
+- [x] P0-2 `docs/aco.md`: materiał do prezentacji (po polsku), z wynikami i pytaniami.
+- [x] P0-3 prawdziwe replaye w viewerze (`06_export_web.py --campus --aco --metro --sim`:
+      `aco-mmas-k5-s42`, `sim-mmas-k5-s42`; `web/public/data` nie jest w repo).
+- [x] P0-5 README: roadmapa → ten plik.
+- [x] P1-7…11 eksperymenty: dokładne optimum całego kampusu (k ≤ 4), heurystyka, linia vs
+      pętla, wrażliwość, długość tunelu (`scripts/plot_extra.py`, `docs/aco.md` §9.7).
+- [x] P1-12 statystyka: `metro_agh/stats.py`, kolumny `p_mw`, `p_holm`, `a12`, `effect`
+      (kolumna Kamila z Wilcoxonem sparowanym zostaje).
+
 - [x] `/references/` w `.gitignore` (PDF-y tylko lokalnie).
 - [x] Szybsza funkcja celu (`aco/objective.py`), zmiana addytywna: ta sama wartość co
       dotychczas (różnica 7·10⁻¹⁵), skompilowana pętla (numba): 0,35 → 0,23 ms na linię
@@ -42,6 +53,8 @@ search, refaktoryzacja MMAS, runner i skrypt wykresów, klucze `aco.variant` / `
       nic nie zmienia). Wszystkie 135 testów przechodzi.
 
 ## 2. Do zrobienia
+
+### Zostało (stan po §1.3): P0-4 prezentacja, P0-6 PR, wyniki P1 do sprawozdania, P2
 
 ### P0: żeby projekt był skończony
 

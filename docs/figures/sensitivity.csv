@@ -1,0 +1,10 @@
+parameter,value,runs,mean,min,max,jaccard_with_base,best_line
+metro.dwell_s,15.0,10,12.044,11.729,12.079,0.943,U-9|H-D8|D-10|C-4|A-0
+metro.dwell_s,30.0,10,11.603,11.603,11.603,1.0,H-D8|C-4|U-9|D-10|A-0
+metro.dwell_s,60.0,10,11.372,11.372,11.372,1.0,A-0|D-10|U-9|C-4|H-D8
+metro.headway_s,120.0,10,13.329,13.229,13.349,0.967,A-0|D-10|U-9|C-4|H-D8
+metro.headway_s,180.0,10,11.603,11.603,11.603,1.0,H-D8|C-4|U-9|D-10|A-0
+metro.headway_s,300.0,10,8.449,8.449,8.449,1.0,A-0|D-10|U-9|C-4|H-D8
+metro.speed_mps,8.0,10,10.197,10.197,10.197,1.0,H-D8|C-4|U-9|D-10|A-0
+metro.speed_mps,10.0,10,11.603,11.603,11.603,1.0,H-D8|C-4|U-9|D-10|A-0
+metro.speed_mps,15.0,10,13.636,13.636,13.636,1.0,A-0|D-10|U-9|C-4|H-D8

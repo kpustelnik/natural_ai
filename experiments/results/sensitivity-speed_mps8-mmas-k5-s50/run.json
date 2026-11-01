@@ -1,0 +1,56 @@
+{
+  "provenance": {
+    "schema_version": 1,
+    "generated_at": "2026-11-01T17:36:39+01:00",
+    "generator": "run_experiments.py",
+    "config_hash": "312be45384e2b5f6",
+    "git_commit": "81d4b15"
+  },
+  "run_id": "sensitivity-speed_mps8-mmas-k5-s50",
+  "experiment": "sensitivity",
+  "algorithm": "mmas",
+  "instance": "D:/mateusz/studia/7_semestr/natural_ai/data/processed/instance/instance.npz",
+  "instance_hash": "8c0ccb8b16174a29",
+  "seed": 50,
+  "params": {
+    "n_ants": 20,
+    "n_iterations": 1000,
+    "alpha": 1.0,
+    "beta": 1.0,
+    "rho": 0.1,
+    "tau_min_ratio": 0.01,
+    "local_search": true,
+    "heuristic": "demand_distance",
+    "k": 5,
+    "topology": "line",
+    "n_candidates": 55,
+    "overrides": {
+      "metro.speed_mps": 8.0
+    },
+    "tag": "speed_mps8"
+  },
+  "eval_budget": 5000,
+  "evaluations": 5000,
+  "wall_time_s": 1.68,
+  "best": {
+    "provenance": {
+      "schema_version": 1,
+      "generated_at": "2026-11-01T17:36:39+01:00",
+      "generator": "run_experiments.py",
+      "config_hash": "312be45384e2b5f6",
+      "git_commit": "81d4b15"
+    },
+    "run_id": "sensitivity-speed_mps8-mmas-k5-s50",
+    "topology": "line",
+    "stations": [
+      "A-0",
+      "D-10",
+      "U-9",
+      "C-4",
+      "H-D8"
+    ],
+    "objective_s": 137468264.8,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
+  }
+}

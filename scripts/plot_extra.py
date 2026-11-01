@@ -113,13 +113,14 @@ def exact_full() -> None:
         d = t[t["variant"] == v].set_index("k").reindex(ks)
         x = np.arange(len(ks)) + (j - (len(order) - 1) / 2) * width
         base = v.removesuffix("-ls")
-        color = fg.SERIES[list(NAMES).index(base) % len(fg.SERIES)]
+        color = {"mmas": fg.SERIES[0], "acs": fg.SERIES[1]}.get(base, fg.SERIES[2])
         ax.bar(x, 100 * d["hit_rate"], width, color=color,
                alpha=1.0 if v.endswith("-ls") else 0.45,
                label=NAMES[base] + (" + LS" if v.endswith("-ls") else ""))  # fmt: skip
     ax.set_xticks(range(len(ks)), [f"k = {k}" for k in ks])
-    ax.set_ylim(0, 105)
-    ax.legend(fontsize=8, frameon=False, ncols=3, loc="lower right")
+    ax.set_ylim(0, 128)
+    ax.set_yticks(range(0, 101, 20))
+    ax.legend(fontsize=8, frameon=False, ncols=6, loc="upper center")
     fg.finish(ax, "Exact optimum of the whole campus found", None, "runs that found it (%)")
     fg.save(fig, FIG / "exact_full.png",
             f"N = 55; optimum by brute force (1,485 / 78,705 / 4.1 M lines); "

@@ -271,7 +271,61 @@ iteracji pomagają nieznacznie. Najważniejsze: β, czyli siła heurystyki.
 
 ### 9.7 Dodatkowe eksperymenty (P1)
 
-WYNIKI_P1
+Tabele i wykresy: `scripts/plot_extra.py` → `docs/figures/exact_full`, `heuristic`, `topology`,
+`sensitivity`, `tunnel` (`.png` i `.csv`). Testy: Mann–Whitney, Holm, A₁₂ względem pierwszego
+wariantu.
+
+**Dokładne optimum całego kampusu** (`exact_full.png`). Przegląd zupełny dla N = 55: k = 2
+(1 485 linii, 6,56 %), k = 3 (78 705, 8,90 %), k = 4 (4,1 mln, 15 min, **10,23 %**). Budżet
+5 000 linii, 10 seedów:
+
+| k | MMAS + LS | MMAS | ACS + LS | ACS | zachłanny (+ LS) |
+|---|---|---|---|---|---|
+| 2, 3 | 100 % | 100 % | 100 % | 100 % | trafia |
+| 4 (budżet = 0,12 % linii) | **100 %** | 80 % (luka śr. 0,29 %) | 70 % (0,02 %) | 50 % (0,24 %) | nie trafia (0,07 %) |
+
+Na prawdziwej instancji, nie tylko na podinstancjach, MMAS + LS znajduje dokładne optimum
+zawsze, mając do dyspozycji ułamek promila przestrzeni; zachłanny utyka w lokalnym optimum.
+To też potwierdza, że wartość k = 4 z k-sweepu jest optymalna.
+
+**Heurystyka η** (`heuristic.png`; MMAS bez LS, k = 5, 20 seedów):
+
+| η | średnio | zakres | vs nasza (A₁₂ = P(nasza lepsza)) |
+|---|---|---|---|
+| popyt / odległość (nasza) | 11,43 % | 11,31–11,60 | — |
+| 1 / odległość („klasyczna”) | 10,98 % | 10,15–11,60 | 0,87, duży efekt, p_Holm = 2·10⁻⁴ |
+| tylko popyt | 11,52 % | 11,39–11,60 | 0,26, nasza **gorsza**, p_Holm = 0,013 |
+| brak (β = 0) | 11,37 % | 10,97–11,60 | 0,56, nieistotnie |
+
+Wniosek, odpowiednik „zmodyfikowane vs klasyczne ACO” u Korzenia i Kruszyny (2025): klasyczna
+heurystyka odległości z TSP **szkodzi**: wypada gorzej niż brak heurystyki (p = 0,001,
+A₁₂ = 0,80 na korzyść braku), bo pcha mrówki ku
+krótkim odcinkom, a dobre linie mają długie przeskoki (najlepsza linia k = 5 ma 3,2 km
+tunelu). Pomaga składnik popytu; nasza heurystyka łącząca oba jest lepsza od klasycznej, ale
+nieco gorsza od samego popytu.
+
+**Linia czy pętla** (`topology.png`; MMAS + LS, 10 seedów): pętla jest lepsza przy każdym
+seedzie: k = 5: **11,98 %** vs 11,60 % (te same stacje C-4, U-9, H-D8, A-0, D-10 w innej
+kolejności, tunel 3,85 km zamiast 3,22), k = 7: 13,88 % vs 13,37 %. Pętla nie ma końców, więc
+każde dwie stacje dzieli co najwyżej połowa obwodu; płaci za to dłuższym tunelem.
+
+**Wrażliwość na założenia** (`sensitivity.png`; MMAS + LS, k = 5, 10 seedów):
+
+| parametr | wartości → oszczędność | stacje vs linia bazowa (Jaccard) |
+|---|---|---|
+| postój | 15 s → 12,0 %; **30 s → 11,6 %**; 60 s → 11,4 % | 0,94 / 1 / 1 |
+| odstęp pociągów | 120 s → 13,3 %; **180 s → 11,6 %**; 300 s → 8,4 % | 0,97 / 1 / 1 |
+| prędkość | 8 m/s → 10,2 %; **10 m/s → 11,6 %**; 15 m/s → 13,6 % | 1 / 1 / 1 |
+
+**Wybór stacji praktycznie nie zależy od założeń o pociągach** (te same pięć stacji prawie
+zawsze, czasem w innej kolejności); od nich zależy tylko, ile linia oszczędza. Najsilniej
+działa częstotliwość: czekanie (połowa odstępu) płaci każdy pasażer.
+
+**Długość tunelu** (`tunnel.png`, najlepsza linia dla każdego k z k-sweepu): k = 2: 1,1 km,
+k = 4: 1,4 km, **k = 5: 3,2 km**, k = 7: 2,7 km, k = 10: 5,1 km. Funkcja celu nie liczy kosztu
+budowy, więc linia może „zygzakować”: k = 4 daje 3 070 studento-godzin tygodniowo na km
+tunelu, k = 5 tylko 1 530. Gdyby liczyć koszt tunelu, k = 4 lub k = 7 wypadają lepiej niż
+k = 5 (opcja `metro.tunnel_penalty_per_km` pozwala to uwzględnić w optymalizacji).
 
 ## 10. Związek z pracami w `references/`
 
@@ -394,6 +448,15 @@ niezależne; podajemy oba, wnioski są te same, a A₁₂ mówi, jak duża jest 
 i długość tunelu najlepszej linii (§9.7). Linia k = 5 ma 3,2 km tunelu, więcej niż linia
 k = 7 (2,7 km): bez kosztu tunelu linia może „zygzakować”. Opcja `metro.tunnel_penalty_per_km`
 pozwala to uwzględnić.
+
+**Czy optimum jest naprawdę optimum?** Dla k ≤ 4 tak, sprawdzone przeglądem wszystkich
+4,1 mln linii (§9.7); dla k = 5 (2·10⁸ linii) nie da się, ale MMAS + LS, ACS + LS i losowe +
+LS dochodzą do tej samej linii przy wszystkich 30 seedach.
+
+**Czy pętla nie byłaby lepsza?** Tak, o ok. 0,4–0,5 p.p. (§9.7), kosztem dłuższego tunelu.
+
+**Czy heurystyka popytu w ogóle pomaga?** Składnik popytu tak, składnik odległości nie:
+klasyczna heurystyka 1 / odległość z TSP wypada najgorzej (§9.7).
 
 **Czym to się różni od prac Korzenia i Kruszyny?** Oni oceniali gotowe warianty z popytem
 szacowanym z liczby mieszkańców; my przeszukujemy całą przestrzeń z popytem z planu zajęć

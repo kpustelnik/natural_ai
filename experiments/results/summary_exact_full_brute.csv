@@ -1,0 +1,4 @@
+tag,n,mean_best_s,std_best_s,mean_improvement,mean_wall_s,delta_vs_base_s,delta_vs_base_pct
+k2,1,143038518.1,,0.06558008936972415,0.42,,
+k3,1,139451822.4,,0.08901070036856662,10.01,,
+k4,1,137419938.7,,0.10228427598012158,886.51,,

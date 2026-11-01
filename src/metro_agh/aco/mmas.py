@@ -45,7 +45,8 @@ def run_mmas(inst: Instance, cfg: dict, rng: np.random.Generator | None = None) 
 
     budget = max_evaluations(cfg)
     f = Objective(inst, budget)
-    demand, eta = heuristic(inst)
+    kind = aco.get("heuristic", "demand_distance")
+    demand, eta = heuristic(inst, kind)
 
     # initialise τ at τ_max; update τ_max from the best cost once we have one
     tau_max = 1.0 / rho
@@ -133,6 +134,7 @@ def run_mmas(inst: Instance, cfg: dict, rng: np.random.Generator | None = None) 
         "rho": rho,
         "tau_min_ratio": tau_min_ratio,
         "local_search": local_search,
+        "heuristic": kind,
         "k": k,
         "topology": inst.meta.topology,
         "n_candidates": n,

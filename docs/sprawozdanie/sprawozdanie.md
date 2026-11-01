@@ -14,6 +14,15 @@ losowym przeszukiwaniem, metodą zachłanną i przeglądem zupełnym na małych 
 Wynik sprawdza symulacja każdego przejścia każdego studenta z prawdziwym rozkładem jazdy
 metra, autobusów i tramwajów.
 
+**Powiązane prace** (szczegóły w [`docs/literatura.md`](../literatura.md)). Algorytm mrówkowy
+wywodzi się z eksperymentu Gossa i in. (1989): kolonia wybiera krótszą gałąź mostka dzięki
+dodatniemu sprzężeniu przez feromon. Najbliższe zastosowania to prace Korzenia i Kruszyny:
+ocena pięciu gotowych wariantów tunelu kolei miejskiej we Wrocławiu (2023) i przebieg jednej
+linii tramwajowej (2025), obie z heurystyką „wysiłku” opartą na długości, liczbie mieszkańców
+i atrakcyjności. My przeszukujemy całą przestrzeń linii (ok. 2·10⁸ przy k = 5), popyt
+bierzemy z planu zajęć zamiast z liczby mieszkańców, autobus i tramwaj są alternatywą w
+funkcji celu, a wynik weryfikujemy przeglądem zupełnym, innymi metodami i symulacją.
+
 ## 2. Dane
 
 | źródło | co | skala |
@@ -75,7 +84,10 @@ linia mieści się między granicami (sprawdzane w `bounds.csv` i w każdym `bes
   **Przegląd zupełny**: każda linia raz (linia i jej odwrócenie to ta sama linia).
 - **Uczciwe porównanie** (Derrac i in. 2011): wspólny budżet różnych ocenionych linii
   (`optimize.max_evaluations`, sprawdzany po każdej iteracji, więc przekroczony najwyżej
-  o ~20 linii), 30 seedów, test Wilcoxona dla prób sparowanych po seedzie.
+  o ~20 linii), 30 seedów, test Wilcoxona dla prób sparowanych po seedzie, a ponieważ
+  ten sam seed nie łączy przebiegów dwóch algorytmów w pary, także test Manna–Whitneya dla
+  prób niezależnych z korektą Holma i miarą efektu A₁₂ (Vargha, Delaney 2000;
+  `metro_agh/stats.py`).
 
 ## 5. Wyniki optymalizacji
 
@@ -116,6 +128,13 @@ przeganiają zachłanny (11,26 %) dopiero po ~1 950 (MMAS) i ~2 870 (ACS) ocenio
 (5.5), a zachłanny zużywa ich 2 107. Z local search przy k = 5 instancja jest łatwa:
 kolonie i losowe dochodzą do tej samej linii, a zachłanny + LS zostaje przy swojej
 (11,26 %), bo jest ona lokalnym optimum wymian, zamian i przestawień.
+
+Te same porównania jako próby niezależne (Mann–Whitney, korekta Holma, A₁₂ = szansa, że
+losowy przebieg MMAS oszczędza więcej; `compare_algorithms.csv`): bez local search MMAS jest
+lepszy od losowego (p_Holm ≈ 5·10⁻¹¹, A₁₂ = 1,00, efekt duży), od ACS nieistotnie
+(p = 0,08, A₁₂ = 0,63, efekt mały), a od zachłannego (jeden wynik, więc bez testu) we
+wszystkich 30 przebiegach z obecnego `runs.csv` (A₁₂ = 1,00). Z local search MMAS, ACS i losowe dają identyczny wynik
+(A₁₂ = 0,50).
 
 Trudniejsze ustawienie (`compare_algorithms_hard.png`, k = 10, 60 000 linii): MMAS + LS
 15,14 %, losowe + LS 15,13 %, ACS + LS 15,12 %, zachłanny + LS 14,85 %; najlepsza znaleziona

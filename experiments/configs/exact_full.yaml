@@ -1,0 +1,25 @@
+# Validation test 1 on the whole campus (N = 55), where every line can still be evaluated:
+# k = 2 (1,485 lines), 3 (78,705) and 4 (4.1 million, a few minutes with the compiled
+# objective). Do the colonies find the exact optimum of the real instance, and how far is the
+# greedy line? docs/aco.md, "Exact optimum on the whole campus".
+#
+# The optimum itself comes from exact_full_brute.yaml (brute force needs one seed only).
+#
+#   uv run scripts/run_experiments.py --config experiments/configs/exact_full_brute.yaml
+#   uv run scripts/run_experiments.py --config experiments/configs/exact_full.yaml
+#   uv run scripts/plot_extra.py exact_full
+
+name: exact_full
+description: MMAS, ACS, greedy (with / without LS) on the full instance, k = 2, 3, 4
+mode: grid
+seeds: [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+save_trace: false
+
+defaults:
+  optimize: { max_evaluations: 5000 }
+  aco: { n_ants: 20, n_iterations: 1000 }
+
+sweep:
+  optimize.algorithm: [mmas, acs, greedy]
+  optimize.local_search: [false, true]
+  metro.n_stations: [2, 3, 4]

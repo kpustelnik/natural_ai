@@ -61,13 +61,17 @@ def run_brute_force(inst: Instance, cfg: dict, rng: np.random.Generator | None =
     chunk = max(1, math.ceil(total / N_ROWS))
     lines = all_lines(n, k, topology)
     for it in itertools.count():
-        costs = [(f(line), line) for line in itertools.islice(lines, chunk)]
-        if not costs:
+        batch = list(itertools.islice(lines, chunk))
+        if not batch:
             break
-        cost, line = min(costs, key=lambda c: c[0])
+        # every line once, so no cache: one compiled pass per chunk (Objective.many); the
+        # lines come in canonical order, so the values equal those of f(line)
+        costs = f.many(np.array(batch))
+        j = int(np.argmin(costs))
+        cost, line = float(costs[j]), batch[j]
         if cost < best_cost:
             best, best_cost = line, cost
-        rows.append((it, f.evaluations, best_cost, cost, float(np.mean([c for c, _ in costs]))))
+        rows.append((it, f.evaluations, best_cost, cost, float(np.mean(costs))))
     log.info(
         "brute force: %d lines, optimum %s %.3e (%.1f%% below no metro)",
         total, best, best_cost, 100 * (1 - best_cost / f.baseline),

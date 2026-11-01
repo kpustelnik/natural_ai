@@ -1,0 +1,17 @@
+# The exact optimum of the whole campus (N = 55) for k = 2, 3, 4 by brute force (1,485 / 78,705 /
+# 4,092,660 lines; k = 4 takes a few minutes with the compiled objective). Deterministic: one
+# seed. Read together with exact_full.yaml.
+#
+#   uv run scripts/run_experiments.py --config experiments/configs/exact_full_brute.yaml
+
+name: exact_full_brute
+description: brute-force optimum of the full instance for k = 2, 3, 4
+mode: grid
+seeds: [42]
+save_trace: false
+
+defaults:
+  optimize: { algorithm: brute_force, local_search: false, brute_force_max_lines: 5000000 }
+
+sweep:
+  metro.n_stations: [2, 3, 4]

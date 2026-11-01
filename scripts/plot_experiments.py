@@ -10,8 +10,10 @@ objective. Which figure follows from what the experiment's runs vary:
 - only ``metro.n_stations`` (k sweep): k, runs, mean / min / max saving and the best line of
   the best run. One series: the mean over seeds as a line, the spread as a band.
 - only ``optimize.*`` (algorithms): per variant (algorithm, with or without local search)
-  the runs, mean / median / min / max saving, mean evaluations, the best line, and the
-  Wilcoxon signed-rank p-value against the first variant (paired by seed); one dot per
+  the runs, mean / median / min / max saving, mean evaluations, the best line, the
+  Wilcoxon signed-rank p-value against the first variant (paired by seed), and for
+  independent samples the Mann–Whitney U p-value, its Holm correction and the effect size
+  A12 = P(first variant saves more) (``metro_agh.stats``); one dot per
   seed, the mean as a tick. Also <experiment>_convergence.png / .csv: the mean best saving
   so far against evaluations, MMAS vs ACS vs random, without and with local search.
 - anything else (ablation): one panel per parameter, one column per value (the base run at
@@ -30,6 +32,7 @@ from scipy.stats import wilcoxon
 from metro_agh import figures as fg
 from metro_agh.config import ROOT, load_config, path
 from metro_agh.schemas.tables import CONVERGENCE, RUNS
+from metro_agh.stats import a12, effect, holm, rank_sum
 
 NAMES = {"mmas": "MMAS", "acs": "ACS", "random": "random", "greedy": "greedy",
          "brute_force": "brute force"}  # fmt: skip
@@ -122,7 +125,23 @@ def by_algorithm(runs: pd.DataFrame) -> pd.DataFrame:
         diff = both.iloc[:, 0] - both.iloc[:, 1]
         p[name] = wilcoxon(diff).pvalue if name != ref_name and (diff != 0).any() else np.nan
     out[f"p_vs_{ref_name}"] = pd.Series(p)
-    out = out.loc[order].round({"mean": 2, "median": 2, "min": 2, "max": 2})
+    # independent samples (a seed does not pair two algorithms' runs): Mann–Whitney U,
+    # Holm over the comparisons with the reference, and the effect size A12 (metro_agh.stats)
+    # a deterministic algorithm's 30 runs are one result: a single value, so no test
+    det = {"greedy", "brute_force"}
+
+    def sample(v: str) -> np.ndarray:
+        d = r[r.variant == v]
+        return d["saving"].to_numpy()[: 1 if set(d.algorithm) <= det else None]
+
+    ref_all = sample(ref_name)
+    others = [v for v in out.index if v != ref_name]
+    mw = {v: rank_sum(ref_all, sample(v)) for v in others}
+    out["p_mw"] = pd.Series(mw)
+    out["p_holm"] = pd.Series(dict(zip(others, holm([mw[v] for v in others]), strict=True)))
+    out["a12"] = pd.Series({v: a12(ref_all, sample(v)) for v in others})
+    out["effect"] = out["a12"].map(lambda a: effect(a) if pd.notna(a) else "")
+    out = out.loc[order].round({"mean": 2, "median": 2, "min": 2, "max": 2, "a12": 3})
     return out.rename_axis("variant").reset_index()
 
 

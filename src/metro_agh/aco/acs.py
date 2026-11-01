@@ -62,7 +62,8 @@ def run_acs(inst: Instance, cfg: dict, rng: np.random.Generator | None = None) -
 
     budget = max_evaluations(cfg)
     f = Objective(inst, budget)
-    demand, eta = heuristic(inst)
+    kind = aco.get("heuristic", "demand_distance")
+    demand, eta = heuristic(inst, kind)
     tau0 = 1.0 / n
     tau = np.full((n, n), tau0, dtype=np.float64)
     start = np.full(n, tau0, dtype=np.float64)  # bias for the first station
@@ -130,6 +131,7 @@ def run_acs(inst: Instance, cfg: dict, rng: np.random.Generator | None = None) -
         "q0": q0,
         "xi": xi,
         "local_search": local_search,
+        "heuristic": kind,
         "tau0": tau0,
         "k": k,
         "topology": inst.meta.topology,

@@ -2,7 +2,9 @@
 
 A map of the code for making a change without reading everything first. Formats live in
 [docs/data_contracts.md](docs/data_contracts.md), the viewer's design and phase notes in
-[docs/viewer_plan.md](docs/viewer_plan.md), commands in [README.md](README.md). This file
+[docs/viewer_plan.md](docs/viewer_plan.md), commands in [README.md](README.md), the optimiser
+explained for a presentation in [docs/aco.md](docs/aco.md), what is left in
+[docs/roadmap.md](docs/roadmap.md). This file
 names files and functions, not line numbers, so it stays true as the code moves.
 
 **Keep it current:** when you add, move or rename a file or a main function, update its line
@@ -112,15 +114,16 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 
 | file | contents |
 |---|---|
-| `aco/objective.py` | `Objective` (weighted Σ min(walk, metro) over OD pairs; cache keyed by `canonical`: a reversed line / rotated loop is one line; `budget` / `spent`: the evaluation budget), `teleport_bound` (lower bound over every line) |
-| `aco/common.py` | `RunResult` (what every algorithm returns: best line, convergence, trace or None, params, `eval_budget`), `convergence_frame`, `check_k`, `max_evaluations` (`optimize.max_evaluations`), `uses_local_search`; for the colonies `heuristic`, `pick` (next station, `q0` rule), `entropy`, `TraceSampler` |
+| `aco/objective.py` | `Objective` (weighted Σ min(walk, metro) over OD pairs; cache keyed by `canonical`: a reversed line / rotated loop is one line; `budget` / `spent`: the evaluation budget; `travel` (no tunnel penalty), compiled inner loop `_batch_loop` (numba) with `travel_numpy` as the reference, `many` (a batch, no cache), `tunnel_m`), `objective_for` (+ `metro.tunnel_penalty_per_km`), `teleport_bound` (lower bound over every line) |
+| `aco/common.py` | `RunResult` (what every algorithm returns: best line, convergence, trace or None, params, `eval_budget`), `convergence_frame`, `check_k`, `max_evaluations` (`optimize.max_evaluations`), `uses_local_search`; for the colonies `heuristic` (`aco.heuristic`: `HEURISTICS`), `pick` (next station, `q0` rule), `entropy`, `TraceSampler` |
 | `aco/local_search.py` | `neighbours` (replace / swap / move a station), `improve` (best-improvement descent; MMAS, ACS and random polish the iteration best, greedy its line) |
 | `aco/mmas.py` | `run_mmas`: MAX-MIN Ant System |
 | `aco/acs.py` | `run_acs`: Ant Colony System (`aco.q0`, local update `aco.xi`, global update by the best so far) |
 | `baselines/random_search.py` | `run_random`: `n_ants × n_iterations` random lines (same budget as the colonies) |
 | `baselines/greedy.py` | `run_greedy`: best pair, then the station + place that lower the objective most |
-| `baselines/brute_force.py` | `run_brute_force` (exact optimum, refuses more than `optimize.brute_force_max_lines`), `count_lines`, `all_lines` |
+| `baselines/brute_force.py` | `run_brute_force` (exact optimum in batches of `Objective.many`, refuses more than `optimize.brute_force_max_lines`), `count_lines`, `all_lines` |
 | `optimize.py` | `ALGORITHMS`, `run_algorithm` (picks `optimize.algorithm`) |
+| `stats.py` | comparing runs as independent samples: `rank_sum` (Mann–Whitney U), `holm`, `a12` (Vargha–Delaney), `effect` |
 | `experiments.py` | parameter sweeps / ablations: `load_experiment`, `expand_jobs`, `execute_job` (+ `save_run`: `results/<run_id>/` + runs.csv row), `resolve_instance` (load or rebuild `instance.npz` of a processed dir), `check_overrides` (refuses keys that change the instance arrays), `summarise`, `append_runs_csv` |
 
 ### Simulation (stage 5)
@@ -154,7 +157,8 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | `scripts/01_fetch_transit.py` | GTFS -> `transit/stops.csv`, `rides.csv`, `trips.parquet` (`--print-yaml` for campus.yaml) |
 | `scripts/02_build_campus.py` | OSM layers, report, `--bootstrap`, then `network/*.parquet` |
 | `scripts/03_build_demand.py` | dorms, population, legs, OD, migrations for a calendar week (`--week`, default busiest; `--typical`); rooms when `network/nodes.parquet` exists |
-| `scripts/plot_experiments.py` | `runs.csv` -> `docs/figures/<experiment>.png` + `.csv`, chosen by what the runs vary: saving vs k (`curve`, `plot_k`); algorithms: per-seed savings + Wilcoxon vs the first variant (`by_algorithm`, `plot_algorithms`) and `<experiment>_convergence` (`convergence`, `plot_convergence`); else one panel per parameter (`by_parameter`, `plot_parameters`) |
+| `scripts/plot_experiments.py` | `runs.csv` -> `docs/figures/<experiment>.png` + `.csv`, chosen by what the runs vary: saving vs k (`curve`, `plot_k`); algorithms: per-seed savings + Wilcoxon vs the first variant, Mann–Whitney + Holm + A12 (`by_algorithm`, `plot_algorithms`) and `<experiment>_convergence` (`convergence`, `plot_convergence`); else one panel per parameter (`by_parameter`, `plot_parameters`) |
+| `scripts/plot_extra.py` | figures + tables of the extra experiments: `exact_full`, `heuristic`, `topology`, `sensitivity`, `tunnel` (`tests`: Mann–Whitney / Holm / A12 against a reference) |
 | `scripts/validate_optimum.py` | tests 1 + 6: sub-instances (`Instance.subset`), brute-force optimum vs every algorithm -> `gap_to_optimum.png/.csv`, `bounds.csv` (no metro ≥ optimum ≥ `teleport_bound`) |
 | `scripts/validate_field.py` | test 5: `field_measurements.csv` vs the graph -> `field_validation.png/.csv` |
 | `scripts/report_metrics.py` | the simulated week's metrics -> `docs/figures/simulation_metrics.csv` |
@@ -166,6 +170,7 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | `experiments/configs/*.yaml` | experiment specs: mode, seeds, sweep / variants. `compare_algorithms.yaml` (8 variants, with / without local search, k = 5), `compare_algorithms_hard.yaml` (k = 10), `aco_ablation.yaml` (MMAS parameters, real data), `aco_grid.yaml` (example on fake data), `k_sweep.yaml` |
 | `tests/test_web_export.py` | fixture `exported` (sample campus + synthetic OSM in a temp dir), used by the other export tests |
 | `tests/test_network.py`, `test_interior.py`, `test_osm.py`, `test_schemas.py` | graph, geometry, OSM, contracts |
+| `tests/test_extras.py` | compiled / batched objective vs the NumPy reference, tunnel and penalty, heuristic variants, `stats` |
 | `tests/test_aco.py` | toy-instance objective, MMAS, every algorithm vs the brute-force optimum, brute-force enumeration |
 | `tests/test_usos_http.py` | cache expiry, refresh, offline, failed refetch |
 | `tests/test_usos.py` (+ `tests/fixtures/usos/*.html`) | USOSweb parsers on trimmed pages, ids, parity, semesters, `build_tables`, size fallbacks, catalogue pages, `full_tables` |

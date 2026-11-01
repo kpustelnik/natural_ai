@@ -466,12 +466,8 @@ Aplikacja w `web/`: **React + three.js** (React Three Fiber), TypeScript, Vite; 
 
 ## Roadmapa
 
-- [ ] **Tydzień 1:** sprawdzić dostęp do USOS API AGH (lub plan B: eksport iCal); ustalić formaty plików; repo i środowisko
-- [ ] **Tydzień 2:** pipeline end-to-end na `data/sample/` (5 budynków, sztuczny popyt), aż do animacji w przeglądarce
-- [ ] **Tydzień 3–4:** prawdziwe dane: graf kampusu, budynki, popyt z USOS
-- [ ] **Tydzień 5–6:** ACO (MMAS + ACS), baseline'y, testy vs brute force
-- [ ] **Tydzień 7:** eksperymenty walidacyjne (pomiary terenowe pominięte)
-- [ ] **Tydzień 8:** dopracowanie wizualizacji, przegląd literatury, sprawozdanie, prezentacja
+Co jest zrobione i co zostało: [docs/roadmap.md](docs/roadmap.md). Jak działa optymalizacja,
+wyniki i związek z literaturą (materiał do prezentacji): [docs/aco.md](docs/aco.md).
 
 ---
 

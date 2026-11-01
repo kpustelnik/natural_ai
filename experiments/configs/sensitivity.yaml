@@ -1,0 +1,22 @@
+# Do the chosen stations depend on train assumptions we cannot check? One at a time around
+# config.yaml (dwell 30 s, headway 180 s, 10 m/s): dwell 15 / 60 s, headway 120 / 300 s, speed
+# 8 / 15 m/s. MMAS + local search, k = 5, 10 seeds. The table also gives the Jaccard index of
+# each run's stations with the base line. docs/aco.md, "Sensitivity".
+#
+#   uv run scripts/run_experiments.py --config experiments/configs/sensitivity.yaml
+#   uv run scripts/plot_extra.py sensitivity
+
+name: sensitivity
+description: sensitivity of the line to dwell, headway and train speed
+mode: ablation
+seeds: [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+save_trace: false
+
+defaults:
+  optimize: { algorithm: mmas, local_search: true, max_evaluations: 5000 }
+  aco: { n_ants: 20, n_iterations: 1000 }
+
+sweep:
+  metro.dwell_s: [15, 60]
+  metro.headway_s: [120, 300]
+  metro.speed_mps: [8.0, 15.0]

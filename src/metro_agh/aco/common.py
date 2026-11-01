@@ -57,8 +57,17 @@ def check_k(inst: Instance) -> tuple[int, int]:
     return n, k
 
 
-def heuristic(inst: Instance) -> tuple[np.ndarray, np.ndarray]:
-    """η[u,v] ∝ demand near v / tunnel(u,v); demand[v] for the first-station bias."""
+HEURISTICS = ("demand_distance", "distance", "demand", "none")
+
+
+def heuristic(inst: Instance, kind: str = "demand_distance") -> tuple[np.ndarray, np.ndarray]:
+    """η[u,v] ∝ demand near v / tunnel(u,v); demand[v] for the first-station bias.
+
+    ``aco.heuristic`` (experiment ``heuristic.yaml``) swaps it for the "classic" ACO hint
+    ``distance`` (η = 1 / tunnel, uniform first station), ``demand`` (no geometry) or
+    ``none`` (η = 1: pheromone only); the default is the one above."""
+    if kind not in HEURISTICS:
+        raise ValueError(f"aco.heuristic={kind!r}, expected one of {', '.join(HEURISTICS)}")
     n = inst.n_candidates
     access = np.where(np.isfinite(inst.access_s), inst.access_s, np.inf)
     near = np.argmin(access, axis=1)
@@ -71,7 +80,14 @@ def heuristic(inst: Instance) -> tuple[np.ndarray, np.ndarray]:
     if demand.max() <= 0:
         demand = np.ones(n)
     demand = demand / demand.max() + 0.05
-    eta = demand[None, :] / (inst.tunnel_m + 100.0) * 100.0
+    if kind == "demand_distance":
+        eta = demand[None, :] / (inst.tunnel_m + 100.0) * 100.0
+    elif kind == "distance":
+        demand, eta = np.ones(n), 100.0 / (inst.tunnel_m.astype(np.float64) + 100.0)
+    elif kind == "demand":
+        eta = np.repeat(demand[None, :], n, axis=0)
+    else:
+        demand, eta = np.ones(n), np.ones((n, n))
     np.fill_diagonal(eta, 0.0)
     return demand, eta
 

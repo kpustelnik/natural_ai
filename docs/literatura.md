@@ -3,6 +3,24 @@
 Notatki do sprawozdania: co mówi literatura i jak to wykorzystujemy w projekcie. Przed
 oddaniem sprawdzić strony i numery tomów w bazie wydawcy (Scopus / IEEE Xplore / Elsevier).
 
+## 0. Inspiracja biologiczna
+
+- **Goss, Aron, Deneubourg, Pasteels (1989)**, *Self-organized shortcuts in the Argentine
+  ant*, Naturwissenschaften 76, 579–581 (PDF w `references/`). Kolonia mrówek *Iridomyrmex
+  humilis* połączona z pokarmem mostkiem o dwóch gałęziach wybiera krótszą (14 z 14 kolonii
+  przy stosunku długości 2), choć żadna mrówka nie porównuje długości. Mrówki znaczą szlak
+  w obie strony; ta z krótszej gałęzi wraca wcześniej i oznacza rozwidlenie drugi raz, zanim
+  zrobią to mrówki z dłuższej, a przewaga się wzmacnia (wybór ∝ (20 + S)² / ((20 + S)² +
+  (20 + L)²)). Feromon żyje dłużej niż eksperyment, więc parowanie pominięto, i kolonia,
+  która utrwaliła dłuższą gałąź, **nie przełącza się** na krótszą dodaną później (2 z 18).
+  U nas: reguła wyboru ∝ τ^α η^β to uogólnienie ich funkcji wyboru (α ≈ wykładnik 2, η
+  dodaje to, co mrówka „widzi”); lepsza linia odkłada więcej feromonu (Δ = koszt bez metra
+  / koszt linii), jak krótsza gałąź znaczona częściej; feromon jest symetryczny (znaczenie w
+  obie strony); parowanie ρ i dolne ograniczenie τ_min w MMAS (a w ACS lokalne parowanie ξ)
+  usuwają ich „nieodwracalność”, więc kolonia może porzucić gorszą linię. Spadek entropii
+  feromonu na wykresach zbieżności to odpowiednik ich „jedna gałąź staje się wyraźnie
+  preferowana”.
+
 ## 1. Projektowanie sieci transportu zbiorowego
 
 - **Laporte, Mesa, Ortega (2000)**, *Optimization methods for the planning of rapid transit
@@ -24,6 +42,42 @@ oddaniem sprawdzić strony i numery tomów w bazie wydawcy (Scopus / IEEE Xplore
 - **Ceder, Wilson (1986)**, *Bus network design*, Transportation Research Part B 20(4),
   331–344. Klasyczne sformułowanie projektowania tras z perspektywy pasażera (czas podróży,
   przesiadki) i operatora; nasza funkcja celu to perspektywa pasażera.
+
+### 1.1 Algorytm mrówkowy w planowaniu kolei i tramwajów (najbliższe prace)
+
+- **Korzeń, Kruszyna (2023)**, *Modified Ant Colony Optimization as a Means for Evaluating
+  the Variants of the City Railway Underground Section*, International Journal of
+  Environmental Research and Public Health 20(6), 4960 (PDF w `references/`). Pięć
+  zaprojektowanych ręcznie wariantów tunelu kolei miejskiej pod centrum Wrocławia (3–9
+  stacji) oceniane zmodyfikowanym Ant System (ρ = 0,5, α = 1, β = 2). Heurystyka to macierz
+  „wysiłku” E_ij = (L_ij / L_c) · (1 − I_ij / I_c) · (1 / A_ij) · (S_max / S_c): udział
+  długości, mieszkańcy w promieniu 300 m od stacji, liczba linii autobusowych i tramwajowych
+  oraz nowe obszary z dostępem do kolei. Wygrywa wariant o najmniejszym łącznym wysiłku.
+- **Korzeń, Kruszyna (2025)**, *Public Transport Planning Using Modified Ant Colony
+  Optimization*, Sustainability 17(6), 2468 (PDF w `references/`). Przebieg jednej linii
+  tramwajowej (nr 12) między ustalonymi końcami na grafie skierowanym sieci Wrocławia; wysiłek
+  odcinka e_ij = (t_R / t_S) · (L_ij / L_c) · (V_o / V_r) · D_ij · A_ij · I_ij (czas
+  rzeczywisty / rozkładowy, długość, prędkość, niepewność czasu D_ij z rozrzutu **co najmniej
+  trzech pomiarów terenowych**, atrakcyjność, potencjał pasażerski). Porównanie wersji
+  zmodyfikowanej z „klasycznym” ACO (sama odległość): trasa o 11,5 % mniejszym wysiłku niż
+  obecna.
+
+Porównanie z naszym projektem:
+
+| | Korzeń, Kruszyna 2023 | Korzeń, Kruszyna 2025 | ten projekt |
+|---|---|---|---|
+| zadanie | ocena 5 gotowych wariantów tunelu | przebieg jednej linii między stałymi końcami | wybór i kolejność k z 55 kandydatów (~2·10⁸ linii przy k = 5) |
+| popyt | mieszkańcy w pobliżu stacji (wszyscy jadą koleją) | potencjał pasażerski z liczby mieszkańców | 286 tys. przejść tygodniowo z planu USOS; metro tylko gdy szybsze |
+| inne środki | liczba linii autobusowych / tramwajowych jako atrakcyjność | — | rozkładowy autobus / tramwaj jako alternatywa w funkcji celu |
+| funkcja celu | suma wysiłku krawędzi (najkrótsza ścieżka) | suma wysiłku odcinków | łączny czas wszystkich przejść; wartość odcinka zależy od całej linii |
+| walidacja | brak (jedno uruchomienie, ranking) | vs obecna trasa i klasyczne ACO | przegląd zupełny, 4 inne metody, 30 seedów, testy statystyczne, symulacja |
+
+Ich własne ograniczenia („ograniczona lista tras”, „ograniczona liczba kryteriów”,
+„wszyscy mieszkańcy jadą tylko koleją”, „można przetestować inne metody optymalizacji”) to
+dokładnie to, co rozwiązuje nasze sformułowanie. Co od nich bierzemy: długość tunelu jako
+wielkość raportowana przy każdej linii (`Objective.tunnel_m`), porównanie naszej heurystyki
+z klasyczną heurystyką odległości (eksperyment `heuristic.yaml`) i protokół pomiarów
+terenowych (≥ 3 przejścia na trasę, rozrzut), gdyby pomiary powstały (`validate_field.py`).
 
 ## 2. Algorytmy mrówkowe
 
@@ -57,7 +111,20 @@ oddaniem sprawdzić strony i numery tomów w bazie wydawcy (Scopus / IEEE Xplore
   `plot_experiments.py`.
 - **Wilcoxon (1945)**, *Individual comparisons by ranking methods*, Biometrics Bulletin
   1(6), 80–83. Test rangowanych znaków dla prób sparowanych (u nas: ten sam seed, dwa
-  algorytmy).
+  algorytmy) oraz test sumy rang dla prób niezależnych.
+- **Mann, Whitney (1947)**, *On a test of whether one of two random variables is
+  stochastically larger than the other*, Annals of Mathematical Statistics 18(1), 50–60.
+  Test U dla prób niezależnych: przebiegi dwóch algorytmów z tym samym seedem nie tworzą
+  pary (każdy algorytm zużywa liczby losowe inaczej), więc obok testu sparowanego podajemy
+  ten (`metro_agh/stats.py`, kolumna `p_mw`).
+- **Holm (1979)**, *A simple sequentially rejective multiple test procedure*, Scandinavian
+  Journal of Statistics 6(2), 65–70. Korekta wielu porównań z jednym algorytmem odniesienia
+  (kolumna `p_holm`).
+- **Vargha, Delaney (2000)**, *A critique and improvement of the CL common language effect
+  size statistics of McGraw and Wong*, Journal of Educational and Behavioral Statistics 25(2),
+  101–132. Miara efektu A₁₂ = P(przebieg X oszczędza więcej niż przebieg Y); 0,5 = brak
+  różnicy, ≥ 0,71 duży efekt (kolumna `a12`). Przy 30 seedach nawet mała różnica bywa
+  „istotna”, więc wielkość efektu mówi więcej niż samo p.
 
 ## 4. Dane i graf
 
@@ -81,4 +148,14 @@ oddaniem sprawdzić strony i numery tomów w bazie wydawcy (Scopus / IEEE Xplore
    2000; Dorigo, Stützle 2004) przewiduje to i zaleca hybrydę ACO + local search, co
    potwierdzają nasze wyniki (84–94 % trafień optimum z local search).
 3. Porównanie algorytmów wymaga równego budżetu ewaluacji i testów nieparametrycznych na
-   wielu seedach (Derrac i in. 2011); tak zbudowane są `compare_algorithms*.yaml`.
+   wielu seedach (Derrac i in. 2011); tak zbudowane są `compare_algorithms*.yaml`. Dla prób
+   niezależnych: Mann–Whitney z korektą Holma i A₁₂; bez local search MMAS jest wyraźnie
+   lepszy od losowego (p_Holm ≈ 5·10⁻¹¹, A₁₂ = 1,00), ale od ACS tylko nieistotnie
+   (p = 0,08, A₁₂ = 0,63, mały efekt).
+4. W odróżnieniu od najbliższych prac (Korzeń, Kruszyna 2023, 2025) przeszukujemy całą
+   przestrzeń linii zamiast oceniać gotowe warianty, popyt bierzemy z rzeczywistego planu
+   zajęć zamiast z liczby mieszkańców, a wynik sprawdzamy przeglądem zupełnym, innymi
+   metodami i symulacją.
+5. Mechanizm z eksperymentu Gossa i in. (1989), dodatnie sprzężenie przez feromon, bez
+   parowania prowadzi do utrwalenia pierwszego wyboru; dlatego MMAS ogranicza feromon z dołu
+   (τ_min), a ACS stosuje lokalne parowanie.

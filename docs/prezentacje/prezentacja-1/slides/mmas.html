@@ -1,0 +1,17 @@
+<section id="mmas" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Jak mrówki budują linię</h2>
+<div style="display:flex;gap:64px;align-items:center;flex:1">
+<div style="position:relative;width:760px;height:600px">
+<svg aria-label="Kandydaci na stacje jako punkty; grubość połączeń pokazuje feromon, czerwona linia to zbudowana linia metra" style="position:absolute;left:0px;top:0px;width:760px;height:600px" width="760" height="600" viewBox="0 0 760 600"><g stroke="#2A78D6" stroke-linecap="round" fill="none"><path d="M 110 470 L 260 330" stroke-width="16" opacity="0.8"/><path d="M 260 330 L 420 380" stroke-width="12" opacity="0.7"/><path d="M 420 380 L 540 200" stroke-width="14" opacity="0.75"/><path d="M 540 200 L 670 110" stroke-width="10" opacity="0.6"/><path d="M 260 330 L 330 140" stroke-width="3" opacity="0.4"/><path d="M 420 380 L 620 470" stroke-width="3" opacity="0.4"/><path d="M 110 470 L 200 160" stroke-width="2" opacity="0.35"/><path d="M 540 200 L 620 470" stroke-width="4" opacity="0.4"/></g><path d="M 110 470 L 260 330 L 420 380 L 540 200 L 670 110" fill="none" stroke="#C8102E" stroke-width="5" stroke-dasharray="14 10"/><g fill="#FBFBF8" stroke="#1C2430" stroke-width="5"><circle cx="110" cy="470" r="20"/><circle cx="260" cy="330" r="20"/><circle cx="420" cy="380" r="20"/><circle cx="540" cy="200" r="20"/><circle cx="670" cy="110" r="20"/><circle cx="330" cy="140" r="14"/><circle cx="620" cy="470" r="14"/><circle cx="200" cy="160" r="14"/></g></svg>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:44px;line-height:1.3">następna stacja ∝ <b>τ</b>^α · <b>η</b>^β</p>
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:32px;line-height:1.4"><b style="color:#2A78D6">τ, feromon</b>: pamięć kolonii, „po tej stacji dobrze wypada tamta”</p>
+<p style="font-size:32px;line-height:1.4"><b style="color:#2A78D6">η, podpowiedź</b>: popyt w pobliżu stacji / odległość</p>
+<p style="font-size:32px;line-height:1.4"><b>Lepsza linia odkłada więcej</b>; feromon paruje i ma dolną i górną granicę (MAX-MIN Ant System)</p>
+</div>
+</div>
+</div>
+<aside>MAX-MIN Ant System, Stützle i Hoos 2000. Każda mrówka buduje linię stacja po stacji: następną stację losuje z prawdopodobieństwem zależnym od feromonu na parze stacji i od podpowiedzi, czyli popytu w pobliżu kandydata podzielonego przez odległość. Po każdej iteracji feromon paruje, a najlepsza linia zostawia go więcej, im mniej czasu daje. Granice feromonu sprawiają, że kolonia nie utyka na pierwszym wyborze: to jest dokładnie problem mrówek z mostka bez parowania. Za chwilę zobaczymy to w viewerze.</aside>
+</section>

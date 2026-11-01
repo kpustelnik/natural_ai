@@ -45,6 +45,8 @@ search, refaktoryzacja MMAS, runner i skrypt wykresów, klucze `aco.variant` / `
 - [x] Wyniki P1 w sprawozdaniu (§5.7, wnioski 5–6, odtworzenie §9).
 - [x] P0-4 konspekt dwóch prezentacji (1: demo wizualizacji i przykładowego przebiegu z metrem i bez; 2: wszystko), sekcje zwijane:
       `docs/prezentacja.md`; slajdy robimy poza repo.
+- [x] Slajdy obu prezentacji w repo: `docs/prezentacje/prezentacja-1.html`, `prezentacja-2.html`
+      (źródła obok, `scripts/build_slides.py`).
 - [x] P1-12 statystyka: `metro_agh/stats.py`, kolumny `p_mw`, `p_holm`, `a12`, `effect`
       (kolumna Kamila z Wilcoxonem sparowanym zostaje).
 
@@ -57,7 +59,7 @@ search, refaktoryzacja MMAS, runner i skrypt wykresów, klucze `aco.variant` / `
 
 ## 2. Do zrobienia
 
-### Zostało (stan po §1.3): slajdy według konspektu, P0-6 PR do `main`, P2
+### Zostało (stan po §1.3): uzupełnić nazwiska na okładkach, P0-6 PR do `main`, P2
 
 ### P0: żeby projekt był skończony
 

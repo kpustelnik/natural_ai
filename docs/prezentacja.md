@@ -11,7 +11,17 @@ Dwie prezentacje:
 Dzięki temu prowadzący widzi postęp: najpierw działający system i pierwszy wynik, potem dowód,
 że wynik jest dobry. Lista „czego nie pokazujemy” w prezentacji 1 mówi, co zostaje na drugą.
 
-Notatki do mówienia są pod każdym slajdem (rozwiń). Liczby pochodzą z `docs/figures/*.csv` i
+**Slajdy** (otwórz w przeglądarce, notatki do mówienia pod każdym slajdem):
+
+- [`docs/prezentacje/prezentacja-1.html`](prezentacje/prezentacja-1.html): demo, 10 slajdów;
+- [`docs/prezentacje/prezentacja-2.html`](prezentacje/prezentacja-2.html): końcowa, 18 slajdów.
+
+Źródła są w `docs/prezentacje/prezentacja-1/` i `prezentacja-2/` (`deck.json` + jeden plik
+HTML na slajd, format Slides z claude.ai; wykresy z `docs/figures/` przez `assets.json`). Po
+zmianie źródła albo wykresu: `uv run scripts/build_slides.py`. Edytowalne wersje online
+(eksport do PPTX / PDF) są na claude.ai u autora i trzeba je udostępnić z menu Share.
+
+Notatki do mówienia w konspekcie poniżej są pod każdym slajdem (rozwiń). Liczby pochodzą z `docs/figures/*.csv` i
 `docs/aco.md`; tam też są odpowiedzi na typowe pytania (§12).
 
 **Przygotowanie viewera** (przed każdą prezentacją):

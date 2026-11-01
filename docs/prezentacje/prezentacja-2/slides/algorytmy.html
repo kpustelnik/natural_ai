@@ -1,0 +1,20 @@
+<section id="algorytmy" data-section="Nowe algorytmy i zasady uczciwego porównania" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Nowe: drugi algorytm, lokalne przeszukiwanie, punkty odniesienia</h2>
+<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:32px">
+<div style="display:flex;flex-direction:column;gap:20px;background:#F4F3EE;padding:40px;border-radius:16px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#2A78D6">ACS</h3>
+<p style="font-size:32px;line-height:1.4">Ant Colony System: częściej bierze najlepszą stację, a feromon „zużywa się” na odcinkach, którymi właśnie przeszły mrówki.</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5260">Dorigo, Gambardella 1997</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;background:#F4F3EE;padding:40px;border-radius:16px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#2A78D6">Lokalne przeszukiwanie</h3>
+<p style="font-size:32px;line-height:1.4">Wymiana, zamiana i przestawienie stacji, aż nic nie poprawia. Działa na najlepszej linii każdej iteracji.</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5260">Stützle, Hoos 2000</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;background:#F4F3EE;padding:40px;border-radius:16px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#C8102E">Odniesienie</h3>
+<p style="font-size:32px;line-height:1.4">Losowe linie, metoda zachłanna (najlepsza para, potem najlepsze wstawienie) i przegląd zupełny tam, gdzie się da.</p>
+</div>
+</div>
+<aside>ACS różni się od MMAS trzema regułami: z prawdopodobieństwem q0 mrówka bierze najlepszą następną stację zamiast losować (u nas q0 = 0,5, bo literaturowe 0,9 sprawiało, że mrówki budowały w kółko te same linie), lokalna aktualizacja feromonu po każdym kroku rozprasza kolonię, a globalnie odkłada tylko najlepsza dotąd linia. Lokalne przeszukiwanie to klasyczna hybryda z MMAS. Metody odniesienia pokazują, ile wnoszą same mrówki: losowe przeszukiwanie to dolna poprzeczka, zachłanna to prosta heurystyka, przegląd zupełny daje dokładne optimum.</aside>
+</section>

@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metro AGH — prezentacja 2</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600&amp;display=swap">
+<style>
+:root { color-scheme: light; }
+body { margin: 0; background: #e7e6e1; font-family: 'Public Sans', Arial, sans-serif; }
+header { padding: 16px 24px; font-size: 15px; color: #3b4250; }
+header b { color: #1c2430; }
+.slide { margin: 0 auto 8px; width: min(100vw - 32px, 1600px); }
+.frame { position: relative; overflow: hidden; background: #fbfbf8; aspect-ratio: 16 / 9;
+         box-shadow: 0 2px 12px rgba(0,0,0,.15); }
+.frame > section { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+                   box-sizing: border-box; overflow: hidden; transform-origin: 0 0; }
+section * { margin: 0; box-sizing: border-box; }
+section ul, section ol { padding-left: 1.2em; }
+section table { width: 100%; border-collapse: collapse; }
+section th { font-weight: 600; }
+section th, section td { padding: .35em .6em; border-bottom: 1px solid rgba(0,0,0,.18);
+                         vertical-align: top; }
+section aside { display: none; }
+.notes { font-size: 15px; color: #3b4250; padding: 10px 4px 28px; line-height: 1.5; }
+.notes summary { cursor: pointer; color: #1c2430; }
+.num { float: right; color: #6b7280; }
+</style>
+</head>
+<body>
+<header><b>Metro AGH — prezentacja 2</b> · 18 slajdów · strzałki / PageUp / PageDown: następny / poprzedni · źródła: docs/prezentacje/prezentacja-2/ · wygenerowane przez scripts/build_slides.py</header>
+<div class="slide" id="slide-1"><div class="frame"><section id="cover" data-transition="fade" style="background:#1C2430;color:#F4F3EE;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<svg aria-label="Schemat linii metra: pięć stacji połączonych czerwoną linią" style="position:absolute;left:1088px;top:0px;width:832px;height:1080px" width="832" height="1080" viewBox="0 0 832 1080"><path d="M 120 900 L 300 700 L 420 760 L 560 520 L 700 300" fill="none" stroke="#C8102E" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><g fill="#1C2430" stroke="#F4F3EE" stroke-width="8"><circle cx="120" cy="900" r="26"/><circle cx="300" cy="700" r="26"/><circle cx="420" cy="760" r="26"/><circle cx="560" cy="520" r="26"/><circle cx="700" cy="300" r="26"/></g><g fill="#2A78D6" opacity="0.55"><circle cx="210" cy="820" r="6"/><circle cx="360" cy="735" r="6"/><circle cx="490" cy="640" r="6"/><circle cx="630" cy="410" r="6"/><circle cx="250" cy="760" r="5"/><circle cx="520" cy="590" r="5"/></g></svg>
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:32px;font-weight:500;color:#E86A7E;letter-spacing:2px;text-transform:uppercase">Algorytmy inspirowane naturą · prezentacja końcowa</p>
+<div style="display:flex;flex-direction:column;gap:32px;width:1040px">
+<h1 style="font-family:'Rubik', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1.05;color:#F4F3EE">Metro na kampusie AGH</h1>
+<p style="font-size:44px;line-height:1.3;color:#C9CED6">Czy mrówki znalazły dobrą linię?</p>
+</div>
+<p style="font-size:32px;color:#C9CED6">[Imiona i nazwiska zespołu] · [przedmiot, prowadzący]</p>
+<aside>Na etapie pośrednim pokazaliśmy działający system i jeden przykładowy przebieg. Dziś odpowiadamy na pytania, które wtedy zostawiliśmy otwarte: czy ta linia jest dobra, czy to optimum, ile stacji ma sens i czy wynik zależy od założeń.</aside>
+</section>
+</div><span class="num">1 / 18</span><details class="notes"><summary>Notatki</summary>Na etapie pośrednim pokazaliśmy działający system i jeden przykładowy przebieg. Dziś odpowiadamy na pytania, które wtedy zostawiliśmy otwarte: czy ta linia jest dobra, czy to optimum, ile stacji ma sens i czy wynik zależy od założeń.</details></div>
+<div class="slide" id="slide-2"><div class="frame"><section id="przypomnienie" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Ostatnio: jeden przebieg, cztery pytania</h2>
+<div style="display:flex;gap:64px;flex:1">
+<div style="width:640px;display:flex;flex-direction:column;gap:24px;background:#1C2430;color:#F4F3EE;padding:48px;border-radius:16px">
+<p style="font-size:32px;line-height:1.4;color:#C9CED6">MMAS, 5 stacji, jeden przebieg:</p>
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;line-height:1.25;color:#F4F3EE">H-D8 – C-4 – U-9 – D-10 – A-0</p>
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;color:#E86A7E">11,6 %</p>
+<p style="font-size:32px;line-height:1.4;color:#C9CED6">mniej czasu przejść 22 tys. studentów</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;justify-content:center">
+<p style="font-size:44px;line-height:1.3"><b style="color:#C8102E">1</b>  Czy mrówki są lepsze od prostszych metod?</p>
+<p style="font-size:44px;line-height:1.3"><b style="color:#C8102E">2</b>  Czy to w ogóle optimum?</p>
+<p style="font-size:44px;line-height:1.3"><b style="color:#C8102E">3</b>  Ile stacji ma sens i jaka linia?</p>
+<p style="font-size:44px;line-height:1.3"><b style="color:#C8102E">4</b>  Czy wynik zależy od założeń?</p>
+</div>
+</div>
+<aside>Przypomnienie: problem to linia metra z k stacjami minimalizująca łączny czas przejść studentów w tygodniu; dane z USOS, OpenStreetMap i GTFS; 55 kandydatów, ok. 200 milionów możliwych linii przy 5 stacjach. Na etapie pośrednim pokazaliśmy jeden przebieg MAX-MIN Ant System z wynikiem 11,6 procent. Od tamtej pory doszły: drugi algorytm mrówkowy, lokalne przeszukiwanie, metody odniesienia i dziewięć eksperymentów walidacyjnych ze statystyką. Prezentacja odpowiada po kolei na te cztery pytania.</aside>
+</section>
+</div><span class="num">2 / 18</span><details class="notes"><summary>Notatki</summary>Przypomnienie: problem to linia metra z k stacjami minimalizująca łączny czas przejść studentów w tygodniu; dane z USOS, OpenStreetMap i GTFS; 55 kandydatów, ok. 200 milionów możliwych linii przy 5 stacjach. Na etapie pośrednim pokazaliśmy jeden przebieg MAX-MIN Ant System z wynikiem 11,6 procent. Od tamtej pory doszły: drugi algorytm mrówkowy, lokalne przeszukiwanie, metody odniesienia i dziewięć eksperymentów walidacyjnych ze statystyką. Prezentacja odpowiada po kolei na te cztery pytania.</details></div>
+<div class="slide" id="slide-3"><div class="frame"><section id="algorytmy" data-section="Nowe algorytmy i zasady uczciwego porównania" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Nowe: drugi algorytm, lokalne przeszukiwanie, punkty odniesienia</h2>
+<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:32px">
+<div style="display:flex;flex-direction:column;gap:20px;background:#F4F3EE;padding:40px;border-radius:16px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#2A78D6">ACS</h3>
+<p style="font-size:32px;line-height:1.4">Ant Colony System: częściej bierze najlepszą stację, a feromon „zużywa się” na odcinkach, którymi właśnie przeszły mrówki.</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5260">Dorigo, Gambardella 1997</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;background:#F4F3EE;padding:40px;border-radius:16px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#2A78D6">Lokalne przeszukiwanie</h3>
+<p style="font-size:32px;line-height:1.4">Wymiana, zamiana i przestawienie stacji, aż nic nie poprawia. Działa na najlepszej linii każdej iteracji.</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5260">Stützle, Hoos 2000</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;background:#F4F3EE;padding:40px;border-radius:16px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#C8102E">Odniesienie</h3>
+<p style="font-size:32px;line-height:1.4">Losowe linie, metoda zachłanna (najlepsza para, potem najlepsze wstawienie) i przegląd zupełny tam, gdzie się da.</p>
+</div>
+</div>
+<aside>ACS różni się od MMAS trzema regułami: z prawdopodobieństwem q0 mrówka bierze najlepszą następną stację zamiast losować (u nas q0 = 0,5, bo literaturowe 0,9 sprawiało, że mrówki budowały w kółko te same linie), lokalna aktualizacja feromonu po każdym kroku rozprasza kolonię, a globalnie odkłada tylko najlepsza dotąd linia. Lokalne przeszukiwanie to klasyczna hybryda z MMAS. Metody odniesienia pokazują, ile wnoszą same mrówki: losowe przeszukiwanie to dolna poprzeczka, zachłanna to prosta heurystyka, przegląd zupełny daje dokładne optimum.</aside>
+</section>
+</div><span class="num">3 / 18</span><details class="notes"><summary>Notatki</summary>ACS różni się od MMAS trzema regułami: z prawdopodobieństwem q0 mrówka bierze najlepszą następną stację zamiast losować (u nas q0 = 0,5, bo literaturowe 0,9 sprawiało, że mrówki budowały w kółko te same linie), lokalna aktualizacja feromonu po każdym kroku rozprasza kolonię, a globalnie odkłada tylko najlepsza dotąd linia. Lokalne przeszukiwanie to klasyczna hybryda z MMAS. Metody odniesienia pokazują, ile wnoszą same mrówki: losowe przeszukiwanie to dolna poprzeczka, zachłanna to prosta heurystyka, przegląd zupełny daje dokładne optimum.</details></div>
+<div class="slide" id="slide-4"><div class="frame"><section id="porownanie-zasady" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:64px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Uczciwe porównanie: ten sam budżet, wiele powtórzeń</h2>
+<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">5 000</p>
+<p style="font-size:32px;line-height:1.4">różnych ocenionych linii dla każdej metody</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">30</p>
+<p style="font-size:32px;line-height:1.4">niezależnych uruchomień (ziaren)</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">A₁₂</p>
+<p style="font-size:32px;line-height:1.4">szansa, że przebieg A oszczędza więcej niż przebieg B</p>
+</div>
+</div>
+<p style="font-size:32px;line-height:1.4;color:#4A5260">Testy nieparametryczne (Derrac i in. 2011): Wilcoxon oraz Mann–Whitney z korektą Holma; A₁₂ = 0,5 to brak różnicy, od 0,71 efekt duży.</p>
+<aside>Ocena linii to jedyny kosztowny krok, a linia oceniona wcześniej jest darmowa, więc budżet liczymy w różnych liniach. Każda metoda losowa ma 30 uruchomień. Przebiegi dwóch algorytmów są niezależne, bo ten sam seed nie łączy ich w pary, więc oprócz testu Wilcoxona podajemy test Manna–Whitneya z korektą Holma na wielokrotne porównania i miarę efektu A12 Varghy i Delaney: przy 30 powtórzeniach nawet mała różnica bywa istotna, więc wielkość efektu mówi więcej niż samo p.</aside>
+</section>
+</div><span class="num">4 / 18</span><details class="notes"><summary>Notatki</summary>Ocena linii to jedyny kosztowny krok, a linia oceniona wcześniej jest darmowa, więc budżet liczymy w różnych liniach. Każda metoda losowa ma 30 uruchomień. Przebiegi dwóch algorytmów są niezależne, bo ten sam seed nie łączy ich w pary, więc oprócz testu Wilcoxona podajemy test Manna–Whitneya z korektą Holma na wielokrotne porównania i miarę efektu A12 Varghy i Delaney: przy 30 powtórzeniach nawet mała różnica bywa istotna, więc wielkość efektu mówi więcej niż samo p.</details></div>
+<div class="slide" id="slide-5"><div class="frame"><section id="porownanie" data-section="Czy wynik jest dobry: porównanie metod, optimum, zbieżność, parametry" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">1. Mrówki biją losowe, lokalne przeszukiwanie wyrównuje</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="../figures/compare_algorithms.png" alt="Oszczędność dla ośmiu wariantów, po jednym punkcie na uruchomienie: z lokalnym przeszukiwaniem MMAS, ACS i losowe po 11,6 %, zachłanny 11,3 %; bez niego MMAS 11,4 %, ACS 11,4 %, zachłanny 11,3 %, losowe 9,7 %" style="width:1080px;height:560px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:32px;line-height:1.4"><b>Bez LS</b>: MMAS 11,42 %, ACS 11,36 %, zachłanny 11,25 %, losowe 9,68 %</p>
+<p style="font-size:32px;line-height:1.4">MMAS &gt; losowe: A₁₂ = 1,00. MMAS vs ACS: <b>nieistotnie</b> (p = 0,08)</p>
+<p style="font-size:32px;line-height:1.4"><b>Z LS</b>: MMAS, ACS i losowe dają tę samą linię, 11,60 %</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">k = 5, 5 000 linii, 30 uruchomień; LS = lokalne przeszukiwanie. Przy k = 10 (60 000 linii): MMAS + LS 15,14 %, zachłanny + LS 14,85 %.</p>
+<aside>Bez lokalnego przeszukiwania obie kolonie są wyraźnie lepsze od losowego przeszukiwania przy każdym z 30 uruchomień: mrówki uczą się struktury problemu. MMAS bije też metodę zachłanną we wszystkich 30 przebiegach. Różnica między MMAS a ACS jest nieistotna po korekcie. Z lokalnym przeszukiwaniem wszystkie metody losowe dochodzą do tej samej linii; zachłanny z LS zostaje w swoim lokalnym optimum. Wniosek wprost: o jakości decyduje lokalne przeszukiwanie, a strategia, która dostarcza mu punkty startowe, ma znaczenie drugorzędne. To zgodne ze Stützle i Hoos 2000. Przy 10 stacjach i 60 tysiącach linii wynik jest taki sam: trzy warianty z LS remisują, każdy bije zachłanny.</aside>
+</section>
+</div><span class="num">5 / 18</span><details class="notes"><summary>Notatki</summary>Bez lokalnego przeszukiwania obie kolonie są wyraźnie lepsze od losowego przeszukiwania przy każdym z 30 uruchomień: mrówki uczą się struktury problemu. MMAS bije też metodę zachłanną we wszystkich 30 przebiegach. Różnica między MMAS a ACS jest nieistotna po korekcie. Z lokalnym przeszukiwaniem wszystkie metody losowe dochodzą do tej samej linii; zachłanny z LS zostaje w swoim lokalnym optimum. Wniosek wprost: o jakości decyduje lokalne przeszukiwanie, a strategia, która dostarcza mu punkty startowe, ma znaczenie drugorzędne. To zgodne ze Stützle i Hoos 2000. Przy 10 stacjach i 60 tysiącach linii wynik jest taki sam: trzy warianty z LS remisują, każdy bije zachłanny.</details></div>
+<div class="slide" id="slide-6"><div class="frame"><section id="optimum-pod" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">2. Czy to optimum? Najpierw małe instancje</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="../figures/gap_to_optimum.png" alt="Odsetek uruchomień, które znalazły dokładne optimum na pięciu podinstancjach po 12 kandydatów, dla wariantów z lokalnym przeszukiwaniem i bez" style="width:1080px;height:560px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:32px;line-height:1.4">Budżet: <b>3 %</b> wszystkich linii</p>
+<p style="font-size:32px;line-height:1.4"><b>Z LS</b>: optimum w 84 % (MMAS), 94 % (ACS), 88 % (losowe) uruchomień</p>
+<p style="font-size:32px;line-height:1.4"><b>Bez LS</b>: 16 %, 30 %, 4 %; zachłanny 3 z 5</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">5 podinstancji po 12 kandydatów z największym popytem, k = 4 (5 940 linii), 200 linii na uruchomienie, 10 ziaren.</p>
+<aside>Na małych instancjach można sprawdzić wszystkie linie i porównać z dokładnym optimum. Przy budżecie zaledwie 3 procent linii kolonie z lokalnym przeszukiwaniem trafiają optimum w 84 do 94 procent uruchomień. Bez lokalnego przeszukiwania zachłanny wypada tu lepiej od kolonii: 200 linii to tylko 20 do 40 iteracji, za mało, żeby feromon się czegoś nauczył, a zachłanny mieści się w budżecie w całości. Przy większym budżecie kolejność się odwraca, co widzieliśmy na poprzednim slajdzie.</aside>
+</section>
+</div><span class="num">6 / 18</span><details class="notes"><summary>Notatki</summary>Na małych instancjach można sprawdzić wszystkie linie i porównać z dokładnym optimum. Przy budżecie zaledwie 3 procent linii kolonie z lokalnym przeszukiwaniem trafiają optimum w 84 do 94 procent uruchomień. Bez lokalnego przeszukiwania zachłanny wypada tu lepiej od kolonii: 200 linii to tylko 20 do 40 iteracji, za mało, żeby feromon się czegoś nauczył, a zachłanny mieści się w budżecie w całości. Przy większym budżecie kolejność się odwraca, co widzieliśmy na poprzednim slajdzie.</details></div>
+<div class="slide" id="slide-7"><div class="frame"><section id="optimum-kampus" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">2. Czy to optimum? Cały kampus, 4,1 mln linii</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="../figures/exact_full.png" alt="Odsetek uruchomień, które znalazły dokładne optimum całego kampusu dla 2, 3 i 4 stacji; przy 4 stacjach MMAS z lokalnym przeszukiwaniem 100 %, MMAS 80 %, ACS z LS 70 %, ACS 50 %, zachłanny 0 %" style="width:1080px;height:560px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:96px;font-weight:700;color:#C8102E">10 / 10</p>
+<p style="font-size:32px;line-height:1.4">uruchomień MMAS + LS trafia dokładne optimum przy 4 stacjach, mając <b>0,12 %</b> linii</p>
+<p style="font-size:32px;line-height:1.4">Zachłanny: <b>nigdy</b> (brakuje mu 0,07 % możliwej oszczędności)</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">Przegląd zupełny: 1 485 / 78 705 / 4 092 660 linii dla k = 2 / 3 / 4 (k = 4: 15 min). Budżet 5 000 linii, 10 ziaren.</p>
+<aside>Na całym kampusie, z 55 kandydatami, da się przejrzeć wszystkie linie do 4 stacji: przy 4 stacjach to ponad 4 miliony linii i 15 minut liczenia. Przy 2 i 3 stacjach wszystkie metody zawsze trafiają optimum. Przy 4 stacjach MMAS z lokalnym przeszukiwaniem trafia je w każdym z 10 uruchomień, mając do dyspozycji ułamek promila przestrzeni; metoda zachłanna utyka w lokalnym optimum. Przy 5 stacjach, 200 milionach linii, nie da się już sprawdzić wszystkich, ale wszystkie metody z LS dochodzą do tej samej linii przy każdym z 30 uruchomień.</aside>
+</section>
+</div><span class="num">7 / 18</span><details class="notes"><summary>Notatki</summary>Na całym kampusie, z 55 kandydatami, da się przejrzeć wszystkie linie do 4 stacji: przy 4 stacjach to ponad 4 miliony linii i 15 minut liczenia. Przy 2 i 3 stacjach wszystkie metody zawsze trafiają optimum. Przy 4 stacjach MMAS z lokalnym przeszukiwaniem trafia je w każdym z 10 uruchomień, mając do dyspozycji ułamek promila przestrzeni; metoda zachłanna utyka w lokalnym optimum. Przy 5 stacjach, 200 milionach linii, nie da się już sprawdzić wszystkich, ale wszystkie metody z LS dochodzą do tej samej linii przy każdym z 30 uruchomień.</details></div>
+<div class="slide" id="slide-8"><div class="frame"><section id="zbieznosc" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Zbieżność: kolonia potrzebuje ok. 2 000 linii</h2>
+<img src="../figures/compare_algorithms_convergence.png" alt="Średnia najlepsza oszczędność w funkcji liczby ocenionych linii dla MMAS, ACS i losowego, bez lokalnego przeszukiwania i z nim" style="width:1664px;height:520px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="display:flex;gap:48px">
+<p style="flex:1;font-size:32px;line-height:1.4">Bez LS: ACS rośnie szybciej na początku, MMAS dogania</p>
+<p style="flex:1;font-size:32px;line-height:1.4">Zachłanny prześcignięty po ~1 950 (MMAS) i ~2 870 (ACS) liniach</p>
+<p style="flex:1;font-size:32px;line-height:1.4">Z LS: pierwsze zejście ~1 500 linii i od razu ~11,5 %</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">k = 5, 30 uruchomień; średnia najlepszej dotąd oszczędności.</p>
+<aside>Krzywe zbieżności: najlepsza dotąd oszczędność w funkcji liczby ocenionych linii, uśredniona po 30 uruchomieniach. ACS dzięki regule q0 szybciej wykorzystuje to, co już wie, więc na początku rośnie szybciej; MMAS dogania i obie kolonie kończą na tym samym poziomie. Obie przeganiają metodę zachłanną dopiero po ok. 2 do 3 tysiącach linii, co tłumaczy, dlaczego przy małym budżecie zachłanny wygrywał. Z lokalnym przeszukiwaniem pierwsze zejście zużywa ok. 1 300 do 1 700 linii i od razu daje prawie najlepszy wynik.</aside>
+</section>
+</div><span class="num">8 / 18</span><details class="notes"><summary>Notatki</summary>Krzywe zbieżności: najlepsza dotąd oszczędność w funkcji liczby ocenionych linii, uśredniona po 30 uruchomieniach. ACS dzięki regule q0 szybciej wykorzystuje to, co już wie, więc na początku rośnie szybciej; MMAS dogania i obie kolonie kończą na tym samym poziomie. Obie przeganiają metodę zachłanną dopiero po ok. 2 do 3 tysiącach linii, co tłumaczy, dlaczego przy małym budżecie zachłanny wygrywał. Z lokalnym przeszukiwaniem pierwsze zejście zużywa ok. 1 300 do 1 700 linii i od razu daje prawie najlepszy wynik.</details></div>
+<div class="slide" id="slide-9"><div class="frame"><section id="parametry" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Parametry: liczy się siła podpowiedzi β</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="../figures/aco_ablation.png" alt="Ablacja parametrów MMAS: oszczędność dla różnych wartości alfa, beta, rho, liczby mrówek i iteracji" style="width:960px;height:600px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<table style="font-size:32px;color:#1C2430">
+<tr><th style="width:40%;text-align:left">β</th><th style="width:60%;text-align:right">oszczędność</th></tr>
+<tr><td>0</td><td style="text-align:right">10,77 %</td></tr>
+<tr><td><b>1</b></td><td style="text-align:right"><b>11,18 %</b></td></tr>
+<tr><td>3</td><td style="text-align:right">10,23 %</td></tr>
+<tr><td>5</td><td style="text-align:right">8,61 %</td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4">Silna podpowiedź popytu prowadzi mrówki w złą stronę. α = 1; ρ i liczba mrówek mają mały wpływ.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">MMAS bez LS, 20 mrówek × 100 iteracji, 10 ziaren, jeden parametr naraz.</p>
+<aside>Ablacja: zmieniamy jeden parametr naraz. Najsilniej działa beta, waga podpowiedzi. Słaba podpowiedź (beta 1) jest lepsza niż żadna, ale silna (3 do 5) psuje wynik. Powód: popyt blisko stacji nie mówi, czy przejścia są długie, a tylko długie przejścia korzystają z metra, więc stacja przy popularnym budynku często niewiele daje. Dlatego domyślne beta zmieniliśmy z 3 na 1. Alfa ma optimum w 1, szybsze parowanie i więcej mrówek pomagają nieznacznie.</aside>
+</section>
+</div><span class="num">9 / 18</span><details class="notes"><summary>Notatki</summary>Ablacja: zmieniamy jeden parametr naraz. Najsilniej działa beta, waga podpowiedzi. Słaba podpowiedź (beta 1) jest lepsza niż żadna, ale silna (3 do 5) psuje wynik. Powód: popyt blisko stacji nie mówi, czy przejścia są długie, a tylko długie przejścia korzystają z metra, więc stacja przy popularnym budynku często niewiele daje. Dlatego domyślne beta zmieniliśmy z 3 na 1. Alfa ma optimum w 1, szybsze parowanie i więcej mrówek pomagają nieznacznie.</details></div>
+<div class="slide" id="slide-10"><div class="frame"><section id="heurystyka" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Klasyczna podpowiedź z TSP tu szkodzi</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="../figures/heuristic.png" alt="Oszczędność MMAS z czterema heurystykami: nasza 11,4 %, klasyczna 1 przez odległość 11,0 %, sam popyt 11,5 %, brak 11,4 %" style="width:960px;height:560px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:32px;line-height:1.4"><b>1 / odległość</b> (klasyczna): 10,98 %, gorzej nawet niż bez podpowiedzi (p = 0,001)</p>
+<p style="font-size:32px;line-height:1.4"><b>Nasza</b> (popyt / odległość): 11,43 %</p>
+<p style="font-size:32px;line-height:1.4"><b>Sam popyt</b>: 11,52 %, najlepszy</p>
+<p style="font-size:32px;line-height:1.4;color:#4A5260">Dobre linie mają długie przeskoki: „blisko” myli mrówki.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">MMAS bez LS, k = 5, 5 000 linii, 20 ziaren. Odpowiednik porównania „zmodyfikowane vs klasyczne ACO” (Korzeń, Kruszyna 2025).</p>
+<aside>Korzeń i Kruszyna w 2025 porównali swoje zmodyfikowane ACO z klasycznym, w którym podpowiedzią jest sama odległość. My zrobiliśmy to samo z naszą heurystyką. Klasyczna podpowiedź odległości, jak w problemie komiwojażera, szkodzi: wynik 10,98 procent, gorszy nawet od braku podpowiedzi (11,37, test Manna-Whitneya p = 0,001). Pomaga składnik popytu: sam popyt daje 11,52 procent, nasza heurystyka łącząca popyt i odległość 11,43. Powód: dobre linie mają długie przeskoki między stacjami, więc podpowiedź wybierania bliskich stacji prowadzi mrówki w złą stronę.</aside>
+</section>
+</div><span class="num">10 / 18</span><details class="notes"><summary>Notatki</summary>Korzeń i Kruszyna w 2025 porównali swoje zmodyfikowane ACO z klasycznym, w którym podpowiedzią jest sama odległość. My zrobiliśmy to samo z naszą heurystyką. Klasyczna podpowiedź odległości, jak w problemie komiwojażera, szkodzi: wynik 10,98 procent, gorszy nawet od braku podpowiedzi (11,37, test Manna-Whitneya p = 0,001). Pomaga składnik popytu: sam popyt daje 11,52 procent, nasza heurystyka łącząca popyt i odległość 11,43. Powód: dobre linie mają długie przeskoki między stacjami, więc podpowiedź wybierania bliskich stacji prowadzi mrówki w złą stronę.</details></div>
+<div class="slide" id="slide-11"><div class="frame"><section id="stacje" data-section="Jaka linia: liczba stacji, tunel, pętla, wrażliwość" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">3. Ile stacji: rozsądnie 5–7</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="../figures/k_sweep.png" alt="Oszczędność w funkcji liczby stacji: 2 stacje 6,6 %, 5 stacji 11,6 %, 7 stacji 13,5 %, 10 stacji 15,2 %" style="width:960px;height:560px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<table style="font-size:32px;color:#1C2430">
+<tr><th style="width:40%;text-align:left">stacje</th><th style="width:60%;text-align:right">oszczędność</th></tr>
+<tr><td>2</td><td style="text-align:right">6,6 %</td></tr>
+<tr><td>5</td><td style="text-align:right">11,6 %</td></tr>
+<tr><td>7</td><td style="text-align:right">13,5 %</td></tr>
+<tr><td>10</td><td style="text-align:right">15,2 %</td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4">Powyżej 7 stacji każda kolejna daje mniej niż 0,7 p.p.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">MMAS, 5 ziaren na każde k; k = 2, 3, 4 sprawdzone przeglądem zupełnym.</p>
+<aside>Liczba stacji jest parametrem, nie wynikiem: optymalizujemy osobno dla każdego k od 2 do 10. Krzywa ma malejące przyrosty: pierwsze stacje obsługują najliczniejsze pary budynków, kolejne coraz rzadsze, a każdy postój spowalnia jadących dalej. Powyżej 7 stacji każda kolejna dodaje mniej niż 0,7 punktu procentowego, więc 5 do 7 stacji to rozsądny kompromis, jeśli liczyć koszt budowy. Wartości dla 2, 3 i 4 stacji są potwierdzone przeglądem wszystkich linii.</aside>
+</section>
+</div><span class="num">11 / 18</span><details class="notes"><summary>Notatki</summary>Liczba stacji jest parametrem, nie wynikiem: optymalizujemy osobno dla każdego k od 2 do 10. Krzywa ma malejące przyrosty: pierwsze stacje obsługują najliczniejsze pary budynków, kolejne coraz rzadsze, a każdy postój spowalnia jadących dalej. Powyżej 7 stacji każda kolejna dodaje mniej niż 0,7 punktu procentowego, więc 5 do 7 stacji to rozsądny kompromis, jeśli liczyć koszt budowy. Wartości dla 2, 3 i 4 stacji są potwierdzone przeglądem wszystkich linii.</details></div>
+<div class="slide" id="slide-12"><div class="frame"><section id="tunel" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Bez kosztu budowy linia potrafi zygzakować</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="../figures/tunnel.png" alt="Oszczędność a długość tunelu najlepszej linii dla 2 do 10 stacji; linia z 5 stacjami ma 3,2 km, więcej niż linia z 7 stacjami" style="width:960px;height:560px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:32px;line-height:1.4">k = 4: <b>1,4 km</b> tunelu, 3 070 studento-godzin tygodniowo na km</p>
+<p style="font-size:32px;line-height:1.4">k = 5: <b>3,2 km</b>, tylko 1 530 na km</p>
+<p style="font-size:32px;line-height:1.4">k = 7: 2,7 km, krótszy niż przy 5 stacjach</p>
+<p style="font-size:32px;line-height:1.4;color:#4A5260">Z kosztem tunelu k = 4 lub 7 byłyby lepsze od 5.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">Najlepsza linia dla każdego k; tunel po prostej między peronami.</p>
+<aside>Funkcja celu liczy tylko czas studentów, nie koszt budowy. Widać to w długości tunelu najlepszej linii: przy 4 stacjach to 1,4 km, przy 5 stacjach aż 3,2 km, więcej niż przy 7 stacjach. Linia k = 5 zygzakuje między budynkami, bo każdy dodatkowy kilometr tunelu jest dla niej darmowy. Na kilometr tunelu linia z 4 stacjami oszczędza dwa razy więcej niż ta z 5. To odpowiada pracy Korzenia i Kruszyny z 2023, w której długość jest składnikiem oceny; u nas jest opcja kary za kilometr tunelu, którą można włączyć w optymalizacji.</aside>
+</section>
+</div><span class="num">12 / 18</span><details class="notes"><summary>Notatki</summary>Funkcja celu liczy tylko czas studentów, nie koszt budowy. Widać to w długości tunelu najlepszej linii: przy 4 stacjach to 1,4 km, przy 5 stacjach aż 3,2 km, więcej niż przy 7 stacjach. Linia k = 5 zygzakuje między budynkami, bo każdy dodatkowy kilometr tunelu jest dla niej darmowy. Na kilometr tunelu linia z 4 stacjami oszczędza dwa razy więcej niż ta z 5. To odpowiada pracy Korzenia i Kruszyny z 2023, w której długość jest składnikiem oceny; u nas jest opcja kary za kilometr tunelu, którą można włączyć w optymalizacji.</details></div>
+<div class="slide" id="slide-13"><div class="frame"><section id="petla" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Pętla zamiast linii: trochę lepiej, dłuższy tunel</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="../figures/topology.png" alt="Oszczędność linii i pętli dla 5 i 7 stacji: pętla 12,0 % i 13,9 %, linia 11,6 % i 13,4 %" style="width:960px;height:560px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:32px;line-height:1.4">5 stacji: <b>11,98 %</b> pętla vs 11,60 % linia</p>
+<p style="font-size:32px;line-height:1.4">7 stacji: <b>13,88 %</b> vs 13,37 %</p>
+<p style="font-size:32px;line-height:1.4">Te same stacje, inna kolejność; tunel 3,85 km zamiast 3,22 km</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">MMAS + LS, 5 000 linii, 10 ziaren; pętla wygrywa w każdym uruchomieniu (A₁₂ = 1).</p>
+<aside>Sprawdziliśmy też, czy pociągi zamiast jeździć tam i z powrotem nie powinny jeździć w kółko. Pętla wygrywa w każdym uruchomieniu, o ok. 0,4 do 0,5 punktu procentowego. Przy 5 stacjach to dokładnie te same stacje co w najlepszej linii, tylko w innej kolejności. Pętla nie ma końców, więc dwie stacje dzieli co najwyżej połowa obwodu; płaci za to dłuższym tunelem, 3,85 zamiast 3,22 km.</aside>
+</section>
+</div><span class="num">13 / 18</span><details class="notes"><summary>Notatki</summary>Sprawdziliśmy też, czy pociągi zamiast jeździć tam i z powrotem nie powinny jeździć w kółko. Pętla wygrywa w każdym uruchomieniu, o ok. 0,4 do 0,5 punktu procentowego. Przy 5 stacjach to dokładnie te same stacje co w najlepszej linii, tylko w innej kolejności. Pętla nie ma końców, więc dwie stacje dzieli co najwyżej połowa obwodu; płaci za to dłuższym tunelem, 3,85 zamiast 3,22 km.</details></div>
+<div class="slide" id="slide-14"><div class="frame"><section id="wrazliwosc" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">4. Założenia zmieniają „ile”, nie „gdzie”</h2>
+<img src="../figures/sensitivity.png" alt="Oszczędność przy różnych postojach, odstępach między pociągami i prędkościach; od 8,4 % przy odstępie 300 s do 13,6 % przy prędkości 15 m/s" style="width:1664px;height:500px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="display:flex;gap:48px">
+<p style="flex:1;font-size:32px;line-height:1.4">Oszczędność: od <b>8,4 %</b> (pociąg co 5 min) do <b>13,6 %</b> (15 m/s)</p>
+<p style="flex:1;font-size:32px;line-height:1.4">Stacje prawie zawsze te same: podobieństwo zbiorów ≥ <b>0,94</b></p>
+<p style="flex:1;font-size:32px;line-height:1.4">Najsilniej działa częstotliwość: czekanie płaci każdy</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">MMAS + LS, k = 5, 10 ziaren; jeden parametr naraz wokół 30 s postoju, 180 s odstępu, 10 m/s.</p>
+<aside>Postoju, częstotliwości i prędkości pociągów nie da się sprawdzić, bo metra nie ma, więc sprawdziliśmy, czy wynik od nich zależy. Wielkość oszczędności zależy, i to mocno: przy pociągu co 5 minut tylko 8,4 procent, przy 2 minutach 13,3, przy prędkości 15 m/s 13,6. Ale wybór stacji praktycznie się nie zmienia: indeks Jaccarda zbiorów stacji z linią bazową wynosi co najmniej 0,94, czyli prawie zawsze te same pięć stacji, czasem w innej kolejności. To znaczy, że rekomendacja, gdzie budować, jest stabilna.</aside>
+</section>
+</div><span class="num">14 / 18</span><details class="notes"><summary>Notatki</summary>Postoju, częstotliwości i prędkości pociągów nie da się sprawdzić, bo metra nie ma, więc sprawdziliśmy, czy wynik od nich zależy. Wielkość oszczędności zależy, i to mocno: przy pociągu co 5 minut tylko 8,4 procent, przy 2 minutach 13,3, przy prędkości 15 m/s 13,6. Ale wybór stacji praktycznie się nie zmienia: indeks Jaccarda zbiorów stacji z linią bazową wynosi co najmniej 0,94, czyli prawie zawsze te same pięć stacji, czasem w innej kolejności. To znaczy, że rekomendacja, gdzie budować, jest stabilna.</details></div>
+<div class="slide" id="slide-15"><div class="frame"><section id="symulacja" data-section="Symulacja tygodnia, literatura, wnioski" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Symulacja tygodnia: 15 minut na studenta</h2>
+<div style="display:flex;gap:64px;flex:1;align-items:center">
+<div style="width:900px">
+<table style="font-size:32px;color:#1C2430">
+<tr><th style="width:52%;text-align:left"></th><th style="width:24%;text-align:right">bez metra</th><th style="width:24%;text-align:right">z metrem</th></tr>
+<tr><td>studento-godziny / tydzień</td><td style="text-align:right">41 095</td><td style="text-align:right"><b>35 959</b></td></tr>
+<tr><td>spóźnione zajęcia</td><td style="text-align:right">503</td><td style="text-align:right"><b>450</b></td></tr>
+<tr><td>przejścia metrem</td><td style="text-align:right">—</td><td style="text-align:right">28,8 %</td></tr>
+<tr><td>autobus / tramwaj</td><td style="text-align:right">40,5 %</td><td style="text-align:right">23,1 %</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:96px;font-weight:700;color:#C8102E">12,5 %</p>
+<p style="font-size:32px;line-height:1.4">mniej czasu; ok. <b>15 min</b> na studenta tygodniowo</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">Każde z 286 tys. przejść z prawdziwym rozkładem metra (co 180 s), autobusów i tramwajów (GTFS); linia H-D8 – C-4 – U-9 – D-10 – A-0.</p>
+<aside>Symulacja przechodzi każde z 286 tysięcy przejść z prawdziwym rozkładem: metro co 3 minuty w obie strony, autobusy i tramwaje z rozkładu ZTP. Wynik: 12,5 procent mniej czasu, ok. 15 minut na studenta tygodniowo, spóźnionych zajęć o ok. 10 procent mniej, prawie co trzecie przejście metrem. Metro przejmuje głównie przejazdy autobusami między przystankami kampusu. Symulacja daje nieco więcej niż funkcja celu (11,6), bo studenci jadący na zajęcia wychodzą tak, żeby nie czekać na pociąg. Demo: zakładka Stats w viewerze, link #ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;tab=stats.</aside>
+</section>
+</div><span class="num">15 / 18</span><details class="notes"><summary>Notatki</summary>Symulacja przechodzi każde z 286 tysięcy przejść z prawdziwym rozkładem: metro co 3 minuty w obie strony, autobusy i tramwaje z rozkładu ZTP. Wynik: 12,5 procent mniej czasu, ok. 15 minut na studenta tygodniowo, spóźnionych zajęć o ok. 10 procent mniej, prawie co trzecie przejście metrem. Metro przejmuje głównie przejazdy autobusami między przystankami kampusu. Symulacja daje nieco więcej niż funkcja celu (11,6), bo studenci jadący na zajęcia wychodzą tak, żeby nie czekać na pociąg. Demo: zakładka Stats w viewerze, link #ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;tab=stats.</details></div>
+<div class="slide" id="slide-16"><div class="frame"><section id="literatura" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Na tle literatury</h2>
+<table style="font-size:32px;color:#1C2430">
+<tr><th style="width:22%;text-align:left"></th><th style="width:39%;text-align:left">Korzeń, Kruszyna 2023 / 2025</th><th style="width:39%;text-align:left">ten projekt</th></tr>
+<tr><td>zadanie</td><td>ocena 5 gotowych wariantów tunelu; jedna linia tramwajowa</td><td>wybór i kolejność stacji, 2·10⁸ linii</td></tr>
+<tr><td>popyt</td><td>mieszkańcy przy stacji</td><td>286 tys. przejść z planu zajęć</td></tr>
+<tr><td>inne środki</td><td>liczba linii jako atrakcyjność</td><td>autobus / tramwaj w funkcji celu</td></tr>
+<tr><td>sprawdzenie</td><td>ranking; vs obecna trasa</td><td>przegląd zupełny, 4 metody, testy, symulacja</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">Int. J. Environ. Res. Public Health 20 (2023) 4960; Sustainability 17 (2025) 2468; inspiracja: Goss i in., Naturwissenschaften 76 (1989).</p>
+<aside>Najbliższe prace to dwa artykuły Korzenia i Kruszyny z Politechniki Wrocławskiej. W 2023 ocenili algorytmem mrówkowym pięć ręcznie zaprojektowanych wariantów tunelu kolei miejskiej we Wrocławiu, z popytem szacowanym z liczby mieszkańców przy stacjach. W 2025 zaplanowali przebieg jednej linii tramwajowej. Sami jako ograniczenia podają ograniczoną listę tras, założenie, że wszyscy jadą koleją, i brak porównania z innymi metodami. My przeszukujemy całą przestrzeń linii, popyt bierzemy z prawdziwego planu zajęć, autobus i tramwaj są alternatywą w funkcji celu, a wynik sprawdzamy przeglądem zupełnym, innymi metodami i symulacją. Od nich wzięliśmy raportowanie długości tunelu i porównanie z klasyczną heurystyką.</aside>
+</section>
+</div><span class="num">16 / 18</span><details class="notes"><summary>Notatki</summary>Najbliższe prace to dwa artykuły Korzenia i Kruszyny z Politechniki Wrocławskiej. W 2023 ocenili algorytmem mrówkowym pięć ręcznie zaprojektowanych wariantów tunelu kolei miejskiej we Wrocławiu, z popytem szacowanym z liczby mieszkańców przy stacjach. W 2025 zaplanowali przebieg jednej linii tramwajowej. Sami jako ograniczenia podają ograniczoną listę tras, założenie, że wszyscy jadą koleją, i brak porównania z innymi metodami. My przeszukujemy całą przestrzeń linii, popyt bierzemy z prawdziwego planu zajęć, autobus i tramwaj są alternatywą w funkcji celu, a wynik sprawdzamy przeglądem zupełnym, innymi metodami i symulacją. Od nich wzięliśmy raportowanie długości tunelu i porównanie z klasyczną heurystyką.</details></div>
+<div class="slide" id="slide-17"><div class="frame"><section id="wnioski" data-transition="fade" style="background:#C8102E;color:#FBFBF8;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#FBFBF8">Odpowiedzi na cztery pytania</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:40px 64px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#FBFBF8">1  Mrówki vs proste metody</h3>
+<p style="font-size:32px;line-height:1.4;color:#FFE3E8">Wyraźnie lepsze od losowego i zachłannego; o jakości decyduje lokalne przeszukiwanie.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#FBFBF8">2  Optimum</h3>
+<p style="font-size:32px;line-height:1.4;color:#FFE3E8">MMAS + LS znajduje dokładne optimum za każdym razem tam, gdzie da się to sprawdzić.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#FBFBF8">3  Linia</h3>
+<p style="font-size:32px;line-height:1.4;color:#FFE3E8">H-D8 – C-4 – U-9 – D-10 – A-0: ok. 12 %, 15 min na studenta tygodniowo; sensownie 5–7 stacji.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#FBFBF8">4  Założenia</h3>
+<p style="font-size:32px;line-height:1.4;color:#FFE3E8">Zmieniają wielkość oszczędności, nie wybór stacji.</p>
+</div>
+</div>
+<aside>Podsumowanie w czterech odpowiedziach. Pierwsza: algorytm mrówkowy uczy się struktury problemu i bije proste metody, ale na tej instancji najwięcej daje lokalne przeszukiwanie, co jest zgodne z literaturą o MMAS. Druga: tam, gdzie da się sprawdzić wszystkie linie, MMAS z lokalnym przeszukiwaniem trafia dokładne optimum w każdym uruchomieniu. Trzecia: linia H-D8, C-4, U-9, D-10, A-0 oszczędza ok. 12 procent czasu przejść, ok. 15 minut na studenta tygodniowo; sensownie jest 5 do 7 stacji, a pętla daje jeszcze ok. pół punktu procentowego. Czwarta: założenia o pociągach zmieniają, ile linia oszczędza, ale nie, gdzie ją budować.</aside>
+</section>
+</div><span class="num">17 / 18</span><details class="notes"><summary>Notatki</summary>Podsumowanie w czterech odpowiedziach. Pierwsza: algorytm mrówkowy uczy się struktury problemu i bije proste metody, ale na tej instancji najwięcej daje lokalne przeszukiwanie, co jest zgodne z literaturą o MMAS. Druga: tam, gdzie da się sprawdzić wszystkie linie, MMAS z lokalnym przeszukiwaniem trafia dokładne optimum w każdym uruchomieniu. Trzecia: linia H-D8, C-4, U-9, D-10, A-0 oszczędza ok. 12 procent czasu przejść, ok. 15 minut na studenta tygodniowo; sensownie jest 5 do 7 stacji, a pętla daje jeszcze ok. pół punktu procentowego. Czwarta: założenia o pociągach zmieniają, ile linia oszczędza, ale nie, gdzie ją budować.</details></div>
+<div class="slide" id="slide-18"><div class="frame"><section id="koniec" data-transition="fade" style="background:#1C2430;color:#F4F3EE;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="display:flex;flex-direction:column;gap:32px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#F4F3EE">Ograniczenia</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px 64px">
+<p style="font-size:32px;line-height:1.4;color:#C9CED6">populacja syntetyczna z grup USOS</p>
+<p style="font-size:32px;line-height:1.4;color:#C9CED6">jeden tydzień zajęć</p>
+<p style="font-size:32px;line-height:1.4;color:#C9CED6">brak tłoku i pojemności pociągów</p>
+<p style="font-size:32px;line-height:1.4;color:#C9CED6">brak kosztu budowy w funkcji celu</p>
+<p style="font-size:32px;line-height:1.4;color:#C9CED6">budynki bez wnętrz, tunel po prostej</p>
+<p style="font-size:32px;line-height:1.4;color:#C9CED6">czasy dojść niesprawdzone w terenie</p>
+</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:end">
+<h1 style="font-family:'Rubik', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1.05;color:#F4F3EE">Dziękujemy</h1>
+<p style="font-size:32px;color:#E86A7E">Pytania?</p>
+</div>
+<aside>Ograniczenia mówimy uczciwie: studenci są syntetyczni, choć ich plany wynikają z prawdziwych grup; liczymy jeden tydzień; nie modelujemy tłoku ani pojemności pociągów; funkcja celu nie zawiera kosztu budowy (stąd analiza liczby stacji i długości tunelu); budynki są bryłami bez wnętrz, a tunel biegnie po prostej; czasów dojść nie zweryfikowaliśmy pomiarami w terenie. Odpowiedzi na typowe pytania są w docs/aco.md, sekcja 12.</aside>
+</section>
+</div><span class="num">18 / 18</span><details class="notes"><summary>Notatki</summary>Ograniczenia mówimy uczciwie: studenci są syntetyczni, choć ich plany wynikają z prawdziwych grup; liczymy jeden tydzień; nie modelujemy tłoku ani pojemności pociągów; funkcja celu nie zawiera kosztu budowy (stąd analiza liczby stacji i długości tunelu); budynki są bryłami bez wnętrz, a tunel biegnie po prostej; czasów dojść nie zweryfikowaliśmy pomiarami w terenie. Odpowiedzi na typowe pytania są w docs/aco.md, sekcja 12.</details></div>
+<script>
+const frames = [...document.querySelectorAll('.frame')];
+function fit() {
+  for (const f of frames) {
+    f.firstElementChild.style.transform = 'scale(' + f.clientWidth / 1920 + ')';
+  }
+}
+addEventListener('resize', fit); fit();
+addEventListener('keydown', (e) => {
+  const step = {ArrowDown: 1, ArrowRight: 1, PageDown: 1, ' ': 1,
+                ArrowUp: -1, ArrowLeft: -1, PageUp: -1}[e.key];
+  if (!step) return;
+  e.preventDefault();
+  const tops = frames.map((f) => f.getBoundingClientRect().top);
+  let i = tops.findIndex((t) => t > 2);
+  i = i < 0 ? frames.length : i;
+  const now = step > 0 ? i : Math.max(0, i - 2);
+  frames[Math.min(frames.length - 1, now)].scrollIntoView({behavior: 'smooth'});
+});
+</script>
+</body>
+</html>

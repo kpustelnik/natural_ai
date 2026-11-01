@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metro AGH — prezentacja 1</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600&amp;display=swap">
+<style>
+:root { color-scheme: light; }
+body { margin: 0; background: #e7e6e1; font-family: 'Public Sans', Arial, sans-serif; }
+header { padding: 16px 24px; font-size: 15px; color: #3b4250; }
+header b { color: #1c2430; }
+.slide { margin: 0 auto 8px; width: min(100vw - 32px, 1600px); }
+.frame { position: relative; overflow: hidden; background: #fbfbf8; aspect-ratio: 16 / 9;
+         box-shadow: 0 2px 12px rgba(0,0,0,.15); }
+.frame > section { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+                   box-sizing: border-box; overflow: hidden; transform-origin: 0 0; }
+section * { margin: 0; box-sizing: border-box; }
+section ul, section ol { padding-left: 1.2em; }
+section table { width: 100%; border-collapse: collapse; }
+section th { font-weight: 600; }
+section th, section td { padding: .35em .6em; border-bottom: 1px solid rgba(0,0,0,.18);
+                         vertical-align: top; }
+section aside { display: none; }
+.notes { font-size: 15px; color: #3b4250; padding: 10px 4px 28px; line-height: 1.5; }
+.notes summary { cursor: pointer; color: #1c2430; }
+.num { float: right; color: #6b7280; }
+</style>
+</head>
+<body>
+<header><b>Metro AGH — prezentacja 1</b> · 10 slajdów · strzałki / PageUp / PageDown: następny / poprzedni · źródła: docs/prezentacje/prezentacja-1/ · wygenerowane przez scripts/build_slides.py</header>
+<div class="slide" id="slide-1"><div class="frame"><section id="cover" data-transition="fade" style="background:#1C2430;color:#F4F3EE;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<svg aria-label="Schemat linii metra: pięć stacji połączonych czerwoną linią" style="position:absolute;left:1088px;top:0px;width:832px;height:1080px" width="832" height="1080" viewBox="0 0 832 1080"><path d="M 120 900 L 300 700 L 420 760 L 560 520 L 700 300" fill="none" stroke="#C8102E" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><g fill="#1C2430" stroke="#F4F3EE" stroke-width="8"><circle cx="120" cy="900" r="26"/><circle cx="300" cy="700" r="26"/><circle cx="420" cy="760" r="26"/><circle cx="560" cy="520" r="26"/><circle cx="700" cy="300" r="26"/></g><g fill="#2A78D6" opacity="0.55"><circle cx="210" cy="820" r="6"/><circle cx="360" cy="735" r="6"/><circle cx="490" cy="640" r="6"/><circle cx="630" cy="410" r="6"/><circle cx="250" cy="760" r="5"/><circle cx="520" cy="590" r="5"/></g></svg>
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:32px;font-weight:500;color:#E86A7E;letter-spacing:2px;text-transform:uppercase">Algorytmy inspirowane naturą · etap pośredni</p>
+<div style="display:flex;flex-direction:column;gap:32px;width:1040px">
+<h1 style="font-family:'Rubik', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1.05;color:#F4F3EE">Metro na kampusie AGH</h1>
+<p style="font-size:44px;line-height:1.3;color:#C9CED6">Projekt linii algorytmem mrówkowym</p>
+</div>
+<p style="font-size:32px;color:#C9CED6">[Imiona i nazwiska zespołu] · [przedmiot, prowadzący]</p>
+<aside>Przedstawić zespół. Jedno zdanie: dziś pokazujemy działający system i jeden przykładowy przebieg algorytmu mrówkowego; pełne eksperymenty pokażemy na prezentacji końcowej.</aside>
+</section>
+</div><span class="num">1 / 10</span><details class="notes"><summary>Notatki</summary>Przedstawić zespół. Jedno zdanie: dziś pokazujemy działający system i jeden przykładowy przebieg algorytmu mrówkowego; pełne eksperymenty pokażemy na prezentacji końcowej.</details></div>
+<div class="slide" id="slide-2"><div class="frame"><section id="problem" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:64px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Problem: 15 minut przerwy, kampus na kilometr</h2>
+<div style="display:flex;gap:64px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:32px;justify-content:center">
+<p style="font-size:44px;line-height:1.3;color:#1C2430">Gdzie postawić linię metra z <b>k</b> stacjami, żeby łączny czas przejść studentów między zajęciami był <span style="color:#C8102E"><b>najmniejszy</b></span>?</p>
+<p style="font-size:32px;line-height:1.4;color:#4A5260">I ile stacji w ogóle ma sens?</p>
+</div>
+<div style="width:760px;display:flex;flex-direction:column;justify-content:center">
+<table style="font-size:32px;color:#1C2430;font-family:'Public Sans', Arial, sans-serif">
+<tr><th style="width:34%;text-align:left">przejście</th><th style="width:22%;text-align:right">pieszo</th><th style="width:22%;text-align:right">metrem</th><th style="width:22%;text-align:left">wybór</th></tr>
+<tr><td>D-17 → A-0</td><td style="text-align:right">14 min</td><td style="text-align:right">6 min</td><td>metro, −8 min</td></tr>
+<tr><td>C-2 → C-3</td><td style="text-align:right">2 min</td><td style="text-align:right">7 min</td><td>pieszo</td></tr>
+</table>
+<p style="font-size:24px;color:#4A5260;padding:24px 0px 0px 0px">Przykład z założeń projektu. Metro opłaca się przy długich przejściach.</p>
+</div>
+</div>
+<aside>Kampus AGH: ok. 90 budynków, przerwy 15 minut, zajęcia w odległych budynkach. Przykład: 30 osób z D-17 do A-0 idzie 14 minut, metrem jechałoby 6, więc jadą i każda oszczędza 8 minut. 20 osób z C-2 do C-3 idzie 2 minuty, metrem byłoby 7, więc idą i nic nie zyskują. Dlatego stacje opłaca się stawiać tam, gdzie jest dużo długich przejść.</aside>
+</section>
+</div><span class="num">2 / 10</span><details class="notes"><summary>Notatki</summary>Kampus AGH: ok. 90 budynków, przerwy 15 minut, zajęcia w odległych budynkach. Przykład: 30 osób z D-17 do A-0 idzie 14 minut, metrem jechałoby 6, więc jadą i każda oszczędza 8 minut. 20 osób z C-2 do C-3 idzie 2 minuty, metrem byłoby 7, więc idą i nic nie zyskują. Dlatego stacje opłaca się stawiać tam, gdzie jest dużo długich przejść.</details></div>
+<div class="slide" id="slide-3"><div class="frame"><section id="mrowki" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Skąd mrówki: krótsza gałąź wygrywa sama</h2>
+<div style="display:flex;gap:64px;align-items:center;flex:1">
+<div style="position:relative;width:900px;height:520px">
+<svg aria-label="Mostek z dwiema gałęziami między gniazdem a pokarmem; na krótszej gałęzi jest więcej mrówek" style="position:absolute;left:0px;top:0px;width:900px;height:520px" width="900" height="520" viewBox="0 0 900 520"><path d="M 150 260 L 300 260 L 450 120 L 600 260 L 750 260" fill="none" stroke="#2A78D6" stroke-width="22" stroke-linejoin="round"/><path d="M 300 260 L 360 470 L 540 470 L 600 260" fill="none" stroke="#B8BEC8" stroke-width="10" stroke-linejoin="round"/><circle cx="110" cy="260" r="48" fill="#1C2430"/><circle cx="790" cy="260" r="48" fill="#C8102E"/><g fill="#1C2430"><circle cx="340" cy="222" r="9"/><circle cx="380" cy="186" r="9"/><circle cx="420" cy="148" r="9"/><circle cx="480" cy="148" r="9"/><circle cx="520" cy="186" r="9"/><circle cx="560" cy="222" r="9"/><circle cx="450" cy="470" r="9"/></g></svg>
+<p style="position:absolute;left:30px;top:330px;width:170px;font-size:28px;text-align:center;color:#1C2430">gniazdo</p>
+<p style="position:absolute;left:700px;top:330px;width:180px;font-size:28px;text-align:center;color:#C8102E">pokarm</p>
+<p style="position:absolute;left:330px;top:30px;width:240px;font-size:28px;text-align:center;color:#2A78D6"><b>krótka</b></p>
+<p style="position:absolute;left:330px;top:400px;width:240px;font-size:28px;text-align:center;color:#6B7280">długa</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:32px;line-height:1.4">Mrówki znaczą szlak feromonem w obie strony.</p>
+<p style="font-size:32px;line-height:1.4">Z krótszej gałęzi wracają szybciej, więc feromonu przybywa tam szybciej, a kolejne mrówki częściej ją wybierają.</p>
+<p style="font-size:32px;line-height:1.4"><b>Żadna mrówka nie porównuje długości</b>: wybór jest zbiorowy.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">Goss, Aron, Deneubourg, Pasteels (1989), Naturwissenschaften 76: 14 z 14 kolonii wybrało krótszą gałąź (dwa razy krótszą).</p>
+<aside>Eksperyment z mostkiem: kolonia mrówek argentyńskich połączona z pokarmem mostkiem z krótszą i dłuższą gałęzią po kilku minutach wybiera krótszą. Działa to bez żadnej inteligencji pojedynczej mrówki: dodatnie sprzężenie przez feromon. Ciekawostka: bez parowania kolonia, która już utrwaliła dłuższą gałąź, nie przełącza się na krótszą dodaną później; dlatego w algorytmie feromon paruje.</aside>
+</section>
+</div><span class="num">3 / 10</span><details class="notes"><summary>Notatki</summary>Eksperyment z mostkiem: kolonia mrówek argentyńskich połączona z pokarmem mostkiem z krótszą i dłuższą gałęzią po kilku minutach wybiera krótszą. Działa to bez żadnej inteligencji pojedynczej mrówki: dodatnie sprzężenie przez feromon. Ciekawostka: bez parowania kolonia, która już utrwaliła dłuższą gałąź, nie przełącza się na krótszą dodaną później; dlatego w algorytmie feromon paruje.</details></div>
+<div class="slide" id="slide-4"><div class="frame"><section id="dane" data-section="Dane, model i algorytm mrówkowy" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:64px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Dane: prawdziwy plan zajęć, prawdziwy kampus</h2>
+<div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">22 tys.</p>
+<p style="font-size:32px;line-height:1.3">studentów, populacja z grup i kohort USOS</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">286 tys.</p>
+<p style="font-size:32px;line-height:1.3">przejść w tygodniu zajęć</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">4 830</p>
+<p style="font-size:32px;line-height:1.3">różnych par „skąd → dokąd”</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">55</p>
+<p style="font-size:32px;line-height:1.3">kandydatów na stację, po jednym przy budynku</p>
+</div>
+</div>
+<div style="display:flex;gap:48px">
+<p style="flex:1;font-size:32px;line-height:1.4;color:#4A5260"><b style="color:#1C2430">USOS</b>: plan zajęć, sale, grupy</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#4A5260"><b style="color:#1C2430">OpenStreetMap</b>: chodniki, schody, budynki</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#4A5260"><b style="color:#1C2430">GTFS</b>: autobusy i tramwaje jako alternatywa</p>
+</div>
+<aside>Plan zajęć pobieramy z USOS: sale, grupy, kohorty. Z tego budujemy syntetyczną populację: ok. 22 tysiące studentów, każdy ze swoim tygodniowym planem; nie mamy danych osobowych, ale plany wynikają z prawdziwych grup. Z kolejnych zajęć tego samego dnia wychodzi 286 tysięcy przejść w tygodniu, 4 830 różnych par budynków lub przystanków. Kampus to graf pieszy z OpenStreetMap, ze schodami; autobusy i tramwaje z GTFS są alternatywą dla metra.</aside>
+</section>
+</div><span class="num">4 / 10</span><details class="notes"><summary>Notatki</summary>Plan zajęć pobieramy z USOS: sale, grupy, kohorty. Z tego budujemy syntetyczną populację: ok. 22 tysiące studentów, każdy ze swoim tygodniowym planem; nie mamy danych osobowych, ale plany wynikają z prawdziwych grup. Z kolejnych zajęć tego samego dnia wychodzi 286 tysięcy przejść w tygodniu, 4 830 różnych par budynków lub przystanków. Kampus to graf pieszy z OpenStreetMap, ze schodami; autobusy i tramwaje z GTFS są alternatywą dla metra.</details></div>
+<div class="slide" id="slide-5"><div class="frame"><section id="model" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Model: każdy wybiera szybszą drogę</h2>
+<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+<p style="font-size:28px;background:#F4F3EE;padding:20px 24px;border-radius:12px">dojście do szybu</p>
+<p style="font-size:28px;color:#6B7280">+</p>
+<p style="font-size:28px;background:#F4F3EE;padding:20px 24px;border-radius:12px">szyb w dół</p>
+<p style="font-size:28px;color:#6B7280">+</p>
+<p style="font-size:28px;background:#F4F3EE;padding:20px 24px;border-radius:12px">czekanie 90 s</p>
+<p style="font-size:28px;color:#6B7280">+</p>
+<p style="font-size:28px;background:#C8102E;color:#FBFBF8;padding:20px 24px;border-radius:12px">jazda 10 m/s, 30 s na stacji</p>
+<p style="font-size:28px;color:#6B7280">+</p>
+<p style="font-size:28px;background:#F4F3EE;padding:20px 24px;border-radius:12px">szyb w górę</p>
+<p style="font-size:28px;color:#6B7280">+</p>
+<p style="font-size:28px;background:#F4F3EE;padding:20px 24px;border-radius:12px">dojście</p>
+</div>
+<div style="display:flex;gap:64px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<p style="font-size:44px;line-height:1.3">czas = <b>min</b>(pieszo lub autobus, metro)</p>
+<p style="font-size:44px;line-height:1.3">cel = Σ liczba przejść × czas</p>
+<p style="font-size:32px;line-height:1.4;color:#4A5260">Minimalizujemy łączny czas wszystkich przejść w tygodniu. Bez metra: 42,5 tys. studento-godzin.</p>
+</div>
+<div style="width:560px;display:flex;flex-direction:column;gap:16px;background:#1C2430;color:#F4F3EE;padding:48px;border-radius:16px;justify-content:center">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:96px;font-weight:700;color:#F4F3EE">2·10⁸</p>
+<p style="font-size:32px;line-height:1.4;color:#C9CED6">możliwych linii przy 5 stacjach z 55 kandydatów: nie da się sprawdzić wszystkich</p>
+</div>
+</div>
+<aside>Kandydat na stację to szyb pod głównym wejściem budynku. Czas przejścia metrem to dojście do szybu, zejście, średnie czekanie (połowa odstępu 180 sekund), jazda tunelem po prostej 10 m/s z 30-sekundowym postojem na każdej stacji pośredniej, wyjście i dojście do celu. Student jedzie metrem tylko wtedy, gdy to szybsze niż pieszo albo autobusem. Ocena jednej linii to sama arytmetyka na macierzach czasów dojść, ułamek milisekundy. Linia to uporządkowany wybór stacji, więc przy 5 stacjach jest ich ok. 200 milionów, a dodanie stacji zmienia, kto w ogóle jedzie metrem: to nie jest najkrótsza ścieżka.</aside>
+</section>
+</div><span class="num">5 / 10</span><details class="notes"><summary>Notatki</summary>Kandydat na stację to szyb pod głównym wejściem budynku. Czas przejścia metrem to dojście do szybu, zejście, średnie czekanie (połowa odstępu 180 sekund), jazda tunelem po prostej 10 m/s z 30-sekundowym postojem na każdej stacji pośredniej, wyjście i dojście do celu. Student jedzie metrem tylko wtedy, gdy to szybsze niż pieszo albo autobusem. Ocena jednej linii to sama arytmetyka na macierzach czasów dojść, ułamek milisekundy. Linia to uporządkowany wybór stacji, więc przy 5 stacjach jest ich ok. 200 milionów, a dodanie stacji zmienia, kto w ogóle jedzie metrem: to nie jest najkrótsza ścieżka.</details></div>
+<div class="slide" id="slide-6"><div class="frame"><section id="mmas" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Jak mrówki budują linię</h2>
+<div style="display:flex;gap:64px;align-items:center;flex:1">
+<div style="position:relative;width:760px;height:600px">
+<svg aria-label="Kandydaci na stacje jako punkty; grubość połączeń pokazuje feromon, czerwona linia to zbudowana linia metra" style="position:absolute;left:0px;top:0px;width:760px;height:600px" width="760" height="600" viewBox="0 0 760 600"><g stroke="#2A78D6" stroke-linecap="round" fill="none"><path d="M 110 470 L 260 330" stroke-width="16" opacity="0.8"/><path d="M 260 330 L 420 380" stroke-width="12" opacity="0.7"/><path d="M 420 380 L 540 200" stroke-width="14" opacity="0.75"/><path d="M 540 200 L 670 110" stroke-width="10" opacity="0.6"/><path d="M 260 330 L 330 140" stroke-width="3" opacity="0.4"/><path d="M 420 380 L 620 470" stroke-width="3" opacity="0.4"/><path d="M 110 470 L 200 160" stroke-width="2" opacity="0.35"/><path d="M 540 200 L 620 470" stroke-width="4" opacity="0.4"/></g><path d="M 110 470 L 260 330 L 420 380 L 540 200 L 670 110" fill="none" stroke="#C8102E" stroke-width="5" stroke-dasharray="14 10"/><g fill="#FBFBF8" stroke="#1C2430" stroke-width="5"><circle cx="110" cy="470" r="20"/><circle cx="260" cy="330" r="20"/><circle cx="420" cy="380" r="20"/><circle cx="540" cy="200" r="20"/><circle cx="670" cy="110" r="20"/><circle cx="330" cy="140" r="14"/><circle cx="620" cy="470" r="14"/><circle cx="200" cy="160" r="14"/></g></svg>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:44px;line-height:1.3">następna stacja ∝ <b>τ</b>^α · <b>η</b>^β</p>
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:32px;line-height:1.4"><b style="color:#2A78D6">τ, feromon</b>: pamięć kolonii, „po tej stacji dobrze wypada tamta”</p>
+<p style="font-size:32px;line-height:1.4"><b style="color:#2A78D6">η, podpowiedź</b>: popyt w pobliżu stacji / odległość</p>
+<p style="font-size:32px;line-height:1.4"><b>Lepsza linia odkłada więcej</b>; feromon paruje i ma dolną i górną granicę (MAX-MIN Ant System)</p>
+</div>
+</div>
+</div>
+<aside>MAX-MIN Ant System, Stützle i Hoos 2000. Każda mrówka buduje linię stacja po stacji: następną stację losuje z prawdopodobieństwem zależnym od feromonu na parze stacji i od podpowiedzi, czyli popytu w pobliżu kandydata podzielonego przez odległość. Po każdej iteracji feromon paruje, a najlepsza linia zostawia go więcej, im mniej czasu daje. Granice feromonu sprawiają, że kolonia nie utyka na pierwszym wyborze: to jest dokładnie problem mrówek z mostka bez parowania. Za chwilę zobaczymy to w viewerze.</aside>
+</section>
+</div><span class="num">6 / 10</span><details class="notes"><summary>Notatki</summary>MAX-MIN Ant System, Stützle i Hoos 2000. Każda mrówka buduje linię stacja po stacji: następną stację losuje z prawdopodobieństwem zależnym od feromonu na parze stacji i od podpowiedzi, czyli popytu w pobliżu kandydata podzielonego przez odległość. Po każdej iteracji feromon paruje, a najlepsza linia zostawia go więcej, im mniej czasu daje. Granice feromonu sprawiają, że kolonia nie utyka na pierwszym wyborze: to jest dokładnie problem mrówek z mostka bez parowania. Za chwilę zobaczymy to w viewerze.</details></div>
+<div class="slide" id="slide-7"><div class="frame"><section id="wizualizacja" data-section="Wizualizacja i demo przykładowego przebiegu" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:64px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Wizualizacja: Python liczy, przeglądarka pokazuje</h2>
+<div style="display:flex;gap:24px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#F4F3EE;padding:40px;border-radius:16px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600">Python</h3>
+<p style="font-size:32px;line-height:1.4;color:#4A5260">dane, graf kampusu, mrówki, symulacja tygodnia</p>
+</div>
+<svg width="96" height="48" viewBox="0 0 96 48" aria-hidden="true"><path d="M0 14.399999999999999 H57.599999999999994 V0 L96 24.0 L57.599999999999994 48 V33.6 H0 Z" fill="#C8102E"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#F4F3EE;padding:40px;border-radius:16px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600">Pliki</h3>
+<p style="font-size:32px;line-height:1.4;color:#4A5260">budynki 3D, sieć, przebieg mrówek, trasy studentów</p>
+</div>
+<svg width="96" height="48" viewBox="0 0 96 48" aria-hidden="true"><path d="M0 14.399999999999999 H57.599999999999994 V0 L96 24.0 L57.599999999999994 48 V33.6 H0 Z" fill="#C8102E"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#F4F3EE;padding:40px;border-radius:16px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600">Przeglądarka</h3>
+<p style="font-size:32px;line-height:1.4;color:#4A5260">React + three.js, tylko odtwarza</p>
+</div>
+</div>
+<div style="display:flex;gap:24px;flex-wrap:wrap">
+<p style="font-size:32px;background:#1C2430;color:#F4F3EE;padding:16px 32px;border-radius:999px">Kampus 3D</p>
+<p style="font-size:32px;background:#1C2430;color:#F4F3EE;padding:16px 32px;border-radius:999px">Graf pieszy i trasy</p>
+<p style="font-size:32px;background:#1C2430;color:#F4F3EE;padding:16px 32px;border-radius:999px">Metro: przebieg mrówek</p>
+<p style="font-size:32px;background:#1C2430;color:#F4F3EE;padding:16px 32px;border-radius:999px">Tydzień: 20 tys. studentów</p>
+</div>
+<aside>Cała logika jest w Pythonie: pobranie danych, graf kampusu, optymalizacja i symulacja tygodnia. Przeglądarka nic nie liczy, tylko odtwarza gotowe pliki: modele budynków, sieć, zapis przebiegu mrówek i trasy wszystkich studentów. Zakładki: kampus 3D z budynkami, graf pieszy z wyszukiwaniem tras, metro z animacją kolonii i pociągami, symulacja tygodnia. Teraz demo.</aside>
+</section>
+</div><span class="num">7 / 10</span><details class="notes"><summary>Notatki</summary>Cała logika jest w Pythonie: pobranie danych, graf kampusu, optymalizacja i symulacja tygodnia. Przeglądarka nic nie liczy, tylko odtwarza gotowe pliki: modele budynków, sieć, zapis przebiegu mrówek i trasy wszystkich studentów. Zakładki: kampus 3D z budynkami, graf pieszy z wyszukiwaniem tras, metro z animacją kolonii i pociągami, symulacja tygodnia. Teraz demo.</details></div>
+<div class="slide" id="slide-8"><div class="frame"><section id="demo" data-transition="fade" style="background:#C8102E;color:#FBFBF8;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1.05;color:#FBFBF8">Demo</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px 64px">
+<p style="font-size:32px;line-height:1.4;color:#FBFBF8"><b>1</b>  Kampus 3D, budynek w Inspectorze</p>
+<p style="font-size:32px;line-height:1.4;color:#FBFBF8"><b>5</b>  Poranny szczyt <b>bez metra</b></p>
+<p style="font-size:32px;line-height:1.4;color:#FBFBF8"><b>2</b>  Trasa z przystanku Czarnowiejska do D-17</p>
+<p style="font-size:32px;line-height:1.4;color:#FBFBF8"><b>6</b>  Ten sam szczyt <b>z metrem</b></p>
+<p style="font-size:32px;line-height:1.4;color:#FBFBF8"><b>3</b>  Kolonia mrówek: feromon się koncentruje</p>
+<p style="font-size:32px;line-height:1.4;color:#FBFBF8"><b>7</b>  Obie wersje obok siebie</p>
+<p style="font-size:32px;line-height:1.4;color:#FBFBF8"><b>4</b>  Gotowa linia: szyby, tunel, pociągi</p>
+</div>
+<p style="font-size:32px;line-height:1.4;color:#FFE3E8">Jeden przykładowy przebieg algorytmu: MMAS, 5 stacji.</p>
+<aside>Linki (localhost:5173/ + …): 1) #ws=campus, klik na A-0. 2) #ws=network&amp;from=stop:czarnowiejska&amp;to=D-17. 3) #ws=metro&amp;replay=aco-mmas-k5-s42&amp;play=1. 4) #ws=metro&amp;replay=aco-mmas-k5-s42&amp;view=trains. 5) #ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;t=29700&amp;sc=no_metro&amp;play=1&amp;speed=60. 6) ten sam link bez &amp;sc=no_metro. 7) dodać &amp;split=1. Klawisz P: tryb prezentacji. Przy problemach: nagrania zamiast demo.</aside>
+</section>
+</div><span class="num">8 / 10</span><details class="notes"><summary>Notatki</summary>Linki (localhost:5173/ + …): 1) #ws=campus, klik na A-0. 2) #ws=network&amp;from=stop:czarnowiejska&amp;to=D-17. 3) #ws=metro&amp;replay=aco-mmas-k5-s42&amp;play=1. 4) #ws=metro&amp;replay=aco-mmas-k5-s42&amp;view=trains. 5) #ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;t=29700&amp;sc=no_metro&amp;play=1&amp;speed=60. 6) ten sam link bez &amp;sc=no_metro. 7) dodać &amp;split=1. Klawisz P: tryb prezentacji. Przy problemach: nagrania zamiast demo.</details></div>
+<div class="slide" id="slide-9"><div class="frame"><section id="wynik" data-section="Wynik przykładowego przebiegu i plan na etap końcowy" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Przykładowy przebieg: linia z pięcioma stacjami</h2>
+<div style="position:relative;height:200px">
+<svg aria-label="Linia metra przez stacje H-D8, C-4, U-9, D-10 i A-0" style="position:absolute;left:0px;top:0px;width:1664px;height:120px" width="1664" height="120" viewBox="0 0 1664 120"><path d="M 120 60 L 1544 60" stroke="#C8102E" stroke-width="14" stroke-linecap="round"/><g fill="#FBFBF8" stroke="#1C2430" stroke-width="7"><circle cx="120" cy="60" r="28"/><circle cx="476" cy="60" r="28"/><circle cx="832" cy="60" r="28"/><circle cx="1188" cy="60" r="28"/><circle cx="1544" cy="60" r="28"/></g></svg>
+<p style="position:absolute;left:20px;top:130px;width:200px;font-size:32px;text-align:center"><b>H-D8</b></p>
+<p style="position:absolute;left:376px;top:130px;width:200px;font-size:32px;text-align:center"><b>C-4</b></p>
+<p style="position:absolute;left:732px;top:130px;width:200px;font-size:32px;text-align:center"><b>U-9</b></p>
+<p style="position:absolute;left:1088px;top:130px;width:200px;font-size:32px;text-align:center"><b>D-10</b></p>
+<p style="position:absolute;left:1444px;top:130px;width:200px;font-size:32px;text-align:center"><b>A-0</b></p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">11,6 %</p>
+<p style="font-size:32px;line-height:1.3">mniej czasu przejść w funkcji celu</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">12,5 %</p>
+<p style="font-size:32px;line-height:1.3">w symulacji tygodnia z rozkładem jazdy</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">≈ 15 min</p>
+<p style="font-size:32px;line-height:1.3">na studenta tygodniowo; 29 % przejść metrem</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">Jeden przebieg MMAS, 5 stacji, ziarno 42. Czy to najlepsza linia i ile stacji ma sens: w toku.</p>
+<aside>To jest wynik jednego przykładowego przebiegu, nie twierdzimy jeszcze, że to najlepsza linia. Funkcja celu: 11,6 procent mniej łącznego czasu przejść. Symulacja tygodnia z prawdziwym rozkładem metra, autobusów i tramwajów: 12,5 procent, czyli ok. 15 minut na studenta tygodniowo, a prawie co trzecie przejście odbywa się metrem. Symulacja daje trochę więcej niż funkcja celu, bo studenci jadący na zajęcia wychodzą tak, żeby nie czekać na pociąg.</aside>
+</section>
+</div><span class="num">9 / 10</span><details class="notes"><summary>Notatki</summary>To jest wynik jednego przykładowego przebiegu, nie twierdzimy jeszcze, że to najlepsza linia. Funkcja celu: 11,6 procent mniej łącznego czasu przejść. Symulacja tygodnia z prawdziwym rozkładem metra, autobusów i tramwajów: 12,5 procent, czyli ok. 15 minut na studenta tygodniowo, a prawie co trzecie przejście odbywa się metrem. Symulacja daje trochę więcej niż funkcja celu, bo studenci jadący na zajęcia wychodzą tak, żeby nie czekać na pociąg.</details></div>
+<div class="slide" id="slide-10"><div class="frame"><section id="status" data-transition="fade" style="background:#1C2430;color:#F4F3EE;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:64px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#F4F3EE">Gdzie jesteśmy</h2>
+<div style="display:flex;gap:64px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#7FB2EE">Działa</h3>
+<div style="display:flex;gap:20px;align-items:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#7FB2EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg><p style="font-size:32px;color:#F4F3EE">dane z USOS, OSM i GTFS</p></div>
+<div style="display:flex;gap:20px;align-items:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#7FB2EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg><p style="font-size:32px;color:#F4F3EE">model kampusu i funkcja celu</p></div>
+<div style="display:flex;gap:20px;align-items:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#7FB2EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg><p style="font-size:32px;color:#F4F3EE">MAX-MIN Ant System</p></div>
+<div style="display:flex;gap:20px;align-items:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#7FB2EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg><p style="font-size:32px;color:#F4F3EE">symulacja tygodnia</p></div>
+<div style="display:flex;gap:20px;align-items:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#7FB2EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg><p style="font-size:32px;color:#F4F3EE">wizualizacja 3D</p></div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#F2A3B0">W toku, na prezentację końcową</h3>
+<div style="display:flex;gap:20px;align-items:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#F2A3B0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M12 6.5V12l3.5 2"/></svg><p style="font-size:32px;color:#F4F3EE">drugi algorytm (ACS) i lokalne przeszukiwanie</p></div>
+<div style="display:flex;gap:20px;align-items:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#F2A3B0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M12 6.5V12l3.5 2"/></svg><p style="font-size:32px;color:#F4F3EE">porównanie z innymi metodami i testy statystyczne</p></div>
+<div style="display:flex;gap:20px;align-items:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#F2A3B0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M12 6.5V12l3.5 2"/></svg><p style="font-size:32px;color:#F4F3EE">czy to optimum: przegląd zupełny</p></div>
+<div style="display:flex;gap:20px;align-items:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#F2A3B0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M12 6.5V12l3.5 2"/></svg><p style="font-size:32px;color:#F4F3EE">ile stacji ma sens; wrażliwość wyniku</p></div>
+<div style="display:flex;gap:20px;align-items:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#F2A3B0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M12 6.5V12l3.5 2"/></svg><p style="font-size:32px;color:#F4F3EE">porównanie z literaturą</p></div>
+</div>
+</div>
+<aside>Podsumowanie: cały łańcuch działa, od planu zajęć do animacji tygodnia, i daje pierwszy sensowny wynik. Na prezentację końcową: drugi algorytm mrówkowy (Ant Colony System) i lokalne przeszukiwanie, uczciwe porównanie z metodami odniesienia przy tym samym budżecie z testami statystycznymi, sprawdzenie, czy to optimum (tam, gdzie da się sprawdzić wszystkie linie), ile stacji ma sens, jak wynik zależy od założeń, i porównanie z pracami o algorytmach mrówkowych w planowaniu kolei. Dziękujemy, pytania.</aside>
+</section>
+</div><span class="num">10 / 10</span><details class="notes"><summary>Notatki</summary>Podsumowanie: cały łańcuch działa, od planu zajęć do animacji tygodnia, i daje pierwszy sensowny wynik. Na prezentację końcową: drugi algorytm mrówkowy (Ant Colony System) i lokalne przeszukiwanie, uczciwe porównanie z metodami odniesienia przy tym samym budżecie z testami statystycznymi, sprawdzenie, czy to optimum (tam, gdzie da się sprawdzić wszystkie linie), ile stacji ma sens, jak wynik zależy od założeń, i porównanie z pracami o algorytmach mrówkowych w planowaniu kolei. Dziękujemy, pytania.</details></div>
+<script>
+const frames = [...document.querySelectorAll('.frame')];
+function fit() {
+  for (const f of frames) {
+    f.firstElementChild.style.transform = 'scale(' + f.clientWidth / 1920 + ')';
+  }
+}
+addEventListener('resize', fit); fit();
+addEventListener('keydown', (e) => {
+  const step = {ArrowDown: 1, ArrowRight: 1, PageDown: 1, ' ': 1,
+                ArrowUp: -1, ArrowLeft: -1, PageUp: -1}[e.key];
+  if (!step) return;
+  e.preventDefault();
+  const tops = frames.map((f) => f.getBoundingClientRect().top);
+  let i = tops.findIndex((t) => t > 2);
+  i = i < 0 ? frames.length : i;
+  const now = step > 0 ? i : Math.max(0, i - 2);
+  frames[Math.min(frames.length - 1, now)].scrollIntoView({behavior: 'smooth'});
+});
+</script>
+</body>
+</html>

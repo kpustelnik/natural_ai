@@ -43,12 +43,15 @@ section th { font-weight: 600; }
 section th, section td { padding: .35em .6em; border-bottom: 1px solid rgba(0,0,0,.18);
                          vertical-align: top; }
 section aside { display: none; }
+section a { color: inherit; }
+.embedded header { display: none; }
 .notes { font-size: 15px; color: #3b4250; padding: 10px 4px 28px; line-height: 1.5; }
 .notes summary { cursor: pointer; color: #1c2430; }
 .num { float: right; color: #6b7280; }
 """
 
 JS = """
+if (window.self !== window.top) document.body.classList.add('embedded');
 const frames = [...document.querySelectorAll('.frame')];
 function fit() {
   for (const f of frames) {

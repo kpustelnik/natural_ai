@@ -47,3 +47,6 @@ Thumbs.db
 
 # --- Literatura (PDF tylko lokalnie) ---
 /references/
+
+# --- GitHub Pages (scripts/build_site.py) ---
+_site/

@@ -464,6 +464,14 @@ Aplikacja w `web/`: **React + three.js** (React Three Fiber), TypeScript, Vite; 
 
 ---
 
+## Strona projektu (GitHub Pages)
+
+**https://kpustelnik.github.io/natural_ai/**: strona główna, [etap 1](https://kpustelnik.github.io/natural_ai/etap-1/) (demo: slajdy i scenariusz w wizualizacji), [etap 2](https://kpustelnik.github.io/natural_ai/etap-2/) (wyniki: slajdy, wykresy, dokumentacja), [wizualizacja 3D](https://kpustelnik.github.io/natural_ai/viewer/) z prawdziwymi danymi.
+
+Budowana przez `.github/workflows/pages.yml` przy każdym pushu na `main` z zacommitowanych danych (eksport `06_export_web.py`, build viewera, `scripts/build_slides.py`, `scripts/build_site.py`). Jednorazowo: Settings → Pages → Source: **GitHub Actions**. Podgląd lokalnie: komendy w nagłówku `scripts/build_site.py`, potem `python -m http.server -d _site`.
+
+---
+
 ## Roadmapa
 
 Co jest zrobione i co zostało: [docs/roadmap.md](docs/roadmap.md). Jak działa optymalizacja,

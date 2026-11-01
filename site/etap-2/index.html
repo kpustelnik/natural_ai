@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etap 2: wyniki · Metro AGH</title>
+<meta name="description" content="Wyniki projektu Metro AGH: porównanie algorytmów, dokładne optimum, liczba stacji, wrażliwość, symulacja tygodnia i porównanie z literaturą.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700&family=Public+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="bar"><div class="wrap">
+  <a class="brand" href="../"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M3 21 L10 12 L15 15 L22 5" fill="none" stroke="#c8102e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="3" cy="21" r="2.6" fill="#fbfbf8"/><circle cx="10" cy="12" r="2.6" fill="#fbfbf8"/><circle cx="15" cy="15" r="2.6" fill="#fbfbf8"/><circle cx="22" cy="5" r="2.6" fill="#fbfbf8"/></svg>Metro AGH</a>
+  <nav aria-label="Strony">
+    <a href="../etap-1/">Etap 1</a>
+    <a href="../etap-2/" aria-current="page">Etap 2</a>
+    <a href="../viewer/">Wizualizacja</a>
+    <a href="https://github.com/kpustelnik/natural_ai">GitHub</a>
+  </nav>
+</div></header>
+
+<main>
+<section class="page-head"><div class="wrap">
+  <p class="crumbs"><a href="../">Metro AGH</a> / Etap 2</p>
+  <h1>Etap 2: czy mrówki znalazły dobrą linię?</h1>
+  <p class="lead">Linia H-D8 – C-4 – U-9 – D-10 – A-0 skraca łączny czas przejść o ok. 12 %, czyli ok. 15 minut na studenta tygodniowo. Poniżej: jak to sprawdziliśmy.</p>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <h2>Slajdy</h2>
+  <p class="sub">Prezentacja końcowa, 18 slajdów; pod każdym slajdem notatki do mówienia.</p>
+  <div class="deck">
+    <iframe src="../prezentacje/prezentacja-2.html" title="Slajdy prezentacji końcowej" loading="lazy"></iframe>
+    <div class="deck-bar">
+      <span>Strzałki lub PageUp / PageDown: następny / poprzedni slajd</span>
+      <a class="btn ghost" href="../prezentacje/prezentacja-2.html">Otwórz na pełnym ekranie</a>
+    </div>
+  </div>
+</div></section>
+
+<section class="block alt"><div class="wrap">
+  <h2>Odpowiedzi</h2>
+  <p class="sub">Cztery pytania postawione na etapie pośrednim.</p>
+  <div class="answers">
+    <div class="answer"><h3>1. Mrówki czy prostsze metody?</h3><p>Algorytm mrówkowy wyraźnie bije losowe przeszukiwanie i metodę zachłanną; o jakości decyduje lokalne przeszukiwanie, z nim wszystkie metody dochodzą do tej samej linii.</p></div>
+    <div class="answer"><h3>2. Czy to optimum?</h3><p>Tam, gdzie da się sprawdzić wszystkie linie (do 4 stacji, 4,1 mln linii), MMAS z lokalnym przeszukiwaniem znajduje dokładne optimum w każdym uruchomieniu.</p></div>
+    <div class="answer"><h3>3. Jaka linia i ile stacji?</h3><p>H-D8 – C-4 – U-9 – D-10 – A-0, 11,6 % w funkcji celu i 12,5 % w symulacji; sensownie 5–7 stacji, pętla daje jeszcze ok. 0,4 p.p.</p></div>
+    <div class="answer"><h3>4. Czy wynik zależy od założeń?</h3><p>Postój, częstotliwość i prędkość pociągów zmieniają wielkość oszczędności (8,4–13,6 %), ale prawie nie zmieniają wyboru stacji.</p></div>
+  </div>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <h2>Wykresy</h2>
+  <p class="sub">Kliknij wykres, żeby otworzyć go w pełnym rozmiarze. Tabele z liczbami są obok wykresów w repozytorium (<code>docs/figures/*.csv</code>).</p>
+  <div class="gallery">
+    <figure class="figure"><a href="../figures/compare_algorithms.png"><img src="../figures/compare_algorithms.png" alt="Oszczędność ośmiu wariantów algorytmów, po punkcie na uruchomienie" loading="lazy"></a><figcaption><b>Porównanie algorytmów</b>k = 5, 5 000 linii, 30 uruchomień; z lokalnym przeszukiwaniem i bez.</figcaption></figure>
+    <figure class="figure"><a href="../figures/exact_full.png"><img src="../figures/exact_full.png" alt="Odsetek uruchomień, które znalazły dokładne optimum całego kampusu dla 2, 3 i 4 stacji" loading="lazy"></a><figcaption><b>Dokładne optimum całego kampusu</b>Przegląd zupełny do 4,1 mln linii; MMAS + LS 10 na 10.</figcaption></figure>
+    <figure class="figure"><a href="../figures/gap_to_optimum.png"><img src="../figures/gap_to_optimum.png" alt="Luka do optimum na podinstancjach 12 kandydatów" loading="lazy"></a><figcaption><b>Optimum na małych instancjach</b>12 kandydatów, budżet 3 % linii.</figcaption></figure>
+    <figure class="figure"><a href="../figures/compare_algorithms_convergence.png"><img src="../figures/compare_algorithms_convergence.png" alt="Krzywe zbieżności MMAS, ACS i losowego" loading="lazy"></a><figcaption><b>Zbieżność</b>Najlepsza dotąd oszczędność w funkcji ocenionych linii.</figcaption></figure>
+    <figure class="figure"><a href="../figures/aco_ablation.png"><img src="../figures/aco_ablation.png" alt="Ablacja parametrów MMAS" loading="lazy"></a><figcaption><b>Parametry</b>Jeden parametr naraz; najważniejsze β.</figcaption></figure>
+    <figure class="figure"><a href="../figures/heuristic.png"><img src="../figures/heuristic.png" alt="MMAS z czterema heurystykami" loading="lazy"></a><figcaption><b>Heurystyka</b>Nasza vs klasyczna 1 / odległość vs sam popyt vs brak.</figcaption></figure>
+    <figure class="figure"><a href="../figures/k_sweep.png"><img src="../figures/k_sweep.png" alt="Oszczędność w funkcji liczby stacji" loading="lazy"></a><figcaption><b>Liczba stacji</b>Od 6,6 % przy 2 stacjach do 15,2 % przy 10.</figcaption></figure>
+    <figure class="figure"><a href="../figures/tunnel.png"><img src="../figures/tunnel.png" alt="Oszczędność a długość tunelu najlepszej linii" loading="lazy"></a><figcaption><b>Długość tunelu</b>Bez kosztu budowy linia z 5 stacjami zygzakuje.</figcaption></figure>
+    <figure class="figure"><a href="../figures/topology.png"><img src="../figures/topology.png" alt="Linia i pętla dla 5 i 7 stacji" loading="lazy"></a><figcaption><b>Linia czy pętla</b>Pętla lepsza w każdym uruchomieniu.</figcaption></figure>
+    <figure class="figure"><a href="../figures/sensitivity.png"><img src="../figures/sensitivity.png" alt="Wrażliwość na postój, odstęp i prędkość pociągów" loading="lazy"></a><figcaption><b>Wrażliwość</b>Założenia zmieniają „ile”, nie „gdzie”.</figcaption></figure>
+  </div>
+</div></section>
+
+<section class="block alt"><div class="wrap">
+  <h2>Wizualizacja</h2>
+  <ol class="steps">
+    <li><a href="../viewer/#ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;tab=stats"><b>Statystyki tygodnia</b><span>Oszczędność na godzinę, stacje, największe oszczędności.</span></a></li>
+    <li><a href="../viewer/#ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;t=29700&amp;split=1&amp;play=1&amp;speed=60"><b>Poranny szczyt obok siebie</b><span>Bez metra i z metrem, poniedziałek 8:15.</span></a></li>
+    <li><a href="../viewer/#ws=metro&amp;replay=aco-mmas-k5-s42&amp;play=1"><b>Kolonia mrówek</b><span>Przebieg MMAS, który znalazł linię.</span></a></li>
+  </ol>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <h2>Dokumentacja</h2>
+  <div class="links">
+    <a href="https://github.com/kpustelnik/natural_ai/blob/main/docs/sprawozdanie/sprawozdanie.md"><b>Sprawozdanie</b><span>dane, model, wyniki, wnioski</span></a>
+    <a href="https://github.com/kpustelnik/natural_ai/blob/main/docs/aco.md"><b>Jak działa optymalizacja</b><span>algorytmy, eksperymenty, literatura</span></a>
+    <a href="https://github.com/kpustelnik/natural_ai/blob/main/docs/literatura.md"><b>Przegląd literatury</b><span>Goss 1989, Korzeń i Kruszyna, ACO</span></a>
+    <a href="https://github.com/kpustelnik/natural_ai"><b>Kod źródłowy</b><span>Python, React + three.js</span></a>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <p>Dane: © współtwórcy OpenStreetMap (ODbL) · plany zajęć USOS AGH (cele dydaktyczne) · GTFS ZTP Kraków.</p>
+  <p><a href="../etap-1/">← Etap 1: demo</a></p>
+</div></footer>
+</body>
+</html>

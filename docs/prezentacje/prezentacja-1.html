@@ -23,6 +23,8 @@ section th { font-weight: 600; }
 section th, section td { padding: .35em .6em; border-bottom: 1px solid rgba(0,0,0,.18);
                          vertical-align: top; }
 section aside { display: none; }
+section a { color: inherit; }
+.embedded header { display: none; }
 .notes { font-size: 15px; color: #3b4250; padding: 10px 4px 28px; line-height: 1.5; }
 .notes summary { cursor: pointer; color: #1c2430; }
 .num { float: right; color: #6b7280; }
@@ -37,7 +39,10 @@ section aside { display: none; }
 <h1 style="font-family:'Rubik', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1.05;color:#F4F3EE">Metro na kampusie AGH</h1>
 <p style="font-size:44px;line-height:1.3;color:#C9CED6">Projekt linii algorytmem mrówkowym</p>
 </div>
+<div style="display:flex;flex-direction:column;gap:12px">
 <p style="font-size:32px;color:#C9CED6">[Imiona i nazwiska zespołu] · [przedmiot, prowadzący]</p>
+<p style="font-size:28px;color:#E86A7E"><a href="https://kpustelnik.github.io/natural_ai/etap-1/">kpustelnik.github.io/natural_ai/etap-1</a></p>
+</div>
 <aside>Przedstawić zespół. Jedno zdanie: dziś pokazujemy działający system i jeden przykładowy przebieg algorytmu mrówkowego; pełne eksperymenty pokażemy na prezentacji końcowej.</aside>
 </section>
 </div><span class="num">1 / 10</span><details class="notes"><summary>Notatki</summary>Przedstawić zespół. Jedno zdanie: dziś pokazujemy działający system i jeden przykładowy przebieg algorytmu mrówkowego; pełne eksperymenty pokażemy na prezentacji końcowej.</details></div>
@@ -194,6 +199,7 @@ section aside { display: none; }
 <p style="font-size:32px;line-height:1.4;color:#FBFBF8"><b>4</b>  Gotowa linia: szyby, tunel, pociągi</p>
 </div>
 <p style="font-size:32px;line-height:1.4;color:#FFE3E8">Jeden przykładowy przebieg algorytmu: MMAS, 5 stacji.</p>
+<p style="align-self:start;font-size:32px;font-weight:600;color:#C8102E;background:#FBFBF8;padding:16px 32px;border-radius:999px">Na żywo: <a href="https://kpustelnik.github.io/natural_ai/etap-1/">kpustelnik.github.io/natural_ai/etap-1</a></p>
 <aside>Linki (localhost:5173/ + …): 1) #ws=campus, klik na A-0. 2) #ws=network&amp;from=stop:czarnowiejska&amp;to=D-17. 3) #ws=metro&amp;replay=aco-mmas-k5-s42&amp;play=1. 4) #ws=metro&amp;replay=aco-mmas-k5-s42&amp;view=trains. 5) #ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;t=29700&amp;sc=no_metro&amp;play=1&amp;speed=60. 6) ten sam link bez &amp;sc=no_metro. 7) dodać &amp;split=1. Klawisz P: tryb prezentacji. Przy problemach: nagrania zamiast demo.</aside>
 </section>
 </div><span class="num">8 / 10</span><details class="notes"><summary>Notatki</summary>Linki (localhost:5173/ + …): 1) #ws=campus, klik na A-0. 2) #ws=network&amp;from=stop:czarnowiejska&amp;to=D-17. 3) #ws=metro&amp;replay=aco-mmas-k5-s42&amp;play=1. 4) #ws=metro&amp;replay=aco-mmas-k5-s42&amp;view=trains. 5) #ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;t=29700&amp;sc=no_metro&amp;play=1&amp;speed=60. 6) ten sam link bez &amp;sc=no_metro. 7) dodać &amp;split=1. Klawisz P: tryb prezentacji. Przy problemach: nagrania zamiast demo.</details></div>
@@ -245,10 +251,12 @@ section aside { display: none; }
 <div style="display:flex;gap:20px;align-items:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#F2A3B0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M12 6.5V12l3.5 2"/></svg><p style="font-size:32px;color:#F4F3EE">porównanie z literaturą</p></div>
 </div>
 </div>
+<p style="font-size:32px;color:#C9CED6">Slajdy i wizualizacja online: <span style="color:#E86A7E"><a href="https://kpustelnik.github.io/natural_ai/etap-1/">kpustelnik.github.io/natural_ai/etap-1</a></span></p>
 <aside>Podsumowanie: cały łańcuch działa, od planu zajęć do animacji tygodnia, i daje pierwszy sensowny wynik. Na prezentację końcową: drugi algorytm mrówkowy (Ant Colony System) i lokalne przeszukiwanie, uczciwe porównanie z metodami odniesienia przy tym samym budżecie z testami statystycznymi, sprawdzenie, czy to optimum (tam, gdzie da się sprawdzić wszystkie linie), ile stacji ma sens, jak wynik zależy od założeń, i porównanie z pracami o algorytmach mrówkowych w planowaniu kolei. Dziękujemy, pytania.</aside>
 </section>
 </div><span class="num">10 / 10</span><details class="notes"><summary>Notatki</summary>Podsumowanie: cały łańcuch działa, od planu zajęć do animacji tygodnia, i daje pierwszy sensowny wynik. Na prezentację końcową: drugi algorytm mrówkowy (Ant Colony System) i lokalne przeszukiwanie, uczciwe porównanie z metodami odniesienia przy tym samym budżecie z testami statystycznymi, sprawdzenie, czy to optimum (tam, gdzie da się sprawdzić wszystkie linie), ile stacji ma sens, jak wynik zależy od założeń, i porównanie z pracami o algorytmach mrówkowych w planowaniu kolei. Dziękujemy, pytania.</details></div>
 <script>
+if (window.self !== window.top) document.body.classList.add('embedded');
 const frames = [...document.querySelectorAll('.frame')];
 function fit() {
   for (const f of frames) {

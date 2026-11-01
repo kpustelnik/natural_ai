@@ -11,6 +11,8 @@ Dwie prezentacje:
 Dzięki temu prowadzący widzi postęp: najpierw działający system i pierwszy wynik, potem dowód,
 że wynik jest dobry. Lista „czego nie pokazujemy” w prezentacji 1 mówi, co zostaje na drugą.
 
+**Online** (GitHub Pages, po merge do `main`): [etap 1](https://kpustelnik.github.io/natural_ai/etap-1/) (slajdy + kroki demo jako linki do wizualizacji) i [etap 2](https://kpustelnik.github.io/natural_ai/etap-2/) (slajdy, wykresy, dokumentacja). Linki są też na okładkach slajdów, na slajdzie demo i na slajdach końcowych.
+
 **Slajdy** (otwórz w przeglądarce, notatki do mówienia pod każdym slajdem):
 
 - [`docs/prezentacje/prezentacja-1.html`](prezentacje/prezentacja-1.html): demo, 10 slajdów;

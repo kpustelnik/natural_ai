@@ -47,6 +47,9 @@ search, refaktoryzacja MMAS, runner i skrypt wykresów, klucze `aco.variant` / `
       `docs/prezentacja.md`; slajdy robimy poza repo.
 - [x] Slajdy obu prezentacji w repo: `docs/prezentacje/prezentacja-1.html`, `prezentacja-2.html`
       (źródła obok, `scripts/build_slides.py`).
+- [x] GitHub Pages: `.github/workflows/pages.yml`, `site/` (strona główna, etap 1, etap 2), viewer z
+      prawdziwymi danymi, slajdy i wykresy; linki w slajdach. Do włączenia: Settings → Pages →
+      Source: GitHub Actions (po merge do `main`).
 - [x] P1-12 statystyka: `metro_agh/stats.py`, kolumny `p_mw`, `p_holm`, `a12`, `effect`
       (kolumna Kamila z Wilcoxonem sparowanym zostaje).
 

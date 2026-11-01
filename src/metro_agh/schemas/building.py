@@ -247,9 +247,13 @@ class Building(StrictModel):
                     check_on(where + " door", lvl, corridor_id, at)
             for s in lvl.stairs:
                 stairs_levels.setdefault(s.id, []).append(lvl.id)
+        order = sorted(lvl.id for lvl in self.levels)
         for stairs_id, lvls in stairs_levels.items():
             if len(lvls) < 2:
                 errors.append(f"stairs {stairs_id!r} appear only on level {lvls[0]}")
+            at = sorted({order.index(i) for i in lvls})
+            if at[-1] - at[0] != len(at) - 1:  # the flights are drawn between neighbours only
+                errors.append(f"stairs {stairs_id!r} skip a level (on levels {sorted(lvls)})")
 
         entrance_ids = [e.id for e in self.entrances]
         if len(entrance_ids) != len(set(entrance_ids)):

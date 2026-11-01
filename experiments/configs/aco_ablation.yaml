@@ -1,26 +1,27 @@
-# One-factor-at-a-time vs config.yaml ACO defaults (plus the defaults: block below).
-# Values equal to the effective baseline are skipped so they do not duplicate `base`.
+# Validation test 4: one ACO parameter at a time vs config.yaml (plus the defaults: block
+# below), MMAS on the USOS demand. Without local search: with it every setting finds the
+# same line (compare_algorithms.yaml), so the parameters would show nothing. Values equal
+# to the base are skipped so they do not duplicate `base`.
 #
-#   uv run scripts/run_experiments.py --config experiments/configs/aco_ablation.yaml --dry-run
-#   uv run scripts/run_experiments.py --config experiments/configs/aco_ablation.yaml --processed data/processed/fake
+#   uv run scripts/run_experiments.py --config experiments/configs/aco_ablation.yaml
+#   uv run scripts/plot_experiments.py aco_ablation
 
 name: aco_ablation
-description: Ablation of MMAS α, β, ρ (and ant / iteration budget)
+description: One-at-a-time ablation of MMAS α, β, ρ, ants and iterations (no local search)
 mode: ablation
-processed: data/processed/fake
-seeds: [42, 43, 44]
+seeds: [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
 save_trace: false
 
-# Keep the study cheap; raise these toward config.yaml for the paper runs.
 defaults:
+  optimize: { local_search: false }
   aco:
     n_ants: 20
-    n_iterations: 40
+    n_iterations: 100
     trace: { every: 10, max_ants: 20 }
 
 sweep:
   aco.alpha: [0.5, 1.0, 2.0]
-  aco.beta: [1.0, 3.0, 5.0]
+  aco.beta: [0.0, 1.0, 3.0, 5.0]   # 0 = no demand heuristic at all
   aco.rho: [0.05, 0.1, 0.2]
   aco.n_ants: [10, 20, 50]
-  aco.n_iterations: [20, 40, 100]
+  aco.n_iterations: [50, 100, 200]

@@ -12,6 +12,7 @@ import { HelpDialog } from "./ui/HelpDialog";
 import { LeftPanel } from "./ui/LeftPanel";
 import { RightPanel } from "./ui/RightPanel";
 import { StatusBar } from "./ui/StatusBar";
+import { PlaybackClock } from "./ui/Timeline";
 import { TopBar } from "./ui/TopBar";
 import { ViewportOverlay } from "./ui/ViewportOverlay";
 
@@ -173,6 +174,7 @@ export function App() {
       {right && <RightPanel scene={scene} catalog={catalog} />}
       {!present && <StatusBar scene={scene} />}
       <HelpDialog />
+      <PlaybackClock catalog={catalog} />
     </div>
   );
 }

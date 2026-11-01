@@ -1,0 +1,47 @@
+{
+  "provenance": {
+    "schema_version": 1,
+    "generated_at": "2026-11-01T17:05:16+01:00",
+    "generator": "run_experiments.py",
+    "config_hash": "0c080602c57ea70b",
+    "git_commit": "5fe4800"
+  },
+  "run_id": "exact_full_brute-k3-brute_force-k3-s42",
+  "experiment": "exact_full_brute",
+  "algorithm": "brute_force",
+  "instance": "D:/mateusz/studia/7_semestr/natural_ai/data/processed/instance/instance.npz",
+  "instance_hash": "8c0ccb8b16174a29",
+  "seed": 42,
+  "params": {
+    "k": 3,
+    "topology": "line",
+    "n_candidates": 55,
+    "n_lines": 78705,
+    "overrides": {
+      "metro.n_stations": 3
+    },
+    "tag": "k3"
+  },
+  "eval_budget": 78705,
+  "evaluations": 78705,
+  "wall_time_s": 10.01,
+  "best": {
+    "provenance": {
+      "schema_version": 1,
+      "generated_at": "2026-11-01T17:05:16+01:00",
+      "generator": "run_experiments.py",
+      "config_hash": "0c080602c57ea70b",
+      "git_commit": "5fe4800"
+    },
+    "run_id": "exact_full_brute-k3-brute_force-k3-s42",
+    "topology": "line",
+    "stations": [
+      "D-10",
+      "C-4",
+      "U-9"
+    ],
+    "objective_s": 139451822.4,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
+  }
+}

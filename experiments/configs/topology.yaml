@@ -1,0 +1,19 @@
+# An open line (trains shuttle back and forth) against a loop (trains go round), k = 5 and 7,
+# MMAS + local search, 10 seeds, 5,000 distinct lines. docs/aco.md, "Line or loop".
+#
+#   uv run scripts/run_experiments.py --config experiments/configs/topology.yaml
+#   uv run scripts/plot_extra.py topology
+
+name: topology
+description: line vs loop, k = 5 and 7
+mode: grid
+seeds: [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+save_trace: false
+
+defaults:
+  optimize: { algorithm: mmas, local_search: true, max_evaluations: 5000 }
+  aco: { n_ants: 20, n_iterations: 1000 }
+
+sweep:
+  metro.topology: [line, loop]
+  metro.n_stations: [5, 7]

@@ -37,7 +37,8 @@ def load_config(
 
 
 def config_hash(cfg: dict[str, Any]) -> str:
-    return hashlib.sha256(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:16]
+    # default=str: an unquoted YAML date (transit.date, demand.week) loads as datetime.date
+    return hashlib.sha256(json.dumps(cfg, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
 
 def path(cfg: dict, key: str) -> Path:

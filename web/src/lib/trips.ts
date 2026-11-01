@@ -7,7 +7,7 @@ export interface Paths {
   offsets: Uint32Array; // (P+1)
   xyz: Float32Array; // (V*3)
   t: Float32Array; // (V) seconds since the start of the path
-  mode: Uint8Array; // (P) 0 walk, 1 metro
+  mode: Uint8Array; // (P) 0 walk, 1 metro, 2 transit
 }
 
 /** One day of one scenario, with the time each segment stays on screen. */

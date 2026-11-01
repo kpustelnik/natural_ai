@@ -15,11 +15,11 @@ import pandas as pd
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import dijkstra
 
-from ..config import provenance
+from ..config import path, provenance
 from ..schemas.tables import OD
 from ..schemas.web import Demand, EdgeLoad, NetworkHeader
-from ..simulation.simulate import BATCH, EPS_S, _path
-from .export_campus import GENERATOR
+from ..simulation.simulate import BATCH, _path, csr_walk
+from .export_campus import GENERATOR, write_status_file
 
 log = logging.getLogger(__name__)
 
@@ -39,15 +39,7 @@ def load_web_graph(out_dir: Path) -> tuple[NetworkHeader, csr_matrix, dict[tuple
     pairs = _buf(header, raw, "edge_nodes").astype(np.int32)
     time_uv = _buf(header, raw, "time_uv_s").astype(np.float64)
     time_vu = _buf(header, raw, "time_vu_s").astype(np.float64)
-    n = header.n_nodes
-    u, v = pairs[:, 0], pairs[:, 1]
-    rows = np.concatenate([u, v])
-    cols = np.concatenate([v, u])
-    w = np.concatenate([time_uv, time_vu]) + EPS_S
-    keep = rows != cols
-    df = pd.DataFrame({"r": rows[keep], "c": cols[keep], "w": w[keep]})
-    df = df.groupby(["r", "c"], as_index=False).w.min()
-    mat = csr_matrix((df.w.to_numpy(), (df.r.to_numpy(), df.c.to_numpy())), shape=(n, n))
+    mat = csr_walk(header.n_nodes, pairs[:, 0], pairs[:, 1], time_uv, time_vu)
     edge_of: dict[tuple[int, int], int] = {}
     for i, (a, b) in enumerate(pairs):
         edge_of[(int(a), int(b))] = i
@@ -141,3 +133,12 @@ def export_demand(
         len(od),
     )
     return rel
+
+
+def refresh_demand(cfg: dict, out_dir: Path) -> None:
+    """``demand.json`` again after ``network.json`` was rewritten (its edge indices follow
+    the network), with its own status.json so the viewer refetches it."""
+    changed: list[str] = []
+    export_demand(cfg, path(cfg, "processed"), out_dir, changed)
+    if changed:
+        write_status_file(out_dir, changed)

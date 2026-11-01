@@ -37,10 +37,6 @@ class LocalFrame:
     anchor: tuple[float, float]
     bearing_deg: float
 
-    @classmethod
-    def from_lonlat(cls, lon: float, lat: float, bearing_deg: float) -> "LocalFrame":
-        return cls(tuple(to_metric(lon, lat)), bearing_deg)
-
     @property
     def axes(self) -> tuple[np.ndarray, np.ndarray]:
         b = math.radians(self.bearing_deg)
@@ -68,9 +64,3 @@ def long_axis_bearing(poly: Polygon) -> float:
     sides = [pts[1] - pts[0], pts[2] - pts[1]]
     dx, dy = max(sides, key=lambda v: float(np.hypot(*v)))
     return math.degrees(math.atan2(dx, dy)) % 180.0
-
-
-def web_xyz(x, y, z, origin: tuple[float, float, float]):
-    """EPSG:2180 + height -> web frame (three.js, Y up)."""
-    ox, oy, oz = origin
-    return np.column_stack([np.asarray(x) - ox, np.asarray(z) - oz, -(np.asarray(y) - oy)])

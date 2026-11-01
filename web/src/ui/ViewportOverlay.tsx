@@ -1,7 +1,7 @@
 // Controls drawn over the 3D view: camera mode, colour mode, level stepper, compass,
 // scale bar, legend, tool panels (measure, captured points), toasts and hints; the empty
 // state of the Metro and Simulation workspaces, the split-view captions, the frame-rate
-// probe. In presentation mode only the compass, scale bar, legend and captions stay.
+// probe. In presentation mode only the compass, scale bar, captions, toasts and the probe stay.
 
 import { useEffect, useState } from "react";
 import { useBuildingInfo } from "../data/resource";
@@ -35,7 +35,7 @@ import {
   useApp,
 } from "../state/app";
 import { Command } from "./Command";
-import { IconCamera, IconClose, IconCopy, IconDown, IconHelp, IconOrbit, IconPlan, IconPresent, IconRuler, IconUp, IconWalk } from "./icons";
+import { IconCamera, IconClose, IconChevronDown, IconCopy, IconHelp, IconOrbit, IconPlan, IconPresent, IconRuler, IconUp, IconWalk } from "./icons";
 import { openReplay } from "./ReplayMenu";
 
 const COLOR_MODES: { id: ColorMode; label: string }[] = [
@@ -86,11 +86,11 @@ function ScaleBar() {
   );
 }
 
-function Hint({ scene }: { scene: Scene }) {
+function Hint({ scene, catalog }: { scene: Scene; catalog: ReplayCatalog | undefined }) {
   const workspace = useApp((s) => s.workspace);
   const building = useApp((s) => pickBuilding(s.selection));
   const level = useApp((s) => s.level);
-  const replay = useApp((s) => s.playback.replayId);
+  const replay = useReplayOpen(catalog);
   const tool = useApp((s) => s.tool);
   let text: string | null = null;
   const routeSlot = useApp((s) => s.route.slot);
@@ -125,7 +125,7 @@ function LevelStepper({ scene }: { scene: Scene }) {
         </button>
       ))}
       <button title="Level down (PageDown)" onClick={() => stepLevel(levels, -1)}>
-        <IconDown size={14} />
+        <IconChevronDown size={14} />
       </button>
     </div>
   );
@@ -289,10 +289,16 @@ function WalkHelp() {
   );
 }
 
+/** A replay is open when its id is in the catalog (an id from an old link may not be). */
+function useReplayOpen(catalog: ReplayCatalog | undefined): boolean {
+  const id = useApp((s) => s.playback.replayId);
+  return id !== null && (!catalog || catalog.replays.some((r) => r.id === id));
+}
+
 /** Metro / Simulation workspace with no replay open: what can be opened, or how to make one. */
 function NoReplay({ catalog }: { catalog: ReplayCatalog | undefined }) {
   const workspace = useApp((s) => s.workspace);
-  const open = useApp((s) => s.playback.replayId !== null);
+  const open = useReplayOpen(catalog);
   if (open || (workspace !== "metro" && workspace !== "simulation")) return null;
   const kind: Replay["kind"] = workspace === "metro" ? "aco" : "simulation";
   const list = catalog?.replays.filter((r) => r.kind === kind) ?? [];
@@ -471,7 +477,7 @@ export function ViewportOverlay({ scene, catalog }: { scene: Scene; catalog: Rep
             Open {selectedBuilding}
           </button>
         )}
-        <Hint scene={scene} />
+        <Hint scene={scene} catalog={catalog} />
       </div>
       <div className="overlay-top-right">
         <Compass />

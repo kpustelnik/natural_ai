@@ -5,7 +5,8 @@ import time
 
 import pytest
 
-from metro_agh.usos.http import CachedHttp, OfflineMiss
+from metro_agh.usos.fetch import FAILED_IN_A_ROW, _page
+from metro_agh.usos.http import CachedHttp, FetchFailed, OfflineMiss
 
 
 class Fake(CachedHttp):
@@ -18,7 +19,7 @@ class Fake(CachedHttp):
 
     def _get(self, url: str) -> str:
         if self.down:
-            raise RuntimeError(f"giving up on {url}")
+            raise FetchFailed(f"giving up on {url}")
         self.calls += 1
         return f"page {self.calls}"
 
@@ -56,3 +57,18 @@ def test_refresh_offline_and_failures(tmp_path):
     with pytest.raises(OfflineMiss):
         off.text("web/unit", "https://x/missing")
     assert off.calls == 0
+
+
+def test_failing_page_is_skipped_until_an_outage(tmp_path):
+    h = Fake(tmp_path)
+    h.down = True
+    assert _page(h, "web/unit", {"id": 1}) is None  # skipped, counted, not cached
+    assert h.n_failed == 1 and not list(tmp_path.rglob("*.html"))
+    h.down = False
+    assert _page(h, "web/unit", {"id": 1}) == "page 1"  # the rerun fetches it
+    assert h.failed_in_a_row == 0
+    h.down = True
+    for i in range(FAILED_IN_A_ROW - 1):
+        _page(h, "web/unit", {"id": 100 + i})
+    with pytest.raises(RuntimeError, match="in a row"):
+        _page(h, "web/unit", {"id": 999})

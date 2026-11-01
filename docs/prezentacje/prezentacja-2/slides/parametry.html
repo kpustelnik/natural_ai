@@ -1,0 +1,18 @@
+<section id="parametry" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Parametry: liczy się siła podpowiedzi β</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="/_blob/842ff76a986557ad4d000d8a318cbc7b" alt="Ablacja parametrów MMAS: oszczędność dla różnych wartości alfa, beta, rho, liczby mrówek i iteracji" style="width:960px;height:600px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<table style="font-size:32px;color:#1C2430">
+<tr><th style="width:40%;text-align:left">β</th><th style="width:60%;text-align:right">oszczędność</th></tr>
+<tr><td>0</td><td style="text-align:right">10,77 %</td></tr>
+<tr><td><b>1</b></td><td style="text-align:right"><b>11,18 %</b></td></tr>
+<tr><td>3</td><td style="text-align:right">10,23 %</td></tr>
+<tr><td>5</td><td style="text-align:right">8,61 %</td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4">Silna podpowiedź popytu prowadzi mrówki w złą stronę. α = 1; ρ i liczba mrówek mają mały wpływ.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">MMAS bez LS, 20 mrówek × 100 iteracji, 10 ziaren, jeden parametr naraz.</p>
+<aside>Ablacja: zmieniamy jeden parametr naraz. Najsilniej działa beta, waga podpowiedzi. Słaba podpowiedź (beta 1) jest lepsza niż żadna, ale silna (3 do 5) psuje wynik. Powód: popyt blisko stacji nie mówi, czy przejścia są długie, a tylko długie przejścia korzystają z metra, więc stacja przy popularnym budynku często niewiele daje. Dlatego domyślne beta zmieniliśmy z 3 na 1. Alfa ma optimum w 1, szybsze parowanie i więcej mrówek pomagają nieznacznie.</aside>
+</section>

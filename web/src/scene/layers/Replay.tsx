@@ -20,17 +20,31 @@ export function useOpenReplay(scene: Scene): Replay | null {
 
 type ReplayView = "ants" | "line" | null;
 
+/** The scenario a simulation shows outside the split view: the chosen one, if exported. */
+function shownScenario(replay: Replay, scenario: Scenario): Scenario | undefined {
+  const trips = replay.files.trips;
+  return trips[scenario] ? scenario : (Object.keys(trips) as Scenario[])[0];
+}
+
+function useSplit(replay: Replay | null): boolean {
+  return useApp((s) => splitActive(s) && !!replay?.files.trips.no_metro && !!replay.files.trips.metro);
+}
+
 export function useReplayView(scene: Scene): { replay: Replay | null; view: ReplayView } {
   const replay = useOpenReplay(scene);
   const workspace = useApp((s) => s.workspace);
   const acoView = useApp((s) => s.playback.acoView);
+  const scenario = useApp((s) => s.playback.scenario);
+  const split = useSplit(replay);
   if (!replay || (workspace !== "metro" && workspace !== "simulation")) return { replay, view: null };
   if (replay.kind === "aco" && acoView === "ants") return { replay, view: replay.files.aco_trace ? "ants" : null };
+  // a simulation without the metro scenario on show draws no line
+  if (replay.kind === "simulation" && !split && shownScenario(replay, scenario) === "no_metro") return { replay, view: null };
   return { replay, view: replay.files.metro ? "line" : null };
 }
 
 function SimulationLayers({ replay }: { replay: Replay }) {
-  const split = useApp((s) => splitActive(s) && !!replay.files.trips.no_metro && !!replay.files.trips.metro);
+  const split = useSplit(replay);
   const scenario = useApp((s) => s.playback.scenario);
   const trips = replay.files.trips;
   const metro = replay.files.metro;
@@ -43,7 +57,7 @@ function SimulationLayers({ replay }: { replay: Replay }) {
       </>
     );
   }
-  const shown: Scenario | undefined = trips[scenario] ? scenario : (Object.keys(trips) as Scenario[])[0];
+  const shown = shownScenario(replay, scenario);
   return (
     <>
       {shown && <Students key={shown} dir={trips[shown]!} scenario={shown} side={null} />}

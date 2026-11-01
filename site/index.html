@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metro na kampusie AGH</title>
+<meta name="description" content="Projekt linii metra na kampusie AGH algorytmem mrówkowym: dane z USOS, model kampusu, optymalizacja, symulacja tygodnia i wizualizacja 3D.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700&family=Public+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="bar"><div class="wrap">
+  <a class="brand" href="./"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M3 21 L10 12 L15 15 L22 5" fill="none" stroke="#c8102e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="3" cy="21" r="2.6" fill="#fbfbf8"/><circle cx="10" cy="12" r="2.6" fill="#fbfbf8"/><circle cx="15" cy="15" r="2.6" fill="#fbfbf8"/><circle cx="22" cy="5" r="2.6" fill="#fbfbf8"/></svg>Metro AGH</a>
+  <nav aria-label="Strony">
+    <a href="etap-1/">Etap 1</a>
+    <a href="etap-2/">Etap 2</a>
+    <a href="viewer/">Wizualizacja</a>
+    <a href="https://github.com/kpustelnik/natural_ai">GitHub</a>
+  </nav>
+</div></header>
+
+<main>
+<section class="hero">
+  <svg class="art" viewBox="0 0 520 420" aria-hidden="true"><path d="M60 360 L170 240 L250 280 L340 140 L450 60" fill="none" stroke="#c8102e" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><g fill="#1c2430" stroke="#f4f3ee" stroke-width="5"><circle cx="60" cy="360" r="16"/><circle cx="170" cy="240" r="16"/><circle cx="250" cy="280" r="16"/><circle cx="340" cy="140" r="16"/><circle cx="450" cy="60" r="16"/></g><g fill="#2a78d6" opacity=".55"><circle cx="115" cy="300" r="4"/><circle cx="210" cy="262" r="4"/><circle cx="295" cy="210" r="4"/><circle cx="395" cy="100" r="4"/><circle cx="140" cy="260" r="3"/><circle cx="320" cy="180" r="3"/></g></svg>
+  <div class="wrap">
+    <p class="eyebrow">Algorytmy inspirowane naturą · AGH</p>
+    <h1>Metro na kampusie AGH</h1>
+    <p class="lead">Gdzie postawić linię metra, żeby studenci spędzali mniej czasu na przejściach między zajęciami? Linię projektuje algorytm mrówkowy na prawdziwym planie zajęć z USOS, a każdy tydzień zajęć symulujemy z metrem i bez niego.</p>
+    <div class="actions">
+      <a class="btn primary" href="viewer/">Otwórz wizualizację 3D</a>
+      <a class="btn ghost" href="https://github.com/kpustelnik/natural_ai">Kod na GitHubie</a>
+    </div>
+  </div>
+</section>
+
+<section class="block alt"><div class="wrap">
+  <h2>Skala problemu</h2>
+  <p class="sub">Prawdziwy plan zajęć i prawdziwy kampus: studenci są syntetyczni, ale ich tygodnie wynikają z grup i sal w USOS.</p>
+  <div class="facts">
+    <div class="fact"><b>22 tys.</b><span>studentów</span></div>
+    <div class="fact"><b>286 tys.</b><span>przejść w tygodniu zajęć</span></div>
+    <div class="fact"><b>55</b><span>kandydatów na stację</span></div>
+    <div class="fact"><b>2·10⁸</b><span>możliwych linii z 5 stacjami</span></div>
+  </div>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <h2>Dwa etapy</h2>
+  <p class="sub">Najpierw działający system i przykładowy przebieg algorytmu, potem pełna walidacja wyniku.</p>
+  <div class="stages">
+    <article class="stage">
+      <span class="tag">Etap 1 · demo</span>
+      <h3>Działający system i przykładowy przebieg</h3>
+      <p>Dane, model kampusu, algorytm mrówkowy i wizualizacja na jednym przykładowym przebiegu, z symulacją tygodnia z metrem i bez metra.</p>
+      <ul><li>slajdy prezentacji pośredniej</li><li>scenariusz demo w wizualizacji</li><li>stan prac i plan</li></ul>
+      <div class="actions">
+        <a class="btn primary" href="etap-1/">Strona etapu</a>
+        <a class="btn ghost" href="prezentacje/prezentacja-1.html">Slajdy</a>
+      </div>
+    </article>
+    <article class="stage final">
+      <span class="tag">Etap 2 · wyniki</span>
+      <h3>Czy mrówki znalazły dobrą linię?</h3>
+      <p>Porównanie z innymi metodami, dokładne optimum, liczba stacji, wrażliwość na założenia, symulacja tygodnia i porównanie z literaturą.</p>
+      <ul><li>slajdy prezentacji końcowej</li><li>wykresy wszystkich eksperymentów</li><li>sprawozdanie i dokumentacja</li></ul>
+      <div class="actions">
+        <a class="btn primary" href="etap-2/">Strona etapu</a>
+        <a class="btn ghost" href="prezentacje/prezentacja-2.html">Slajdy</a>
+      </div>
+    </article>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <p>Dane: © współtwórcy OpenStreetMap (ODbL) · plany zajęć USOS AGH (cele dydaktyczne) · GTFS ZTP Kraków.</p>
+  <p><a href="https://github.com/kpustelnik/natural_ai">github.com/kpustelnik/natural_ai</a></p>
+</div></footer>
+</body>
+</html>

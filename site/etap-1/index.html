@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etap 1: demo · Metro AGH</title>
+<meta name="description" content="Etap pośredni projektu Metro AGH: działający system i przykładowy przebieg algorytmu mrówkowego, z metrem i bez metra.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700&family=Public+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="bar"><div class="wrap">
+  <a class="brand" href="../"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M3 21 L10 12 L15 15 L22 5" fill="none" stroke="#c8102e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="3" cy="21" r="2.6" fill="#fbfbf8"/><circle cx="10" cy="12" r="2.6" fill="#fbfbf8"/><circle cx="15" cy="15" r="2.6" fill="#fbfbf8"/><circle cx="22" cy="5" r="2.6" fill="#fbfbf8"/></svg>Metro AGH</a>
+  <nav aria-label="Strony">
+    <a href="../etap-1/" aria-current="page">Etap 1</a>
+    <a href="../etap-2/">Etap 2</a>
+    <a href="../viewer/">Wizualizacja</a>
+    <a href="https://github.com/kpustelnik/natural_ai">GitHub</a>
+  </nav>
+</div></header>
+
+<main>
+<section class="page-head"><div class="wrap">
+  <p class="crumbs"><a href="../">Metro AGH</a> / Etap 1</p>
+  <h1>Etap 1: demo</h1>
+  <p class="lead">Działający system: dane z USOS, OpenStreetMap i GTFS, model kampusu, algorytm mrówkowy (MAX-MIN Ant System) i wizualizacja 3D, pokazane na jednym przykładowym przebiegu. Eksperymenty walidacyjne są w toku.</p>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <h2>Slajdy</h2>
+  <p class="sub">Prezentacja pośrednia, 10 slajdów; pod każdym slajdem notatki do mówienia.</p>
+  <div class="deck">
+    <iframe src="../prezentacje/prezentacja-1.html" title="Slajdy prezentacji pośredniej" loading="lazy"></iframe>
+    <div class="deck-bar">
+      <span>Strzałki lub PageUp / PageDown: następny / poprzedni slajd</span>
+      <a class="btn ghost" href="../prezentacje/prezentacja-1.html">Otwórz na pełnym ekranie</a>
+    </div>
+  </div>
+</div></section>
+
+<section class="block alt"><div class="wrap">
+  <h2>Demo w wizualizacji</h2>
+  <p class="sub">Każdy krok otwiera wizualizację w odpowiednim widoku. Przykładowy przebieg: MMAS, 5 stacji.</p>
+  <ol class="steps">
+    <li><a href="../viewer/#ws=campus"><b>Kampus 3D</b><span>Budynki, wejścia, przystanki; kliknij budynek, żeby zobaczyć szczegóły.</span></a></li>
+    <li><a href="../viewer/#ws=network&amp;from=stop:czarnowiejska&amp;to=D-17"><b>Trasa piesza</b><span>Z przystanku Czarnowiejska do D-17: czas i części trasy.</span></a></li>
+    <li><a href="../viewer/#ws=metro&amp;replay=aco-mmas-k5-s42&amp;play=1"><b>Kolonia mrówek</b><span>Mrówki budują linie, feromon się koncentruje.</span></a></li>
+    <li><a href="../viewer/#ws=metro&amp;replay=aco-mmas-k5-s42&amp;view=trains"><b>Gotowa linia</b><span>Szyby, tunel i kursujące pociągi.</span></a></li>
+    <li><a href="../viewer/#ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;t=29700&amp;sc=no_metro&amp;play=1&amp;speed=60"><b>Poranny szczyt bez metra</b><span>Poniedziałek, 8:15: studenci idą i jadą autobusami.</span></a></li>
+    <li><a href="../viewer/#ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;t=29700&amp;play=1&amp;speed=60"><b>Ten sam szczyt z metrem</b><span>Kolor: idzie, czeka na pociąg, jedzie.</span></a></li>
+    <li><a href="../viewer/#ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;t=29700&amp;split=1&amp;play=1&amp;speed=60"><b>Obok siebie</b><span>Bez metra i z metrem w jednym widoku.</span></a></li>
+  </ol>
+  <p class="note">Wizualizacja wczytuje ok. 60 MB danych, więc pierwsze otwarcie trwa chwilę. Klawisz <b>P</b> włącza tryb prezentacji, <b>?</b> pokazuje skróty.</p>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <h2>Stan prac</h2>
+  <div class="two">
+    <div class="panel done">
+      <h3>Działa</h3>
+      <ul><li>dane z USOS, OpenStreetMap i GTFS</li><li>model kampusu i funkcja celu</li><li>MAX-MIN Ant System</li><li>symulacja tygodnia z metrem i bez</li><li>wizualizacja 3D</li></ul>
+    </div>
+    <div class="panel todo">
+      <h3>W toku (etap 2)</h3>
+      <ul><li>drugi algorytm (ACS) i lokalne przeszukiwanie</li><li>porównanie z innymi metodami i testy statystyczne</li><li>czy to optimum: przegląd zupełny</li><li>ile stacji ma sens; wrażliwość wyniku</li><li>porównanie z literaturą</li></ul>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <p>Dane: © współtwórcy OpenStreetMap (ODbL) · plany zajęć USOS AGH (cele dydaktyczne) · GTFS ZTP Kraków.</p>
+  <p><a href="../etap-2/">Etap 2: wyniki →</a></p>
+</div></footer>
+</body>
+</html>

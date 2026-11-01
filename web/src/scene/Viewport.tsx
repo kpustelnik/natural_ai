@@ -3,7 +3,7 @@
 // the store.
 
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
-import { Suspense, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import type { Intersection, Object3D } from "three";
 import { nearestNode, nodeName, resolveKey } from "../data/network";
 import { useNetwork } from "../data/resource";
@@ -11,6 +11,7 @@ import type { Scene } from "../generated/schemas";
 import { type Vec3, webToLocal } from "../lib/frames";
 import {
   app,
+  copyText,
   type FocusRequest,
   focusBox,
   openedBuilding,
@@ -97,8 +98,7 @@ function capturePoint(e: ThreeEvent<MouseEvent>, hit: Intersection, pick: Pick |
     return;
   }
   const text = `[${xy[0]}, ${xy[1]}]`;
-  void navigator.clipboard?.writeText(text);
-  toast(`Copied ${text}  (${b.id} local)`);
+  copyText(text, `Copied ${text}  (${b.id} local)`);
 }
 
 /** What a click with the route tool means: an endpoint (room, building, stop), an entrance,
@@ -262,9 +262,10 @@ export function Viewport({ scene }: { scene: Scene }) {
       <directionalLight position={[-400, 700, 250]} intensity={1.6} />
       <CameraRig home={home} />
       <Interaction>
-        <Suspense fallback={null}>{scene.ground_glb && !underground && <Ground glb={scene.ground_glb} seeThrough={seeThrough} />}</Suspense>
+        {/* hidden, not unmounted: a remount would load and parse the glb again */}
+        {scene.ground_glb && <Ground glb={scene.ground_glb} seeThrough={seeThrough} visible={!underground} />}
         {layers.agh && <Buildings scene={scene} />}
-        <Suspense fallback={null}>{layers.context && scene.context && <ContextBuildings context={scene.context} />}</Suspense>
+        {scene.context && <ContextBuildings context={scene.context} visible={layers.context} />}
         {needsNetwork && scene.network && <NetworkLayers path={scene.network} scene={scene} />}
         {layers.entrances && layers.agh && <Entrances scene={scene} />}
         {layers.stops && <Stops stops={scene.stops} other={false} />}

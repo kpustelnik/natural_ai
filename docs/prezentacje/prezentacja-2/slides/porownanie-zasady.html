@@ -1,0 +1,19 @@
+<section id="porownanie-zasady" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:64px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Uczciwe porównanie: ten sam budżet, wiele powtórzeń</h2>
+<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">5 000</p>
+<p style="font-size:32px;line-height:1.4">różnych ocenionych linii dla każdej metody</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">30</p>
+<p style="font-size:32px;line-height:1.4">niezależnych uruchomień (ziaren)</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">A₁₂</p>
+<p style="font-size:32px;line-height:1.4">szansa, że przebieg A oszczędza więcej niż przebieg B</p>
+</div>
+</div>
+<p style="font-size:32px;line-height:1.4;color:#4A5260">Testy nieparametryczne (Derrac i in. 2011): Wilcoxon oraz Mann–Whitney z korektą Holma; A₁₂ = 0,5 to brak różnicy, od 0,71 efekt duży.</p>
+<aside>Ocena linii to jedyny kosztowny krok, a linia oceniona wcześniej jest darmowa, więc budżet liczymy w różnych liniach. Każda metoda losowa ma 30 uruchomień. Przebiegi dwóch algorytmów są niezależne, bo ten sam seed nie łączy ich w pary, więc oprócz testu Wilcoxona podajemy test Manna–Whitneya z korektą Holma na wielokrotne porównania i miarę efektu A12 Varghy i Delaney: przy 30 powtórzeniach nawet mała różnica bywa istotna, więc wielkość efektu mówi więcej niż samo p.</aside>
+</section>

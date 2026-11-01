@@ -1,5 +1,5 @@
 // A tiny typed external store (no state library). Components subscribe to a slice with
-// useStore(selector); values read every frame use store.get() inside useFrame instead.
+// useSlice(store, selector) (useApp for the app state); values read every frame use store.get() inside useFrame instead.
 
 import { useSyncExternalStore } from "react";
 

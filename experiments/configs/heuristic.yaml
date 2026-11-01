@@ -1,0 +1,21 @@
+# Which hint η do the ants need? Ours (demand near the next station / tunnel length) against
+# the "classic" ACO hint of the TSP (1 / tunnel length only; the comparison Korzeń and
+# Kruszyna 2025 make between their modified and the classic ACO), demand only, and none
+# (pheromone only). MMAS without local search, so the hint is not masked; 20 seeds, k = 5,
+# 5,000 distinct lines. docs/aco.md, "Heuristic".
+#
+#   uv run scripts/run_experiments.py --config experiments/configs/heuristic.yaml
+#   uv run scripts/plot_extra.py heuristic
+
+name: heuristic
+description: MMAS with four heuristics (no local search)
+mode: ablation
+seeds: [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61]
+save_trace: false
+
+defaults:
+  optimize: { algorithm: mmas, local_search: false, max_evaluations: 5000 }
+  aco: { n_ants: 20, n_iterations: 1000, heuristic: demand_distance }
+
+sweep:
+  aco.heuristic: [distance, demand, none]

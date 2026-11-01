@@ -12,7 +12,7 @@ from shapely.geometry import Point, box
 
 from metro_agh.campus.osm_process import build_layers
 from metro_agh.config import ROOT, load_config
-from metro_agh.geometry.building import place
+from metro_agh.geometry.building import largest_polygon, place
 from metro_agh.geometry.interior import (
     DOOR_W,
     ENTRANCE_W,
@@ -215,3 +215,29 @@ def test_watch_rebuilds_after_a_save(campus):
     status = BuildStatus.model_validate_json(status_file.read_text(encoding="utf-8"))
     assert status.version == v0 + 1 and "buildings/C-2.glb" in status.changed
     assert "campus/context.glb" not in status.changed
+
+
+def test_crossing_corridor_keeps_both_arms(tmp_path):
+    src = (SAMPLE / "D-17.yaml").read_text(encoding="utf-8")
+    cross = "      - id: cx\n        path: [[20, -6], [20, 6]]\n        width: 2.0\n"
+    old = "        width: 2.5\n    rooms:"
+    assert old in src
+    src = src.replace(old, "        width: 2.5\n" + cross + "    rooms:", 1)
+    f = tmp_path / "D-17.yaml"
+    f.write_text(src, encoding="utf-8")
+    p = place(load_building(f), CFG, 200.0, None)
+    l0 = next(pl for pl in plan_levels(p) if pl.span.id == 0)
+    cx = next(s for s in l0.spaces if s.id == "cx")
+    assert cx.polygon.area == pytest.approx(12 * 2.0, rel=0.05)  # both arms, not one
+    assert cx.polygon.bounds[1] < -5 and cx.polygon.bounds[3] > 5
+
+
+def test_invalid_footprint_keeps_its_largest_part():
+    import shapely
+    from shapely.geometry import Polygon
+
+    # a bow-tie with a spike: make_valid nests the MultiPolygon in a GeometryCollection
+    spiky = Polygon([(0, 0), (10, 10), (10, 0), (0, 10), (-5, 5), (-10, 5), (-5, 5)])
+    fixed = shapely.make_valid(spiky)
+    assert fixed.geom_type == "GeometryCollection"
+    assert largest_polygon(fixed).area == pytest.approx(50)

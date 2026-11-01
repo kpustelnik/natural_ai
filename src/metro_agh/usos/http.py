@@ -28,6 +28,10 @@ class OfflineMiss(LookupError):
     """``offline=True`` and the page is not in the cache."""
 
 
+class FetchFailed(RuntimeError):
+    """Every retry failed and there is no cached copy (never cached: a rerun tries again)."""
+
+
 class CachedHttp:
     def __init__(
         self,
@@ -55,6 +59,8 @@ class CachedHttp:
         self.n_requests = 0
         self.n_cached = 0
         self.n_stale = 0  # refetch failed, old copy used
+        self.n_failed = 0  # failed, no copy
+        self.failed_in_a_row = 0  # many in a row: the network or USOS is down
         self._last = 0.0
 
     def _expired(self, kind: str, f: Path) -> bool:
@@ -85,8 +91,10 @@ class CachedHttp:
             raise OfflineMiss(url if self.offline else f"request budget used up: {url}")
         try:
             body = self._get(url)
-        except RuntimeError:
+        except FetchFailed:
             if not cached:
+                self.n_failed += 1
+                self.failed_in_a_row += 1
                 raise
             log.warning("%s: keeping the cached copy from %s", url, time.ctime(f.stat().st_mtime))
             self.n_stale += 1
@@ -95,6 +103,7 @@ class CachedHttp:
         tmp = f.with_suffix(f.suffix + ".part")
         tmp.write_text(body, encoding="utf-8")
         tmp.replace(f)  # never a half-written page in the cache
+        self.failed_in_a_row = 0
         return body
 
     def json(self, kind: str, base: str, params: dict | None = None):
@@ -119,7 +128,10 @@ class CachedHttp:
                     # USOS API answers "object not found" with 400/404 and a JSON body
                     return r.text
                 problem = f"HTTP {r.status_code}"
+            if attempt == self.retries:
+                log.warning("%s: %s", url, problem)
+                break
             backoff = min(60.0, 2.0**attempt * max(self.delay_s, 0.5))
             log.warning("%s: %s, retry in %.0f s", url, problem, backoff)
             time.sleep(backoff)
-        raise RuntimeError(f"giving up on {url}")
+        raise FetchFailed(f"giving up on {url}")

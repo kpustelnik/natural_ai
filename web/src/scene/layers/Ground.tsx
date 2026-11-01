@@ -2,15 +2,14 @@
 // Only the ground plate is raycast (for the cursor position); nothing here is selectable.
 // `seeThrough` makes the surfaces translucent, for the metro tunnel underneath.
 
-import { useLoader } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
-import { LineBasicMaterial, LineDashedMaterial, LineSegments, Mesh, MeshLambertMaterial, type Object3D } from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { DATA_URL } from "../../data/loader";
+import { LineBasicMaterial, LineDashedMaterial, LineSegments, type Material, Mesh, MeshLambertMaterial, type Object3D } from "three";
+import { useFileVersion } from "../../data/live";
 import { useApp } from "../../state/app";
 import { buildBoundsTrees } from "../bvh";
 import { SCENE } from "../palette";
 import { noRaycast } from "../picking";
+import { useGlb } from "../useGlb";
 
 const SURFACES: Record<string, { color: string; offset: number }> = {
   ground: { color: SCENE.ground, offset: 0 },
@@ -19,13 +18,15 @@ const SURFACES: Record<string, { color: string; offset: number }> = {
   "paths:steps": { color: SCENE.steps, offset: -3 },
 };
 
-export function Ground({ glb, seeThrough = false }: { glb: string; seeThrough?: boolean }) {
-  const gltf = useLoader(GLTFLoader, DATA_URL + glb);
+export function Ground({ glb, seeThrough = false, visible = true }: { glb: string; seeThrough?: boolean; visible?: boolean }) {
+  // a re-export (live reload) loads the new file; useGlb disposes the old geometry
+  const root = useGlb(glb, useFileVersion(glb));
   const layers = useApp((s) => s.layers);
 
-  const parts = useMemo(() => {
+  const { parts, materials } = useMemo(() => {
     const byLayer = new Map<string, Object3D[]>();
-    gltf.scene.traverse((o) => {
+    const materials: Material[] = [];
+    root?.traverse((o) => {
       const layer = o.userData.layer as string | undefined;
       if (!layer) return;
       byLayer.set(layer, [...(byLayer.get(layer) ?? []), o]);
@@ -47,9 +48,11 @@ export function Ground({ glb, seeThrough = false }: { glb: string; seeThrough?: 
         if (layer === "boundary") o.computeLineDistances();
         noRaycast(o);
       }
+      if (o instanceof Mesh || o instanceof LineSegments) materials.push(o.material as Material);
     });
-    return byLayer;
-  }, [gltf]);
+    return { parts: byLayer, materials };
+  }, [root]);
+  useEffect(() => () => materials.forEach((m) => m.dispose()), [materials]);
 
   useEffect(() => {
     for (const layer of Object.keys(SURFACES)) {
@@ -72,5 +75,9 @@ export function Ground({ glb, seeThrough = false }: { glb: string; seeThrough?: 
     show("fences", layers.fences);
   }, [parts, layers]);
 
-  return <primitive object={gltf.scene} />;
+  return root ? (
+    <group visible={visible}>
+      <primitive object={root} />
+    </group>
+  ) : null;
 }

@@ -55,6 +55,11 @@ def test_dorm_beds_from_yaml_or_floor_area(cfg, tmp_path):
     assert d.loc["DS-8", "residents"] == 2 * d.loc["DS-7", "residents"]  # twice the floors
     assert set(d["source"]) == {"estimate"}
 
+    # the YAML beds already fill dorm_beds: nothing left for the others
+    (tmp_path / "buildings" / "DS-7.yaml").write_text(src + "residents: 900\n", encoding="utf-8")
+    d = estimate_dorms(tmp_path, c).set_index("building_id")
+    assert d["residents"].sum() == 900 and d.loc["DS-8", "residents"] == 0
+
 
 def test_population_respects_cohorts_and_groups(usos, cfg):
     timetable, groups, cohorts, gc = usos

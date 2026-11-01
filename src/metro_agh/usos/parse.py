@@ -5,9 +5,9 @@
   inserting a hyphen where that gives a known building. ``usos_room_map.csv`` overrides
   single rooms. Meetings in buildings the campus does not model are dropped (counted).
 - **Week parity.** From the group's frequency text: "każdy wtorek" -> ``all``,
-  "co drugi wtorek (nieparzyste)" -> ``odd``. "wielokrotnie" (several dates) is kept as
-  ``all`` only when the group was on a room plan of the crawled week, on that day.
-  Weekends and one-off meetings are not part of a teaching week and are dropped.
+  "co drugi wtorek (nieparzyste)" -> ``odd``. Lines that are not weekly (several dates,
+  once, monthly, unknown) are kept as ``all`` only when the group was on a room plan of the
+  crawled week, on that day, else dropped; weekend meetings are dropped.
 - **Group size** (``size_source``): the USOS count of registered students when it is
   positive (``usos``); else the group / unit limit (``estimate``); else 60 % of the
   smallest room the group meets in (``room_capacity``); else the median of the class type.
@@ -86,13 +86,20 @@ def room_key(number: str | None) -> str | None:
 
 def semester_of(group: CourseGroup) -> int | None:
     label, code = group.label, unquote(group.code)
-    for rx in (r"(\d+)\s*semestr", r"semestr\s*(\d+)", r"(\d+)\s*sem\b"):
+    # "\b": "4 semestry" / "4 semestralne" is the programme's length, not the semester
+    for rx in (r"(\d+)\s*semestr\b", r"semestr\s*(\d+)", r"(\d+)\s*sem\b"):
         m = re.search(rx, label, re.I)
         if m:
             return int(m.group(1))
-    m = re.search(r"(?:^|[_,-])s(?:em)?_?(\d+)(?=$|[_,ZL])|(\d+)sem", code, re.I)
+    # s2, sem2, sem_2, sem.2 after a separator; 2sem, 2 sem
+    m = re.search(r"(?:^|[_,-])s(?:em)?[._]?(\d+)(?=$|[-_,ZL])|(\d+) ?sem", code, re.I)
     if m:
         return int(m.group(1) or m.group(2))
+    # a lower-case "2s" as in GIK-1N,2s(23/24) or EOZ_1S_1s_all (upper case: the study level)
+    m = re.search(r"[_,](\d+)s(?=$|[_,(])", code)
+    if m:
+        return int(m.group(1))
+    # year and term; assumes the programme starts in winter (labels, read first, know better)
     m = re.search(r"-(\d+)R-([ZL])$", code)
     if m:
         return max(0, 2 * int(m.group(1)) - (1 if m.group(2) == "Z" else 0))
@@ -101,8 +108,8 @@ def semester_of(group: CourseGroup) -> int | None:
 
 def study_level(code: str) -> str | None:
     """Cycle and mode in a course or course-group code: ``240-INF-1S-436`` -> ``1S``,
-    ``ELT_2N_sem_1`` -> ``2N``."""
-    m = re.search(r"(?:^|[-_])([123][SN])(?=$|[-_,])", unquote(code))
+    ``ELT_2N_sem_1`` -> ``2N``, ``SES_2S4_s1_ALL`` -> ``2S``."""
+    m = re.search(r"(?:^|[-_])([123][SN])(?=$|[-_,]|\d(?:$|[-_,]))", unquote(code))
     return m.group(1) if m else None
 
 
@@ -155,7 +162,10 @@ def cohort_id(code: str) -> str:
 
 
 def programme_of(cid: str) -> str:
-    p = re.sub(r"(?i)[-_]*(\d+R-[ZL]|s(em)?_?\d+.*|\d+sem.*)$", "", cid)
+    # the separator is required before "s<n>": else the S of the study level (1S) is taken
+    p = re.sub(r"(?i)(?:[-_]+(?:\d+R-[ZL]|s(?:em)?_?\d+.*)|[-_]*\d+sem.*)$", "", cid)
+    # lower-case "1s" (ZIP-1S_1s_PP) and "2_sem" (ZIP-2N_2_sem_ZJ_PP); case-sensitive, as above
+    p = re.sub(r"(?:[-_]+\d+s(?:_.*)?|_\d+_sem.*)$", "", p)
     return p or cid
 
 

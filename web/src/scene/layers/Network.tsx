@@ -7,10 +7,11 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import { BufferAttribute, BufferGeometry, Color, LineBasicMaterial, LineSegments, Plane, Vector3 } from "three";
 import type { BinaryFile } from "../../data/loader";
+import { networkIndex } from "../../data/network";
 import { useDemand } from "../../data/resource";
 import type { NetworkHeader } from "../../generated/schemas";
 import { app, useApp } from "../../state/app";
-import { ACCENT, DEMAND_ZERO, demandColour, indexDemand, NETWORK } from "../palette";
+import { ACCENT, demandColour, indexDemand, NETWORK } from "../palette";
 import { setPickable } from "../picking";
 import { registry } from "../registry";
 
@@ -18,11 +19,9 @@ const LIFT = 0.4;
 
 function edgeGeometry(net: BinaryFile<NetworkHeader>, edge: number): BufferGeometry {
   const seg = net.arrays.segment_xyz as Float32Array;
-  const ids = net.arrays.segment_edge as Uint32Array;
-  const out: number[] = [];
-  for (let s = 0; s < ids.length; s++) if (ids[s] === edge) for (let k = 0; k < 6; k++) out.push(seg[s * 6 + k]!);
+  const { segStart } = networkIndex(net);
   const g = new BufferGeometry();
-  g.setAttribute("position", new BufferAttribute(new Float32Array(out), 3));
+  g.setAttribute("position", new BufferAttribute(seg.slice(segStart[edge]! * 6, segStart[edge + 1]! * 6), 3));
   return g;
 }
 
@@ -36,16 +35,10 @@ function paintEdges(
   const kinds = net.arrays.edge_kind as Uint8Array;
   const names = net.header.edge_kind_names;
   const palette = names.map((n) => new Color(NETWORK[n as keyof typeof NETWORK] ?? NETWORK.road));
-  const zero = new Color(DEMAND_ZERO.color);
   const colors = new Float32Array(ids.length * 6);
   for (let s = 0; s < ids.length; s++) {
     const edge = ids[s]!;
-    const c =
-      mode === "demand"
-        ? maxLegs > 0
-          ? new Color(demandColour(loads.get(edge) ?? 0, maxLegs))
-          : zero
-        : palette[kinds[edge]!]!;
+    const c = mode === "demand" ? new Color(demandColour(loads.get(edge) ?? 0, maxLegs)) : palette[kinds[edge]!]!;
     for (const v of [0, 3]) {
       colors[s * 6 + v] = c.r;
       colors[s * 6 + v + 1] = c.g;
@@ -61,7 +54,11 @@ export function Network({ net, clipY }: { net: BinaryFile<NetworkHeader>; clipY:
   const hovered = useApp((s) => (s.hover?.kind === "edge" ? s.hover.index : null));
   const demandMode = useApp((s) => s.colorMode === "demand");
   const demand = useDemand().data;
-  const indexed = useMemo(() => indexDemand(demand), [demand]);
+  // demand.json indexes network.json's edges: a file for another network colours nothing
+  const indexed = useMemo(
+    () => indexDemand(demand && demand.n_edges === net.header.n_edges ? demand : null),
+    [demand, net],
+  );
 
   const lines = useMemo(() => {
     const seg = net.arrays.segment_xyz as Float32Array;

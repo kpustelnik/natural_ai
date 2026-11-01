@@ -1,7 +1,7 @@
-"""Problem instance: everything ACO and the baselines need, as plain NumPy arrays.
+"""Problem instance: everything ACO needs, as plain NumPy arrays.
 
-Written by ``network`` (person 2), read by ``aco`` / ``baselines`` (person 3) and by the tests.
-File: ``instance/instance.npz`` (and small hand-made ones under ``data/sample``).
+Written by ``network/instance.py`` (person 2), read by ``aco`` / ``experiments`` (person 3)
+and by the tests. File: ``instance/instance.npz`` (the tests build small ones in memory).
 No graph, no geometry, no config: an instance file is self-contained.
 
 Shapes: N candidates, E endpoints, M OD pairs.
@@ -19,7 +19,7 @@ from .common import SCHEMA_VERSION, MetroTopology, StrictModel
 
 class InstanceMeta(StrictModel):
     schema_version: int = SCHEMA_VERSION
-    name: str = Field(description="'campus', 'sample', 'brute12', ...")
+    name: str = Field(description="'campus', 'fake', ...")
     topology: MetroTopology
     k: int = Field(ge=2, description="stations to place")
     metro_speed_mps: PositiveFloat
@@ -83,7 +83,8 @@ class Instance:
         if not problems:
             if not np.allclose(self.tunnel_m, self.tunnel_m.T):
                 problems.append("tunnel_m must be symmetric")
-            if m and (self.od_from.min() < 0 or max(self.od_from.max(), self.od_to.max()) >= e):
+            ends = np.concatenate([self.od_from, self.od_to])
+            if m and (ends.min() < 0 or ends.max() >= e):
                 problems.append("od_from / od_to out of range")
             if (self.od_weight <= 0).any():
                 problems.append("od_weight must be positive")
@@ -93,6 +94,24 @@ class Instance:
                 problems.append(f"k={self.meta.k} > N={n}")
         if problems:
             raise ValueError("instance: " + "; ".join(problems))
+
+    def subset(self, keep: list[int]) -> "Instance":
+        """Only the candidates ``keep`` (indices, in this order): every candidate's columns
+        are independent of the others, so this equals an instance built with that list."""
+        keep = np.asarray(keep, dtype=np.int64)
+        return Instance(
+            meta=self.meta.model_copy(update={"k": min(self.meta.k, len(keep))}),
+            candidate_ids=self.candidate_ids[keep],
+            candidate_xyz=self.candidate_xyz[keep],
+            tunnel_m=self.tunnel_m[np.ix_(keep, keep)],
+            endpoint_keys=self.endpoint_keys,
+            access_s=self.access_s[:, keep],
+            egress_s=self.egress_s[keep],
+            od_from=self.od_from,
+            od_to=self.od_to,
+            od_weight=self.od_weight,
+            od_walk_s=self.od_walk_s,
+        )
 
     def save(self, path: Path) -> None:
         self.validate()

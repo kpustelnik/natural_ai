@@ -100,6 +100,11 @@ def outdoor_part(
         if removed & set(ways) or row.u == row.v:
             continue
         coords = np.asarray(row.geometry.coords)
+        # osmnx's undirected edges keep the way's drawing direction, not u -> v: the export
+        # (segments, the route tool, the students' paths) needs the geometry from u to v
+        nu, nv = nodes[index[f"osm:{int(row.u)}"]], nodes[index[f"osm:{int(row.v)}"]]
+        if math.dist(coords[0][:2], (nv.x, nv.y)) < math.dist(coords[0][:2], (nu.x, nu.y)):
+            coords = coords[::-1]
         geom = np.column_stack([coords[:, :2], np.full(len(coords), z)])
         length = float(row.length_m)
         t = tm.walk(length) * (tm.steps_factor if row.is_steps else 1.0)
@@ -213,18 +218,30 @@ def assemble(outdoor: Outdoor, parts: list[Part], cfg: dict, tm: TimeModel) -> G
         edges += part.edges
         for key, forced in part.links:
             n = nodes[index[key]]
+            # an entrance's outside node ("D-17:main:out") has no building_id: take it from
+            # the key; stops ("stop:x") belong to no building
+            bid = n.building_id or (key.split(":")[0] if n.kind == "entrance" else None)
             target = f"osm:{forced}" if forced is not None else None
             if target in index:
                 o = nodes[index[target]]
                 d = math.hypot(o.x - n.x, o.y - n.y)
             else:
+                if target is not None:  # a pinned osm_node gone from the walk graph
+                    issues.append(
+                        GraphIssue(
+                            "Network: entrance osm_node not in the walk graph (nearest node used)",
+                            f"{key}: {target}",
+                            bid,
+                            (n.x, n.y, n.z),
+                        )
+                    )
                 target, d = outdoor.nearest(n.x, n.y)
             if d > warn:
                 issues.append(
                     GraphIssue(
                         "Network: entrances and stops far from the walk network",
                         f"{key}: {d:.0f} m to the nearest path",
-                        n.building_id or (key.split(":")[0] if ":" in key else None),
+                        bid,
                         (n.x, n.y, n.z),
                     )
                 )
@@ -321,7 +338,7 @@ def build_campus_graph(cfg: dict, campus_dir: Path, layers: dict[str, gpd.GeoDat
             b = load_building(f)
             _, geom = match_osm(b, osm_buildings, index)
             p = place(b, cfg, origin_z, largest_polygon(geom))
-        except ValueError as err:  # pydantic errors are ValueErrors too
+        except (ValueError, yaml.YAMLError) as err:  # pydantic errors are ValueErrors too
             first = str(err).splitlines()[0]
             skipped.issues.append(
                 GraphIssue("Network: building files left out", f"{f.name}: {first}", f.stem)

@@ -1,0 +1,56 @@
+{
+  "provenance": {
+    "schema_version": 1,
+    "generated_at": "2026-11-01T17:22:39+01:00",
+    "generator": "run_experiments.py",
+    "config_hash": "5f4ed13aa0efdce5",
+    "git_commit": "81d4b15"
+  },
+  "run_id": "exact_full-k3-mmas-local_searchTrue-mmas-k3-s46",
+  "experiment": "exact_full",
+  "algorithm": "mmas",
+  "instance": "D:/mateusz/studia/7_semestr/natural_ai/data/processed/instance/instance.npz",
+  "instance_hash": "8c0ccb8b16174a29",
+  "seed": 46,
+  "params": {
+    "n_ants": 20,
+    "n_iterations": 1000,
+    "alpha": 1.0,
+    "beta": 1.0,
+    "rho": 0.1,
+    "tau_min_ratio": 0.01,
+    "local_search": true,
+    "heuristic": "demand_distance",
+    "k": 3,
+    "topology": "line",
+    "n_candidates": 55,
+    "overrides": {
+      "optimize.algorithm": "mmas",
+      "optimize.local_search": true,
+      "metro.n_stations": 3
+    },
+    "tag": "k3-mmas-local_searchTrue"
+  },
+  "eval_budget": 5000,
+  "evaluations": 5000,
+  "wall_time_s": 3.2,
+  "best": {
+    "provenance": {
+      "schema_version": 1,
+      "generated_at": "2026-11-01T17:22:39+01:00",
+      "generator": "run_experiments.py",
+      "config_hash": "5f4ed13aa0efdce5",
+      "git_commit": "81d4b15"
+    },
+    "run_id": "exact_full-k3-mmas-local_searchTrue-mmas-k3-s46",
+    "topology": "line",
+    "stations": [
+      "U-9",
+      "C-4",
+      "D-10"
+    ],
+    "objective_s": 139451822.4,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
+  }
+}

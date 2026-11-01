@@ -17,6 +17,7 @@ levels:
     corridors:
       - id: cb
         path: [[5, 0], [70, 0]]
+        width: 3.0  # all three alike: the stairwells line up between levels
     stairs:
       - { id: s_main, corridor: cb, side: left, at: 10, width: 5, depth: 6 }
 
@@ -25,8 +26,8 @@ levels:
     height: 4.5
     corridors:
       - id: c0
-        path: [[0, 0], [70, 0], [70, 35]]
-        width: 4.0
+        path: [[0, 0], [70, 0], [70, 40]]  # to the north facade
+        width: 3.0
     stairs:
       - { id: s_main, corridor: c0, side: left, at: 15, width: 5, depth: 6 }
       - { id: s_east, corridor: c0, side: right, at: 100, width: 4, depth: 5 }
@@ -36,7 +37,7 @@ levels:
     height: 4.0
     corridors:
       - id: c1
-        path: [[0, 0], [70, 0], [70, 35]]
+        path: [[0, 0], [70, 0], [70, 40]]
         width: 3.0
     stairs:
       - { id: s_main, corridor: c1, side: left, at: 15, width: 5, depth: 6 }

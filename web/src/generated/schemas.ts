@@ -306,8 +306,9 @@ export interface ContextFeature {
  * ``trips/<scenario>/day-<weekday>.{json,bin}``: who walks which path when.
  *
  * One row = one segment: student ``student_id`` starts path ``path_id`` at ``t_start``.
- * A metro leg is three segments (walk to platform, ride, walk out); between segments of
- * one leg the student stands at the end of the previous path (waiting). Between legs the
+ * A metro or bus / tram leg is three segments (walk to the platform or stop, ride, walk
+ * out); between segments of one leg the student stands at the end of the previous path
+ * (waiting). Between legs the
  * student is inside a room and not drawn. Rows are sorted by t_start.
  *
  * This interface was referenced by `WebData`'s JSON-Schema
@@ -855,6 +856,9 @@ export interface ScenarioStats {
    */
   n_late: number;
   late_share: number;
+  /**
+   * between-class legs longer than the break, i.e. late ones
+   */
   longer_than_break_share: number;
   /**
    * 0 for no_metro

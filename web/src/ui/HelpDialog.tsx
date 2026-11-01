@@ -12,7 +12,7 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
       ["F", "frame the selection (double-click: frame what is clicked)"],
       ["PageUp / PageDown", "open the selected building, step through its levels"],
       ["\\", "hide or show both side panels"],
-      ["P", "presentation mode: only the view and the playback"],
+      ["P", "presentation mode: only the view (a replay keeps playing)"],
       ["S", "save a screenshot (PNG)"],
       ["`", "frame-rate probe"],
     ],

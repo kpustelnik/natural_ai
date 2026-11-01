@@ -21,7 +21,7 @@ from ..simulation.simulate import BATCH, walk_matrix
 
 log = logging.getLogger(__name__)
 
-DAY_HEADWAY = 3600.0  # a pair served once a day: assume an hour's wait
+DAY_HEADWAY = 3600.0  # a pair served once a day: assume an hourly service (30 min wait)
 
 
 def build_instance(
@@ -39,6 +39,10 @@ def build_instance(
     wanted = cfg["metro"].get("candidates", "all")
     shafts = nodes[nodes.kind == "shaft_top"].copy()
     if wanted != "all":
+        # the same check as with_config, so a cached instance and a fresh build agree
+        missing = sorted(set(wanted) - set(shafts.building_id))
+        if missing:
+            raise ValueError(f"metro.candidates not in the instance: {missing}")
         shafts = shafts[shafts.building_id.isin(wanted)]
     shafts = shafts.sort_values("building_id").reset_index(drop=True)
     if len(shafts) < 2:
@@ -88,24 +92,12 @@ def build_instance(
     od_to = np.array([r[1] for r in rows], np.int32)
     od_weight = np.array([r[2] for r in rows], np.float32)
 
-    # walk times between OD endpoints (batch Dijkstra from unique origins)
-    od_walk = np.empty(len(rows), np.float32)
-    origins = sorted(set(od_from.tolist()))
-    by_origin: dict[int, list[int]] = {o: [] for o in origins}
-    for i, o in enumerate(od_from):
-        by_origin[int(o)].append(i)
-    for start in range(0, len(origins), BATCH):
-        batch = origins[start : start + BATCH]
-        src_nodes = ep_node[batch]
-        dist = dijkstra(mat, directed=True, indices=src_nodes, return_predecessors=False)
-        for bi, o in enumerate(batch):
-            for idx in by_origin[o]:
-                d = dist[bi, ep_node[od_to[idx]]]
-                if not np.isfinite(d):
-                    raise ValueError(
-                        f"no walk path {endpoint_keys[o]} → {endpoint_keys[od_to[idx]]}"
-                    )
-                od_walk[idx] = d
+    # walk times between OD endpoints (E x E is small: every endpoint to every endpoint)
+    walk = _times_to(mat, ep_node, ep_node)[od_from, od_to]
+    if not np.isfinite(walk).all():
+        i = int(np.argmin(np.isfinite(walk)))
+        raise ValueError(f"no walk path {endpoint_keys[od_from[i]]} → {endpoint_keys[od_to[i]]}")
+    od_walk = walk.astype(np.float32)
 
     # the no-metro time is the faster of walking and the bus / tram (when it is simulated too)
     rides = transit_rides(processed, cfg)
@@ -182,13 +174,22 @@ def metro_meta(
 
 
 def with_config(inst: Instance, cfg: dict) -> Instance:
-    """The same arrays with k, topology, speed, dwell, headway and shaft times from ``cfg``."""
+    """The same arrays with k, topology, speed, dwell, headway and shaft times from ``cfg``;
+    a ``metro.candidates`` list keeps only those candidates (``Instance.subset``)."""
+    wanted = cfg["metro"].get("candidates", "all")
+    if wanted != "all":
+        ids = [str(c) for c in inst.candidate_ids]
+        missing = sorted(set(wanted) - set(ids))
+        if missing:
+            raise ValueError(f"metro.candidates not in the instance: {missing}")
+        if sorted(wanted) != sorted(ids):
+            inst = inst.subset([ids.index(c) for c in sorted(set(wanted))])
     meta = metro_meta(
         cfg, inst.n_candidates, name=inst.meta.name, source_hash=inst.meta.source_hash
     )
     if meta.k != int(cfg["metro"]["n_stations"]):
-        log.warning("metro.n_stations=%s > %d candidates: k=%d", cfg["metro"]["n_stations"],
-                    inst.n_candidates, meta.k)  # fmt: skip
+        log.warning("metro.n_stations=%s clamped to k=%d (%d candidates)",
+                    cfg["metro"]["n_stations"], meta.k, inst.n_candidates)  # fmt: skip
     return dataclasses.replace(inst, meta=meta)
 
 

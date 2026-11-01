@@ -39,6 +39,7 @@ from ..schemas.web import (
     StationStats,
     Stats,
 )
+from ..simulation.metrics import scenario_metrics
 from ..simulation.schedule import DAY_S
 from .binary import write_binary
 from .export_campus import GENERATOR
@@ -138,24 +139,35 @@ class PathBuilder:
 
 
 def _ride_templates(metro: Metro) -> dict[tuple[int, int], list[tuple[list[int], list]]]:
-    """(board, alight) -> one (stations, times) per direction, from the first runs."""
+    """(board, alight) -> one (stations, times) per direction, from the first runs. On a loop
+    the run goes on into the next one of its direction (simulate.loop_successors), so the
+    rides through station 0 have a template too."""
     out: dict[tuple[int, int], list] = {}
     seen = set()
+    k = len(metro.stations)
     for r in metro.runs:
         if r.direction in seen:
             continue
         seen.add(r.direction)
-        st = r.stops
-        for a in range(len(st)):
-            for b in range(a + 1, len(st)):
-                i, j = st[a].station, st[b].station
+        st = [(s.station, s.arrive_t, s.depart_t) for s in r.stops]
+        if metro.topology == "loop":
+            back = st[-1][1]
+            nxt = [
+                q for q in metro.runs
+                if q.direction == r.direction and q.weekday == r.weekday
+                and q.stops[0].depart_t >= back
+            ]  # fmt: skip
+            if nxt:
+                q = min(nxt, key=lambda q: q.stops[0].depart_t)
+                st[-1] = (st[-1][0], back, q.stops[0].depart_t)  # wait at station 0
+                st += [(s.station, s.arrive_t, s.depart_t) for s in q.stops[1:]]
+        for a in range(len(r.stops) - 1):  # board on this run (the next one has its own)
+            for b in range(a + 1, min(len(st), a + k)):  # less than once round
+                i, j = st[a][0], st[b][0]
                 if i == j:
                     continue
-                t0 = st[a].depart_t
-                stops = [
-                    (st[c].station, st[c].arrive_t - t0, st[c].depart_t - t0)
-                    for c in range(a, b + 1)
-                ]
+                t0 = st[a][2]
+                stops = [(st[c][0], st[c][1] - t0, st[c][2] - t0) for c in range(a, b + 1)]
                 stops[0] = (i, 0.0, 0.0)
                 stops[-1] = (j, stops[-1][1], stops[-1][1])
                 out.setdefault((i, j), []).append(stops)
@@ -279,20 +291,8 @@ def export_scenario(
 
 
 def _scenario_stats(sim: pd.DataFrame, legs: pd.DataFrame) -> ScenarioStats:
-    travel = (sim.arrive_wt - sim.depart_wt).to_numpy(float)
-    brk = legs.set_index("leg_id").break_s.reindex(sim.leg_id).to_numpy(float, na_value=np.nan)
-    known = ~np.isnan(brk)
-    n = len(sim)
-    return ScenarioStats(
-        n_legs=n,
-        total_travel_s=round(float(travel.sum()), 1),
-        mean_leg_s=round(float(travel.mean()) if n else 0.0, 1),
-        n_late=int((sim.late_s > 0).sum()),
-        late_share=float((sim.late_s > 0).mean()) if n else 0.0,
-        longer_than_break_share=float((travel[known] > brk[known]).mean()) if known.any() else 0.0,
-        metro_share=float((sim["mode"] == "metro").mean()) if n else 0.0,
-        transit_share=float((sim["mode"] == "transit").mean()) if n else 0.0,
-    )
+    m = scenario_metrics(sim, legs)
+    return ScenarioStats(**{k: v for k, v in m.items() if k in ScenarioStats.model_fields})
 
 
 def stats(
@@ -302,7 +302,8 @@ def stats(
     scenarios = {sc: _scenario_stats(df, legs) for sc, df in sims.items()}
     total = {sc: s.total_travel_s for sc, s in scenarios.items()}
     lg = legs.set_index("leg_id")
-    # a leg belongs to the hour it leaves in when walking, so the chart follows the clock
+    # a leg belongs to the hour it leaves in without the metro (walk, bus or tram), so the
+    # chart follows the clock
     first = sims.get("no_metro", next(iter(sims.values()))).set_index("leg_id").depart_wt
     depart = first.reindex(lg.index).astype(float)
     hours = pd.DataFrame({"weekday": lg.weekday, "hour": ((depart % DAY_S) // 3600).astype(int)})
@@ -384,7 +385,11 @@ def export_simulation(
     line: BestLine = load_json(BestLine, best_line)
 
     schedule = processed / "simulation" / "metro" / "schedule.parquet"
-    replay = export_best_line(cfg, best_line, out_dir, changed, schedule_file=schedule, note=note)
+    if "metro" in sims and not schedule.exists():
+        raise FileNotFoundError(f"{schedule} missing: rerun 05_simulate.py")
+    replay = export_best_line(
+        cfg, best_line, out_dir, changed, schedule_file=schedule, note=note, strict=True
+    )
     rel_dir = f"replays/{replay.id}"
     metro = Metro.model_validate_json((out_dir / replay.files.metro).read_text(encoding="utf-8"))
 

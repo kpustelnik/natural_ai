@@ -1,0 +1,54 @@
+{
+  "provenance": {
+    "schema_version": 1,
+    "generated_at": "2026-11-01T17:27:13+01:00",
+    "generator": "run_experiments.py",
+    "config_hash": "08ca62c4b3517d03",
+    "git_commit": "81d4b15"
+  },
+  "run_id": "heuristic-base-mmas-k5-s42",
+  "experiment": "heuristic",
+  "algorithm": "mmas",
+  "instance": "D:/mateusz/studia/7_semestr/natural_ai/data/processed/instance/instance.npz",
+  "instance_hash": "8c0ccb8b16174a29",
+  "seed": 42,
+  "params": {
+    "n_ants": 20,
+    "n_iterations": 1000,
+    "alpha": 1.0,
+    "beta": 1.0,
+    "rho": 0.1,
+    "tau_min_ratio": 0.01,
+    "local_search": false,
+    "heuristic": "demand_distance",
+    "k": 5,
+    "topology": "line",
+    "n_candidates": 55,
+    "overrides": {},
+    "tag": "base"
+  },
+  "eval_budget": 5000,
+  "evaluations": 5003,
+  "wall_time_s": 7.33,
+  "best": {
+    "provenance": {
+      "schema_version": 1,
+      "generated_at": "2026-11-01T17:27:13+01:00",
+      "generator": "run_experiments.py",
+      "config_hash": "08ca62c4b3517d03",
+      "git_commit": "81d4b15"
+    },
+    "run_id": "heuristic-base-mmas-k5-s42",
+    "topology": "line",
+    "stations": [
+      "A-0",
+      "H-D8",
+      "U-9",
+      "C-4",
+      "D-10"
+    ],
+    "objective_s": 135504815.5,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
+  }
+}

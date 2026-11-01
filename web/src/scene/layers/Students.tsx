@@ -1,7 +1,7 @@
 // Students of a simulation replay (trips/<scenario>/, contract 10.6): one InstancedMesh of
 // low cylinders, positions interpolated on the CPU every frame from the shared paths
-// (lib/trips.ts). The colour says what each one is doing: walking, waiting on a platform,
-// or riding. They get bigger as the camera zooms out, so a crowd stays visible.
+// (lib/trips.ts). The colour says what each one is doing: walking, waiting (at a platform or
+// a stop), or riding. They get bigger as the camera zooms out, so a crowd stays visible.
 //
 // The simulation is deterministic: everyone on the same path leaving at the same second is
 // at the same point. For drawing only, such a group is laid out as a sunflower spiral around

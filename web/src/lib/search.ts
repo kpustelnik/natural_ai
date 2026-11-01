@@ -25,6 +25,7 @@ export function score(item: SearchItem, query: string): number {
   const q = norm(query.trim());
   if (!q) return 0;
   const qc = compact(query);
+  if (!qc) return 0; // only separators ("-", "/"): every term starts with ""
   let best = 0;
   item.terms.forEach((term, i) => {
     const t = norm(term);

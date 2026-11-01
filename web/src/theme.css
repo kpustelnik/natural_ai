@@ -437,8 +437,7 @@ kbd {
   white-space: nowrap;
 }
 
-.replay-meta,
-.replay-desc {
+.replay-meta {
   color: var(--text-2);
   font-size: 12px;
   margin-top: 2px;
@@ -1007,7 +1006,7 @@ kbd {
 .labels-layer {
   position: absolute;
   inset: 0;
-  z-index: 0; /* own stacking context: the labels' depth z-indexes stay below the dock */
+  z-index: 0; /* own stacking context: the labels' depth z-indexes stay below the overlays */
   pointer-events: none;
   overflow: hidden;
 }
@@ -1106,11 +1105,6 @@ kbd {
 .time-slider {
   flex: 1;
   accent-color: var(--accent);
-}
-
-.time-slider.placeholder {
-  color: var(--muted);
-  font-size: 12px;
 }
 
 .dock-note {
@@ -1217,6 +1211,10 @@ kbd {
   background: none;
   font-size: inherit;
   cursor: default;
+}
+
+.status-button.clickable {
+  cursor: pointer;
 }
 
 .status-button.has-errors {
@@ -1359,9 +1357,7 @@ kbd {
   color: #ffffff;
   border-radius: var(--radius);
   font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere; /* the missing-file and build-error toasts carry a command or a message */
 }
 
 .toast.error {
@@ -1518,6 +1514,18 @@ kbd {
   cursor: crosshair;
 }
 
+.chart-plot.hour-plot {
+  height: auto; /* the hour chart keeps its 300 x 110 drawing, not the dock's 52 px strip */
+  aspect-ratio: 300 / 110;
+}
+
+.chart-caption {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  font-size: 11px;
+}
+
 .route-panel .route-end {
   display: grid;
   grid-template-columns: 22px minmax(0, 1fr) auto;
@@ -1642,11 +1650,9 @@ kbd {
   color: var(--text-2);
 }
 
-.dot {
-  display: inline-block;
+.dock-legend .dot {
   width: 9px;
   height: 9px;
-  border-radius: 50%;
   vertical-align: -1px;
 }
 

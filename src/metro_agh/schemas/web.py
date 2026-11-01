@@ -380,8 +380,9 @@ class DayHeader(_BinaryHeader):
     """``trips/<scenario>/day-<weekday>.{json,bin}``: who walks which path when.
 
     One row = one segment: student ``student_id`` starts path ``path_id`` at ``t_start``.
-    A metro leg is three segments (walk to platform, ride, walk out); between segments of
-    one leg the student stands at the end of the previous path (waiting). Between legs the
+    A metro or bus / tram leg is three segments (walk to the platform or stop, ride, walk
+    out); between segments of one leg the student stands at the end of the previous path
+    (waiting). Between legs the
     student is inside a room and not drawn. Rows are sorted by t_start.
     """
 
@@ -513,7 +514,9 @@ class ScenarioStats(StrictModel):
     mean_leg_s: float
     n_late: int = Field(description="legs arriving after the class start")
     late_share: float = Field(ge=0, le=1)
-    longer_than_break_share: float = Field(ge=0, le=1)
+    longer_than_break_share: float = Field(
+        ge=0, le=1, description="between-class legs longer than the break, i.e. late ones"
+    )
     metro_share: float = Field(ge=0, le=1, description="0 for no_metro")
     transit_share: float = Field(
         default=0.0, ge=0, le=1, description="legs on a bus or tram (GTFS), both scenarios"

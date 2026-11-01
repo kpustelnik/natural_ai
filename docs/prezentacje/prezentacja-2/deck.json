@@ -1,0 +1,19 @@
+{
+  "v": 4,
+  "createdOnFiles": { "v": 1, "at": "2026-11-01T18:40:00+01:00" },
+  "lists": "css",
+  "title": "Metro AGH — prezentacja 2",
+  "order": ["cover", "przypomnienie", "algorytmy", "porownanie-zasady", "porownanie", "optimum-pod", "optimum-kampus", "zbieznosc", "parametry", "heurystyka", "stacje", "tunel", "petla", "wrazliwosc", "symulacja", "literatura", "wnioski", "koniec"],
+  "sections": {
+    "s1": { "description": "Przypomnienie etapu pośredniego i otwarte pytania", "start": "cover" },
+    "s2": { "description": "Nowe algorytmy i zasady uczciwego porównania", "start": "algorytmy" },
+    "s3": { "description": "Czy wynik jest dobry: porównanie metod, optimum, zbieżność, parametry", "start": "porownanie" },
+    "s4": { "description": "Jaka linia: liczba stacji, tunel, pętla, wrażliwość", "start": "stacje" },
+    "s5": { "description": "Symulacja tygodnia, literatura, wnioski", "start": "symulacja" }
+  },
+  "faces": {
+    "rubik": { "family": "Rubik", "href": "https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" },
+    "public-sans": { "family": "Public Sans", "href": "https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600&display=swap" }
+  },
+  "designSystems": []
+}

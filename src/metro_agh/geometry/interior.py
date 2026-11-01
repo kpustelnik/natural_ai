@@ -1,7 +1,7 @@
 """LOD2/3 interiors: spaces, walls with door gaps, stair flights and floor plates.
 
 Everything is planned in the building's local frame (metres, +x along the bearing) and only
-turned into web meshes at the end, so the plan can also feed the indoor graph later.
+turned into web meshes at the end; the same plan feeds the indoor graph (network/indoor.py).
 
 - **Spaces**: corridors are their centreline buffered by half the width; rooms and stairs
   are boxes on one side of a corridor (or explicit polygons).
@@ -181,11 +181,13 @@ def plan_levels(p: PlacedBuilding) -> list[LevelPlan]:
         taken = Polygon()
         for c in lvl.corridors:
             poly = corridor_polygon(c)
-            own = poly.difference(taken)  # crossing corridors: the first one owns the overlap
+            # meeting corridors: the first one owns the overlap. When that would cut this one
+            # in two (a corridor crossing another in the middle), it keeps its whole shape
+            # and both draw the crossing, rather than one arm losing its floor
+            own = polygons(poly.difference(taken))
             taken = taken.union(poly)
-            for part in polygons(own):
-                spaces.append(Space(c.id, "corridor", lvl.id, part))
-                break
+            if own:
+                spaces.append(Space(c.id, "corridor", lvl.id, own[0] if len(own) == 1 else poly))
         for kind, items in (("room", lvl.rooms), ("stairs", lvl.stairs)):
             for s in items:
                 if s.polygon is not None:
@@ -362,9 +364,10 @@ def shaft_lines(p: PlacedBuilding, depth_m: float, origin: Origin) -> Lines:
 
 def space_size(poly: Polygon) -> tuple[float, float]:
     """Side lengths of the minimum rotated rectangle, longer first."""
-    c = np.asarray(shapely.oriented_envelope(poly).exterior.coords)
-    if len(c) < 4:
+    env = shapely.oriented_envelope(poly)
+    if env.geom_type != "Polygon":  # a degenerate space: a line or a point has no sides
         return (0.0, 0.0)
+    c = np.asarray(env.exterior.coords)
     a = math.dist(c[0], c[1])
     b = math.dist(c[1], c[2])
     return (max(a, b), min(a, b))

@@ -42,6 +42,12 @@ def _d17() -> dict:
     return yaml.safe_load((SAMPLE / "campus" / "buildings" / "D-17.yaml").read_text("utf-8"))
 
 
+def _stairs_skip_a_level(d: dict) -> None:
+    top = {**d["levels"][1], "id": 2, "elevation": d["levels"][1]["elevation"] + 3.5, "rooms": []}
+    d["levels"][1].pop("stairs")
+    d["levels"].append(top)
+
+
 @pytest.mark.parametrize(
     ("mutate", "message"),
     [
@@ -50,6 +56,7 @@ def _d17() -> dict:
         (lambda d: d["levels"][0]["rooms"][0].update(at=39), "beyond corridor"),
         (lambda d: d["levels"][1]["rooms"][0].update(id="0.10"), "room ids must be unique"),
         (lambda d: d["levels"][1].pop("stairs"), "appear only on level"),
+        (_stairs_skip_a_level, "skip a level"),
         (lambda d: d["levels"][1].update(elevation=0.0), "must be higher"),
         (lambda d: d["levels"][0]["rooms"][0].pop("depth"), "give either corridor"),
         (lambda d: d["entrances"][1].update(metro_shaft=True), "at most one"),

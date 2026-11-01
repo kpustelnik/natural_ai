@@ -1,0 +1,13 @@
+<section id="porownanie" data-section="Czy wynik jest dobry: porównanie metod, optimum, zbieżność, parametry" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">1. Mrówki biją losowe, lokalne przeszukiwanie wyrównuje</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="/_blob/3395c0c825f61055a7daeaffef9b20fc" alt="Oszczędność dla ośmiu wariantów, po jednym punkcie na uruchomienie: z lokalnym przeszukiwaniem MMAS, ACS i losowe po 11,6 %, zachłanny 11,3 %; bez niego MMAS 11,4 %, ACS 11,4 %, zachłanny 11,3 %, losowe 9,7 %" style="width:1080px;height:560px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:32px;line-height:1.4"><b>Bez LS</b>: MMAS 11,42 %, ACS 11,36 %, zachłanny 11,25 %, losowe 9,68 %</p>
+<p style="font-size:32px;line-height:1.4">MMAS &gt; losowe: A₁₂ = 1,00. MMAS vs ACS: <b>nieistotnie</b> (p = 0,08)</p>
+<p style="font-size:32px;line-height:1.4"><b>Z LS</b>: MMAS, ACS i losowe dają tę samą linię, 11,60 %</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">k = 5, 5 000 linii, 30 uruchomień; LS = lokalne przeszukiwanie. Przy k = 10 (60 000 linii): MMAS + LS 15,14 %, zachłanny + LS 14,85 %.</p>
+<aside>Bez lokalnego przeszukiwania obie kolonie są wyraźnie lepsze od losowego przeszukiwania przy każdym z 30 uruchomień: mrówki uczą się struktury problemu. MMAS bije też metodę zachłanną we wszystkich 30 przebiegach. Różnica między MMAS a ACS jest nieistotna po korekcie. Z lokalnym przeszukiwaniem wszystkie metody losowe dochodzą do tej samej linii; zachłanny z LS zostaje w swoim lokalnym optimum. Wniosek wprost: o jakości decyduje lokalne przeszukiwanie, a strategia, która dostarcza mu punkty startowe, ma znaczenie drugorzędne. To zgodne ze Stützle i Hoos 2000. Przy 10 stacjach i 60 tysiącach linii wynik jest taki sam: trzy warianty z LS remisują, każdy bije zachłanny.</aside>
+</section>

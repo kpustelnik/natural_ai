@@ -183,6 +183,13 @@ class _Builder:
         self.edge(in_key, top, "link", 0.0)
         platform = self.node(f"{self.bid}:platform", "platform", local, -depth)
         drop = elevation + depth
+        if elevation != 0:  # the objective (instance.py) counts a drop of depth exactly
+            self.issue(
+                "Network: metro shaft not at ground level",
+                f"{self.bid}: shaft entrance at {elevation:+.1f} m, so the shaft is {drop:.1f} m; "
+                "the objective assumes station_depth_m",
+                local, elevation,
+            )  # fmt: skip
         self.edge(
             top, platform, "shaft", math.hypot(drop / STAIR_SLOPE, drop),
             times=(drop / self.tm.down_mps, drop / self.tm.up_mps),

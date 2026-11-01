@@ -33,15 +33,16 @@ the code disagree, the code wins and this document has a bug.
 ## 1. Pipeline and ownership
 
 ```
- hand-written (git)                    generated (data/processed, gitignored)
- ─────────────────                     ──────────────────────────────────────
+ hand-written (git)                    generated (data/processed; in git,
+ ─────────────────                     except fake/)
+                                       ──────────────────────────────────────
                        01_fetch_usos (USOS API + USOSweb, public)
  usos_room_map.csv ──────────────────► usos/timetable.csv, groups.csv, rooms.csv,
                                        cohorts.csv, group_cohorts.csv
                        01_fetch_transit (GTFS ZTP Kraków)
                      ────────────────► transit/stops.csv, rides.csv (──► campus.yaml stops)
                                               │
- OSM (raw/osm/cache) ── 02_build_campus ──► osm/campus.gpkg, report.md, issues.json, preview.html
+ OSM (raw/osm/*.osm) ── 02_build_campus ──► osm/campus.gpkg, report.md, issues.json, preview.html
                           --bootstrap ──────► buildings/*.yaml (LOD1, new files only)
  buildings/*.yaml ──┐                         │
  campus.yaml ───────┼── 02_build_campus ──► network/nodes.parquet, edges.parquet
@@ -51,7 +52,7 @@ the code disagree, the code wins and this document has a bug.
  usos/*, campus dorms + stops,          enrollments.parquet
  network/nodes.parquet                  demand/legs.parquet, od.parquet, migrations.csv
                                               │
-                       (end of 03)            ▼
+                       load_or_build (04)     ▼
                                        instance/instance.npz ◄── network + od
                                               │
                        04_optimize            ▼
@@ -67,9 +68,9 @@ the code disagree, the code wins and this document has a bug.
                                        web/public/data/  (scene, glb, network, issues, replays/<id>/…)
 ```
 
-Paths of generated files are relative to `paths.processed` (`data/processed`), or to
-`paths.sample` when a script runs with `--sample`. Hand-written campus data lives in
-`paths.campus` (`data/campus`, sample: `data/sample/campus`).
+Paths of generated files are relative to `paths.processed` (`data/processed`), also with
+`--sample`: that flag only swaps the hand-written campus for `data/sample/campus` (no script
+writes under `paths.sample`). Hand-written campus data lives in `paths.campus` (`data/campus`).
 
 | Contract | Code | Written by | Read by |
 |---|---|---|---|
@@ -83,7 +84,7 @@ Paths of generated files are relative to `paths.processed` (`data/processed`), o
 | `demand/legs.parquet`, `od.parquet` | `tables.LEGS`, `OD` | person 1 | network (instance), simulation |
 | `demand/migrations.csv` | `tables.MIGRATIONS` | person 1 | notebooks, report |
 | `network/*.parquet` | `tables.GRAPH_NODES`, `GRAPH_EDGES` | person 2 | instance, simulation, export |
-| `instance/instance.npz` | `schemas.instance.Instance` | person 2 | aco, baselines, tests |
+| `instance/instance.npz` | `schemas.instance.Instance` | `network/instance.py` (built by `04_optimize.py`, `run_experiments.py`) | aco, experiments, tests |
 | `results/<run_id>/*`, `best_line.json` | `schemas.results`, `tables.CONVERGENCE` | person 3 | experiments, simulation, export |
 | `results/runs.csv` | `tables.RUNS` | person 5 (`run_experiments.py`) | notebooks |
 | `simulation/**` | `tables.SIM_LEGS`, `METRO_SCHEDULE` | person 4 | export, notebooks |
@@ -106,7 +107,8 @@ Metres and seconds everywhere, no minutes. Name suffixes carry the unit:
 | `t`, `*_t` (web only) | seconds since 00:00 of that weekday | `t_start` |
 
 `timetable.csv` is the only file using `HH:MM` strings, because people check it by hand.
-`weekday` is always `1` (Monday) … `5` (Friday).
+`weekday` is `1` (Monday) … `7` (Sunday); the modelled week (`timetable.csv`, legs, simulation)
+uses only `1` … `5`.
 
 ### Identifiers
 
@@ -265,7 +267,8 @@ entrances:
 - The **main entrance** is the one with `metro_shaft: true`; if there is none, it's the
   first one listed. The endpoint key `D-17` resolves to it.
 - `metro_shaft: true` marks a **candidate station**. The station lies `metro.station_depth_m`
-  under that entrance, reached by one more flight of stairs (the shaft). At most one per
+  under the ground at that entrance, reached by one more flight of stairs (the shaft; an
+  entrance off the ground level is reported, as the objective assumes that depth). At most one per
   building. `metro.candidates` in config can narrow the set further.
 - An entrance links to the nearest OSM walk node, unless `osm_node` forces a specific one.
 
@@ -308,7 +311,7 @@ extra_paths:       # outdoor walkways missing in OSM; ends snap to the nearest w
   - { id: shortcut, path: [[19.9131, 50.0681], [19.9140, 50.0676]] }
 removed_ways:      # OSM ways students cannot use
   - { osm_way_id: 123456789, reason: gate closed }
-stops:             # where commuting students arrive (3 stops)
+stops:             # where commuting students arrive
   - { id: "stop:czarnowiejska", name: Czarnowiejska, location: [19.9172, 50.0665], weight: 2 }
 ```
 
@@ -376,8 +379,9 @@ One row per **weekly meeting slot** of a class group.
 
 Only slots matching `demand.week_parity` (or `all`) enter the modelled week. Parity comes from
 the group's frequency text ("każdy wtorek" → `all`, "co drugi wtorek (nieparzyste)" → `odd`).
-Weekend meetings, one-off and monthly ones, and meetings in buildings the campus does not
-model are dropped; "wielokrotnie" (several dates) is kept as `all` when the crawled week has it.
+Weekend meetings and meetings in buildings the campus does not model are dropped. Lines that
+are not weekly (several dates, once, monthly, unknown) are kept as `all` only when the crawled
+week has them, else dropped.
 
 ### 4.2 `usos/groups.csv`: `tables.GROUPS`
 
@@ -449,7 +453,8 @@ boards (section 9).
 
 ### 5.1 `population/students.parquet`: `tables.STUDENTS`
 
-Synthetic students, `population.n_students` in total (20 000).
+Synthetic students, `population.n_students` in total (`auto`: the sum of the USOS cohorts,
+currently 22 571).
 
 | column | type | note |
 |---|---|---|
@@ -530,8 +535,8 @@ the student migrations between buildings; `median_break_s` is the time they have
 ### 6.1 `osm/campus.gpkg`: `tables.OSM_*`
 
 Written by `scripts/02_build_campus.py` from one Overpass query for features and one for the
-walk network over `campus.bbox`. Raw responses are cached in `data/raw/osm/cache`
-(`--refresh` downloads again). One GeoPackage, **all layers in EPSG:2180**; open it in
+walk network over `campus.bbox`. Raw responses are cached as `data/raw/osm/features.osm` and
+`walk.osm` (`--refresh` downloads again). One GeoPackage, **all layers in EPSG:2180**; open it in
 QGIS to inspect, or open `osm/preview.html` in a browser. `osm/report.md` lists everything a
 human should check. `osm/issues.json` (`schemas.web.IssueList`) holds the same issues with
 `building_id` / `osm_id`, for the viewer's issues panel (section 10.8).
@@ -620,9 +625,9 @@ Node `key` format, so people can refer to nodes across rebuilds:
 | osm | `osm:<osm id>` | `osm:2187654` |
 | corridor | `<b>:<corridor>@<at, 2 dp>` | `D-17:c0@12.50` |
 | room | `<b>/<room>` | `D-17/1.38` |
-| door | `<b>/<room>#<n>` | `D-17/1.40#1` |
+| door | `<b>/<room>#<n>`; inside an entrance `<b>:<entrance>:in` | `D-17/1.40#1`, `D-17:main:in` |
 | stairs | `<b>:<stairs>:L<level>` | `A-0:s_main:L-1` |
-| entrance | `<b>:<entrance>:in` / `:out` | `D-17:main:out` |
+| entrance | `<b>:<entrance>:out` (outside the door) | `D-17:main:out` |
 | shaft_top / platform | `<b>:shaft` / `<b>:platform` | `D-17:platform` |
 | stop | stop id | `stop:miasteczko_studenckie_agh` |
 | place (LOD1 / building endpoint) | building id | `C-2` |
@@ -699,22 +704,45 @@ and the difference between the two is reported.
 
 ## 8. Optimisation results
 
+`optimize.algorithm` picks the optimiser (`optimize.run_algorithm`); all of them read only the
+instance (section 7) and return the same result:
+
+| `algorithm` | what | `eval_budget` | `trace.npz` |
+|---|---|---|---|
+| `mmas` | MAX-MIN Ant System (`aco.*`, `aco.tau_min_ratio`) | `n_ants × n_iterations` lines | yes |
+| `acs` | Ant Colony System (`aco.*`, `aco.q0`, `aco.xi`) | `n_ants × n_iterations` lines | yes |
+| `random` | random lines | `n_ants × n_iterations` lines | no |
+| `greedy` | best pair, then the station + place that help most | evaluations it made | no |
+| `brute_force` | every distinct line (refuses more than `optimize.brute_force_max_lines`) | number of lines | no |
+
+`evaluations` counts distinct lines (a reversed line or a rotated loop is evaluated once).
+`optimize.max_evaluations` gives every stochastic algorithm the same budget of distinct lines:
+it then stops after the iteration that reaches it (a few lines over; local search checks every
+line), and `eval_budget` is that number. Without it, `eval_budget` is only the lines the ants
+build (`n_ants × n_iterations`). `optimize.local_search` polishes lines with a best-improvement
+descent (`aco/local_search.py`): MMAS, ACS and random search their iteration best, greedy its
+final line; its evaluations count too, so without a budget `evaluations` can be many times
+`eval_budget`.
+
 ### 8.1 Run directory `experiments/results/<run_id>/`
 
-`run_id` = `<experiment>-<algorithm>-k<k>-s<seed>`, e.g. `baselines-mmas-k5-s3`.
+`run_id` = `<algorithm>-k<k>-s<seed>` from `04_optimize` (e.g. `mmas-k5-s42`),
+`<experiment>-<tag>-<algorithm>-k<k>-s<seed>` from `run_experiments`, `fake-mmas-k<k>-s<seed>`
+from `06_export_web.py --fake`.
 
 **`run.json`**: `schemas.results.RunMeta`: provenance, experiment, algorithm, instance path +
 hash, seed, `params` (exactly what was used), eval budget, evaluations, wall time, and the
 `best` line.
 
-**`convergence.csv`**: `tables.CONVERGENCE`, one row per iteration:
+**`convergence.csv`**: `tables.CONVERGENCE`, one row per iteration (greedy: per added station;
+brute force: per 1 % of the lines):
 
 `iteration, evaluations, best_s, iter_best_s, iter_mean_s, tau_min, tau_max, pheromone_entropy`
 
 The pheromone columns are null for the baselines; `evaluations` is cumulative, so curves of
 different algorithms are compared at equal budget.
 
-**`trace.npz`**: `schemas.results.AcoTrace`, ACO only. Sampled every `aco.trace.every`
+**`trace.npz`**: `schemas.results.AcoTrace`, MMAS and ACS only. Sampled every `aco.trace.every`
 iterations, at most `aco.trace.max_ants` ants. The same file feeds the analysis notebooks
 and the web animation.
 
@@ -729,12 +757,16 @@ and the web animation.
 
 ### 8.2 `experiments/results/runs.csv`: `tables.RUNS`
 
-One row per run, appended by `run_experiments.py`. It's the input for the boxplots, the
-Wilcoxon tests and the gap-to-optimum table:
+One row per run, appended by `run_experiments.py`. It's the input for the algorithm
+comparison (`plot_experiments.py`: per-seed savings, Wilcoxon tests against the first variant, MMAS +
+local search) and the
+gap-to-optimum table:
 
 `run_id, experiment, algorithm, topology, k, n_candidates, seed, eval_budget, evaluations,
 evaluations_to_best, best_s, baseline_s, optimum_s, wall_time_s, stations ('|'-joined),
 params_json`
+
+`optimum_s` is set on brute-force rows (their `best_s`), null otherwise.
 
 ### 8.3 `experiments/results/best_line.json`: `schemas.results.BestLine`
 
@@ -743,7 +775,7 @@ The line used by simulation and export.
 ```json
 {
   "provenance": { "schema_version": 1, "generated_at": "…", "generator": "04_optimize.py" },
-  "run_id": "main-mmas-k5-s42",
+  "run_id": "mmas-k5-s42",
   "topology": "line",
   "stations": ["D-17", "C-2", "B-1", "A-0", "U-2"],
   "objective_s": 7407402.0,
@@ -751,6 +783,16 @@ The line used by simulation and export.
   "lower_bound_s": 5120000.0
 }
 ```
+
+`lower_bound_s` (`aco.objective.teleport_bound`): the objective if the train took 0 s and
+every OD pair had its two best different candidates as stations (shafts and wait still
+counted). No line of any k beats it: `baseline_s ≥ objective_s ≥ lower_bound_s`.
+
+An experiment (`run_experiments.py`) shares one instance between its jobs, so a job may vary
+`metro.*` (k, speed, dwell, headway, topology, a `candidates` list: a subset of the
+instance's columns), `aco.*` and `optimize.*`, but not keys the arrays are computed from
+(`time_model`, `demand`, `population`, `simulation.transit`, `metro.station_depth_m`): those
+are refused (`experiments.check_overrides`).
 
 ---
 
@@ -775,7 +817,10 @@ These are train runs between `metro.service.start` and `end`, every `metro.headw
 web viewer animates trains from the same data. `metro_agh.simulation.schedule.build_schedule`
 writes it from the line and the config: straight tunnels at `speed_mps`, `dwell_s` at every
 intermediate station, runs in both directions; a train finishing a run takes the next one
-leaving from that station, so `train_id` counts the trains a day needs.
+leaving from that station, so `train_id` counts the trains a day needs. A loop runs
+continuously: a train back at station 0 leaves on its next round after `dwell_s`, so its
+runs are one round + dwell apart divided by the trains (never more than `headway_s`), and a
+rider passing station 0 stays on board, as the objective (section 7) assumes.
 
 ### 9.2 `simulation/<scenario>/legs.parquet`: `tables.SIM_LEGS`
 
@@ -953,7 +998,8 @@ One root `ground` node with children identified by `extras.layer`:
 - `ground`: the bbox plate, at y = 0.
 - `paths:road`, `paths:footway`, `paths:steps`: walk edges buffered into ribbons (5, 2 and
   2.2 m wide), unioned per class.
-- `boundary:<kind>`: the campus and Miasteczko outlines, as lines.
+- `boundary` (node name `boundary:<kind>`, extras `kind`, `name`): the campus and Miasteczko
+  outlines, as lines.
 - `fences`: fences and walls, as lines.
 
 ### 10.6 Metro, ACO trace, trips and stats (inside replays)
@@ -986,7 +1032,7 @@ itself; no per-frame train data is stored.
   `new Float32Array(bin, v.offset, v.count)`.
 - `count` is in elements; `shape` is the logical shape, and its product equals `count`.
 
-**Student trips `replays/<id>/trips/<scenario>/…`.** 20 000 students × 5 days won't fit as
+**Student trips `replays/<id>/trips/<scenario>/…`.** ~20 000 students × 5 days won't fit as
 one-polyline-per-trip, but most students on the same room-to-room leg walk the same path.
 Paths are therefore stored once and referenced by time-shifted segments.
 
@@ -1010,9 +1056,9 @@ by all days:
 | `t_start` | float32 (S) | seconds since 00:00 of that day |
 
 - A walking leg is one segment.
-- A metro leg has three: the walk to the platform, the ride, and the walk out. Between
-  segments of one leg the student stands at the end of the previous path (waiting on the
-  platform).
+- A metro or bus / tram leg has three: the walk to the platform / stop, the ride, and the
+  walk out. Between segments of one leg the student stands at the end of the previous path
+  (waiting).
 - Between legs the student is in class and is not drawn.
 - The student position at time `t` is the path interpolated at `t − t_start`.
 
@@ -1047,7 +1093,7 @@ replays. It is only for developing the viewer.
   longer_than_break_share, metro_share, transit_share` (bus / tram).
 - `saving_s`: total no_metro − total metro.
 - `per_hour[{weekday, hour, n_legs, no_metro_s, metro_s}]`: the time-of-day chart; a leg
-  counts in the hour it leaves in when walking (`no_metro` `depart_wt`), and `*_s` sum the
+  counts in the hour it leaves in without the metro (walk, bus or tram: `no_metro` `depart_wt`), and `*_s` sum the
   door-to-door times (`arrive_wt − depart_wt`, waiting included).
 - `stations[{building_id, boardings, alightings}]`.
 - `top_od[{from_key, to_key, n_legs, saving_s}]`: the 50 largest savings.
@@ -1067,7 +1113,7 @@ and for the route tool:
 | `edge_kind` | uint8 (E) | index into `edge_kind_names`: `footway`, `road`, `steps` for outdoor edges, else the `GRAPH_EDGES` kind |
 | `length_m` | float32 (E) | edge length |
 | `time_uv_s`, `time_vu_s` | float32 (E) | walking time u → v and v → u |
-| `segment_xyz` | float32 (S, 2, 3) | the edges' real polylines as segments, in edge order, for drawing |
+| `segment_xyz` | float32 (S, 2, 3) | the edges' real polylines as segments, in edge order, each edge from its node u to v |
 | `segment_edge` | uint32 (S) | edge index of each segment |
 
 The header also carries `node_keys` (per node, e.g. `osm:123`, `D-17/1.38`; OSM ids exceed
@@ -1178,8 +1224,9 @@ match `NetworkHeader` / the polylines the viewer draws.
 - **Students in several course groups** (a base cohort and an elective pool) are modelled in one
   cohort; two USOS course groups for the same students (`ZIP-1S_2s_PP` and `ZIP-1S_2sem_PP`)
   are two cohorts, so the total is somewhat high.
-- **Commuters' arrival**: stops are weighted by peak vehicles; the timetable of the ride itself
-  (`transit/rides.csv`) is not yet used by the simulation.
+- **Commuters' arrival**: stops are weighted by peak vehicles. Buses and trams between campus
+  stops are simulated from `transit/trips.parquet`; the ACO instance uses `transit/rides.csv`:
+  per stop pair half the median headway plus the median ride time, the best pair per OD.
 - **Elevators**: not routed in v1 (stairs only).
 - **Time-dependent closures** (gates open only at certain hours): not in v1; such ways go to
   `removed_ways` or stay open.

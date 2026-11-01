@@ -1,90 +1,260 @@
-"""Figure for the report: saving vs number of stations k, from experiments/results/runs.csv.
+"""Figures for the report, from experiments/results/runs.csv.
 
-    uv run scripts/plot_experiments.py k_sweep
+    uv run scripts/plot_experiments.py k_sweep             # saving vs number of stations k
+    uv run scripts/plot_experiments.py compare_algorithms  # one experiment, several algorithms
+    uv run scripts/plot_experiments.py aco_ablation        # one parameter at a time
 
-Writes docs/figures/<experiment>.png and <experiment>.csv (k, runs, mean / min / max saving
-in % of the no-metro objective, and the best line of the best run). One series: the mean
-over seeds as a line, the spread over seeds as a band; the gain of each extra station is
-the slope.
+Writes docs/figures/<experiment>.png and .csv (the table). Saving = % of the no-metro
+objective. Which figure follows from what the experiment's runs vary:
+
+- only ``metro.n_stations`` (k sweep): k, runs, mean / min / max saving and the best line of
+  the best run. One series: the mean over seeds as a line, the spread as a band.
+- only ``optimize.*`` (algorithms): per variant (algorithm, with or without local search)
+  the runs, mean / median / min / max saving, mean evaluations, the best line, the
+  Wilcoxon signed-rank p-value against the first variant (paired by seed), and for
+  independent samples the Mann–Whitney U p-value, its Holm correction and the effect size
+  A12 = P(first variant saves more) (``metro_agh.stats``); one dot per
+  seed, the mean as a tick. Also <experiment>_convergence.png / .csv: the mean best saving
+  so far against evaluations, MMAS vs ACS vs random, without and with local search.
+- anything else (ablation): one panel per parameter, one column per value (the base run at
+  its config value), one dot per seed.
 """
 
 import argparse
+import json
 import sys
+from pathlib import Path
 
-import matplotlib
+import numpy as np
+import pandas as pd
+from scipy.stats import wilcoxon
 
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import pandas as pd  # noqa: E402
+from metro_agh import figures as fg
+from metro_agh.config import ROOT, load_config, path
+from metro_agh.schemas.tables import CONVERGENCE, RUNS
+from metro_agh.stats import a12, effect, holm, rank_sum
 
-from metro_agh.config import ROOT, load_config, path  # noqa: E402
-from metro_agh.schemas.tables import RUNS  # noqa: E402
+NAMES = {"mmas": "MMAS", "acs": "ACS", "random": "random", "greedy": "greedy",
+         "brute_force": "brute force"}  # fmt: skip
+ORDER = [f"{a}-ls" for a in NAMES] + list(NAMES)  # with local search first
 
-# reference palette (dataviz skill): series slot 1, surface and text tokens, light mode
-SERIES = "#2a78d6"
-SURFACE = "#fcfcfb"
-TEXT = "#0b0b0b"
-TEXT_2 = "#52514e"
-GRID = "#e4e3df"
+
+def label(variant: str) -> str:
+    base = variant.removesuffix("-ls")
+    return NAMES.get(base, base) + (" + LS" if variant.endswith("-ls") else "")
+
+
+def _params(runs: pd.DataFrame) -> pd.Series:
+    return runs["params_json"].map(json.loads)
+
+
+def _dotted(d: dict, prefix: str = "") -> dict:
+    out = {}
+    for k, v in d.items():
+        out.update(_dotted(v, f"{prefix}{k}.") if isinstance(v, dict) else {f"{prefix}{k}": v})
+    return out
+
+
+def overrides(runs: pd.DataFrame) -> pd.Series:
+    """The dotted config overrides of each run's job."""
+    return _params(runs).map(lambda p: _dotted(p.get("overrides") or {}))
+
+
+def variants(runs: pd.DataFrame) -> pd.Series:
+    """The variant tag of each run, or its algorithm when the tag is ``base``."""
+    tags = _params(runs).map(lambda p: p.get("tag", "base"))
+    return tags.where(tags != "base", runs["algorithm"])
+
+
+def _saving(runs: pd.DataFrame) -> pd.DataFrame:
+    return runs.assign(saving=100 * (1 - runs["best_s"] / runs["baseline_s"]))
+
+
+# --- k sweep ---------------------------------------------------------------------------------
 
 
 def curve(runs: pd.DataFrame) -> pd.DataFrame:
-    r = runs.assign(saving=100 * (1 - runs["best_s"] / runs["baseline_s"]))
+    r = _saving(runs)
     best = r.loc[r.groupby("k")["best_s"].idxmin(), ["k", "stations"]].set_index("k")
     out = r.groupby("k")["saving"].agg(runs="size", mean="mean", min="min", max="max")
     out = out.join(best.rename(columns={"stations": "best_line"}))
     return out.round(2).reset_index()
 
 
-def plot(c: pd.DataFrame, title: str, out) -> None:
-    fig, ax = plt.subplots(figsize=(7.2, 4.2), dpi=200, facecolor=SURFACE)
-    ax.set_facecolor(SURFACE)
-    ax.fill_between(c["k"], c["min"], c["max"], color=SERIES, alpha=0.18, linewidth=0)
-    ax.plot(
-        c["k"],
-        c["mean"],
-        color=SERIES,
-        linewidth=2,
-        marker="o",
-        markersize=6,
-        markeredgecolor=SURFACE,
-        markeredgewidth=2,
-    )
-    best = c.loc[c["mean"].idxmax()]
-    for _, row in c.iterrows():  # selective labels: ends and the best k
-        if row["k"] in (c["k"].min(), c["k"].max(), best["k"]):
-            ax.annotate(
-                f"{row['mean']:.1f}%",
-                (row["k"], row["mean"]),
-                xytext=(0, 9),
-                textcoords="offset points",
-                ha="center",
-                fontsize=9,
-                color=TEXT,
-            )
+def plot_k(c: pd.DataFrame, out: Path) -> None:
+    fig, (ax,) = fg.axes()
+    best = c.loc[c["mean"].idxmax(), "k"]
+    fg.band_line(ax, c["k"], c["mean"], c["min"], c["max"],
+                 labelled=(c["k"].min(), c["k"].max(), best))  # fmt: skip
     ax.set_xticks(c["k"])
-    ax.set_xlabel("stations on the line (k)", color=TEXT_2)
-    ax.set_ylabel("saving vs no metro (% of student time)", color=TEXT_2)  # walk or bus / tram
-    ax.set_title(title, loc="left", color=TEXT, fontsize=11)
-    ax.grid(axis="y", color=GRID, linewidth=0.8)
-    ax.set_axisbelow(True)
-    for side in ("top", "right", "left"):
-        ax.spines[side].set_visible(False)
-    ax.spines["bottom"].set_color(GRID)
-    ax.tick_params(colors=TEXT_2, length=0)
     ax.set_ylim(bottom=0)
-    n = int(c["runs"].max())
-    fig.text(
-        0.01,
-        0.01,
-        f"MMAS, USOS demand; no metro = walk or bus / tram (GTFS); "
-        f"mean of {n} seeds, band = min-max",
-        fontsize=8,
-        color=TEXT_2,
+    fg.finish(ax, "Metro saving by number of stations", "stations on the line (k)", fg.SAVING)
+    fg.save(fig, out, f"USOS demand; no metro = walk or bus / tram (GTFS); "
+                      f"mean of {int(c['runs'].max())} seeds, band = min-max")  # fmt: skip
+
+
+# --- algorithms ------------------------------------------------------------------------------
+
+
+def check_budget(runs: pd.DataFrame) -> str | None:
+    """A warning when the runs do not share one budget: the randomised algorithms with
+    different ``eval_budget``, or greedy (which cannot stop halfway) using more than it."""
+    rand = runs[runs.algorithm != "greedy"]
+    budgets = set(rand["eval_budget"])
+    if len(budgets) > 1:
+        return f"different budgets: {sorted(budgets)} (stale runs? rerun the experiment)"
+    over = runs[(runs.algorithm == "greedy") & (runs.evaluations > max(budgets, default=0))]
+    if budgets and len(over):
+        return (f"greedy used {int(over.evaluations.max())} evaluations, over the budget "
+                f"{max(budgets)}: raise optimize.max_evaluations")  # fmt: skip
+    return None
+
+
+def by_algorithm(runs: pd.DataFrame) -> pd.DataFrame:
+    r = _saving(runs).assign(variant=variants(runs))
+    g = r.groupby("variant")
+    out = g["saving"].agg(runs="size", mean="mean", median="median", min="min", max="max")
+    out["evaluations"] = g["evaluations"].mean().round()
+    out["best_line"] = r.loc[g["best_s"].idxmin(), ["variant", "stations"]].set_index("variant")
+    order = [a for a in ORDER if a in out.index] + sorted(set(out.index) - set(ORDER))
+    ref_name = order[0]
+    ref = r[r.variant == ref_name].set_index("seed")["saving"]
+    p = {}
+    for name, grp in g:
+        both = pd.concat([ref, grp.set_index("seed")["saving"]], axis=1, join="inner").dropna()
+        diff = both.iloc[:, 0] - both.iloc[:, 1]
+        p[name] = wilcoxon(diff).pvalue if name != ref_name and (diff != 0).any() else np.nan
+    out[f"p_vs_{ref_name}"] = pd.Series(p)
+    # independent samples (a seed does not pair two algorithms' runs): Mann–Whitney U,
+    # Holm over the comparisons with the reference, and the effect size A12 (metro_agh.stats)
+    # a deterministic algorithm's 30 runs are one result: a single value, so no test
+    det = {"greedy", "brute_force"}
+
+    def sample(v: str) -> np.ndarray:
+        d = r[r.variant == v]
+        return d["saving"].to_numpy()[: 1 if set(d.algorithm) <= det else None]
+
+    ref_all = sample(ref_name)
+    others = [v for v in out.index if v != ref_name]
+    mw = {v: rank_sum(ref_all, sample(v)) for v in others}
+    out["p_mw"] = pd.Series(mw)
+    out["p_holm"] = pd.Series(dict(zip(others, holm([mw[v] for v in others]), strict=True)))
+    out["a12"] = pd.Series({v: a12(ref_all, sample(v)) for v in others})
+    out["effect"] = out["a12"].map(lambda a: effect(a) if pd.notna(a) else "")
+    out = out.loc[order].round({"mean": 2, "median": 2, "min": 2, "max": 2, "a12": 3})
+    return out.rename_axis("variant").reset_index()
+
+
+def plot_algorithms(t: pd.DataFrame, runs: pd.DataFrame, out: Path) -> None:
+    r = _saving(runs).assign(variant=variants(runs))
+    fig, (ax,) = fg.axes(width=max(7.2, len(t) + 1.5))
+    fg.dots(ax, [(label(v), r.loc[r.variant == v, "saving"].to_numpy()) for v in t["variant"]])
+    fg.finish(ax, "Metro saving by algorithm", ylabel=fg.SAVING)
+    k = int(runs["k"].iloc[0])
+    budget = int(runs.loc[runs.algorithm != "greedy", "eval_budget"].max())
+    fg.save(
+        fig,
+        out,
+        f"USOS demand, k = {k}; {int(t['runs'].max())} seeds, a dot per seed, "
+        f"tick = mean; {budget} lines evaluated per run; LS = local search",
     )
-    fig.tight_layout(rect=(0, 0.03, 1, 1))
-    fig.savefig(out, facecolor=SURFACE)
-    plt.close(fig)
+
+
+def convergence(runs: pd.DataFrame, results: Path, points: int = 120) -> pd.DataFrame:
+    """Mean best saving so far per variant (the colonies and random search; greedy is not
+    iterative) on a grid from the variant's earliest first evaluation count to the budget.
+    A point averages the runs that already have a line there and needs half of them, so
+    the mean can dip slightly when a later, worse run joins."""
+    r = runs.assign(variant=variants(runs))
+    r = r[r.algorithm.isin(["mmas", "acs", "random"])]
+    loaded = {}
+    for run in r.itertuples():
+        f = results / run.run_id / "convergence.csv"
+        if f.exists():
+            loaded[run.Index] = CONVERGENCE.read(f)
+    if not loaded:
+        return pd.DataFrame()
+    budget = float(r["eval_budget"].max())
+    rows = []
+    for v, g in r.groupby("variant"):
+        runs_v = [run for run in g.itertuples() if run.Index in loaded]
+        if not runs_v:
+            continue
+        # each run counts from its first best line (a local-search descent can use most of the
+        # budget first); a point needs half of the runs, so one early run does not stand alone
+        start = min(float(loaded[run.Index]["evaluations"].iloc[0]) for run in runs_v)
+        grid = np.linspace(start, budget, points)
+        curves = []
+        for run in runs_v:
+            c = loaded[run.Index]
+            saving = 100 * (1 - c["best_s"].to_numpy() / run.baseline_s)
+            n = np.searchsorted(c["evaluations"].to_numpy(), grid, side="right") - 1
+            curves.append(np.where(n >= 0, saving[np.maximum(n, 0)], np.nan))  # best so far
+        curves = np.array(curves)
+        have = (~np.isnan(curves)).sum(axis=0)
+        mean = np.nansum(curves, axis=0) / np.maximum(have, 1)
+        rows += [{"variant": v, "evaluations": e, "mean_saving": m, "runs": int(h)}
+                 for e, m, h in zip(grid, mean, have, strict=True)
+                 if h >= len(runs_v) / 2]  # fmt: skip
+    return pd.DataFrame(rows)
+
+
+def plot_convergence(c: pd.DataFrame, out: Path) -> None:
+    panels = []  # only the panels the experiment has variants for
+    for title, suffix in (("without local search", ""), ("with local search", "-ls")):
+        series = []
+        for a in ("mmas", "acs", "random"):
+            d = c[c.variant == a + suffix]
+            if len(d) > 1:
+                series.append((NAMES[a], d.evaluations.to_numpy(), d.mean_saving.to_numpy()))
+        if series:
+            panels.append((title, series))
+    if not panels:
+        return
+    fig, axs = fg.axes(len(panels), width=4.8 * len(panels) + 0.6, sharex=True)
+    for i, (ax, (title, series)) in enumerate(zip(axs, panels, strict=True)):
+        fg.lines(ax, series)
+        fg.finish(ax, title, "distinct lines evaluated", fg.SAVING if i == 0 else None)
+    fg.save(fig, out, "USOS demand; best saving so far, mean over the seeds that have one "
+                      "(at least half of them)")  # fmt: skip
+
+
+# --- one parameter at a time -------------------------------------------------------------------
+
+
+def by_parameter(runs: pd.DataFrame) -> pd.DataFrame:
+    """(parameter, value) -> savings: the runs that vary it, plus the base runs at its
+    config value (read from the run's params)."""
+    r = _saving(runs).assign(ov=overrides(runs), params=_params(runs))
+    keys = sorted({k for ov in r.ov for k in ov})
+    rows = []
+    for key in keys:
+        name = key.split(".")[-1]
+        for run in r.itertuples():
+            if run.ov and key not in run.ov:
+                continue
+            value = run.ov.get(key, run.params.get(name))
+            rows.append({"parameter": key, "value": value, "seed": run.seed,
+                         "saving": run.saving, "base": not run.ov})  # fmt: skip
+    return pd.DataFrame(rows)
+
+
+def plot_parameters(t: pd.DataFrame, out: Path) -> None:
+    keys = list(dict.fromkeys(t["parameter"]))
+    cols = min(3, len(keys))
+    fig, axs = fg.axes(len(keys), width=3.4 * cols, height=3.2 * -(-len(keys) // cols), cols=cols)
+    for ax, key in zip(axs, keys, strict=True):
+        d = t[t.parameter == key]
+        values = sorted(d["value"].unique())
+        groups = []
+        for v in values:
+            dv = d[d.value == v]
+            base = " (base)" if dv["base"].any() else ""
+            groups.append((f"{v:g}{base}", dv["saving"].to_numpy()))
+        fg.dots(ax, groups)
+        fg.finish(ax, key, ylabel=fg.SAVING if ax is axs[0] else None)
+    fg.save(fig, out, "MMAS without local search, USOS demand; one parameter changed at a time "
+                      "from the base; one dot per seed, tick = mean")  # fmt: skip
 
 
 def main() -> int:
@@ -92,18 +262,38 @@ def main() -> int:
     parser.add_argument("experiment", help="experiment name in runs.csv, e.g. k_sweep")
     args = parser.parse_args()
     cfg = load_config()
-    runs = RUNS.read(path(cfg, "results") / "runs.csv")
-    runs = runs[runs["experiment"] == args.experiment]
+    results = path(cfg, "results")
+    runs = RUNS.read(results / "runs.csv")
+    runs = runs[runs["experiment"] == args.experiment].reset_index(drop=True)
     if runs.empty:
         print(f"no runs of {args.experiment!r} in runs.csv", file=sys.stderr)
         return 1
-    c = curve(runs)
     figures = ROOT / "docs" / "figures"
     figures.mkdir(parents=True, exist_ok=True)
-    c.to_csv(figures / f"{args.experiment}.csv", index=False, lineterminator="\n")
-    plot(c, "Metro saving by number of stations", figures / f"{args.experiment}.png")
-    print(c.to_string(index=False))
-    print(f"wrote {figures / args.experiment}.png and .csv")
+    out = figures / args.experiment
+    keys = {k for ov in overrides(runs) for k in ov}
+    if keys == {"metro.n_stations"}:
+        t = curve(runs)
+        plot_k(t, out.with_suffix(".png"))
+    elif all(k.startswith("optimize.") for k in keys):
+        warning = check_budget(runs)
+        if warning:
+            print(f"WARNING: {warning}", file=sys.stderr)
+        t = by_algorithm(runs)
+        plot_algorithms(t, runs, out.with_suffix(".png"))
+        c = convergence(runs, results)
+        if len(c) and (c.groupby("variant").size() > 1).any():
+            conv = figures / f"{args.experiment}_convergence"
+            plot_convergence(c, conv.with_suffix(".png"))
+            c.round(3).to_csv(conv.with_suffix(".csv"), index=False, lineterminator="\n")
+    else:
+        t = by_parameter(runs)
+        plot_parameters(t, out.with_suffix(".png"))
+        t = t.groupby(["parameter", "value"])["saving"].agg(["size", "mean", "min", "max"])
+        t = t.round(2).reset_index()
+    t.to_csv(out.with_suffix(".csv"), index=False, lineterminator="\n")
+    print(t.to_string(index=False))
+    print(f"wrote {out}.png and .csv")
     return 0
 
 

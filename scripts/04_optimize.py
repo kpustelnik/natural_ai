@@ -1,12 +1,13 @@
-"""Stage 4: MAX-MIN Ant System — choose a k-station metro line.
+"""Stage 4: choose a k-station metro line (optimize.algorithm: MMAS, ACS or a baseline).
 
     uv run scripts/04_optimize.py
-    uv run scripts/04_optimize.py --processed data/processed/fake
+    uv run scripts/04_optimize.py --processed data/processed/fake   # after 06 --fake
     uv run scripts/04_optimize.py --instance path/to/instance.npz
 
 Reads ``instance/instance.npz`` (built from network + demand when missing or stale; k, speed,
 dwell, headway and shaft times always come from the current config),
-writes ``experiments/results/<run_id>/`` and ``experiments/results/best_line.json``.
+writes ``experiments/results/<run_id>/`` and ``experiments/results/best_line.json`` (with
+``--processed`` too: a fake run replaces the real best line).
 
 Does not export to the viewer; use ``06_export_web.py --aco`` / ``--metro`` later.
 """
@@ -20,9 +21,10 @@ from pathlib import Path
 
 import numpy as np
 
-from metro_agh.aco import run_mmas
+from metro_agh.aco.objective import teleport_bound
 from metro_agh.config import load_config, path, provenance
 from metro_agh.network.instance import load_or_build, with_config
+from metro_agh.optimize import run_algorithm
 from metro_agh.schemas.instance import Instance
 from metro_agh.schemas.results import BestLine, RunMeta
 from metro_agh.schemas.tables import CONVERGENCE
@@ -49,7 +51,7 @@ def main() -> None:
         help="rebuild instance.npz from network + demand even if it exists",
     )
     parser.add_argument("--seed", type=int, default=None, help="override config seed")
-    parser.add_argument("--config", default=None, help="experiment config overriding keys")
+    parser.add_argument("--config", default=None, help="YAML of config.yaml keys merged over it")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -67,11 +69,11 @@ def main() -> None:
         inst = load_or_build(processed, cfg, inst_path, rebuild=args.rebuild_instance, name=name)
 
     t0 = time.perf_counter()
-    result = run_mmas(inst, cfg, rng=np.random.default_rng(int(cfg["seed"])))
+    result = run_algorithm(inst, cfg, rng=np.random.default_rng(int(cfg["seed"])))
     wall = time.perf_counter() - t0
 
     stations = [str(inst.candidate_ids[i]) for i in result.best_line]
-    run_id = f"{result.params['variant']}-k{inst.meta.k}-s{cfg['seed']}"
+    run_id = f"{result.algorithm}-k{inst.meta.k}-s{cfg['seed']}"
     results_dir = path(cfg, "results")
     run_dir = results_dir / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -84,24 +86,26 @@ def main() -> None:
         stations=stations,
         objective_s=round(result.best_cost, 1),
         baseline_s=round(result.objective.baseline, 1),
+        lower_bound_s=round(teleport_bound(inst), 1),
     )
     meta = RunMeta(
         provenance=prov,
         run_id=run_id,
         experiment="default",
-        algorithm="mmas",
+        algorithm=result.algorithm,
         instance=str(inst_path.as_posix()),
         instance_hash=inst.meta.source_hash or "",
         seed=int(cfg["seed"]),
         params=result.params,
-        eval_budget=int(result.params["n_ants"]) * int(result.params["n_iterations"]),
+        eval_budget=result.eval_budget,
         evaluations=max(1, result.objective.evaluations),
         wall_time_s=round(wall, 2),
         best=best,
     )
     (run_dir / "run.json").write_text(meta.model_dump_json(indent=2), encoding="utf-8")
     CONVERGENCE.write(result.convergence, run_dir / "convergence.csv")
-    result.trace.save(run_dir / "trace.npz")
+    if result.trace is not None:
+        result.trace.save(run_dir / "trace.npz")
     (results_dir / "best_line.json").write_text(best.model_dump_json(indent=2), encoding="utf-8")
 
     saving = 100 * (1 - result.best_cost / result.objective.baseline)

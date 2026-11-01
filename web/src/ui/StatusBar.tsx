@@ -59,7 +59,7 @@ export function StatusBar({ scene }: { scene: Scene }) {
       {hint && <span className="status-item muted">{hint}</span>}
       {cursor && <span className="status-item mono">{lonLat(...webToGeo(scene.frame, cursor))}</span>}
       {local && <span className="status-item mono">{local}</span>}
-      <button className="status-item status-button" onClick={() => app.set({ help: true })} title="Keyboard shortcuts">
+      <button className="status-item status-button clickable" onClick={() => app.set({ help: true })} title="Keyboard shortcuts">
         <kbd>?</kbd> shortcuts
       </button>
     </footer>

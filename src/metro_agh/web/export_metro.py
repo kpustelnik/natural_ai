@@ -30,7 +30,7 @@ from ..schemas.web import (
     Scene,
     TrainRun,
 )
-from ..simulation.schedule import DAY_S, build_schedule
+from ..simulation.schedule import DAY_S, build_schedule, station_order
 from .binary import write_binary
 from .export_campus import GENERATOR, _vec3
 
@@ -209,16 +209,26 @@ def export_best_line(
     changed: list[str],
     schedule_file: Path | None = None,
     note: str | None = None,
+    strict: bool = False,
 ) -> Replay:
     """The chosen line -> replays/sim-<run_id>/ with metro.json. Students (trips, stats)
-    are added by the simulation export; files it wrote before are kept."""
+    are added by the simulation export; files it wrote before are kept while the line is
+    the same. ``strict`` (the simulation export): a schedule of another line is an error,
+    since the simulated legs ride it, not a reason to build a timetable from the config."""
     out_dir = Path(out_dir)
     line: BestLine = load_json(BestLine, best_line)
     scene = load_scene(out_dir)
     schedule = None
     if schedule_file is not None and Path(schedule_file).exists():
         schedule = METRO_SCHEDULE.read(schedule_file)
-        if set(schedule.station) != set(line.stations):
+        ahead = schedule[schedule.direction == 1]
+        first = ahead[ahead.run_id == ahead.run_id.min()].sort_values("stop_seq")
+        order = station_order(len(line.stations), line.topology, 1)
+        if first.station.tolist() != [line.stations[i] for i in order]:
+            if strict:
+                raise ValueError(
+                    f"{schedule_file} is for another line than {best_line}: rerun 05_simulate.py"
+                )
             log.warning(
                 "%s is for another line: building a timetable from the config", schedule_file
             )
@@ -230,6 +240,8 @@ def export_best_line(
 
     old_file = out_dir / rel_dir / "replay.json"
     old = Replay.model_validate_json(old_file.read_text("utf-8")) if old_file.exists() else None
+    if old and (old.stations != line.stations or old.topology != line.topology):
+        old = None  # same run id, another line (04_optimize again): its students do not apply
     replay = Replay(
         id=rid,
         kind="simulation",

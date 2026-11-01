@@ -6,6 +6,8 @@ Polls modification times (no extra dependency, works the same on every OS):
   (their glb + json, then scene.json, issues.json and status.json);
 - ``campus.yaml``, ``campus.gpkg`` or the OSM ``issues.json`` changed -> full export.
 
+Both rewrite network.json, so ``demand.json`` (edge indices) is exported again afterwards.
+
 A change is handled once the files stop changing for one poll interval, because editors
 often write a file in several steps.
 """
@@ -16,6 +18,7 @@ import time
 from pathlib import Path
 
 from .export_campus import CampusExport
+from .export_demand import refresh_demand
 
 log = logging.getLogger(__name__)
 
@@ -38,6 +41,7 @@ def watch(ex: CampusExport, interval_s: float = 0.3, max_runs: int | None = None
     """Run a full export, then rebuild on every change until interrupted.
     ``max_runs`` (tests) stops after that many rebuilds."""
     ex.full()
+    refresh_demand(ex.cfg, ex.out_dir)
     buildings, others = _sources(ex)
     seen = _snapshot(buildings + others)
     log.info("watching %s (Ctrl+C to stop)", ex.campus_dir)
@@ -74,3 +78,4 @@ def watch(ex: CampusExport, interval_s: float = 0.3, max_runs: int | None = None
             where = f"{e.file}:{e.line}" if e.line else e.file
             log.error("%s: %s%s", where, f"{e.loc}: " if e.loc else "", e.message)
         log.info("status.json version %d", status.version)
+        refresh_demand(ex.cfg, ex.out_dir)  # after the building: its view refreshes first

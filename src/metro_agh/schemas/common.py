@@ -29,7 +29,6 @@ BuildingId = Annotated[str, StringConstraints(pattern=BUILDING_ID_PATTERN)]
 RoomId = Annotated[str, StringConstraints(pattern=ROOM_ID_PATTERN)]
 StopId = Annotated[str, StringConstraints(pattern=STOP_ID_PATTERN)]
 LocalId = Annotated[str, StringConstraints(pattern=LOCAL_ID_PATTERN)]
-EndpointKey = Annotated[str, StringConstraints(pattern=ENDPOINT_KEY_PATTERN)]
 
 Weekday = Annotated[int, Field(ge=1, le=5)]  # 1 = Monday ... 5 = Friday
 LevelId = int  # 0 = ground floor, -1 = first basement, 1 = first floor
@@ -121,7 +120,7 @@ class EdgeKind(StrEnum):
     ENTRANCE = "entrance"
     PASSAGE = "passage"
     SHAFT = "shaft"  # stairs from shaft top down to the platform
-    LINK = "link"  # generated connector (stop/place to nearest OSM node)
+    LINK = "link"  # generated connector: stop/place/entrance to the walk graph, entrance to shaft
 
 
 class StrictModel(BaseModel):

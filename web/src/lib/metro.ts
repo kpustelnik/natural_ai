@@ -13,11 +13,14 @@ export interface DayRuns {
   longest: number; // longest run duration, bounds the search window
 }
 
-/** Runs of one weekday, sorted by start, for fast lookup every frame. */
+/** Runs of one weekday, sorted by start, for fast lookup every frame. On a loop a run lasts
+ *  until its train leaves on the next round (the dwell at station 0), so the train stays
+ *  drawn there instead of vanishing between rounds. */
 export function dayRuns(metro: Metro, weekday: number): DayRuns {
   const runs = metro.runs.filter((r) => r.weekday === weekday).sort((a, b) => a.stops[0].depart_t - b.stops[0].depart_t);
   const starts = new Float64Array(runs.map((r) => r.stops[0].depart_t));
-  const ends = new Float64Array(runs.map((r) => r.stops[r.stops.length - 1]!.arrive_t));
+  const layover = metro.topology === "loop" ? metro.dwell_s : 0;
+  const ends = new Float64Array(runs.map((r) => r.stops[r.stops.length - 1]!.arrive_t + layover));
   let longest = 0;
   for (let i = 0; i < runs.length; i++) longest = Math.max(longest, ends[i]! - starts[i]!);
   return { starts, ends, runs, longest };
@@ -49,9 +52,12 @@ export function trainsAt(metro: Metro, day: DayRuns, t: number): TrainState[] {
     const next = stops[Math.min(j + 1, stops.length - 1)]!;
     const prev = stops[Math.max(j - 1, 0)]!;
     if (t <= stops[j]!.depart_t || j === stops.length - 1) {
-      // dwelling: face the next station (the previous one at the end of the run)
-      const towards = j === stops.length - 1 ? metro.stations[prev.station]!.platform : metro.stations[next.station]!.platform;
-      const h = j === stops.length - 1 ? heading(towards, a) : heading(a, towards);
+      // dwelling: face the next station (at the end of a line run the previous one; a loop
+      // goes on round, towards the run's second stop)
+      const end = j === stops.length - 1;
+      const loop = metro.topology === "loop";
+      const towards = end && !loop ? metro.stations[prev.station]!.platform : metro.stations[(end ? stops[1]! : next).station]!.platform;
+      const h = end && !loop ? heading(towards, a) : heading(a, towards);
       out.push({ position: [...a], heading: h, station: stops[j]!.station });
       continue;
     }
@@ -62,8 +68,9 @@ export function trainsAt(metro: Metro, day: DayRuns, t: number): TrainState[] {
   return out;
 }
 
-function heading(a: Vec3, b: Vec3): number {
-  return Math.atan2(b[0] - a[0], b[2] - a[2]);
+/** Rotation about y that faces from ``a`` to ``b`` (web frame). */
+export function heading(a: readonly number[], b: readonly number[]): number {
+  return Math.atan2(b[0]! - a[0]!, b[2]! - a[2]!);
 }
 
 export function lerp(a: Vec3, b: Vec3, f: number): Vec3 {

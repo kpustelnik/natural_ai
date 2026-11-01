@@ -68,6 +68,32 @@ describe("trainsAt", () => {
   });
 });
 
+describe("trainsAt on a loop", () => {
+  // A -> B -> C -> A in one run, then the same train's next round 30 s (the dwell) later
+  const stops = (t: number): Metro["runs"][number]["stops"] => [
+    { station: 0, arrive_t: t, depart_t: t },
+    { station: 1, arrive_t: t + 10, depart_t: t + 40 },
+    { station: 2, arrive_t: t + 50, depart_t: t + 80 },
+    { station: 0, arrive_t: t + 94, depart_t: t + 94 },
+  ];
+  const loop: Metro = {
+    ...metro,
+    topology: "loop",
+    runs: [
+      { run_id: 0, train_id: 0, weekday: 1, direction: 1, stops: stops(1000) },
+      { run_id: 1, train_id: 0, weekday: 1, direction: 1, stops: stops(1124) },
+    ],
+  };
+  it("keeps the train at station 0 between rounds, facing on round", () => {
+    const day = dayRuns(loop, 1);
+    const between = trainsAt(loop, day, 1110); // back at A at 1094, leaves again at 1124
+    expect(between).toHaveLength(1);
+    expect(between[0]!.station).toBe(0);
+    const leaving = trainsAt(loop, day, 1124)[0]!;
+    expect(between[0]!.heading).toBeCloseTo(leaving.heading); // towards B, as it will go
+  });
+});
+
 describe("trace helpers", () => {
   it("finds the sample before an iteration", () => {
     const it = new Int32Array([0, 5, 10]);

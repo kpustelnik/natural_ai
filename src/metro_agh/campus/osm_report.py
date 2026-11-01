@@ -1,10 +1,11 @@
-"""Human-facing outputs of the OSM stage: report.md and preview.html."""
+"""Human-facing outputs of the OSM stage: report.md, issues.json and preview.html."""
 
 import datetime as dt
 import json
 from pathlib import Path
 
 import geopandas as gpd
+import pandas as pd
 
 from ..schemas.common import Provenance
 from ..schemas.web import Issue, IssueList
@@ -13,7 +14,7 @@ from .osm_process import Issues
 
 
 def _fmt(v) -> str:
-    if v is None or (isinstance(v, float) and v != v):
+    if v is None or pd.isna(v):  # also pd.NA of the Int64 columns
         return ""
     return f"{v:g}" if isinstance(v, float) else str(v)
 
@@ -136,10 +137,14 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "© OpenStreetMap contributors",
 }).addTo(map);
 
+// OSM tag values are anyone's text: escape them, Leaflet popups and tooltips take HTML
+const esc = v => String(v).replace(/[&<>"']/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
 function popup(f, layer) {
   const rows = Object.entries(f.properties)
     .filter(([, v]) => v !== null && v !== "" && v !== false)
-    .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+    .map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join("");
   layer.bindPopup(`<table>${rows}</table>`);
 }
 
@@ -154,7 +159,7 @@ const layers = {
     style: f => ({ color: style[f.properties.category], weight: 1,
                    fillOpacity: f.properties.category === "context" ? 0.25 : 0.55 }),
     onEachFeature: (f, l) => { popup(f, l); if (f.properties.building_id)
-      l.bindTooltip(f.properties.building_id, { permanent: false }); } }),
+      l.bindTooltip(esc(f.properties.building_id), { permanent: false }); } }),
   "Fences": L.geoJSON(data.fences, { style: { color: "#7a4b00", weight: 1.5 }, onEachFeature: popup }),
   "Barriers": L.geoJSON(data.barriers, {
     pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 3, color: "#7a4b00", fillOpacity: 1 }),
@@ -167,7 +172,7 @@ const layers = {
   "Stops": L.geoJSON(data.stops, {
     pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 8, color: "#fff", weight: 2,
       fillColor: "#1c7ed6", fillOpacity: 1 }),
-    onEachFeature: (f, l) => { popup(f, l); l.bindTooltip(f.properties.name); } }),
+    onEachFeature: (f, l) => { popup(f, l); l.bindTooltip(esc(f.properties.name)); } }),
 };
 Object.values(layers).forEach(l => l.addTo(map));
 L.control.layers(null, layers, { collapsed: false }).addTo(map);

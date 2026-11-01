@@ -5,26 +5,28 @@ Writes, following the real contracts (sections 7 and 8), into ``data/processed/f
 
     results/<run_id>/run.json, convergence.csv, trace.npz
     results/best_line.json
+    network/, population/students.parquet, demand/legs.parquet + od.parquet, simulation/
 
-which the normal ``--aco`` / ``--metro`` exports then turn into replays. The instance is
+and the same ``--fake`` call turns them into replays. The instance is
 built from scene.json: every building with a ``metro_shaft`` entrance is a candidate, every
 building and stop an endpoint; the demand is a gravity model on straight-line distances.
-The optimiser is a compact MAX-MIN Ant System, enough to give the player a real-looking
-run: pheromone that concentrates and a best line that improves.
+The optimiser is ``aco.run_mmas`` on a short run with a weak heuristic (``weak_aco``),
+enough to give the player a real-looking run: pheromone that concentrates and a best line
+that improves.
 """
 
 import logging
-import math
 import time
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from ..aco.objective import Objective
+from ..aco import run_mmas
+from ..aco.objective import teleport_bound
 from ..config import config_hash, provenance
 from ..schemas.instance import Instance, InstanceMeta
-from ..schemas.results import AcoTrace, BestLine, RunMeta
+from ..schemas.results import BestLine, RunMeta
 from ..schemas.tables import CONVERGENCE
 from ..schemas.web import Scene
 
@@ -104,84 +106,27 @@ def fake_instance(scene: Scene, cfg: dict, rng: np.random.Generator) -> Instance
     return inst
 
 
-def mmas(inst: Instance, cfg: dict, rng: np.random.Generator):
-    """Compact MAX-MIN Ant System; returns (best line, convergence rows, trace)."""
+def weak_aco(cfg: dict) -> dict:
+    """``cfg`` with a short MMAS run and a weak heuristic, so the run takes a while to
+    converge and the player has more to show."""
     aco = cfg["aco"]
-    n, k = inst.n_candidates, inst.meta.k
     n_ants = min(int(aco["n_ants"]), 30)
-    n_iter = min(int(aco["n_iterations"]), 120)
-    every = max(1, min(int(aco["trace"]["every"]), 3))
-    max_ants = min(int(aco["trace"]["max_ants"]), n_ants)
-    # a weak heuristic, so the run takes a while to converge and the player has more to show
-    alpha, beta, rho = float(aco["alpha"]), min(float(aco["beta"]), 1.0), float(aco["rho"]) / 2
-    f = Objective(inst)
-
-    # heuristic: demand served near a candidate, divided by the distance from the previous one
-    near = np.argmin(inst.access_s, axis=1)
-    demand = np.bincount(near[inst.od_from], inst.od_weight, n) + np.bincount(
-        near[inst.od_to], inst.od_weight, n
-    )
-    demand = demand / demand.max() + 0.05
-    eta = demand[None, :] / (inst.tunnel_m + 100.0) * 100.0
-    np.fill_diagonal(eta, 0)
-
-    tau_max = 1.0 / rho
-    tau = np.full((n, n), tau_max)
-    start = np.full(n, tau_max)
-    best, best_cost = None, math.inf
-    rows, sampled = [], {"it": [], "tours": [], "cost": [], "best": [], "tau": []}
-    for it in range(n_iter):
-        tours, costs = [], []
-        for _ in range(n_ants):
-            p = start**alpha * demand**beta
-            line = [int(rng.choice(n, p=p / p.sum()))]
-            while len(line) < k:
-                w = tau[line[-1]] ** alpha * eta[line[-1]] ** beta
-                w[line] = 0
-                line.append(int(rng.choice(n, p=w / w.sum())))
-            tours.append(line)
-            costs.append(f(line))
-        ib = int(np.argmin(costs))
-        if costs[ib] < best_cost:
-            best, best_cost = tours[ib], costs[ib]
-        # MMAS: evaporate, deposit by the iteration best (every 3rd time the global best)
-        dep_line, dep_cost = (best, best_cost) if it % 3 == 2 else (tours[ib], costs[ib])
-        tau_max = 1.0 / (rho * best_cost / f.baseline)
-        tau_min = tau_max * float(aco["tau_min_ratio"])
-        tau *= 1 - rho
-        start *= 1 - rho
-        q = f.baseline / dep_cost
-        for a, b in zip(dep_line, dep_line[1:], strict=False):
-            tau[a, b] += q
-            tau[b, a] += q
-        start[dep_line[0]] += q
-        start[dep_line[-1]] += q
-        np.clip(tau, tau_min, tau_max, out=tau)
-        np.clip(start, tau_min, tau_max, out=start)
-        upper = tau[np.triu_indices(n, 1)]
-        pr = upper / upper.sum()
-        entropy = float(-(pr * np.log(pr)).sum() / math.log(len(pr)))
-        rows.append(
-            (it, f.evaluations, best_cost, costs[ib], float(np.mean(costs)), tau_min, tau_max,
-             entropy)
-        )  # fmt: skip
-        if it % every == 0 or it == n_iter - 1:
-            sampled["it"].append(it)
-            sampled["tours"].append(tours[:max_ants])
-            sampled["cost"].append(costs[:max_ants])
-            sampled["best"].append(list(best))
-            sampled["tau"].append(tau.copy())
-    trace = AcoTrace(
-        iterations=np.array(sampled["it"], np.int32),
-        tours=np.array(sampled["tours"], np.int16),
-        tour_cost_s=np.array(sampled["cost"], np.float32),
-        best_tour=np.array(sampled["best"], np.int16),
-        pheromone=np.array(sampled["tau"], np.float32),
-        candidate_ids=inst.candidate_ids,
-    )
-    conv = pd.DataFrame(rows, columns=CONVERGENCE.column_names)
-    params = {"n_ants": n_ants, "n_iterations": n_iter, "alpha": alpha, "beta": beta, "rho": rho}
-    return best, best_cost, f, conv, trace, params
+    return {
+        **cfg,
+        # no local search, no budget: the ants alone, every iteration
+        "optimize": {**cfg.get("optimize", {}), "local_search": False, "max_evaluations": None},
+        "aco": {
+            **aco,
+            "n_ants": n_ants,
+            "n_iterations": min(int(aco["n_iterations"]), 120),
+            "beta": min(float(aco["beta"]), 1.0),
+            "rho": float(aco["rho"]) / 2,
+            "trace": {
+                "every": max(1, min(int(aco["trace"]["every"]), 3)),
+                "max_ants": min(int(aco["trace"]["max_ants"]), n_ants),
+            },
+        },
+    }
 
 
 def write_fake_results(scene: Scene, cfg: dict, out_root: Path, seed: int = 42) -> Path:
@@ -189,7 +134,8 @@ def write_fake_results(scene: Scene, cfg: dict, out_root: Path, seed: int = 42) 
     t0 = time.perf_counter()
     rng = np.random.default_rng(seed)
     inst = fake_instance(scene, cfg, rng)
-    best, cost, f, conv, trace, params = mmas(inst, cfg, rng)
+    result = run_mmas(inst, weak_aco(cfg), rng)
+    best, cost, f, params = result.best_line, result.best_cost, result.objective, result.params
     run_id = f"fake-mmas-k{inst.meta.k}-s{seed}"
     run_dir = Path(out_root) / "results" / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -201,6 +147,7 @@ def write_fake_results(scene: Scene, cfg: dict, out_root: Path, seed: int = 42) 
         stations=[str(inst.candidate_ids[i]) for i in best],
         objective_s=round(cost, 1),
         baseline_s=round(f.baseline, 1),
+        lower_bound_s=round(teleport_bound(inst), 1),
     )
     meta = RunMeta(
         provenance=prov,
@@ -217,8 +164,8 @@ def write_fake_results(scene: Scene, cfg: dict, out_root: Path, seed: int = 42) 
         best=line,
     )
     (run_dir / "run.json").write_text(meta.model_dump_json(indent=2), encoding="utf-8")
-    CONVERGENCE.write(conv, run_dir / "convergence.csv")
-    trace.save(run_dir / "trace.npz")
+    CONVERGENCE.write(result.convergence, run_dir / "convergence.csv")
+    result.trace.save(run_dir / "trace.npz")
     (Path(out_root) / "results" / "best_line.json").write_text(
         line.model_dump_json(indent=2), encoding="utf-8"
     )

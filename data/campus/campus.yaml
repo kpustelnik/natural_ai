@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=../../schemas/campus.schema.json
-# Campus-level data, edited by hand. Format: docs/data_contracts.md#campusyaml
+# Campus-level data, edited by hand. Format: docs/data_contracts.md#32-campusyaml
 # Example of every section: data/sample/campus/campus.yaml
 schema_version: 1
 

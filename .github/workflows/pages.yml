@@ -1,0 +1,70 @@
+name: Pages
+
+# The project site: https://kpustelnik.github.io/natural_ai/
+# landing page, the two stage pages with their slides, the 3D viewer with real data, figures.
+# Built from what is committed: data/processed and experiments/results are in the repo.
+# One-time setup: Settings → Pages → Source: GitHub Actions.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install Python dependencies
+        run: uv sync --locked
+
+      - name: Export the viewer data
+        run: uv run scripts/06_export_web.py --campus --aco --metro --sim
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build the viewer
+        working-directory: web
+        run: |
+          npm ci
+          npm run build -- --base=./
+
+      - name: Build the slides and the site
+        run: |
+          uv run scripts/build_slides.py
+          uv run scripts/build_site.py
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

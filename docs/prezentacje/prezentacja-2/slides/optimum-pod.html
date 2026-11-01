@@ -1,0 +1,13 @@
+<section id="optimum-pod" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">2. Czy to optimum? Najpierw małe instancje</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="/_blob/6ae5177aec13fcd1ac202dce5270d11c" alt="Odsetek uruchomień, które znalazły dokładne optimum na pięciu podinstancjach po 12 kandydatów, dla wariantów z lokalnym przeszukiwaniem i bez" style="width:1080px;height:560px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:32px;line-height:1.4">Budżet: <b>3 %</b> wszystkich linii</p>
+<p style="font-size:32px;line-height:1.4"><b>Z LS</b>: optimum w 84 % (MMAS), 94 % (ACS), 88 % (losowe) uruchomień</p>
+<p style="font-size:32px;line-height:1.4"><b>Bez LS</b>: 16 %, 30 %, 4 %; zachłanny 3 z 5</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">5 podinstancji po 12 kandydatów z największym popytem, k = 4 (5 940 linii), 200 linii na uruchomienie, 10 ziaren.</p>
+<aside>Na małych instancjach można sprawdzić wszystkie linie i porównać z dokładnym optimum. Przy budżecie zaledwie 3 procent linii kolonie z lokalnym przeszukiwaniem trafiają optimum w 84 do 94 procent uruchomień. Bez lokalnego przeszukiwania zachłanny wypada tu lepiej od kolonii: 200 linii to tylko 20 do 40 iteracji, za mało, żeby feromon się czegoś nauczył, a zachłanny mieści się w budżecie w całości. Przy większym budżecie kolejność się odwraca, co widzieliśmy na poprzednim slajdzie.</aside>
+</section>

@@ -1,0 +1,58 @@
+{
+  "provenance": {
+    "schema_version": 1,
+    "generated_at": "2026-11-01T00:53:38+01:00",
+    "generator": "run_experiments.py",
+    "config_hash": "b9c449fcc7578d7b",
+    "git_commit": "c509797"
+  },
+  "run_id": "compare_algorithms-acs-acs-k5-s52",
+  "experiment": "compare_algorithms",
+  "algorithm": "acs",
+  "instance": "C:/Users/kampu/Desktop/natural_ai/data/processed/instance/instance.npz",
+  "instance_hash": "8c0ccb8b16174a29",
+  "seed": 52,
+  "params": {
+    "n_ants": 20,
+    "n_iterations": 1000,
+    "alpha": 1.0,
+    "beta": 1.0,
+    "rho": 0.1,
+    "q0": 0.5,
+    "xi": 0.1,
+    "local_search": false,
+    "tau0": 0.01818181818181818,
+    "k": 5,
+    "topology": "line",
+    "n_candidates": 55,
+    "overrides": {
+      "optimize.algorithm": "acs",
+      "optimize.local_search": false
+    },
+    "tag": "acs"
+  },
+  "eval_budget": 5000,
+  "evaluations": 5011,
+  "wall_time_s": 15.45,
+  "best": {
+    "provenance": {
+      "schema_version": 1,
+      "generated_at": "2026-11-01T00:53:38+01:00",
+      "generator": "run_experiments.py",
+      "config_hash": "b9c449fcc7578d7b",
+      "git_commit": "c509797"
+    },
+    "run_id": "compare_algorithms-acs-acs-k5-s52",
+    "topology": "line",
+    "stations": [
+      "D-10",
+      "B-1",
+      "U-9",
+      "H-D8",
+      "A-0"
+    ],
+    "objective_s": 136062476.3,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
+  }
+}

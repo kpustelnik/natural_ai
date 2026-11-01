@@ -1,0 +1,14 @@
+<section id="heurystyka" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Klasyczna podpowiedź z TSP tu szkodzi</h2>
+<div style="display:flex;gap:48px;flex:1;align-items:center">
+<img src="/_blob/2e1b0eda4010b886a8a730e22ffa2a21" alt="Oszczędność MMAS z czterema heurystykami: nasza 11,4 %, klasyczna 1 przez odległość 11,0 %, sam popyt 11,5 %, brak 11,4 %" style="width:960px;height:560px;object-fit:contain;background:#FCFCFB;border:1px solid #D9DCD6;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:32px;line-height:1.4"><b>1 / odległość</b> (klasyczna): 10,98 %, gorzej nawet niż bez podpowiedzi (p = 0,001)</p>
+<p style="font-size:32px;line-height:1.4"><b>Nasza</b> (popyt / odległość): 11,43 %</p>
+<p style="font-size:32px;line-height:1.4"><b>Sam popyt</b>: 11,52 %, najlepszy</p>
+<p style="font-size:32px;line-height:1.4;color:#4A5260">Dobre linie mają długie przeskoki: „blisko” myli mrówki.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">MMAS bez LS, k = 5, 5 000 linii, 20 ziaren. Odpowiednik porównania „zmodyfikowane vs klasyczne ACO” (Korzeń, Kruszyna 2025).</p>
+<aside>Korzeń i Kruszyna w 2025 porównali swoje zmodyfikowane ACO z klasycznym, w którym podpowiedzią jest sama odległość. My zrobiliśmy to samo z naszą heurystyką. Klasyczna podpowiedź odległości, jak w problemie komiwojażera, szkodzi: wynik 10,98 procent, gorszy nawet od braku podpowiedzi (11,37, test Manna-Whitneya p = 0,001). Pomaga składnik popytu: sam popyt daje 11,52 procent, nasza heurystyka łącząca popyt i odległość 11,43. Powód: dobre linie mają długie przeskoki między stacjami, więc podpowiedź wybierania bliskich stacji prowadzi mrówki w złą stronę.</aside>
+</section>

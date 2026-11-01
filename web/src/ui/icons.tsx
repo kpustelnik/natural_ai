@@ -31,12 +31,6 @@ export const IconSearch = icon(
     <path d="m20 20-3.5-3.5" />
   </>,
 );
-export const IconLayers = icon(
-  <>
-    <path d="m12 3 9 5-9 5-9-5 9-5Z" />
-    <path d="m3 13 9 5 9-5" />
-  </>,
-);
 export const IconInfo = icon(
   <>
     <circle cx="12" cy="12" r="9" />
@@ -103,12 +97,6 @@ export const IconPanelRight = icon(
     <path d="M15 4v16" />
   </>,
 );
-export const IconBuilding = icon(
-  <>
-    <path d="M4 21V5l8-2v18M12 7l8 2v12M3 21h18" />
-    <path d="M7 8h2M7 12h2M7 16h2M15 12h2M15 16h2" />
-  </>,
-);
 export const IconWalk = icon(
   <>
     <circle cx="13" cy="4.5" r="1.8" />
@@ -122,7 +110,6 @@ export const IconRuler = icon(
   </>,
 );
 export const IconUp = icon(<path d="m6 15 6-6 6 6" />);
-export const IconDown = icon(<path d="m6 9 6 6 6-6" />);
 export const IconEnter = icon(
   <>
     <path d="M10 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8" />

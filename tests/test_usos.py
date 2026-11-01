@@ -9,7 +9,6 @@ from metro_agh.usos.fetch import Crawl
 from metro_agh.usos.pages import (
     CourseGroup,
     CoursePage,
-    cohort_of,
     parity_of,
     parse_course,
     parse_room_week,
@@ -62,12 +61,12 @@ def test_course_page():
     assert c.faculty == "240-000"
     assert [g.code for g in c.groups] == ["240-INF-1S-1R-Z", "240_INF-1S%2C7sem%2Cpo"]
     assert c.units == {"25/26-Z": [174070], "26/27-Z": [191280, 191334]}
-    assert cohort_of(c.groups[0]) == ("240-INF-1S", 1)
 
 
 def test_frequency_and_weekday_texts():
     assert parity_of("każdy wtorek") == "all"
     assert parity_of("każda środa") == "all"
+    assert parity_of("w każdą sobotę i niedzielę") == "all"
     assert parity_of("co drugi piątek (nieparzyste)") == "odd"
     assert parity_of("co druga środa (parzyste)") == "even"
     assert parity_of("wielokrotnie") is None
@@ -88,7 +87,27 @@ def test_semesters_of_course_groups():
     assert sem("ENR_1S_s5_all") == 5
     assert sem("IGR_1S_s3") == 3
     assert sem("130_APR_1S_sem3") == 3
+    assert sem("GIK-2S-GFIT,sem.2", "150-GIK-2S-GFT, (od 2023/24) sem. 2") == 2
+    assert sem("ZIP-2N, 2 sem ZJ PP", "Zarządzanie i inżynieria produkcji, ścieżka ZJ") == 2
+    assert sem("GIK-1N,2s(23/24)", "GIK-1N,2s(23/24) (od 2023/24)") == 2
+    assert sem("EOZ_1S_1s_all") == 1
+    assert sem("420-1S-s4-PO") == 4
+    assert sem("ST-EL-SEM2-WINT") == 2
+    # the programme's length is not the semester
+    assert sem("IMA-2S,1sem", "IM, stacjonarne II stopnia 4 semestralne, 1 semestr") == 1
+    assert sem("SES_2S4_s2_ALL", "SES, 4 semestry, semestr 2") == 2
     assert sem("000-INT-ENGIN", "Engineering, manufacturing and construction - Int Courses") is None
+
+
+def test_programme_keeps_the_study_level():
+    from metro_agh.usos.parse import programme_of
+
+    assert programme_of("CER-1S_1sem_PP") == "CER-1S"
+    assert programme_of("IKS_1N_s3") == "IKS_1N"
+    assert programme_of("240-INF-1S-1R-Z") == "240-INF-1S"
+    assert programme_of("ZIP-1S_1s_PP") == "ZIP-1S"  # cohort_id of "ZIP-1S,1s,PP"
+    assert programme_of("ZIP-2N_2_sem_ZJ_PP") == "ZIP-2N"
+    assert programme_of("GIK_1N_7s_23_24") == "GIK_1N"
 
 
 def test_building_ids_and_rooms():
@@ -190,6 +209,7 @@ def test_course_in_no_cohort_goes_to_a_pool():
     assert set(t.group_cohorts["cohort_id"]) == {"pool:all"}  # no 2S cohort to match
     assert study_level("440-000-2S-JA") == "2S"
     assert study_level("ELT_1S_sem_5_A") == "1S"
+    assert study_level("SES_2S4_s1_ALL") == "2S"  # 2nd cycle, 4 semesters
     assert pool_members("pool:1S", ["ELT_1S_sem_5", "240-INF-2S-1R-Z"]) == ["ELT_1S_sem_5"]
     assert pool_members("pool:all", ["a", "b"]) == ["a", "b"]
 
@@ -204,6 +224,38 @@ def test_faculty_catalogue_pages():
         ("240_INF-1S%2C7sem%2Cpo", "240_INF,stacjonarne, 1S,przedmioty obieralne"),
     ]
     assert parse_group_courses(page_) == ["240-INF-1S-007", "240-INF-1S-023"]
+    link = "<a href='kontroler.php?_action=katalog2/przedmioty/pokazPrzedmiot&prz_kod=JA-3%2F4'>"
+    assert parse_group_courses(link) == ["JA-3/4"]  # as the room plans name it
+    unit = page("unit.html").replace("kod=240-IDS-2S-248'", "kod=JA-3%2F4'")
+    assert parse_unit_groups(unit, 1).course_code == "JA-3/4"  # the same on unit pages
+
+
+def test_catalogue_follows_every_page():
+    """USOSweb lists 30 rows a page; the next page is named in the table-nav-bar, with the
+    group code decoded in the first request."""
+    from metro_agh.usos.fetch import WEB, fetch_catalogue
+
+    nav = "<table-nav-bar next-page-url='{}'>"
+    row = "<tr><td><a href='x?grupaKod={0}'>{0}</a></td><td>{0}</td></tr>"
+    course = "<a href='kontroler.php?_action=katalog2/przedmioty/pokazPrzedmiot&prz_kod={}'>"
+    pages = {
+        "fac": row.format("G-1") + nav.format(WEB + "?fac2"),
+        WEB + "?fac2": row.format("G%2C2"),
+        "G-1": course.format("C-1") + nav.format(WEB + "?g1p2&amp;x=1"),
+        WEB + "?g1p2&x=1": course.format("C-2"),
+        "G,2": course.format("C-3") + nav.format("https://elsewhere.example/?p=2"),  # not followed
+    }
+
+    class Http:
+        def text(self, kind, base, params=None):
+            key = base if params is None else params.get("grupaKod", "fac")
+            assert base == WEB or params is None
+            return pages[key]
+
+    groups, courses, faculty = fetch_catalogue(Http(), ["100-000"], progress=False)
+    assert sorted(groups) == ["G%2C2", "G-1"]
+    assert courses == {"G%2C2": ["C-3"], "G-1": ["C-1", "C-2"]}
+    assert faculty == {"G-1": "100-000", "G%2C2": "100-000"}
 
 
 def test_full_tables_cover_everything():

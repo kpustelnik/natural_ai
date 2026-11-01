@@ -4,8 +4,9 @@
 import { Box3, type BufferGeometry, type Object3D, Vector3 } from "three";
 import type { BuildingInfo, NetworkHeader, Scene } from "../generated/schemas";
 import type { Vec3 } from "../lib/frames";
-import type { Pick } from "../state/app";
+import { boxAround, type Pick } from "../state/app";
 import type { BinaryFile } from "../data/loader";
+import { networkIndex } from "../data/network";
 
 export const registry: {
   scene: Scene | null;
@@ -46,11 +47,11 @@ export function pickBox(p: Pick): { min: Vec3; max: Vec3 } | null {
     }
     case "stop": {
       const s = [...scene.stops, ...scene.other_stops].find((x) => x.id === p.id);
-      return s ? around(s.position, 60) : null;
+      return s ? boxAround(s.position, 60) : null;
     }
     case "entrance": {
       const e = scene.buildings.find((x) => x.id === p.building)?.entrances.find((x) => x.id === p.id);
-      return e ? around(e.position, 25) : null;
+      return e ? boxAround(e.position, 25) : null;
     }
     case "context": {
       const g = registry.context;
@@ -75,11 +76,10 @@ export function pickBox(p: Pick): { min: Vec3; max: Vec3 } | null {
       const n = registry.network;
       if (!n) return null;
       const seg = n.arrays.segment_xyz as Float32Array;
-      const edge = n.arrays.segment_edge as Uint32Array;
+      const { segStart } = networkIndex(n);
       const box = new Box3();
       const v = new Vector3();
-      for (let s = 0; s < edge.length; s++) {
-        if (edge[s] !== p.index) continue;
+      for (let s = segStart[p.index]!; s < segStart[p.index + 1]!; s++) {
         box.expandByPoint(v.fromArray(seg, s * 6));
         box.expandByPoint(v.fromArray(seg, s * 6 + 3));
       }
@@ -87,13 +87,9 @@ export function pickBox(p: Pick): { min: Vec3; max: Vec3 } | null {
     }
     case "barrier": {
       const b = registry.network?.header.barriers[p.index];
-      return b ? around(b.position, 25) : null;
+      return b ? boxAround(b.position, 25) : null;
     }
   }
-}
-
-function around(p: Vec3, r: number): { min: Vec3; max: Vec3 } {
-  return { min: [p[0] - r, p[1], p[2] - r], max: [p[0] + r, p[1] + r / 2, p[2] + r] };
 }
 
 /** Draw `obj` only on one half of the split view (null: on both). Returns the cleanup. */

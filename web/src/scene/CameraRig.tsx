@@ -199,10 +199,13 @@ export function CameraRig({ home }: { home: FocusRequest }) {
     };
   }, [mode, cams, dom, set, planUp]);
 
-  // framing requests: fly to the box, keeping the viewing direction
+  // framing requests: fly to the box, keeping the viewing direction. Each request once: the
+  // effect also re-runs on a mode change, which must not fly back to an old box.
+  const doneFocus = useRef(0);
   useEffect(() => {
     const c = controls.current;
-    if (!focus || !c) return;
+    if (!focus || !c || focus.seq === doneFocus.current) return;
+    doneFocus.current = focus.seq;
     const cam = mode === "plan" ? cams.ortho : cams.persp;
     const dir = cam.position.clone().sub(c.target).normalize();
     const { pos, tgt } = frameBox(focus.min, focus.max, mode === "plan" ? new Vector3(0, 1, 1e-6) : dir);
@@ -218,10 +221,13 @@ export function CameraRig({ home }: { home: FocusRequest }) {
     };
   }, [focus, mode, cams, planUp]);
 
-  // compass click: turn to north-up, keeping distance and tilt
+  // compass click: turn to north-up, keeping distance and tilt (each click once)
+  const doneNorth = useRef(0);
   useEffect(() => {
     const c = controls.current;
-    if (!northRequest || !c || mode === "plan") return;
+    if (northRequest === doneNorth.current) return;
+    doneNorth.current = northRequest;
+    if (!c || mode === "plan") return;
     const cam = cams.persp;
     const offset = cam.position.clone().sub(c.target);
     const horizontal = Math.hypot(offset.x, offset.z);

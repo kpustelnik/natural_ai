@@ -93,3 +93,24 @@ def test_line_replay_and_catalog(replays):
     cat = ReplayCatalog.model_validate_json((out / "replays/index.json").read_text("utf-8"))
     assert {aco.id, line.id} <= {r.id for r in cat.replays}
     Replay.model_validate(json.loads((out / f"replays/{line.id}/replay.json").read_text("utf-8")))
+
+
+def test_acs_run_replays_too(replays, tmp_path):
+    """The viewer's ACO replay takes any colony's trace: an ACS run exports the same way."""
+    from metro_agh.experiments import Job, save_run
+    from metro_agh.optimize import run_algorithm
+    from metro_agh.web.fake import fake_instance
+
+    out = replays[0]
+    rng = np.random.default_rng(0)
+    inst = fake_instance(load_scene(out), CFG, rng)
+    cfg = {**CFG, "optimize": {"algorithm": "acs", "local_search": True},
+           "aco": {**CFG["aco"], "n_ants": 8, "n_iterations": 6}}  # fmt: skip
+    result = run_algorithm(inst, cfg, rng)
+    meta = save_run(cfg=cfg, inst=inst, inst_path=tmp_path / "i.npz", result=result,
+                    job=Job("t", "base", 0), wall_s=0.1, results_dir=tmp_path,
+                    save_trace=True, update_best_line=False)  # fmt: skip
+    replay = export_aco_run(CFG, tmp_path / meta.run_id, out, [])
+    assert replay.title.startswith("ACS")
+    header = AcoTraceHeader.model_validate_json((out / replay.files.aco_trace).read_text("utf-8"))
+    assert header.algorithm == "acs" and header.n_iterations == 6

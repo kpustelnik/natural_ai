@@ -5,7 +5,6 @@ import math
 import numpy as np
 import pandas as pd
 import pytest
-from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import dijkstra
 from shapely.geometry import box
 
@@ -13,6 +12,7 @@ from metro_agh.campus.osm_process import build_layers
 from metro_agh.config import ROOT, load_config
 from metro_agh.network.graph import build_campus_graph
 from metro_agh.schemas.tables import GRAPH_EDGES, GRAPH_NODES
+from metro_agh.simulation.simulate import walk_matrix
 from test_osm import X0, Y0, _features, _geo, _graph
 
 CFG = load_config()
@@ -27,14 +27,12 @@ def graph():
 
 
 def _route(graph, a: str, b: str) -> tuple[float, list[str]]:
-    nodes, edges = graph.nodes, graph.edges
-    n = len(nodes)
-    u, v = edges.u.to_numpy(), edges.v.to_numpy()
-    w = np.r_[edges.time_uv_s, edges.time_vu_s] + 1e-9
-    m = coo_matrix((w, (np.r_[u, v], np.r_[v, u])), shape=(n, n)).tocsr()
-    keys = nodes.key.tolist()
+    keys = graph.nodes.key.tolist()
     s, t = keys.index(a), keys.index(b)
-    dist, pred = dijkstra(m, indices=s, return_predecessors=True)
+    mat = walk_matrix(graph.nodes, graph.edges)
+    dist, pred = dijkstra(mat, indices=s, return_predecessors=True)
+    if not np.isfinite(dist[t]):
+        return math.inf, []  # unreachable: no path to walk back
     path = [t]
     while path[-1] != s:
         path.append(pred[path[-1]])
@@ -110,3 +108,17 @@ def test_every_endpoint_is_reachable_from_a_stop(graph):
             graph, "stop:czarnowiejska", graph.nodes.key[graph.nodes.endpoint_key == key].iloc[0]
         )
         assert np.isfinite(t), key
+
+
+def test_edge_geometry_runs_from_u_to_v(graph):
+    """The exported segments, the route tool and the students' paths draw an edge from u to
+    v; osmnx keeps the way's own drawing direction, which the graph turns where needed."""
+    xy = graph.nodes.set_index("node_id")[["x", "y"]]
+    checked = 0
+    for e, geom in zip(graph.edges.itertuples(), graph.edge_geometry, strict=True):
+        if geom is None:
+            continue
+        assert np.allclose(geom[0, :2], xy.loc[e.u], atol=0.01), e
+        assert np.allclose(geom[-1, :2], xy.loc[e.v], atol=0.01), e
+        checked += 1
+    assert checked

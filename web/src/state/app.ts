@@ -350,8 +350,20 @@ export function captureText(c: Capture): string {
 export function copyCapture(): void {
   const c = app.get().capture;
   if (!c?.points.length) return;
-  void navigator.clipboard?.writeText(captureText(c));
-  toast(`Copied ${c.points.length} points (${c.building} local)`);
+  copyText(captureText(c), `Copied ${c.points.length} points (${c.building} local)`);
+}
+
+/** Copy to the clipboard and say so only when it worked (no clipboard over plain http on a
+ *  LAN address, and writeText rejects without focus or permission). */
+export function copyText(text: string, done: string): void {
+  if (!navigator.clipboard) {
+    toast("Clipboard unavailable (needs https or localhost)", "error");
+    return;
+  }
+  navigator.clipboard.writeText(text).then(
+    () => toast(done),
+    () => toast("Copy failed", "error"),
+  );
 }
 
 /** Set one end of the route; the next click then sets the other end. */

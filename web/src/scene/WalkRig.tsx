@@ -60,6 +60,9 @@ export function WalkRig({ camera, start, onExit }: { camera: PerspectiveCamera; 
   }, [camera, start]);
 
   useEffect(() => {
+    // dispose() in the cleanup disconnects the controls; StrictMode remounts with the same
+    // (memoised) ones, so connect them on every mount (connect() is idempotent)
+    controls.connect(dom);
     const lock = () => controls.lock();
     const onUnlock = () => onExit();
     const down = (e: KeyboardEvent) => {

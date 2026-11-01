@@ -4,9 +4,9 @@ Projekt semestralny z przedmiotu **Algorytmy inteligentne inspirowane naturą** 
 
 **Pytanie badawcze:** gdzie na kampusie AGH postawić linię metra (k stacji), aby zminimalizować łączny czas przemieszczania się studentów między budynkami w trakcie tygodnia zajęć?
 
-**Metoda:** algorytm mrówkowy (MAX-MIN Ant System) projektuje linię metra, a funkcja celu liczy czasy dojść na grafie *chodniki (OpenStreetMap) + wnętrza budynków + szyby metra*, z popytem wyznaczonym z planów zajęć w USOS.
+**Metoda:** algorytm mrówkowy (MAX-MIN Ant System) projektuje linię metra, a funkcja celu liczy czasy dojść na grafie *chodniki (OpenStreetMap) + budynki (wejścia; wnętrza, gdy są w YAML) + szyby metra*, z popytem wyznaczonym z planów zajęć w USOS.
 
-**Wynik:** interaktywny model 3D kampusu (three.js) z wnętrzami budynków, metrem i animacją ruchu 20 000 studentów w wariantach *bez metra* i *z metrem*.
+**Wynik:** interaktywny model 3D kampusu (three.js) z bryłami budynków (wnętrza LOD2/3 na przykładowym kampusie, `--sample`), metrem i animacją ruchu ok. 20 500 studentów (tych z zajęciami w modelowanym tygodniu) w wariantach *bez metra* i *z metrem*.
 
 ---
 
@@ -70,7 +70,7 @@ metro-agh/
 ├── .editorconfig               # wcięcia, kodowanie, końce linii
 ├── .pre-commit-config.yaml     # ruff, nbstripout, ochrona przed dużymi plikami i kluczami
 ├── .github/
-│   ├── workflows/ci.yml        # ruff + pytest na każdy PR
+│   ├── workflows/ci.yml        # ruff + pytest oraz typy, testy i build web/ (PR i push na main)
 │   └── pull_request_template.md
 ├── .vscode/                    # rekomendowane rozszerzenia i ustawienia
 │
@@ -86,7 +86,7 @@ metro-agh/
 │   │   ├── campus.yaml         #   przejścia między budynkami, poprawki OSM, przystanki
 │   │   ├── osm_building_map.csv #  poprawki klasyfikacji budynków z OSM
 │   │   └── usos_room_map.csv   #   poprawki mapowania sal z USOS
-│   ├── processed/              # wyniki etapów pipeline'u ([gitignore] poza usos/, transit/, population/dorms.csv)
+│   ├── processed/              # [w repo, poza fake/] wyniki etapów pipeline'u
 │   │   ├── osm/                #   campus.gpkg (QGIS), report.md, preview.html
 │   │   ├── usos/               #   timetable.csv, groups.csv, cohorts.csv, group_cohorts.csv, rooms.csv
 │   │   ├── transit/            #   stops.csv, rides.csv, trips.parquet (GTFS)
@@ -142,7 +142,7 @@ metro-agh/
 │   ├── simulation/
 │   │   ├── schedule.py         # rozkład jazdy pociągów
 │   │   ├── simulate.py         # przejścia każdego studenta, wybór metro / pieszo wg rozkładu
-│   │   └── metrics.py          # metryki tygodnia: czas, spóźnienia, przejścia dłuższe niż przerwa
+│   │   └── metrics.py          # metryki tygodnia: czas, spóźnione przejścia i zajęcia, udział metra
 │   ├── geometry/
 │   │   ├── mesh.py             # obrysy (EPSG:2180) -> trójkąty i linie w układzie web
 │   │   ├── building.py         # YAML budynku -> położenie, piętra, wejścia, bryła LOD1
@@ -175,7 +175,7 @@ metro-agh/
 │
 ├── experiments/
 │   ├── configs/                # konfiguracje eksperymentów (YAML)
-│   └── results/                # [gitignore] CSV z wynikami, logi zbieżności
+│   └── results/                # [w repo] CSV z wynikami, logi zbieżności
 │
 ├── notebooks/                  # eksploracja i wykresy do sprawozdania
 │
@@ -294,7 +294,7 @@ uv run scripts/02_build_campus.py --refresh     # pobierz OSM ponownie (zamiast 
 
 Wynik: `data/processed/osm/campus.gpkg` (otwórz w QGIS), `preview.html` (mapa w przeglądarce) i `report.md` (lista rzeczy do sprawdzenia ręcznie). Istniejące pliki w `data/campus/buildings/` nigdy nie są nadpisywane.
 
-Kampus testowy: `--sample` bierze budynki, akademiki i przystanki z `data/sample/campus/`, ale plan zajęć nadal czyta z `data/processed/usos/` i zapisuje wyniki do `data/processed/` (nadpisuje śledzony `population/dorms.csv`):
+Kampus testowy: `--sample` bierze budynki, akademiki i przystanki z `data/sample/campus/`, ale plan zajęć nadal czyta z `data/processed/usos/` i zapisuje wyniki do `data/processed/` (nadpisuje śledzone pliki `population/`, `demand/`):
 
 ```bash
 uv run scripts/03_build_demand.py --sample
@@ -358,7 +358,7 @@ Pełny opis (po angielsku): **[docs/data_contracts.md](docs/data_contracts.md)**
 | `data/campus/buildings/<id>.yaml` | budynek: piętra, korytarze, sale, schody, wejścia, szyb metra | ręcznie |
 | `data/campus/campus.yaml` | przejścia między budynkami, poprawki OSM, przystanki (12, z GTFS) | ręcznie |
 | `usos/timetable.csv` + `groups.csv`, `cohorts.csv`, `group_cohorts.csv` | plan zajęć z USOS | osoba 1 |
-| `population/students.parquet`, `enrollments.parquet` | 20 000 syntetycznych studentów i ich grupy | osoba 1 |
+| `population/students.parquet`, `enrollments.parquet` | syntetyczni studenci (22 571 przy `population.n_students: auto`) i ich grupy | osoba 1 |
 | `demand/legs.parquet`, `od.parquet` | każde przejście studenta / zagregowany popyt | osoba 1 |
 | `network/nodes.parquet`, `edges.parquet` | graf pieszy: OSM + wnętrza + szyby metra | osoba 2 |
 | `instance/instance.npz` | macierze czasów + popyt, jedyne wejście ACO | osoba 2 |
@@ -375,7 +375,7 @@ Konwencje: metry i sekundy (bez minut); `*_s` to czas trwania, `*_wt` to sekundy
 
 ### Graf
 
-Graf pieszy kampusu z OSM (`osmnx`, `network_type="walk"`) połączony z grafami wnętrz budynków generowanymi z `data/campus/buildings/*.yaml` (korytarze, drzwi sal, schody, wejścia) i z przejściami z `campus.yaml`. Budynki modelujemy stopniowo: LOD1 (bryła z OSM), LOD2 (piętra, korytarze, schody), LOD3 (sale). Kandydat na stację to szyb pod głównym wejściem budynku (`metro_shaft: true`); przejazd pociągiem nie jest krawędzią grafu, tylko jest liczony analitycznie.
+Graf pieszy kampusu z OSM (`osmnx`, `network_type="walk"`) połączony z grafami wnętrz budynków generowanymi z `data/campus/buildings/*.yaml` (korytarze, drzwi sal, schody, wejścia) i z przejściami z `campus.yaml`. Budynki modelujemy stopniowo: LOD1 (bryła z OSM), LOD2 (piętra, korytarze, schody), LOD3 (sale); na razie wszystkie budynki kampusu są w LOD1, a LOD2/3 tylko w `data/sample/campus`. Kandydat na stację to szyb pod głównym wejściem budynku (`metro_shaft: true`); przejazd pociągiem nie jest krawędzią grafu, tylko jest liczony analitycznie.
 
 ### Czas przejścia z metrem
 
@@ -385,7 +385,7 @@ t = dojście do szybu + zejście szybem + czekanie (headway / 2)
   + wyjście szybem + dojście od szybu do sali
 ```
 
-Student wybiera metro tylko wtedy, gdy jest szybsze niż dojście pieszo (minimum z Dijkstry). Dojścia liczone są od sali do sali, razem ze schodami. Parametry są w `config.yaml` (`time_model`, `metro`). Linia może być otwarta (`line`) albo zamknięta (`loop`).
+Student wybiera metro tylko wtedy, gdy jest szybsze niż dojście pieszo (minimum z Dijkstry). Dojścia liczone są od budynku do budynku (LOD1: od głównego wejścia), a w budynkach z wnętrzem LOD3 od sali do sali, razem ze schodami. Parametry są w `config.yaml` (`time_model`, `metro`). Linia może być otwarta (`line`) albo zamknięta (`loop`).
 
 ### Funkcja celu
 
@@ -403,7 +403,7 @@ Suma czasów wszystkich przejść wszystkich studentów w modelowanym tygodniu. 
 - **ACS** (Ant Colony System): z prawdopodobieństwem `q0` mrówka bierze najlepszą następną stację; każdy krok mrówki zbliża feromon na tej parze do τ0 (lokalne parowanie `xi`), więc mrówki jednej iteracji się rozchodzą; feromon odkłada tylko najlepsza dotąd linia.
 - **Losowe** (`random`): tyle losowych linii, ile zbudowałyby mrówki (`n_ants × n_iterations`).
 - **Zachłanne** (`greedy`): najlepsza para stacji, potem k − 2 razy stacja i miejsce w linii, które najbardziej obniżają funkcję celu.
-- **Local search** (`optimize.local_search`, domyślnie włączone): najlepsza linia iteracji jest dopracowywana (wymiana stacji na inną, zamiana dwóch, przestawienie jednej), aż nic nie pomaga; w MMAS / ACS jak u Stützlego i Hoosa, w losowym to multi-start local search, w zachłannym poprawka końcowej linii. Bez niej mrówki ledwo biją losowe linie.
+- **Local search** (`optimize.local_search`, domyślnie włączone): najlepsza linia iteracji jest dopracowywana (wymiana stacji na inną, zamiana dwóch, przestawienie jednej), aż nic nie pomaga; w MMAS / ACS jak u Stützlego i Hoosa, w losowym to multi-start local search, w zachłannym poprawka końcowej linii. Bez niej mrówki też biją losowe linie (k = 5: 11,38 % vs 9,71 %, przy każdym seedzie), ale optimum znajdują niezawodnie dopiero z nią.
 - **Budżet** (`optimize.max_evaluations`): ta sama liczba różnych linii dla każdego algorytmu losowego; iteracje są wtedy tylko górną granicą.
 - **Brute force**: każda linia raz, optimum dokładne; tylko małe instancje (`optimize.brute_force_max_lines`; kampus przy k = 5 ma ok. 2·10⁸ linii).
 
@@ -424,7 +424,7 @@ Pomiarów terenowych nie wykonaliśmy (czasy przejść z grafu są niezweryfikow
 
 `route_id, from_key, to_key, measured_s, date, who, notes` (`from_key` to budynek `D-17` albo sala `D-17/1.38`)
 
-**Metryki raportowane** (`report_metrics.py` → `simulation_metrics.csv`): zaoszczędzone studento-minuty / tydzień, % przejść dłuższych niż przerwa, liczba spóźnionych przejść i zajęć (zajęcia = dzień, sala, godzina; spóźnione, gdy choć jeden student dociera po starcie).
+**Metryki raportowane** (`report_metrics.py` → `simulation_metrics.csv`): zaoszczędzone studento-minuty / tydzień, liczba spóźnionych przejść (% przejść między zajęciami dłuższych niż przerwa to ten sam odsetek: takie przejście zaczyna się z końcem zajęć) i spóźnionych zajęć (zajęcia = dzień, miejsce, godzina rozpoczęcia; miejsce to budynek, a sala tylko w budynkach z wnętrzem LOD3, dziś żadnym; spóźnione, gdy choć jeden student dociera po starcie).
 
 ---
 
@@ -436,7 +436,7 @@ Aplikacja w `web/`: **React + three.js** (React Three Fiber), TypeScript, Vite; 
 - menu *Replays*: wybór, co odtworzyć — każdy przebieg ACO i każda symulacja eksportowane do `web/public/data/replays/<id>/`,
 - kampus 3D: budynki z `.glb` (czysty styl architektoniczny), wejście do środka i poruszanie się po piętrach,
 - metro: szyby pod wejściami, perony, tunele, kursujące pociągi wg rozkładu,
-- 20 000 studentów odtwarzanych z danych binarnych, z suwakiem dnia i godziny; kolor: idzie / czeka na pociąg / jedzie,
+- ok. 20 500 studentów (z zajęciami w tygodniu) odtwarzanych z danych binarnych, z suwakiem dnia i godziny; kolor: idzie / czeka na pociąg / jedzie,
 - przełącznik *bez metra / z metrem / obok siebie* (dwie połówki widoku, jedna kamera), zakładka *Stats*: zaoszczędzone godziny, wykres na każdą godzinę, użycie stacji, największe oszczędności między punktami,
 - animacja mrówek (kandydaci jako cylindry, trasy mrówek, feromon) z `trace.npz`.
 
@@ -448,7 +448,7 @@ Aplikacja w `web/`: **React + three.js** (React Three Fiber), TypeScript, Vite; 
 - Gałęzie: `feat/<co>`, `fix/<co>`, np. `feat/aco-mmas`.
 - Parametry tylko w `config.yaml`, nigdy zahardkodowane w kodzie.
 - Notebooki są czyszczone z outputów przez `nbstripout`; wykresy do sprawozdania zapisujemy do `docs/figures/`.
-- Danych z `data/raw` nie commitujemy; z `data/processed` tylko `usos/`, `transit/` i `population/dorms.csv` (pobieranie trwa długo), reszta musi dać się odtworzyć skryptami.
+- Danych z `data/raw` nie commitujemy (cache USOS ~750 MB); wyniki etapów `data/processed/` (poza `fake/`) i przebiegi `experiments/results/` są w repo, żeby nie trzeba było pobierać USOS ani liczyć pipeline'u od nowa; wszystko musi dać się odtworzyć skryptami.
 
 ---
 

@@ -1006,7 +1006,7 @@ kbd {
 .labels-layer {
   position: absolute;
   inset: 0;
-  z-index: 0; /* own stacking context: the labels' depth z-indexes stay below the dock */
+  z-index: 0; /* own stacking context: the labels' depth z-indexes stay below the overlays */
   pointer-events: none;
   overflow: hidden;
 }
@@ -1213,6 +1213,10 @@ kbd {
   cursor: default;
 }
 
+.status-button.clickable {
+  cursor: pointer;
+}
+
 .status-button.has-errors {
   cursor: pointer;
 }
@@ -1353,9 +1357,7 @@ kbd {
   color: #ffffff;
   border-radius: var(--radius);
   font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere; /* the missing-file and build-error toasts carry a command or a message */
 }
 
 .toast.error {
@@ -1510,6 +1512,18 @@ kbd {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: crosshair;
+}
+
+.chart-plot.hour-plot {
+  height: auto; /* the hour chart keeps its 300 x 110 drawing, not the dock's 52 px strip */
+  aspect-ratio: 300 / 110;
+}
+
+.chart-caption {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  font-size: 11px;
 }
 
 .route-panel .route-end {

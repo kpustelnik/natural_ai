@@ -392,114 +392,114 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 693-INN-001:ZW:1,185992,693-INN-001,ZW,zajęcia warsztatowe,1,10,12,30,"każda środa, 13:15-14:45; każda środa, 15:00-15:45",1866
 693-INT-xS-304:W:1,185993,693-INT-xS-304,W,wykład,1,13,24,15,"każdy wtorek, 16:45-17:30; każdy czwartek, 16:45-17:30",2063
 693-INT-xS-304:ZP:1,185994,693-INT-xS-304,ZP,zajęcia praktyczne,1,13,24,15,"każdy wtorek, 17:45-18:30; każdy czwartek, 17:45-18:30",2063
-440-000-1S-JA5-2%2F3:LEKT:401,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,401,17,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2022|2021
-440-000-1S-JA5-2%2F3:LEKT:402,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,402,15,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",25
-440-000-1S-JA5-2%2F3:LEKT:403,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,403,16,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2039
-440-000-1S-JA5-2%2F3:LEKT:404,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,404,19,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2019|20
-440-000-1S-JA5-2%2F3:LEKT:405,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,405,16,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2029|2025
-440-000-1S-JA5-2%2F3:LEKT:409,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,409,21,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2257
-440-000-1S-JA5-2%2F3:LEKT:416,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,416,0,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",20|2035
-440-000-1S-JA5-2%2F3:LEKT:418,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,418,16,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2040
-440-000-1S-JA5-2%2F3:LEKT:419,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,419,22,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2026|2019
-440-000-1S-JA5-2%2F3:LEKT:429,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,429,18,,45,"każdy wtorek, 11:30-13:00; każdy piątek, 11:30-13:00",20
-440-000-1S-JA5-2%2F3:LEKT:430,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,430,13,,45,"każdy piątek, 11:30-13:00; każdy wtorek, 11:30-13:00",2025
-440-000-1S-JA5-2%2F3:LEKT:431,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,431,19,,45,"każdy piątek, 11:30-13:00; każdy wtorek, 11:30-13:00",23|2034
-440-000-1S-JA5-2%2F3:LEKT:434,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,434,18,,45,"każdy wtorek, 11:30-13:00; każdy piątek, 11:30-13:00",2022|2028
-440-000-1S-JA5-2%2F3:LEKT:438,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,438,14,,45,"każdy wtorek, 11:30-13:00; każdy piątek, 11:30-13:00",2039|2031
-440-000-1S-JA5-2%2F3:LEKT:441,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,441,10,,45,"każdy poniedziałek, 08:00-09:30; każdy czwartek, 11:30-13:00",24
-440-000-1S-JA5-2%2F3:LEKT:442,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,442,10,,45,"każdy poniedziałek, 08:00-09:30; każdy czwartek, 11:30-13:00",25
-440-000-1S-JA5-2%2F3:LEKT:444,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,444,12,,45,"każdy poniedziałek, 08:00-09:30; każdy czwartek, 11:30-13:00",2022|2019
-440-000-1S-JA5-2%2F3:LEKT:445,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,445,6,,45,"każdy poniedziałek, 08:00-09:30; każdy czwartek, 11:30-13:00",2257
-440-000-1S-JA5-2%2F3:LEKT:448,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,448,10,,45,"każdy poniedziałek, 08:00-09:30; każdy czwartek, 11:30-13:00",2021|2022
-440-000-1S-JA5-2%2F3:LEKT:453,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,453,20,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",2034|2030
-440-000-1S-JA5-2%2F3:LEKT:454,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,454,21,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",2030|2026
-440-000-1S-JA5-2%2F3:LEKT:456,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,456,10,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",2028
-440-000-1S-JA5-2%2F3:LEKT:457,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,457,12,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",2031|2021
-440-000-1S-JA5-2%2F3:LEKT:459,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,459,18,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",20|2027
-440-000-1S-JA5-2%2F3:LEKT:460,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,460,19,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",2025
-440-000-1S-JA5-2%2F3:LEKT:466,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,466,17,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",20
-440-000-1S-JA5-2%2F3:LEKT:467,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,467,12,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",2257
-440-000-1S-JA5-2%2F3:LEKT:469,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,469,19,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",2039
-440-000-1S-JA5-2%2F3:LEKT:472,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,472,21,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",25|2026
-440-000-1S-JA5-2%2F3:LEKT:476,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,476,14,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",2029|2025
-440-000-1S-JA5-2%2F3:LEKT:477,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,477,19,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",2025|23
-440-000-1S-JA5-2%2F3:LEKT:481,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,481,9,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",20
-440-000-1S-JA5-2%2F3:LEKT:483,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,483,12,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",2035|2025
-440-000-1S-JA5-2%2F3:LEKT:484,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,484,7,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",2019|23
-440-000-1S-JA5-2%2F3:LEKT:485,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,485,5,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",2022|2028
-440-000-1S-JA5-2%2F3:LEKT:502,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,502,13,,45,"każdy poniedziałek, 09:45-11:15; każdy czwartek, 09:45-11:15",25
-440-000-1S-JA5-2%2F3:LEKT:503,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,503,16,,45,"każdy poniedziałek, 09:45-11:15; każdy czwartek, 09:45-11:15",2029|2025
-440-000-1S-JA5-2%2F3:LEKT:504,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,504,8,,45,"każdy poniedziałek, 09:45-11:15; każdy czwartek, 09:45-11:15",2026|2019
-440-000-1S-JA5-2%2F3:LEKT:505,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,505,9,,45,"każdy poniedziałek, 09:45-11:15; każdy czwartek, 09:45-11:15",2257
-440-000-1S-JA5-2%2F3:LEKT:513,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,513,11,,45,"każdy poniedziałek, 09:45-11:15; każdy czwartek, 09:45-11:15",20|2035
-440-000-1S-JA5-2%2F3:LEKT:520,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,520,19,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2029|2021
-440-000-1S-JA5-2%2F3:LEKT:521,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,521,19,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",20
-440-000-1S-JA5-2%2F3:LEKT:522,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,522,18,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2022|2028
-440-000-1S-JA5-2%2F3:LEKT:524,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,524,14,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2025
-440-000-1S-JA5-2%2F3:LEKT:525,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,525,19,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2030|2026
-440-000-1S-JA5-2%2F3:LEKT:528,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,528,14,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2257
-440-000-1S-JA5-2%2F3:LEKT:530,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,530,19,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2035
-440-000-1S-JA5-2%2F3:LEKT:533,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,533,20,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2026|23
-440-000-1S-JA5-2%2F3:LEKT:535,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,535,16,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2019
-440-000-1S-JA5-2%2F3:LEKT:536,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,536,16,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2028|2022
-440-000-1S-JA5-2%2F3:LEKT:537,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,537,15,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2031|2029
-440-000-1S-JA5-2%2F3:LEKT:541,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,541,10,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2027
-440-000-1S-JA5-2%2F3:LEKT:542,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,542,0,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2257|2026
-440-000-1S-JA5-2%2F3:LEKT:547,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,547,14,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2028|2021
-440-000-1S-JA5-2%2F3:LEKT:551,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,551,17,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2029
-440-000-1S-JA5-2%2F3:LEKT:552,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,552,15,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",20
-440-000-1S-JA5-2%2F3:LEKT:553,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,553,15,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2025|23
-440-000-1S-JA5-2%2F3:LEKT:555,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,555,17,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2026|2030
-440-000-1S-JA5-2%2F3:LEKT:560,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,560,16,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2038|2022
-440-000-1S-JA5-2%2F3:LEKT:561,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,561,14,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2019
-440-000-1S-JA5-2%2F3:LEKT:563,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,563,15,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2034|2030
-440-000-1S-JA5-2%2F3:LEKT:564,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,564,22,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2028
-440-000-1S-JA5-2%2F3:LEKT:565,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,565,17,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",24|2027
-440-000-1S-JA5-2%2F3:LEKT:566,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,566,13,,45,"każdy wtorek, 15:00-16:30; każdy czwartek, 15:00-16:30",2034|2030
-440-000-1S-JA5-2%2F3:LEKT:567,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,567,14,,45,"każdy wtorek, 15:00-16:30; każdy czwartek, 15:00-16:30",2022
-440-000-1S-JA5-2%2F3:LEKT:568,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,568,14,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2025
-440-000-1S-JA5-2%2F3:LEKT:569,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,569,16,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2040|2031
-440-000-1S-JA5-2%2F3:LEKT:571,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,571,15,,45,"każdy wtorek, 15:00-16:30; każdy czwartek, 15:00-16:30",2027|2035
-440-000-1S-JA5-2%2F3:LEKT:575,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,575,14,,45,"każdy wtorek, 15:00-16:30; każdy czwartek, 15:00-16:30",2028
-440-000-1S-JA5-2%2F3:LEKT:600,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,600,18,,45,"każdy wtorek, 18:30-20:00; każdy czwartek, 18:30-20:00",2022
-440-000-1S-JA5-2%2F3:LEKT:601,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,601,15,,45,"każdy wtorek, 18:30-20:00; każdy czwartek, 18:30-20:00",20|2027
-440-000-1S-JA5-2%2F3:LEKT:604,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,604,19,,45,"każdy wtorek, 18:30-20:00; każdy czwartek, 18:30-20:00",2030|2026
-440-000-1S-JA5-2%2F3:LEKT:608,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,608,11,,45,"każdy wtorek, 18:30-20:00; każdy czwartek, 18:30-20:00",2028
-440-000-1S-JA5-2%2F3:LEKT:612,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,612,2,,45,"każda środa, 09:45-11:15; każdy piątek, 15:00-16:30",2025
-440-000-1S-JA5-2%2F3:LEKT:613,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,613,3,,45,"każda środa, 09:45-11:15; każdy piątek, 15:00-16:30",2027|2028
-440-000-1S-JA5-2%2F3:LEKT:618,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,618,13,,45,"każda środa, 09:45-11:15; każdy piątek, 15:00-16:30",2028|2022
-440-000-1S-JA5-2%2F3:LEKT:619,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,619,7,,45,"każda środa, 09:45-11:15; każdy piątek, 15:00-16:30",23
-440-000-1S-JA5-2%2F3:LEKT:620,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,620,4,,45,"każda środa, 09:45-11:15; każdy piątek, 15:00-16:30",2021
-440-000-1S-JA5-2%2F3:LEKT:630,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,630,15,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2257|2022
-440-000-1S-JA5-2%2F3:LEKT:631,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,631,13,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",20
-440-000-1S-JA5-2%2F3:LEKT:634,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,634,12,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2031|2029
-440-000-1S-JA5-2%2F3:LEKT:636,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,636,11,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2035
-440-000-1S-JA5-2%2F3:LEKT:637,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,637,17,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2026|23
-440-000-1S-JA5-2%2F3:LEKT:640,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,640,17,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2029|2021
-440-000-1S-JA5-2%2F3:LEKT:641,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,641,8,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2039|2031
-440-000-1S-JA5-2%2F3:LEKT:645,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,645,20,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",24
-440-000-1S-JA5-2%2F3:LEKT:647,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,647,16,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",2025
-440-000-1S-JA5-2%2F3:LEKT:648,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,648,19,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",23
-440-000-1S-JA5-2%2F3:LEKT:649,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,649,18,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",2019
-440-000-1S-JA5-2%2F3:LEKT:651,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,651,13,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",20|2031
-440-000-1S-JA5-2%2F3:LEKT:652,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,652,13,,45,"każdy piątek, 13:15-14:45; każda środa, 08:00-09:30",2030|2026
-440-000-1S-JA5-2%2F3:LEKT:662,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,662,17,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",2027|2028
-440-000-1S-JA5-2%2F3:LEKT:663,185998,440-000-1S-JA5-2%2F3,LEKT,lektorat,663,18,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",2021
-440-000-1S-JF5-2%2F3:LEKT:1842,185999,440-000-1S-JF5-2%2F3,LEKT,lektorat,1842,14,,45,"każdy wtorek, 20:00-21:30; każdy poniedziałek, 20:00-21:30",22
-440-000-1S-JF5-2%2F3:LEKT:1843,185999,440-000-1S-JF5-2%2F3,LEKT,lektorat,1843,16,,45,"każdy wtorek, 07:00-09:15",18
-440-000-1S-JF5-2%2F3:LEKT:1844,185999,440-000-1S-JF5-2%2F3,LEKT,lektorat,1844,6,,45,"każda środa, 17:45-20:00",2023
-440-000-1S-JH5-2%2F3:LEKT:1850,186000,440-000-1S-JH5-2%2F3,LEKT,lektorat,1850,2,1,45,"jednokrotnie, 18:30-19:15; każdy czwartek, 15:00-16:30; każdy poniedziałek, 12:55-14:25",22|2032
-440-000-1S-JH5-2%2F3:LEKT:1851,186000,440-000-1S-JH5-2%2F3,LEKT,lektorat,1851,11,,45,"każdy czwartek, 15:00-16:30; każdy poniedziałek, 12:55-14:25; jednokrotnie, 18:30-19:15",2032|22
-440-000-1S-JH5-2%2F3:LEKT:1852,186000,440-000-1S-JH5-2%2F3,LEKT,lektorat,1852,13,,45,"każdy czwartek, 13:25-14:55; każdy poniedziałek, 14:30-16:00; jednokrotnie, 20:00-20:45",2032
-440-000-1S-JH5-2%2F3:LEKT:1853,186000,440-000-1S-JH5-2%2F3,LEKT,lektorat,1853,14,,45,"każdy czwartek, 16:35-18:05; każdy poniedziałek, 16:05-17:35; jednokrotnie, 15:00-15:45",2032
-440-000-1S-JH5-2%2F3:LEKT:1854,186000,440-000-1S-JH5-2%2F3,LEKT,lektorat,1854,20,,45,"każdy wtorek, 14:30-16:00; każdy poniedziałek, 17:40-19:10; jednokrotnie, 19:15-20:00",2032
-440-000-1S-JN5-2%2F3:LEKT:1830,186001,440-000-1S-JN5-2%2F3,LEKT,lektorat,1830,5,7,45,"każdy poniedziałek, 18:30-20:45",2023
-440-000-1S-JN5-2%2F3:LEKT:1831,186001,440-000-1S-JN5-2%2F3,LEKT,lektorat,1831,3,,45,"każdy poniedziałek, 18:30-20:45",2023
-440-000-1S-JN5-2%2F3:LEKT:1832,186001,440-000-1S-JN5-2%2F3,LEKT,lektorat,1832,18,,45,"każda środa, 20:00-20:45; każdy poniedziałek, 15:00-16:30",2024
-440-000-1S-JN5-2%2F3:LEKT:1833,186001,440-000-1S-JN5-2%2F3,LEKT,lektorat,1833,13,,45,"każdy wtorek, 20:00-21:30; każdy poniedziałek, 20:45-21:30",2023
-440-000-1S-JR5-2%2F3:LEKT:1860,186002,440-000-1S-JR5-2%2F3,LEKT,lektorat,1860,12,,45,"każdy wtorek, 18:50-19:35; każdy poniedziałek, 17:30-19:00",2024
-440-000-1S-JR5-2%2F3:LEKT:1861,186002,440-000-1S-JR5-2%2F3,LEKT,lektorat,1861,10,,45,"każdy czwartek, 18:30-20:00; każdy wtorek, 18:00-18:45",2024
-440-000-1S-JR5-2%2F3:LEKT:1862,186002,440-000-1S-JR5-2%2F3,LEKT,lektorat,1862,10,,45,"każdy wtorek, 09:45-11:15; każdy poniedziałek, 19:45-20:30",2024
+440-000-1S-JA5-2/3:LEKT:401,185998,440-000-1S-JA5-2/3,LEKT,lektorat,401,17,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2022|2021
+440-000-1S-JA5-2/3:LEKT:402,185998,440-000-1S-JA5-2/3,LEKT,lektorat,402,15,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",25
+440-000-1S-JA5-2/3:LEKT:403,185998,440-000-1S-JA5-2/3,LEKT,lektorat,403,16,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2039
+440-000-1S-JA5-2/3:LEKT:404,185998,440-000-1S-JA5-2/3,LEKT,lektorat,404,19,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2019|20
+440-000-1S-JA5-2/3:LEKT:405,185998,440-000-1S-JA5-2/3,LEKT,lektorat,405,16,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2029|2025
+440-000-1S-JA5-2/3:LEKT:409,185998,440-000-1S-JA5-2/3,LEKT,lektorat,409,21,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2257
+440-000-1S-JA5-2/3:LEKT:416,185998,440-000-1S-JA5-2/3,LEKT,lektorat,416,0,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",20|2035
+440-000-1S-JA5-2/3:LEKT:418,185998,440-000-1S-JA5-2/3,LEKT,lektorat,418,16,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2040
+440-000-1S-JA5-2/3:LEKT:419,185998,440-000-1S-JA5-2/3,LEKT,lektorat,419,22,,45,"każdy poniedziałek, 11:30-13:00; każdy czwartek, 08:00-09:30",2026|2019
+440-000-1S-JA5-2/3:LEKT:429,185998,440-000-1S-JA5-2/3,LEKT,lektorat,429,18,,45,"każdy wtorek, 11:30-13:00; każdy piątek, 11:30-13:00",20
+440-000-1S-JA5-2/3:LEKT:430,185998,440-000-1S-JA5-2/3,LEKT,lektorat,430,13,,45,"każdy piątek, 11:30-13:00; każdy wtorek, 11:30-13:00",2025
+440-000-1S-JA5-2/3:LEKT:431,185998,440-000-1S-JA5-2/3,LEKT,lektorat,431,19,,45,"każdy piątek, 11:30-13:00; każdy wtorek, 11:30-13:00",23|2034
+440-000-1S-JA5-2/3:LEKT:434,185998,440-000-1S-JA5-2/3,LEKT,lektorat,434,18,,45,"każdy wtorek, 11:30-13:00; każdy piątek, 11:30-13:00",2022|2028
+440-000-1S-JA5-2/3:LEKT:438,185998,440-000-1S-JA5-2/3,LEKT,lektorat,438,14,,45,"każdy wtorek, 11:30-13:00; każdy piątek, 11:30-13:00",2039|2031
+440-000-1S-JA5-2/3:LEKT:441,185998,440-000-1S-JA5-2/3,LEKT,lektorat,441,10,,45,"każdy poniedziałek, 08:00-09:30; każdy czwartek, 11:30-13:00",24
+440-000-1S-JA5-2/3:LEKT:442,185998,440-000-1S-JA5-2/3,LEKT,lektorat,442,10,,45,"każdy poniedziałek, 08:00-09:30; każdy czwartek, 11:30-13:00",25
+440-000-1S-JA5-2/3:LEKT:444,185998,440-000-1S-JA5-2/3,LEKT,lektorat,444,12,,45,"każdy poniedziałek, 08:00-09:30; każdy czwartek, 11:30-13:00",2022|2019
+440-000-1S-JA5-2/3:LEKT:445,185998,440-000-1S-JA5-2/3,LEKT,lektorat,445,6,,45,"każdy poniedziałek, 08:00-09:30; każdy czwartek, 11:30-13:00",2257
+440-000-1S-JA5-2/3:LEKT:448,185998,440-000-1S-JA5-2/3,LEKT,lektorat,448,10,,45,"każdy poniedziałek, 08:00-09:30; każdy czwartek, 11:30-13:00",2021|2022
+440-000-1S-JA5-2/3:LEKT:453,185998,440-000-1S-JA5-2/3,LEKT,lektorat,453,20,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",2034|2030
+440-000-1S-JA5-2/3:LEKT:454,185998,440-000-1S-JA5-2/3,LEKT,lektorat,454,21,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",2030|2026
+440-000-1S-JA5-2/3:LEKT:456,185998,440-000-1S-JA5-2/3,LEKT,lektorat,456,10,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",2028
+440-000-1S-JA5-2/3:LEKT:457,185998,440-000-1S-JA5-2/3,LEKT,lektorat,457,12,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",2031|2021
+440-000-1S-JA5-2/3:LEKT:459,185998,440-000-1S-JA5-2/3,LEKT,lektorat,459,18,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",20|2027
+440-000-1S-JA5-2/3:LEKT:460,185998,440-000-1S-JA5-2/3,LEKT,lektorat,460,19,,45,"każdy wtorek, 16:45-18:15; każdy czwartek, 16:45-18:15",2025
+440-000-1S-JA5-2/3:LEKT:466,185998,440-000-1S-JA5-2/3,LEKT,lektorat,466,17,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",20
+440-000-1S-JA5-2/3:LEKT:467,185998,440-000-1S-JA5-2/3,LEKT,lektorat,467,12,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",2257
+440-000-1S-JA5-2/3:LEKT:469,185998,440-000-1S-JA5-2/3,LEKT,lektorat,469,19,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",2039
+440-000-1S-JA5-2/3:LEKT:472,185998,440-000-1S-JA5-2/3,LEKT,lektorat,472,21,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",25|2026
+440-000-1S-JA5-2/3:LEKT:476,185998,440-000-1S-JA5-2/3,LEKT,lektorat,476,14,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",2029|2025
+440-000-1S-JA5-2/3:LEKT:477,185998,440-000-1S-JA5-2/3,LEKT,lektorat,477,19,,45,"każdy poniedziałek, 13:15-14:45; każda środa, 13:15-14:45",2025|23
+440-000-1S-JA5-2/3:LEKT:481,185998,440-000-1S-JA5-2/3,LEKT,lektorat,481,9,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",20
+440-000-1S-JA5-2/3:LEKT:483,185998,440-000-1S-JA5-2/3,LEKT,lektorat,483,12,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",2035|2025
+440-000-1S-JA5-2/3:LEKT:484,185998,440-000-1S-JA5-2/3,LEKT,lektorat,484,7,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",2019|23
+440-000-1S-JA5-2/3:LEKT:485,185998,440-000-1S-JA5-2/3,LEKT,lektorat,485,5,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",2022|2028
+440-000-1S-JA5-2/3:LEKT:502,185998,440-000-1S-JA5-2/3,LEKT,lektorat,502,13,,45,"każdy poniedziałek, 09:45-11:15; każdy czwartek, 09:45-11:15",25
+440-000-1S-JA5-2/3:LEKT:503,185998,440-000-1S-JA5-2/3,LEKT,lektorat,503,16,,45,"każdy poniedziałek, 09:45-11:15; każdy czwartek, 09:45-11:15",2029|2025
+440-000-1S-JA5-2/3:LEKT:504,185998,440-000-1S-JA5-2/3,LEKT,lektorat,504,8,,45,"każdy poniedziałek, 09:45-11:15; każdy czwartek, 09:45-11:15",2026|2019
+440-000-1S-JA5-2/3:LEKT:505,185998,440-000-1S-JA5-2/3,LEKT,lektorat,505,9,,45,"każdy poniedziałek, 09:45-11:15; każdy czwartek, 09:45-11:15",2257
+440-000-1S-JA5-2/3:LEKT:513,185998,440-000-1S-JA5-2/3,LEKT,lektorat,513,11,,45,"każdy poniedziałek, 09:45-11:15; każdy czwartek, 09:45-11:15",20|2035
+440-000-1S-JA5-2/3:LEKT:520,185998,440-000-1S-JA5-2/3,LEKT,lektorat,520,19,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2029|2021
+440-000-1S-JA5-2/3:LEKT:521,185998,440-000-1S-JA5-2/3,LEKT,lektorat,521,19,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",20
+440-000-1S-JA5-2/3:LEKT:522,185998,440-000-1S-JA5-2/3,LEKT,lektorat,522,18,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2022|2028
+440-000-1S-JA5-2/3:LEKT:524,185998,440-000-1S-JA5-2/3,LEKT,lektorat,524,14,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2025
+440-000-1S-JA5-2/3:LEKT:525,185998,440-000-1S-JA5-2/3,LEKT,lektorat,525,19,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2030|2026
+440-000-1S-JA5-2/3:LEKT:528,185998,440-000-1S-JA5-2/3,LEKT,lektorat,528,14,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2257
+440-000-1S-JA5-2/3:LEKT:530,185998,440-000-1S-JA5-2/3,LEKT,lektorat,530,19,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2035
+440-000-1S-JA5-2/3:LEKT:533,185998,440-000-1S-JA5-2/3,LEKT,lektorat,533,20,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2026|23
+440-000-1S-JA5-2/3:LEKT:535,185998,440-000-1S-JA5-2/3,LEKT,lektorat,535,16,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2019
+440-000-1S-JA5-2/3:LEKT:536,185998,440-000-1S-JA5-2/3,LEKT,lektorat,536,16,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2028|2022
+440-000-1S-JA5-2/3:LEKT:537,185998,440-000-1S-JA5-2/3,LEKT,lektorat,537,15,,45,"każdy wtorek, 08:00-09:30; każdy piątek, 08:00-09:30",2031|2029
+440-000-1S-JA5-2/3:LEKT:541,185998,440-000-1S-JA5-2/3,LEKT,lektorat,541,10,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2027
+440-000-1S-JA5-2/3:LEKT:542,185998,440-000-1S-JA5-2/3,LEKT,lektorat,542,0,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2257|2026
+440-000-1S-JA5-2/3:LEKT:547,185998,440-000-1S-JA5-2/3,LEKT,lektorat,547,14,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2028|2021
+440-000-1S-JA5-2/3:LEKT:551,185998,440-000-1S-JA5-2/3,LEKT,lektorat,551,17,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2029
+440-000-1S-JA5-2/3:LEKT:552,185998,440-000-1S-JA5-2/3,LEKT,lektorat,552,15,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",20
+440-000-1S-JA5-2/3:LEKT:553,185998,440-000-1S-JA5-2/3,LEKT,lektorat,553,15,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2025|23
+440-000-1S-JA5-2/3:LEKT:555,185998,440-000-1S-JA5-2/3,LEKT,lektorat,555,17,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2026|2030
+440-000-1S-JA5-2/3:LEKT:560,185998,440-000-1S-JA5-2/3,LEKT,lektorat,560,16,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2038|2022
+440-000-1S-JA5-2/3:LEKT:561,185998,440-000-1S-JA5-2/3,LEKT,lektorat,561,14,,45,"każdy poniedziałek, 16:45-18:15; każda środa, 16:45-18:15",2019
+440-000-1S-JA5-2/3:LEKT:563,185998,440-000-1S-JA5-2/3,LEKT,lektorat,563,15,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2034|2030
+440-000-1S-JA5-2/3:LEKT:564,185998,440-000-1S-JA5-2/3,LEKT,lektorat,564,22,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2028
+440-000-1S-JA5-2/3:LEKT:565,185998,440-000-1S-JA5-2/3,LEKT,lektorat,565,17,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",24|2027
+440-000-1S-JA5-2/3:LEKT:566,185998,440-000-1S-JA5-2/3,LEKT,lektorat,566,13,,45,"każdy wtorek, 15:00-16:30; każdy czwartek, 15:00-16:30",2034|2030
+440-000-1S-JA5-2/3:LEKT:567,185998,440-000-1S-JA5-2/3,LEKT,lektorat,567,14,,45,"każdy wtorek, 15:00-16:30; każdy czwartek, 15:00-16:30",2022
+440-000-1S-JA5-2/3:LEKT:568,185998,440-000-1S-JA5-2/3,LEKT,lektorat,568,14,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2025
+440-000-1S-JA5-2/3:LEKT:569,185998,440-000-1S-JA5-2/3,LEKT,lektorat,569,16,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2040|2031
+440-000-1S-JA5-2/3:LEKT:571,185998,440-000-1S-JA5-2/3,LEKT,lektorat,571,15,,45,"każdy wtorek, 15:00-16:30; każdy czwartek, 15:00-16:30",2027|2035
+440-000-1S-JA5-2/3:LEKT:575,185998,440-000-1S-JA5-2/3,LEKT,lektorat,575,14,,45,"każdy wtorek, 15:00-16:30; każdy czwartek, 15:00-16:30",2028
+440-000-1S-JA5-2/3:LEKT:600,185998,440-000-1S-JA5-2/3,LEKT,lektorat,600,18,,45,"każdy wtorek, 18:30-20:00; każdy czwartek, 18:30-20:00",2022
+440-000-1S-JA5-2/3:LEKT:601,185998,440-000-1S-JA5-2/3,LEKT,lektorat,601,15,,45,"każdy wtorek, 18:30-20:00; każdy czwartek, 18:30-20:00",20|2027
+440-000-1S-JA5-2/3:LEKT:604,185998,440-000-1S-JA5-2/3,LEKT,lektorat,604,19,,45,"każdy wtorek, 18:30-20:00; każdy czwartek, 18:30-20:00",2030|2026
+440-000-1S-JA5-2/3:LEKT:608,185998,440-000-1S-JA5-2/3,LEKT,lektorat,608,11,,45,"każdy wtorek, 18:30-20:00; każdy czwartek, 18:30-20:00",2028
+440-000-1S-JA5-2/3:LEKT:612,185998,440-000-1S-JA5-2/3,LEKT,lektorat,612,2,,45,"każda środa, 09:45-11:15; każdy piątek, 15:00-16:30",2025
+440-000-1S-JA5-2/3:LEKT:613,185998,440-000-1S-JA5-2/3,LEKT,lektorat,613,3,,45,"każda środa, 09:45-11:15; każdy piątek, 15:00-16:30",2027|2028
+440-000-1S-JA5-2/3:LEKT:618,185998,440-000-1S-JA5-2/3,LEKT,lektorat,618,13,,45,"każda środa, 09:45-11:15; każdy piątek, 15:00-16:30",2028|2022
+440-000-1S-JA5-2/3:LEKT:619,185998,440-000-1S-JA5-2/3,LEKT,lektorat,619,7,,45,"każda środa, 09:45-11:15; każdy piątek, 15:00-16:30",23
+440-000-1S-JA5-2/3:LEKT:620,185998,440-000-1S-JA5-2/3,LEKT,lektorat,620,4,,45,"każda środa, 09:45-11:15; każdy piątek, 15:00-16:30",2021
+440-000-1S-JA5-2/3:LEKT:630,185998,440-000-1S-JA5-2/3,LEKT,lektorat,630,15,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2257|2022
+440-000-1S-JA5-2/3:LEKT:631,185998,440-000-1S-JA5-2/3,LEKT,lektorat,631,13,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",20
+440-000-1S-JA5-2/3:LEKT:634,185998,440-000-1S-JA5-2/3,LEKT,lektorat,634,12,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2031|2029
+440-000-1S-JA5-2/3:LEKT:636,185998,440-000-1S-JA5-2/3,LEKT,lektorat,636,11,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2035
+440-000-1S-JA5-2/3:LEKT:637,185998,440-000-1S-JA5-2/3,LEKT,lektorat,637,17,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2026|23
+440-000-1S-JA5-2/3:LEKT:640,185998,440-000-1S-JA5-2/3,LEKT,lektorat,640,17,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2029|2021
+440-000-1S-JA5-2/3:LEKT:641,185998,440-000-1S-JA5-2/3,LEKT,lektorat,641,8,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2039|2031
+440-000-1S-JA5-2/3:LEKT:645,185998,440-000-1S-JA5-2/3,LEKT,lektorat,645,20,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",24
+440-000-1S-JA5-2/3:LEKT:647,185998,440-000-1S-JA5-2/3,LEKT,lektorat,647,16,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",2025
+440-000-1S-JA5-2/3:LEKT:648,185998,440-000-1S-JA5-2/3,LEKT,lektorat,648,19,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",23
+440-000-1S-JA5-2/3:LEKT:649,185998,440-000-1S-JA5-2/3,LEKT,lektorat,649,18,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",2019
+440-000-1S-JA5-2/3:LEKT:651,185998,440-000-1S-JA5-2/3,LEKT,lektorat,651,13,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",20|2031
+440-000-1S-JA5-2/3:LEKT:652,185998,440-000-1S-JA5-2/3,LEKT,lektorat,652,13,,45,"każdy piątek, 13:15-14:45; każda środa, 08:00-09:30",2030|2026
+440-000-1S-JA5-2/3:LEKT:662,185998,440-000-1S-JA5-2/3,LEKT,lektorat,662,17,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",2027|2028
+440-000-1S-JA5-2/3:LEKT:663,185998,440-000-1S-JA5-2/3,LEKT,lektorat,663,18,,45,"każda środa, 08:00-09:30; każdy piątek, 13:15-14:45",2021
+440-000-1S-JF5-2/3:LEKT:1842,185999,440-000-1S-JF5-2/3,LEKT,lektorat,1842,14,,45,"każdy wtorek, 20:00-21:30; każdy poniedziałek, 20:00-21:30",22
+440-000-1S-JF5-2/3:LEKT:1843,185999,440-000-1S-JF5-2/3,LEKT,lektorat,1843,16,,45,"każdy wtorek, 07:00-09:15",18
+440-000-1S-JF5-2/3:LEKT:1844,185999,440-000-1S-JF5-2/3,LEKT,lektorat,1844,6,,45,"każda środa, 17:45-20:00",2023
+440-000-1S-JH5-2/3:LEKT:1850,186000,440-000-1S-JH5-2/3,LEKT,lektorat,1850,2,1,45,"jednokrotnie, 18:30-19:15; każdy czwartek, 15:00-16:30; każdy poniedziałek, 12:55-14:25",22|2032
+440-000-1S-JH5-2/3:LEKT:1851,186000,440-000-1S-JH5-2/3,LEKT,lektorat,1851,11,,45,"każdy czwartek, 15:00-16:30; każdy poniedziałek, 12:55-14:25; jednokrotnie, 18:30-19:15",2032|22
+440-000-1S-JH5-2/3:LEKT:1852,186000,440-000-1S-JH5-2/3,LEKT,lektorat,1852,13,,45,"każdy czwartek, 13:25-14:55; każdy poniedziałek, 14:30-16:00; jednokrotnie, 20:00-20:45",2032
+440-000-1S-JH5-2/3:LEKT:1853,186000,440-000-1S-JH5-2/3,LEKT,lektorat,1853,14,,45,"każdy czwartek, 16:35-18:05; każdy poniedziałek, 16:05-17:35; jednokrotnie, 15:00-15:45",2032
+440-000-1S-JH5-2/3:LEKT:1854,186000,440-000-1S-JH5-2/3,LEKT,lektorat,1854,20,,45,"każdy wtorek, 14:30-16:00; każdy poniedziałek, 17:40-19:10; jednokrotnie, 19:15-20:00",2032
+440-000-1S-JN5-2/3:LEKT:1830,186001,440-000-1S-JN5-2/3,LEKT,lektorat,1830,5,7,45,"każdy poniedziałek, 18:30-20:45",2023
+440-000-1S-JN5-2/3:LEKT:1831,186001,440-000-1S-JN5-2/3,LEKT,lektorat,1831,3,,45,"każdy poniedziałek, 18:30-20:45",2023
+440-000-1S-JN5-2/3:LEKT:1832,186001,440-000-1S-JN5-2/3,LEKT,lektorat,1832,18,,45,"każda środa, 20:00-20:45; każdy poniedziałek, 15:00-16:30",2024
+440-000-1S-JN5-2/3:LEKT:1833,186001,440-000-1S-JN5-2/3,LEKT,lektorat,1833,13,,45,"każdy wtorek, 20:00-21:30; każdy poniedziałek, 20:45-21:30",2023
+440-000-1S-JR5-2/3:LEKT:1860,186002,440-000-1S-JR5-2/3,LEKT,lektorat,1860,12,,45,"każdy wtorek, 18:50-19:35; każdy poniedziałek, 17:30-19:00",2024
+440-000-1S-JR5-2/3:LEKT:1861,186002,440-000-1S-JR5-2/3,LEKT,lektorat,1861,10,,45,"każdy czwartek, 18:30-20:00; każdy wtorek, 18:00-18:45",2024
+440-000-1S-JR5-2/3:LEKT:1862,186002,440-000-1S-JR5-2/3,LEKT,lektorat,1862,10,,45,"każdy wtorek, 09:45-11:15; każdy poniedziałek, 19:45-20:30",2024
 440-000-2S-JA:LEKT:800,186013,440-000-2S-JA,LEKT,lektorat,800,19,19,30,"każda środa, 16:45-18:15",2028
 440-000-2S-JA:LEKT:801,186013,440-000-2S-JA,LEKT,lektorat,801,17,19,30,"każda środa, 18:30-20:00",2028
 440-000-2S-JA:LEKT:802,186013,440-000-2S-JA,LEKT,lektorat,802,18,19,30,"każda środa, 16:45-18:15",2035
@@ -631,46 +631,46 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 440-000-2S-JA:LEKT:939,186013,440-000-2S-JA,LEKT,lektorat,939,32,0,30,"każdy wtorek, 11:30-13:00",2040
 440-000-2S-JH:LEKT:1808,186015,440-000-2S-JH,LEKT,lektorat,1808,5,20,30,"każdy poniedziałek, 20:00-20:45; każdy piątek, 13:15-14:45; każdy piątek, 11:30-13:00",2032
 440-000-2S-JN:LEKT:1807,186016,440-000-2S-JN,LEKT,lektorat,1807,10,20,30,"każda środa, 18:30-20:00",2024
-440-000-1S-JA6-2%2F3:LEKT:4386,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,4386,2,,45,"każdy piątek, 11:30-13:00; każdy wtorek, 11:30-13:00",2031|2039
-440-000-1S-JA6-2%2F3:LEKT:4416,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,4416,6,,45,"każdy czwartek, 11:30-13:00; każdy poniedziałek, 08:00-09:30",24
-440-000-1S-JA6-2%2F3:LEKT:4426,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,4426,4,,45,"każdy czwartek, 11:30-13:00; każdy poniedziałek, 08:00-09:30",25
-440-000-1S-JA6-2%2F3:LEKT:4456,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,4456,5,,45,"każdy czwartek, 11:30-13:00; każdy poniedziałek, 08:00-09:30",2257
-440-000-1S-JA6-2%2F3:LEKT:4486,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,4486,6,,45,"każdy czwartek, 11:30-13:00; każdy poniedziałek, 08:00-09:30",2022|2021
-440-000-1S-JA6-2%2F3:LEKT:4816,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,4816,0,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",20
-440-000-1S-JA6-2%2F3:LEKT:4846,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,4846,2,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",2019|23
-440-000-1S-JA6-2%2F3:LEKT:4856,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,4856,6,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",2022|2028
-440-000-1S-JA6-2%2F3:LEKT:5026,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5026,5,,45,"każdy czwartek, 09:45-11:15; każdy poniedziałek, 09:45-11:15",25
-440-000-1S-JA6-2%2F3:LEKT:5036,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5036,3,,45,"każdy czwartek, 09:45-11:15; każdy poniedziałek, 09:45-11:15",2025|2029
-440-000-1S-JA6-2%2F3:LEKT:5046,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5046,2,,45,"każdy czwartek, 09:45-11:15; każdy poniedziałek, 09:45-11:15",2019|2026
-440-000-1S-JA6-2%2F3:LEKT:5056,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5056,3,,45,"każdy czwartek, 09:45-11:15; każdy poniedziałek, 09:45-11:15",2257
-440-000-1S-JA6-2%2F3:LEKT:5136,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5136,3,,45,"każdy czwartek, 09:45-11:15; każdy poniedziałek, 09:45-11:15",2035|20
-440-000-1S-JA6-2%2F3:LEKT:5416,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5416,1,,45,"każda środa, 16:45-18:15; każdy poniedziałek, 16:45-18:15",2027
-440-000-1S-JA6-2%2F3:LEKT:5476,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5476,2,,45,"każda środa, 16:45-18:15; każdy poniedziałek, 16:45-18:15",2021|2028
-440-000-1S-JA6-2%2F3:LEKT:5526,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5526,3,,45,"każda środa, 16:45-18:15; każdy poniedziałek, 16:45-18:15",20
-440-000-1S-JA6-2%2F3:LEKT:5536,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5536,1,,45,"każda środa, 16:45-18:15; każdy poniedziałek, 16:45-18:15",23|2025
-440-000-1S-JA6-2%2F3:LEKT:5616,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5616,2,,45,"każda środa, 16:45-18:15; każdy poniedziałek, 16:45-18:15",2019
-440-000-1S-JA6-2%2F3:LEKT:5636,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5636,3,,45,"każdy czwartek, 13:15-14:45; każdy wtorek, 13:15-14:45",2030|2034
-440-000-1S-JA6-2%2F3:LEKT:5646,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5646,2,,45,"każdy czwartek, 13:15-14:45; każdy wtorek, 13:15-14:45",2028
-440-000-1S-JA6-2%2F3:LEKT:5656,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5656,1,,45,"każdy czwartek, 13:15-14:45; każdy wtorek, 13:15-14:45",2027|24
-440-000-1S-JA6-2%2F3:LEKT:5666,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5666,3,,45,"każdy wtorek, 15:00-16:30; każdy czwartek, 15:00-16:30",2034|2030
-440-000-1S-JA6-2%2F3:LEKT:5676,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5676,1,,45,"każdy czwartek, 15:00-16:30; każdy wtorek, 15:00-16:30",2022
-440-000-1S-JA6-2%2F3:LEKT:5686,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5686,4,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2025
-440-000-1S-JA6-2%2F3:LEKT:5696,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5696,2,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2040|2031
-440-000-1S-JA6-2%2F3:LEKT:5716,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5716,2,,45,"każdy czwartek, 15:00-16:30; każdy wtorek, 15:00-16:30",2035|2027
-440-000-1S-JA6-2%2F3:LEKT:5756,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,5756,1,,45,"każdy czwartek, 15:00-16:30; każdy wtorek, 15:00-16:30",2028
-440-000-1S-JA6-2%2F3:LEKT:6086,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6086,2,,45,"każdy czwartek, 18:30-20:00; każdy wtorek, 18:30-20:00",2028
-440-000-1S-JA6-2%2F3:LEKT:6126,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6126,17,,45,"każdy piątek, 15:00-16:30; każda środa, 09:45-11:15",2025
-440-000-1S-JA6-2%2F3:LEKT:6136,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6136,9,,45,"każdy piątek, 15:00-16:30; każda środa, 09:45-11:15",2028|2027
-440-000-1S-JA6-2%2F3:LEKT:6186,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6186,2,,45,"każdy piątek, 15:00-16:30; każda środa, 09:45-11:15",2022|2028
-440-000-1S-JA6-2%2F3:LEKT:6196,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6196,4,,45,"każdy piątek, 15:00-16:30; każda środa, 09:45-11:15",23
-440-000-1S-JA6-2%2F3:LEKT:6206,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6206,2,,45,"każdy piątek, 15:00-16:30; każda środa, 09:45-11:15",2021
-440-000-1S-JA6-2%2F3:LEKT:6306,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6306,1,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2257|2022
-440-000-1S-JA6-2%2F3:LEKT:6316,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6316,5,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",20
-440-000-1S-JA6-2%2F3:LEKT:6346,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6346,6,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2031|2029
-440-000-1S-JA6-2%2F3:LEKT:6366,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6366,7,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2035
-440-000-1S-JA6-2%2F3:LEKT:6376,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6376,1,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2026|23
-440-000-1S-JA6-2%2F3:LEKT:6406,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6406,1,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2029|2021
-440-000-1S-JA6-2%2F3:LEKT:6416,186018,440-000-1S-JA6-2%2F3,LEKT,lektorat,6416,3,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2039|2031
+440-000-1S-JA6-2/3:LEKT:4386,186018,440-000-1S-JA6-2/3,LEKT,lektorat,4386,2,,45,"każdy piątek, 11:30-13:00; każdy wtorek, 11:30-13:00",2031|2039
+440-000-1S-JA6-2/3:LEKT:4416,186018,440-000-1S-JA6-2/3,LEKT,lektorat,4416,6,,45,"każdy czwartek, 11:30-13:00; każdy poniedziałek, 08:00-09:30",24
+440-000-1S-JA6-2/3:LEKT:4426,186018,440-000-1S-JA6-2/3,LEKT,lektorat,4426,4,,45,"każdy czwartek, 11:30-13:00; każdy poniedziałek, 08:00-09:30",25
+440-000-1S-JA6-2/3:LEKT:4456,186018,440-000-1S-JA6-2/3,LEKT,lektorat,4456,5,,45,"każdy czwartek, 11:30-13:00; każdy poniedziałek, 08:00-09:30",2257
+440-000-1S-JA6-2/3:LEKT:4486,186018,440-000-1S-JA6-2/3,LEKT,lektorat,4486,6,,45,"każdy czwartek, 11:30-13:00; każdy poniedziałek, 08:00-09:30",2022|2021
+440-000-1S-JA6-2/3:LEKT:4816,186018,440-000-1S-JA6-2/3,LEKT,lektorat,4816,0,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",20
+440-000-1S-JA6-2/3:LEKT:4846,186018,440-000-1S-JA6-2/3,LEKT,lektorat,4846,2,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",2019|23
+440-000-1S-JA6-2/3:LEKT:4856,186018,440-000-1S-JA6-2/3,LEKT,lektorat,4856,6,,45,"każdy poniedziałek, 15:00-16:30; każdy czwartek, 11:30-13:00",2022|2028
+440-000-1S-JA6-2/3:LEKT:5026,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5026,5,,45,"każdy czwartek, 09:45-11:15; każdy poniedziałek, 09:45-11:15",25
+440-000-1S-JA6-2/3:LEKT:5036,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5036,3,,45,"każdy czwartek, 09:45-11:15; każdy poniedziałek, 09:45-11:15",2025|2029
+440-000-1S-JA6-2/3:LEKT:5046,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5046,2,,45,"każdy czwartek, 09:45-11:15; każdy poniedziałek, 09:45-11:15",2019|2026
+440-000-1S-JA6-2/3:LEKT:5056,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5056,3,,45,"każdy czwartek, 09:45-11:15; każdy poniedziałek, 09:45-11:15",2257
+440-000-1S-JA6-2/3:LEKT:5136,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5136,3,,45,"każdy czwartek, 09:45-11:15; każdy poniedziałek, 09:45-11:15",2035|20
+440-000-1S-JA6-2/3:LEKT:5416,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5416,1,,45,"każda środa, 16:45-18:15; każdy poniedziałek, 16:45-18:15",2027
+440-000-1S-JA6-2/3:LEKT:5476,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5476,2,,45,"każda środa, 16:45-18:15; każdy poniedziałek, 16:45-18:15",2021|2028
+440-000-1S-JA6-2/3:LEKT:5526,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5526,3,,45,"każda środa, 16:45-18:15; każdy poniedziałek, 16:45-18:15",20
+440-000-1S-JA6-2/3:LEKT:5536,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5536,1,,45,"każda środa, 16:45-18:15; każdy poniedziałek, 16:45-18:15",23|2025
+440-000-1S-JA6-2/3:LEKT:5616,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5616,2,,45,"każda środa, 16:45-18:15; każdy poniedziałek, 16:45-18:15",2019
+440-000-1S-JA6-2/3:LEKT:5636,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5636,3,,45,"każdy czwartek, 13:15-14:45; każdy wtorek, 13:15-14:45",2030|2034
+440-000-1S-JA6-2/3:LEKT:5646,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5646,2,,45,"każdy czwartek, 13:15-14:45; każdy wtorek, 13:15-14:45",2028
+440-000-1S-JA6-2/3:LEKT:5656,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5656,1,,45,"każdy czwartek, 13:15-14:45; każdy wtorek, 13:15-14:45",2027|24
+440-000-1S-JA6-2/3:LEKT:5666,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5666,3,,45,"każdy wtorek, 15:00-16:30; każdy czwartek, 15:00-16:30",2034|2030
+440-000-1S-JA6-2/3:LEKT:5676,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5676,1,,45,"każdy czwartek, 15:00-16:30; każdy wtorek, 15:00-16:30",2022
+440-000-1S-JA6-2/3:LEKT:5686,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5686,4,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2025
+440-000-1S-JA6-2/3:LEKT:5696,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5696,2,,45,"każdy wtorek, 13:15-14:45; każdy czwartek, 13:15-14:45",2040|2031
+440-000-1S-JA6-2/3:LEKT:5716,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5716,2,,45,"każdy czwartek, 15:00-16:30; każdy wtorek, 15:00-16:30",2035|2027
+440-000-1S-JA6-2/3:LEKT:5756,186018,440-000-1S-JA6-2/3,LEKT,lektorat,5756,1,,45,"każdy czwartek, 15:00-16:30; każdy wtorek, 15:00-16:30",2028
+440-000-1S-JA6-2/3:LEKT:6086,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6086,2,,45,"każdy czwartek, 18:30-20:00; każdy wtorek, 18:30-20:00",2028
+440-000-1S-JA6-2/3:LEKT:6126,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6126,17,,45,"każdy piątek, 15:00-16:30; każda środa, 09:45-11:15",2025
+440-000-1S-JA6-2/3:LEKT:6136,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6136,9,,45,"każdy piątek, 15:00-16:30; każda środa, 09:45-11:15",2028|2027
+440-000-1S-JA6-2/3:LEKT:6186,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6186,2,,45,"każdy piątek, 15:00-16:30; każda środa, 09:45-11:15",2022|2028
+440-000-1S-JA6-2/3:LEKT:6196,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6196,4,,45,"każdy piątek, 15:00-16:30; każda środa, 09:45-11:15",23
+440-000-1S-JA6-2/3:LEKT:6206,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6206,2,,45,"każdy piątek, 15:00-16:30; każda środa, 09:45-11:15",2021
+440-000-1S-JA6-2/3:LEKT:6306,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6306,1,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2257|2022
+440-000-1S-JA6-2/3:LEKT:6316,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6316,5,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",20
+440-000-1S-JA6-2/3:LEKT:6346,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6346,6,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2031|2029
+440-000-1S-JA6-2/3:LEKT:6366,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6366,7,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2035
+440-000-1S-JA6-2/3:LEKT:6376,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6376,1,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2026|23
+440-000-1S-JA6-2/3:LEKT:6406,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6406,1,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2029|2021
+440-000-1S-JA6-2/3:LEKT:6416,186018,440-000-1S-JA6-2/3,LEKT,lektorat,6416,3,,45,"każdy wtorek, 09:45-11:15; każdy piątek, 09:45-11:15",2039|2031
 440-EXCHANGE-JP:LEKT:1800,186028,440-EXCHANGE-JP,LEKT,lektorat,1800,11,15,90,"każdy poniedziałek, 09:45-12:00; każda środa, 09:45-12:00",18
 440-EXCHANGE-JP:LEKT:1801,186028,440-EXCHANGE-JP,LEKT,lektorat,1801,13,15,90,"każdy poniedziałek, 13:15-15:30; każda środa, 13:15-15:30",18
 440-EXCHANGE-JP:LEKT:1802,186028,440-EXCHANGE-JP,LEKT,lektorat,1802,15,15,90,"każdy poniedziałek, 11:30-13:45; każda środa, 11:30-13:45",22
@@ -682,15 +682,15 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 440-000-2S-JP:LEKT:1815,186030,440-000-2S-JP,LEKT,lektorat,1815,12,,60,"każdy piątek, 15:00-16:30; każdy czwartek, 18:30-20:00",2032|2036
 440-000-2S-JP:LEKT:1817,186030,440-000-2S-JP,LEKT,lektorat,1817,1,,60,"każda środa, 09:45-11:15; każdy poniedziałek, 18:30-20:00",22
 440-000-2S-JP:LEKT:1819,186030,440-000-2S-JP,LEKT,lektorat,1819,1,,60,"każdy piątek, 16:30-18:00; każdy czwartek, 17:00-18:30",2023
-440-000-1S-JP-1%2F2:LEKT:1809,186032,440-000-1S-JP-1%2F2,LEKT,lektorat,1809,11,,60,"każdy poniedziałek, 09:45-12:00; każdy czwartek, 09:00-11:15",2023|2032
-440-000-1S-JP-1%2F2:LEKT:1812,186032,440-000-1S-JP-1%2F2,LEKT,lektorat,1812,20,,60,"każdy piątek, 18:30-20:00; każdy piątek, 16:45-18:15",2032
-440-000-1S-JP-1%2F2:LEKT:1814,186032,440-000-1S-JP-1%2F2,LEKT,lektorat,1814,9,,60,"każdy piątek, 15:00-16:30; każdy czwartek, 18:30-20:00",2032|2036
-440-000-1S-JP-1%2F2:LEKT:1816,186032,440-000-1S-JP-1%2F2,LEKT,lektorat,1816,21,,60,"każda środa, 09:45-11:15; każdy poniedziałek, 18:30-20:00",22
-440-000-1S-JP-1%2F2:LEKT:1818,186032,440-000-1S-JP-1%2F2,LEKT,lektorat,1818,11,,60,"każdy piątek, 16:30-18:00; każdy czwartek, 17:00-18:30",2023
-440-000-1S-JP-1%2F2:LEKT:1820,186032,440-000-1S-JP-1%2F2,LEKT,lektorat,1820,19,,60,"każdy czwartek, 16:45-18:15; każdy wtorek, 16:45-18:15",18
-440-000-1S-JP-1%2F2:LEKT:1821,186032,440-000-1S-JP-1%2F2,LEKT,lektorat,1821,21,,60,"każdy poniedziałek, 16:45-18:15; każdy poniedziałek, 15:00-16:30",2036
-440-000-1S-JP-1%2F2:LEKT:1822,186032,440-000-1S-JP-1%2F2,LEKT,lektorat,1822,21,,60,"każda środa, 18:30-20:00; każda środa, 16:45-18:15",2036
-440-000-1S-JP-1%2F2:LEKT:1823,186032,440-000-1S-JP-1%2F2,LEKT,lektorat,1823,21,,60,"każdy piątek, 16:45-18:15; każdy piątek, 15:00-16:30",2036
+440-000-1S-JP-1/2:LEKT:1809,186032,440-000-1S-JP-1/2,LEKT,lektorat,1809,11,,60,"każdy poniedziałek, 09:45-12:00; każdy czwartek, 09:00-11:15",2023|2032
+440-000-1S-JP-1/2:LEKT:1812,186032,440-000-1S-JP-1/2,LEKT,lektorat,1812,20,,60,"każdy piątek, 18:30-20:00; każdy piątek, 16:45-18:15",2032
+440-000-1S-JP-1/2:LEKT:1814,186032,440-000-1S-JP-1/2,LEKT,lektorat,1814,9,,60,"każdy piątek, 15:00-16:30; każdy czwartek, 18:30-20:00",2032|2036
+440-000-1S-JP-1/2:LEKT:1816,186032,440-000-1S-JP-1/2,LEKT,lektorat,1816,21,,60,"każda środa, 09:45-11:15; każdy poniedziałek, 18:30-20:00",22
+440-000-1S-JP-1/2:LEKT:1818,186032,440-000-1S-JP-1/2,LEKT,lektorat,1818,11,,60,"każdy piątek, 16:30-18:00; każdy czwartek, 17:00-18:30",2023
+440-000-1S-JP-1/2:LEKT:1820,186032,440-000-1S-JP-1/2,LEKT,lektorat,1820,19,,60,"każdy czwartek, 16:45-18:15; każdy wtorek, 16:45-18:15",18
+440-000-1S-JP-1/2:LEKT:1821,186032,440-000-1S-JP-1/2,LEKT,lektorat,1821,21,,60,"każdy poniedziałek, 16:45-18:15; każdy poniedziałek, 15:00-16:30",2036
+440-000-1S-JP-1/2:LEKT:1822,186032,440-000-1S-JP-1/2,LEKT,lektorat,1822,21,,60,"każda środa, 18:30-20:00; każda środa, 16:45-18:15",2036
+440-000-1S-JP-1/2:LEKT:1823,186032,440-000-1S-JP-1/2,LEKT,lektorat,1823,21,,60,"każdy piątek, 16:45-18:15; każdy piątek, 15:00-16:30",2036
 440-000-2S-JA:LEKT_EGZ:800,186049,440-000-2S-JA,LEKT_EGZ,Egzamin lektorat,800,19,19,0,(brak danych),
 440-000-2S-JA:LEKT_EGZ:801,186049,440-000-2S-JA,LEKT_EGZ,Egzamin lektorat,801,17,19,0,(brak danych),
 440-000-2S-JA:LEKT_EGZ:802,186049,440-000-2S-JA,LEKT_EGZ,Egzamin lektorat,802,18,19,0,(brak danych),
@@ -2354,9 +2354,9 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 110-IPP-1S-519:ZW:1,190315,110-IPP-1S-519,ZW,zajęcia warsztatowe,1,20,,28,"każdy czwartek, 09:45-11:15",435
 110-IPP-1S-519:ZW:2,190315,110-IPP-1S-519,ZW,zajęcia warsztatowe,2,19,,28,"każdy poniedziałek, 09:45-11:15",435
 110-INO-1S-384:ZW:1,190316,110-INO-1S-384,ZW,zajęcia warsztatowe,1,45,,84,"każdy piątek, 15:00-17:15; każdy czwartek, 16:45-19:00; każdy piątek, 17:30-19:45",442|420
-440-110-1N-JA-2%2F4:LEKT:1,190319,440-110-1N-JA-2%2F4,LEKT,lektorat,1,18,,30,"każda sobota, 08:00-10:15",2027
-440-110-1N-JA-2%2F4:LEKT:2,190319,440-110-1N-JA-2%2F4,LEKT,lektorat,2,16,,30,"każda sobota, 08:00-10:15",2029
-440-110-1N-JA-4%2F4:LEKT:1,190321,440-110-1N-JA-4%2F4,LEKT,lektorat,1,18,,15,"każda niedziela, 14:00-16:15",2031
+440-110-1N-JA-2/4:LEKT:1,190319,440-110-1N-JA-2/4,LEKT,lektorat,1,18,,30,"każda sobota, 08:00-10:15",2027
+440-110-1N-JA-2/4:LEKT:2,190319,440-110-1N-JA-2/4,LEKT,lektorat,2,16,,30,"każda sobota, 08:00-10:15",2029
+440-110-1N-JA-4/4:LEKT:1,190321,440-110-1N-JA-4/4,LEKT,lektorat,1,18,,15,"każda niedziela, 14:00-16:15",2031
 440-110-2N-JA-INM:LEKT:1,190323,440-110-2N-JA-INM,LEKT,lektorat,1,4,,30,"każda niedziela, 14:00-16:15",2040
 440-110-2N-JA-ITE:LEKT:1,190324,440-110-2N-JA-ITE,LEKT,lektorat,1,14,,15,"każda niedziela, 08:00-10:15",2040
 440-110-2N-JA-ITE:LEKT:2,190324,440-110-2N-JA-ITE,LEKT,lektorat,2,15,,15,"każda niedziela, 10:30-12:45",2040
@@ -2365,7 +2365,7 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 110-INM-1S-297:PRAC_DYPL:99,190341,110-INM-1S-297,PRAC_DYPL,praca dyplomowa,99,9,,0,(brak danych),
 110-INO-1S-297:PRAC_DYPL:99,190342,110-INO-1S-297,PRAC_DYPL,praca dyplomowa,99,56,,0,(brak danych),
 110-ITE-1S-297:PRAC_DYPL:99,190344,110-ITE-1S-297,PRAC_DYPL,praca dyplomowa,99,91,,0,(brak danych),
-440-110-1N-JA-4%2F4:LEKT_EGZ:1,190355,440-110-1N-JA-4%2F4,LEKT_EGZ,Egzamin lektorat,1,18,,0,(brak danych),
+440-110-1N-JA-4/4:LEKT_EGZ:1,190355,440-110-1N-JA-4/4,LEKT_EGZ,Egzamin lektorat,1,18,,0,(brak danych),
 440-110-2N-JA-INM:LEKT_EGZ:1,190356,440-110-2N-JA-INM,LEKT_EGZ,Egzamin lektorat,1,4,,0,(brak danych),
 440-110-2N-JA-ITE:LEKT_EGZ:1,190357,440-110-2N-JA-ITE,LEKT_EGZ,Egzamin lektorat,1,14,,0,(brak danych),
 440-110-2N-JA-ITE:LEKT_EGZ:2,190357,440-110-2N-JA-ITE,LEKT_EGZ,Egzamin lektorat,2,15,,0,(brak danych),
@@ -7570,9 +7570,9 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 190-ING-1S-221-IG:ZS:1,202591,190-ING-1S-221-IG,ZS,zajęcia seminaryjne,1,6,,30,"każdy czwartek, 13:15-15:30",688
 190-ING-1S-221-IN:ZS:1,202595,190-ING-1S-221-IN,ZS,zajęcia seminaryjne,1,6,,30,"każda środa, 14:15-16:30",1911
 190-ING-1S-221-WN:ZS:1,202600,190-ING-1S-221-WN,ZS,zajęcia seminaryjne,1,10,,30,"każda środa, 16:45-19:00",1913
-440-190-1N-JA-1%2F3:LEKT:1,202602,440-190-1N-JA-1%2F3,LEKT,lektorat,1,17,,25,"każda niedziela, 14:00-16:15",2038
-440-190-1N-JA-3%2F3:LEKT:1,202604,440-190-1N-JA-3%2F3,LEKT,lektorat,1,11,,45,"każda sobota, 10:30-12:45",2040
-440-190-1N-JA-3%2F3:LEKT_EGZ:1,202607,440-190-1N-JA-3%2F3,LEKT_EGZ,Egzamin lektorat,1,11,,0,(brak danych),
+440-190-1N-JA-1/3:LEKT:1,202602,440-190-1N-JA-1/3,LEKT,lektorat,1,17,,25,"każda niedziela, 14:00-16:15",2038
+440-190-1N-JA-3/3:LEKT:1,202604,440-190-1N-JA-3/3,LEKT,lektorat,1,11,,45,"każda sobota, 10:30-12:45",2040
+440-190-1N-JA-3/3:LEKT_EGZ:1,202607,440-190-1N-JA-3/3,LEKT_EGZ,Egzamin lektorat,1,11,,0,(brak danych),
 190-GGO-1S-205:PROJ_DYPL:99,202611,190-GGO-1S-205,PROJ_DYPL,projekt dyplomowy,99,17,,0,(brak danych),
 190-ING-1S-205:PROJ_DYPL:99,202613,190-ING-1S-205,PROJ_DYPL,projekt dyplomowy,99,22,,0,(brak danych),
 190-GGO-2S-229-WIG:KN:99,202639,190-GGO-2S-229-WIG,KN,praca w kole naukowym,99,5,,0,(brak danych),
@@ -8765,9 +8765,9 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 200-ZIP-1S-324:ZW:1,204806,200-ZIP-1S-324,ZW,zajęcia warsztatowe,1,30,,15,"każdy poniedziałek, 11:30-13:00",517
 200-ZIP-2N-347-ZJ:ZW:1,204812,200-ZIP-2N-347-ZJ,ZW,zajęcia warsztatowe,1,10,,8,"wielokrotnie, 08:00-09:30",516
 200-ZIP-2S-347-ZJ:ZW:1,204813,200-ZIP-2S-347-ZJ,ZW,zajęcia warsztatowe,1,6,,15,"każdy wtorek, 15:00-16:30",521
-440-200-1N-JA-2%2F3:LEKT:1,204819,440-200-1N-JA-2%2F3,LEKT,lektorat,1,13,,30,"wielokrotnie, 08:00-09:30",2025
-440-200-1N-JA-2%2F3:LEKT:2,204819,440-200-1N-JA-2%2F3,LEKT,lektorat,2,9,,30,"wielokrotnie, 15:30-17:45",2027
-440-200-1N-JA-2%2F3:LEKT:3,204819,440-200-1N-JA-2%2F3,LEKT,lektorat,3,10,,30,"wielokrotnie, 17:00-18:30",2025
+440-200-1N-JA-2/3:LEKT:1,204819,440-200-1N-JA-2/3,LEKT,lektorat,1,13,,30,"wielokrotnie, 08:00-09:30",2025
+440-200-1N-JA-2/3:LEKT:2,204819,440-200-1N-JA-2/3,LEKT,lektorat,2,9,,30,"wielokrotnie, 15:30-17:45",2027
+440-200-1N-JA-2/3:LEKT:3,204819,440-200-1N-JA-2/3,LEKT,lektorat,3,10,,30,"wielokrotnie, 17:00-18:30",2025
 440-200-2N-JA:LEKT:1,204822,440-200-2N-JA,LEKT,lektorat,1,24,,15,"wielokrotnie, 15:30-17:00",2025
 440-200-2N-JA:LEKT:2,204822,440-200-2N-JA,LEKT,lektorat,2,23,,15,"wielokrotnie, 15:30-17:00",2028
 440-200-2N-JA:LEKT:3,204822,440-200-2N-JA,LEKT,lektorat,3,11,,15,"wielokrotnie, 15:30-17:45",2025
@@ -10367,11 +10367,11 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 100-IZP-2S-830-LPP:ZW:1,208321,100-IZP-2S-830-LPP,ZW,zajęcia warsztatowe,1,15,,15,"co druga środa (nieparzyste), 11:30-13:00",735
 100-RMV-2S-700:ZW:1,208327,100-RMV-2S-700,ZW,zajęcia warsztatowe,1,12,,2,"każdy czwartek, 14:15-15:45",2230
 100-RMV-2S-735:PK:1,208332,100-RMV-2S-735,PK,prace kontrolne i przejściowe,1,12,,1,"każda środa, 11:30-12:15",2230
-440-100-1N-JA-1%2F4:LEKT:1,208335,440-100-1N-JA-1%2F4,LEKT,lektorat,1,20,,21,"każda niedziela, 08:00-10:15",2039
-440-100-1N-JA-1%2F4:LEKT:2,208335,440-100-1N-JA-1%2F4,LEKT,lektorat,2,22,,21,"każda niedziela, 08:00-10:15",2038
-440-100-1N-JA-2%2F4:LEKT:1,208336,440-100-1N-JA-2%2F4,LEKT,lektorat,1,5,,18,"każda niedziela, 08:00-10:15",2021
-440-100-1N-JA-3%2F4:LEKT:1,208339,440-100-1N-JA-3%2F4,LEKT,lektorat,1,23,,21,"każda niedziela, 10:30-12:45",2039
-440-100-1N-JA-3%2F4:LEKT:2,208339,440-100-1N-JA-3%2F4,LEKT,lektorat,2,18,,21,"każda niedziela, 10:30-12:45",2038
+440-100-1N-JA-1/4:LEKT:1,208335,440-100-1N-JA-1/4,LEKT,lektorat,1,20,,21,"każda niedziela, 08:00-10:15",2039
+440-100-1N-JA-1/4:LEKT:2,208335,440-100-1N-JA-1/4,LEKT,lektorat,2,22,,21,"każda niedziela, 08:00-10:15",2038
+440-100-1N-JA-2/4:LEKT:1,208336,440-100-1N-JA-2/4,LEKT,lektorat,1,5,,18,"każda niedziela, 08:00-10:15",2021
+440-100-1N-JA-3/4:LEKT:1,208339,440-100-1N-JA-3/4,LEKT,lektorat,1,23,,21,"każda niedziela, 10:30-12:45",2039
+440-100-1N-JA-3/4:LEKT:2,208339,440-100-1N-JA-3/4,LEKT,lektorat,2,18,,21,"każda niedziela, 10:30-12:45",2038
 100-BUD-1S-251:PROJ_DYPL:99,208344,100-BUD-1S-251,PROJ_DYPL,projekt dyplomowy,99,98,,0,(brak danych),
 100-BUD-2N-252:PRAC_DYPL:99,208346,100-BUD-2N-252,PRAC_DYPL,praca dyplomowa,99,22,,0,(brak danych),
 100-IGR-1S-251:PRAC_DYPL:99,208352,100-IGR-1S-251,PRAC_DYPL,praca dyplomowa,99,5,,0,(brak danych),
@@ -10936,11 +10936,11 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 150-IGP-1S-637:ZW:2,209636,150-IGP-1S-637,ZW,zajęcia warsztatowe,2,28,,45,"wielokrotnie, 14:15-16:30",257
 150-RSG-2S-622:PK:1,209649,150-RSG-2S-622,PK,prace kontrolne i przejściowe,1,18,,80,"wielokrotnie, 08:00-11:45; wielokrotnie, 12:10-15:55; wielokrotnie, 08:00-11:45; wielokrotnie, 12:10-15:55; wielokrotnie, 12:10-15:55; wielokrotnie, 12:10-15:55; wielokrotnie, 08:00-11:45; wielokrotnie, 08:00-11:45; wielokrotnie, 12:10-15:55; wielokrotnie, 08:00-11:45",1817
 150-RSG-2S-623:PK:1,209650,150-RSG-2S-623,PK,prace kontrolne i przejściowe,1,2,,150,"wielokrotnie, 12:10-15:55; wielokrotnie, 12:10-15:55; wielokrotnie, 08:00-11:45; wielokrotnie, 08:00-11:45; wielokrotnie, 12:10-15:55; wielokrotnie, 08:00-11:45",2195
-440-150-1N-JA-1%2F3:LEKT:1,209654,440-150-1N-JA-1%2F3,LEKT,lektorat,1,22,,18,"co druga sobota (nieparzyste), 08:00-10:15",2021
-440-150-1N-JA-3%2F3:LEKT:1,209656,440-150-1N-JA-3%2F3,LEKT,lektorat,1,11,,36,"każda sobota, 08:00-10:15",2038
+440-150-1N-JA-1/3:LEKT:1,209654,440-150-1N-JA-1/3,LEKT,lektorat,1,22,,18,"co druga sobota (nieparzyste), 08:00-10:15",2021
+440-150-1N-JA-3/3:LEKT:1,209656,440-150-1N-JA-3/3,LEKT,lektorat,1,11,,36,"każda sobota, 08:00-10:15",2038
 150-IGP-1S-334:PROJ_DYPL:99,209657,150-IGP-1S-334,PROJ_DYPL,projekt dyplomowy,99,47,,0,(brak danych),
 150-GIK-1N-306:PZ:1,209667,150-GIK-1N-306,PZ,praktyka,1,23,,0,(brak danych),
-440-150-1N-JA-3%2F3:LEKT_EGZ:1,209671,440-150-1N-JA-3%2F3,LEKT_EGZ,Egzamin lektorat,1,11,,0,(brak danych),
+440-150-1N-JA-3/3:LEKT_EGZ:1,209671,440-150-1N-JA-3/3,LEKT_EGZ,Egzamin lektorat,1,11,,0,(brak danych),
 450-WF-1S-1:WF:0,209672,450-WF-1S-1,WF,zajęcia z wf,0,217,400,30,(brak danych),
 450-WF-1S-1:WF:1,209672,450-WF-1S-1,WF,zajęcia z wf,1,34,400,30,(brak danych),
 450-WF-1S-1:WF:2,209672,450-WF-1S-1,WF,zajęcia z wf,2,27,28,30,"każda środa, 09:30-11:00",2204
@@ -12923,10 +12923,10 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 120-IFM-1S-889:ZW:1,211836,120-IFM-1S-889,ZW,zajęcia warsztatowe,1,25,,30,"co drugi wtorek (nieparzyste), 15:00-18:00",394
 120-IFM-1S-889:ZW:2,211836,120-IFM-1S-889,ZW,zajęcia warsztatowe,2,12,,30,"co drugi wtorek (parzyste), 15:00-18:00",394
 120-ISI-1S-759:PK:1,211839,120-ISI-1S-759,PK,prace kontrolne i przejściowe,1,10,,28,"każdy piątek, 18:15-20:30",1814
-440-120-1N-JA-1%2F4:LEKT:1,211841,440-120-1N-JA-1%2F4,LEKT,lektorat,1,15,,27,"każdy piątek, 18:30-20:45",2027
-440-120-1N-JA-1%2F4:LEKT:2,211841,440-120-1N-JA-1%2F4,LEKT,lektorat,2,16,,27,"każdy piątek, 18:30-20:45",2039
-440-120-1N-JA-3%2F4:LEKT:1,211843,440-120-1N-JA-3%2F4,LEKT,lektorat,1,19,,27,"każdy piątek, 18:30-20:45",2030
-440-120-1N-JA-3%2F4:LEKT:2,211843,440-120-1N-JA-3%2F4,LEKT,lektorat,2,16,,27,"każdy piątek, 18:30-20:45",2031
+440-120-1N-JA-1/4:LEKT:1,211841,440-120-1N-JA-1/4,LEKT,lektorat,1,15,,27,"każdy piątek, 18:30-20:45",2027
+440-120-1N-JA-1/4:LEKT:2,211841,440-120-1N-JA-1/4,LEKT,lektorat,2,16,,27,"każdy piątek, 18:30-20:45",2039
+440-120-1N-JA-3/4:LEKT:1,211843,440-120-1N-JA-3/4,LEKT,lektorat,1,19,,27,"każdy piątek, 18:30-20:45",2030
+440-120-1N-JA-3/4:LEKT:2,211843,440-120-1N-JA-3/4,LEKT,lektorat,2,16,,27,"każdy piątek, 18:30-20:45",2031
 440-120-2N-JA:LEKT:1,211845,440-120-2N-JA,LEKT,lektorat,1,24,,30,"każdy piątek, 18:30-20:45",2029
 440-120-2N-JA:LEKT:2,211845,440-120-2N-JA,LEKT,lektorat,2,10,,30,"każdy piątek, 18:30-20:45",2021
 440-120-2N-JA:LEKT_EGZ:1,211847,440-120-2N-JA,LEKT_EGZ,Egzamin lektorat,1,24,,0,(brak danych),
@@ -14843,13 +14843,13 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 130-MBM-1N-330:PK:3,214261,130-MBM-1N-330,PK,prace kontrolne i przejściowe,3,10,9,25,(brak danych),
 130-APR-1N-331:PK:1,214263,130-APR-1N-331,PK,prace kontrolne i przejściowe,1,18,24,25,(brak danych),
 130-APR-1N-331:PK:2,214263,130-APR-1N-331,PK,prace kontrolne i przejściowe,2,11,12,25,(brak danych),
-440-130-1N-JA-1%2F4:LEKT:1,214267,440-130-1N-JA-1%2F4,LEKT,lektorat,1,18,21,25,w każdą sobotę i niedzielę,
-440-130-1N-JA-1%2F4:LEKT:2,214267,440-130-1N-JA-1%2F4,LEKT,lektorat,2,17,21,25,w każdą sobotę i niedzielę,
-440-130-1N-JA-1%2F4:LEKT:3,214267,440-130-1N-JA-1%2F4,LEKT,lektorat,3,19,21,25,w każdą sobotę i niedzielę,
-440-130-1N-JA-1%2F4:LEKT:4,214267,440-130-1N-JA-1%2F4,LEKT,lektorat,4,18,21,25,w każdą sobotę i niedzielę,
-440-130-1N-JA-3%2F4:LEKT:1,214269,440-130-1N-JA-3%2F4,LEKT,lektorat,1,21,21,20,w każdą sobotę i niedzielę,2022
-440-130-1N-JA-3%2F4:LEKT:2,214269,440-130-1N-JA-3%2F4,LEKT,lektorat,2,21,21,20,w każdą sobotę i niedzielę,2030
-440-130-1N-JA-3%2F4:LEKT:3,214269,440-130-1N-JA-3%2F4,LEKT,lektorat,3,23,21,20,w każdą sobotę i niedzielę,
+440-130-1N-JA-1/4:LEKT:1,214267,440-130-1N-JA-1/4,LEKT,lektorat,1,18,21,25,w każdą sobotę i niedzielę,
+440-130-1N-JA-1/4:LEKT:2,214267,440-130-1N-JA-1/4,LEKT,lektorat,2,17,21,25,w każdą sobotę i niedzielę,
+440-130-1N-JA-1/4:LEKT:3,214267,440-130-1N-JA-1/4,LEKT,lektorat,3,19,21,25,w każdą sobotę i niedzielę,
+440-130-1N-JA-1/4:LEKT:4,214267,440-130-1N-JA-1/4,LEKT,lektorat,4,18,21,25,w każdą sobotę i niedzielę,
+440-130-1N-JA-3/4:LEKT:1,214269,440-130-1N-JA-3/4,LEKT,lektorat,1,21,21,20,w każdą sobotę i niedzielę,2022
+440-130-1N-JA-3/4:LEKT:2,214269,440-130-1N-JA-3/4,LEKT,lektorat,2,21,21,20,w każdą sobotę i niedzielę,2030
+440-130-1N-JA-3/4:LEKT:3,214269,440-130-1N-JA-3/4,LEKT,lektorat,3,23,21,20,w każdą sobotę i niedzielę,
 440-130-2N-JA:LEKT:1,214271,440-130-2N-JA,LEKT,lektorat,1,18,20,20,w każdą sobotę i niedzielę,2031
 440-130-2N-JA:LEKT:2,214271,440-130-2N-JA,LEKT,lektorat,2,15,15,20,w każdą sobotę i niedzielę,
 440-130-2N-JA:LEKT_EGZ:1,214273,440-130-2N-JA,LEKT_EGZ,Egzamin lektorat,1,18,20,0,(brak danych),
@@ -16094,8 +16094,8 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 230-NTK-1S-111:ZW:2,215584,230-NTK-1S-111,ZW,zajęcia warsztatowe,2,27,,16,"każdy poniedziałek, 11:30-13:00",1972
 230-NTK-1S-293:ZW:1,215585,230-NTK-1S-293,ZW,zajęcia warsztatowe,1,24,,30,"każda środa, 11:30-13:45",1958
 230-NTK-1S-295:ZW:1,215586,230-NTK-1S-295,ZW,zajęcia warsztatowe,1,14,,30,"każda środa, 15:00-17:15",1958
-440-230-1N-JA-1%2F3:LEKT:1,215587,440-230-1N-JA-1%2F3,LEKT,lektorat,1,12,,32,"każda niedziela, 12:00-13:30",2034
-440-230-1N-JA-3%2F3:LEKT:1,215589,440-230-1N-JA-3%2F3,LEKT,lektorat,1,12,,16,"każda niedziela, 08:00-09:30",2034
+440-230-1N-JA-1/3:LEKT:1,215587,440-230-1N-JA-1/3,LEKT,lektorat,1,12,,32,"każda niedziela, 12:00-13:30",2034
+440-230-1N-JA-3/3:LEKT:1,215589,440-230-1N-JA-3/3,LEKT,lektorat,1,12,,16,"każda niedziela, 08:00-09:30",2034
 230-CBZ-2S-533:KN:1,215610,230-CBZ-2S-533,KN,praca w kole naukowym,1,2,,0,(brak danych),
 100-BUD-1N-854:CWP:1,215637,100-BUD-1N-854,CWP,ćwiczenia projektowe,1,21,,9,"każda sobota, 16:30-18:45",735
 100-BUD-1N-854:W:1,215638,100-BUD-1N-854,W,wykład,1,21,,9,"każda sobota, 14:00-16:15",735
@@ -16149,7 +16149,7 @@ group_id,unit_id,course_id,class_type,class_type_name,group_nr,enrolled,limit,ho
 440-000-1S-IAE:LEKT_EGZ:704,215680,440-000-1S-IAE,LEKT_EGZ,Egzamin lektorat,704,21,,0,(brak danych),
 440-000-1S-IAE:LEKT_EGZ:705,215680,440-000-1S-IAE,LEKT_EGZ,Egzamin lektorat,705,21,,0,(brak danych),
 440-000-1S-IAE:LEKT_EGZ:706,215680,440-000-1S-IAE,LEKT_EGZ,Egzamin lektorat,706,24,,0,(brak danych),
-440-000-1S-JA5-1%2F3:LEKT:700,215681,440-000-1S-JA5-1%2F3,LEKT,lektorat,700,6,,45,"każdy piątek, 14:00-16:15",2027
+440-000-1S-JA5-1/3:LEKT:700,215681,440-000-1S-JA5-1/3,LEKT,lektorat,700,6,,45,"każdy piątek, 14:00-16:15",2027
 160-HES-1S-004:ZS:1,215685,160-HES-1S-004,ZS,zajęcia seminaryjne,1,18,18,30,"każda środa, 15:00-17:15",386
 230-ELE-1S-144:W:1,215688,230-ELE-1S-144,W,wykład,1,15,,16,(brak danych),
 230-ELE-1S-144:CWL:1,215689,230-ELE-1S-144,CWL,ćwiczenia laboratoryjne,1,15,,16,(brak danych),

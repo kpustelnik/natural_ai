@@ -43,6 +43,8 @@ export async function loadBinary<H extends BinaryHeader>(headerPath: string): Pr
   const header = await fetchJson<H>(headerPath);
   const dir = headerPath.includes("/") ? headerPath.slice(0, headerPath.lastIndexOf("/") + 1) : "";
   const res = await fetch(DATA_URL + dir + header.bin);
+  // a missing .bin also comes back as index.html (see fetchJson)
+  if (res.status === 404 || res.headers.get("content-type")?.includes("html")) throw new MissingDataError(dir + header.bin);
   if (!res.ok) throw new Error(`${header.bin}: HTTP ${res.status}`);
   const bin = await res.arrayBuffer();
 

@@ -356,114 +356,114 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 693-INN-001:ZW:1,693-INN-001,Nanostruktury nadprzewodzące w nauce i technice,ZW,10,usos,10,12,
 693-INT-xS-304:W:1,693-INT-xS-304,Semiconductors in Neuromorphic Computing,W,13,usos,13,24,50
 693-INT-xS-304:ZP:1,693-INT-xS-304,Semiconductors in Neuromorphic Computing,ZP,13,usos,13,24,50
-440-000-1S-JA5-2%2F3:LEKT:401,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,17,usos,17,,30
-440-000-1S-JA5-2%2F3:LEKT:402,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,15,usos,15,,28
-440-000-1S-JA5-2%2F3:LEKT:403,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,16,usos,16,,27
-440-000-1S-JA5-2%2F3:LEKT:404,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,19,usos,19,,25
-440-000-1S-JA5-2%2F3:LEKT:405,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,16,usos,16,,25
-440-000-1S-JA5-2%2F3:LEKT:409,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,21,usos,21,,32
-440-000-1S-JA5-2%2F3:LEKT:416,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,14,room_capacity,0,,22
-440-000-1S-JA5-2%2F3:LEKT:418,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,16,usos,16,,27
-440-000-1S-JA5-2%2F3:LEKT:419,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,22,usos,22,,22
-440-000-1S-JA5-2%2F3:LEKT:429,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,18,usos,18,,28
-440-000-1S-JA5-2%2F3:LEKT:430,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,13,usos,13,,28
-440-000-1S-JA5-2%2F3:LEKT:431,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,19,usos,19,,28
-440-000-1S-JA5-2%2F3:LEKT:434,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,18,usos,18,,22
-440-000-1S-JA5-2%2F3:LEKT:438,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,14,usos,14,,27
-440-000-1S-JA5-2%2F3:LEKT:441,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,10,usos,10,,28
-440-000-1S-JA5-2%2F3:LEKT:442,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,10,usos,10,,28
-440-000-1S-JA5-2%2F3:LEKT:444,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,12,usos,12,,25
-440-000-1S-JA5-2%2F3:LEKT:445,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,6,usos,6,,32
-440-000-1S-JA5-2%2F3:LEKT:448,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,10,usos,10,,30
-440-000-1S-JA5-2%2F3:LEKT:453,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,20,usos,20,,28
-440-000-1S-JA5-2%2F3:LEKT:454,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,21,usos,21,,22
-440-000-1S-JA5-2%2F3:LEKT:456,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,10,usos,10,,22
-440-000-1S-JA5-2%2F3:LEKT:457,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,12,usos,12,,27
-440-000-1S-JA5-2%2F3:LEKT:459,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,18,usos,18,,25
-440-000-1S-JA5-2%2F3:LEKT:460,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,19,usos,19,,28
-440-000-1S-JA5-2%2F3:LEKT:466,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,17,usos,17,,28
-440-000-1S-JA5-2%2F3:LEKT:467,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,12,usos,12,,32
-440-000-1S-JA5-2%2F3:LEKT:469,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,19,usos,19,,27
-440-000-1S-JA5-2%2F3:LEKT:472,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,21,usos,21,,22
-440-000-1S-JA5-2%2F3:LEKT:476,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,14,usos,14,,25
-440-000-1S-JA5-2%2F3:LEKT:477,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,19,usos,19,,28
-440-000-1S-JA5-2%2F3:LEKT:481,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,9,usos,9,,28
-440-000-1S-JA5-2%2F3:LEKT:483,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,12,usos,12,,22
-440-000-1S-JA5-2%2F3:LEKT:484,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,7,usos,7,,25
-440-000-1S-JA5-2%2F3:LEKT:485,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,5,usos,5,,22
-440-000-1S-JA5-2%2F3:LEKT:502,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,13,usos,13,,28
-440-000-1S-JA5-2%2F3:LEKT:503,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,16,usos,16,,25
-440-000-1S-JA5-2%2F3:LEKT:504,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,8,usos,8,,22
-440-000-1S-JA5-2%2F3:LEKT:505,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,9,usos,9,,32
-440-000-1S-JA5-2%2F3:LEKT:513,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,11,usos,11,,22
-440-000-1S-JA5-2%2F3:LEKT:520,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,19,usos,19,,25
-440-000-1S-JA5-2%2F3:LEKT:521,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,19,usos,19,,28
-440-000-1S-JA5-2%2F3:LEKT:522,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,18,usos,18,,22
-440-000-1S-JA5-2%2F3:LEKT:524,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,14,usos,14,,28
-440-000-1S-JA5-2%2F3:LEKT:525,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,19,usos,19,,22
-440-000-1S-JA5-2%2F3:LEKT:528,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,14,usos,14,,32
-440-000-1S-JA5-2%2F3:LEKT:530,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,19,usos,19,,22
-440-000-1S-JA5-2%2F3:LEKT:533,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,20,usos,20,,22
-440-000-1S-JA5-2%2F3:LEKT:535,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,16,usos,16,,25
-440-000-1S-JA5-2%2F3:LEKT:536,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,16,usos,16,,22
-440-000-1S-JA5-2%2F3:LEKT:537,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,15,usos,15,,25
-440-000-1S-JA5-2%2F3:LEKT:541,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,10,usos,10,,25
-440-000-1S-JA5-2%2F3:LEKT:542,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,14,room_capacity,0,,22
-440-000-1S-JA5-2%2F3:LEKT:547,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,14,usos,14,,22
-440-000-1S-JA5-2%2F3:LEKT:551,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,17,usos,17,,25
-440-000-1S-JA5-2%2F3:LEKT:552,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,15,usos,15,,28
-440-000-1S-JA5-2%2F3:LEKT:553,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,15,usos,15,,28
-440-000-1S-JA5-2%2F3:LEKT:555,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,17,usos,17,,22
-440-000-1S-JA5-2%2F3:LEKT:560,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,16,usos,16,,32
-440-000-1S-JA5-2%2F3:LEKT:561,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,14,usos,14,,25
-440-000-1S-JA5-2%2F3:LEKT:563,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,15,usos,15,,28
-440-000-1S-JA5-2%2F3:LEKT:564,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,22,usos,22,,22
-440-000-1S-JA5-2%2F3:LEKT:565,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,17,usos,17,,25
-440-000-1S-JA5-2%2F3:LEKT:566,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,13,usos,13,,28
-440-000-1S-JA5-2%2F3:LEKT:567,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,14,usos,14,,32
-440-000-1S-JA5-2%2F3:LEKT:568,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,14,usos,14,,28
-440-000-1S-JA5-2%2F3:LEKT:569,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,16,usos,16,,27
-440-000-1S-JA5-2%2F3:LEKT:571,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,15,usos,15,,22
-440-000-1S-JA5-2%2F3:LEKT:575,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,14,usos,14,,22
-440-000-1S-JA5-2%2F3:LEKT:600,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,18,usos,18,,32
-440-000-1S-JA5-2%2F3:LEKT:601,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,15,usos,15,,25
-440-000-1S-JA5-2%2F3:LEKT:604,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,19,usos,19,,22
-440-000-1S-JA5-2%2F3:LEKT:608,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,11,usos,11,,22
-440-000-1S-JA5-2%2F3:LEKT:612,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,28
-440-000-1S-JA5-2%2F3:LEKT:613,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,3,usos,3,,22
-440-000-1S-JA5-2%2F3:LEKT:618,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,13,usos,13,,22
-440-000-1S-JA5-2%2F3:LEKT:619,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,7,usos,7,,28
-440-000-1S-JA5-2%2F3:LEKT:620,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,4,usos,4,,30
-440-000-1S-JA5-2%2F3:LEKT:630,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,15,usos,15,,32
-440-000-1S-JA5-2%2F3:LEKT:631,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,13,usos,13,,28
-440-000-1S-JA5-2%2F3:LEKT:634,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,12,usos,12,,25
-440-000-1S-JA5-2%2F3:LEKT:636,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,11,usos,11,,22
-440-000-1S-JA5-2%2F3:LEKT:637,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,17,usos,17,,22
-440-000-1S-JA5-2%2F3:LEKT:640,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,17,usos,17,,25
-440-000-1S-JA5-2%2F3:LEKT:641,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,8,usos,8,,27
-440-000-1S-JA5-2%2F3:LEKT:645,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,20,usos,20,,28
-440-000-1S-JA5-2%2F3:LEKT:647,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,16,usos,16,,28
-440-000-1S-JA5-2%2F3:LEKT:648,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,19,usos,19,,28
-440-000-1S-JA5-2%2F3:LEKT:649,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,18,usos,18,,25
-440-000-1S-JA5-2%2F3:LEKT:651,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,13,usos,13,,27
-440-000-1S-JA5-2%2F3:LEKT:652,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,13,usos,13,,22
-440-000-1S-JA5-2%2F3:LEKT:662,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,17,usos,17,,22
-440-000-1S-JA5-2%2F3:LEKT:663,440-000-1S-JA5-2%2F3,Język angielski 2/3,LEKT,18,usos,18,,30
-440-000-1S-JF5-2%2F3:LEKT:1842,440-000-1S-JF5-2%2F3,Język francuski 2/3,LEKT,14,usos,14,,20
-440-000-1S-JF5-2%2F3:LEKT:1843,440-000-1S-JF5-2%2F3,Język francuski 2/3,LEKT,16,usos,16,,28
-440-000-1S-JF5-2%2F3:LEKT:1844,440-000-1S-JF5-2%2F3,Język francuski 2/3,LEKT,6,usos,6,,21
-440-000-1S-JH5-2%2F3:LEKT:1850,440-000-1S-JH5-2%2F3,Język hiszpański 2/3,LEKT,2,usos,2,1,27
-440-000-1S-JH5-2%2F3:LEKT:1851,440-000-1S-JH5-2%2F3,Język hiszpański 2/3,LEKT,11,usos,11,,27
-440-000-1S-JH5-2%2F3:LEKT:1852,440-000-1S-JH5-2%2F3,Język hiszpański 2/3,LEKT,13,usos,13,,27
-440-000-1S-JH5-2%2F3:LEKT:1853,440-000-1S-JH5-2%2F3,Język hiszpański 2/3,LEKT,14,usos,14,,27
-440-000-1S-JH5-2%2F3:LEKT:1854,440-000-1S-JH5-2%2F3,Język hiszpański 2/3,LEKT,20,usos,20,,27
-440-000-1S-JN5-2%2F3:LEKT:1830,440-000-1S-JN5-2%2F3,Język niemiecki 2/3,LEKT,5,usos,5,7,21
-440-000-1S-JN5-2%2F3:LEKT:1831,440-000-1S-JN5-2%2F3,Język niemiecki 2/3,LEKT,3,usos,3,,21
-440-000-1S-JN5-2%2F3:LEKT:1832,440-000-1S-JN5-2%2F3,Język niemiecki 2/3,LEKT,18,usos,18,,21
-440-000-1S-JN5-2%2F3:LEKT:1833,440-000-1S-JN5-2%2F3,Język niemiecki 2/3,LEKT,13,usos,13,,21
-440-000-1S-JR5-2%2F3:LEKT:1860,440-000-1S-JR5-2%2F3,Język rosyjski 2/3,LEKT,12,usos,12,,21
-440-000-1S-JR5-2%2F3:LEKT:1861,440-000-1S-JR5-2%2F3,Język rosyjski 2/3,LEKT,10,usos,10,,21
-440-000-1S-JR5-2%2F3:LEKT:1862,440-000-1S-JR5-2%2F3,Język rosyjski 2/3,LEKT,10,usos,10,,21
+440-000-1S-JA5-2/3:LEKT:401,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,17,usos,17,,30
+440-000-1S-JA5-2/3:LEKT:402,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,15,usos,15,,28
+440-000-1S-JA5-2/3:LEKT:403,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,16,usos,16,,27
+440-000-1S-JA5-2/3:LEKT:404,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,19,usos,19,,25
+440-000-1S-JA5-2/3:LEKT:405,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,16,usos,16,,25
+440-000-1S-JA5-2/3:LEKT:409,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,21,usos,21,,32
+440-000-1S-JA5-2/3:LEKT:416,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,14,room_capacity,0,,22
+440-000-1S-JA5-2/3:LEKT:418,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,16,usos,16,,27
+440-000-1S-JA5-2/3:LEKT:419,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,22,usos,22,,22
+440-000-1S-JA5-2/3:LEKT:429,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,18,usos,18,,28
+440-000-1S-JA5-2/3:LEKT:430,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,13,usos,13,,28
+440-000-1S-JA5-2/3:LEKT:431,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,19,usos,19,,28
+440-000-1S-JA5-2/3:LEKT:434,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,18,usos,18,,22
+440-000-1S-JA5-2/3:LEKT:438,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,14,usos,14,,27
+440-000-1S-JA5-2/3:LEKT:441,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,10,usos,10,,28
+440-000-1S-JA5-2/3:LEKT:442,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,10,usos,10,,28
+440-000-1S-JA5-2/3:LEKT:444,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,12,usos,12,,25
+440-000-1S-JA5-2/3:LEKT:445,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,6,usos,6,,32
+440-000-1S-JA5-2/3:LEKT:448,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,10,usos,10,,30
+440-000-1S-JA5-2/3:LEKT:453,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,20,usos,20,,28
+440-000-1S-JA5-2/3:LEKT:454,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,21,usos,21,,22
+440-000-1S-JA5-2/3:LEKT:456,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,10,usos,10,,22
+440-000-1S-JA5-2/3:LEKT:457,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,12,usos,12,,27
+440-000-1S-JA5-2/3:LEKT:459,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,18,usos,18,,25
+440-000-1S-JA5-2/3:LEKT:460,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,19,usos,19,,28
+440-000-1S-JA5-2/3:LEKT:466,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,17,usos,17,,28
+440-000-1S-JA5-2/3:LEKT:467,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,12,usos,12,,32
+440-000-1S-JA5-2/3:LEKT:469,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,19,usos,19,,27
+440-000-1S-JA5-2/3:LEKT:472,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,21,usos,21,,22
+440-000-1S-JA5-2/3:LEKT:476,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,14,usos,14,,25
+440-000-1S-JA5-2/3:LEKT:477,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,19,usos,19,,28
+440-000-1S-JA5-2/3:LEKT:481,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,9,usos,9,,28
+440-000-1S-JA5-2/3:LEKT:483,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,12,usos,12,,22
+440-000-1S-JA5-2/3:LEKT:484,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,7,usos,7,,25
+440-000-1S-JA5-2/3:LEKT:485,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,5,usos,5,,22
+440-000-1S-JA5-2/3:LEKT:502,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,13,usos,13,,28
+440-000-1S-JA5-2/3:LEKT:503,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,16,usos,16,,25
+440-000-1S-JA5-2/3:LEKT:504,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,8,usos,8,,22
+440-000-1S-JA5-2/3:LEKT:505,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,9,usos,9,,32
+440-000-1S-JA5-2/3:LEKT:513,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,11,usos,11,,22
+440-000-1S-JA5-2/3:LEKT:520,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,19,usos,19,,25
+440-000-1S-JA5-2/3:LEKT:521,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,19,usos,19,,28
+440-000-1S-JA5-2/3:LEKT:522,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,18,usos,18,,22
+440-000-1S-JA5-2/3:LEKT:524,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,14,usos,14,,28
+440-000-1S-JA5-2/3:LEKT:525,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,19,usos,19,,22
+440-000-1S-JA5-2/3:LEKT:528,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,14,usos,14,,32
+440-000-1S-JA5-2/3:LEKT:530,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,19,usos,19,,22
+440-000-1S-JA5-2/3:LEKT:533,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,20,usos,20,,22
+440-000-1S-JA5-2/3:LEKT:535,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,16,usos,16,,25
+440-000-1S-JA5-2/3:LEKT:536,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,16,usos,16,,22
+440-000-1S-JA5-2/3:LEKT:537,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,15,usos,15,,25
+440-000-1S-JA5-2/3:LEKT:541,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,10,usos,10,,25
+440-000-1S-JA5-2/3:LEKT:542,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,14,room_capacity,0,,22
+440-000-1S-JA5-2/3:LEKT:547,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,14,usos,14,,22
+440-000-1S-JA5-2/3:LEKT:551,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,17,usos,17,,25
+440-000-1S-JA5-2/3:LEKT:552,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,15,usos,15,,28
+440-000-1S-JA5-2/3:LEKT:553,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,15,usos,15,,28
+440-000-1S-JA5-2/3:LEKT:555,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,17,usos,17,,22
+440-000-1S-JA5-2/3:LEKT:560,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,16,usos,16,,32
+440-000-1S-JA5-2/3:LEKT:561,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,14,usos,14,,25
+440-000-1S-JA5-2/3:LEKT:563,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,15,usos,15,,28
+440-000-1S-JA5-2/3:LEKT:564,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,22,usos,22,,22
+440-000-1S-JA5-2/3:LEKT:565,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,17,usos,17,,25
+440-000-1S-JA5-2/3:LEKT:566,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,13,usos,13,,28
+440-000-1S-JA5-2/3:LEKT:567,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,14,usos,14,,32
+440-000-1S-JA5-2/3:LEKT:568,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,14,usos,14,,28
+440-000-1S-JA5-2/3:LEKT:569,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,16,usos,16,,27
+440-000-1S-JA5-2/3:LEKT:571,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,15,usos,15,,22
+440-000-1S-JA5-2/3:LEKT:575,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,14,usos,14,,22
+440-000-1S-JA5-2/3:LEKT:600,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,18,usos,18,,32
+440-000-1S-JA5-2/3:LEKT:601,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,15,usos,15,,25
+440-000-1S-JA5-2/3:LEKT:604,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,19,usos,19,,22
+440-000-1S-JA5-2/3:LEKT:608,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,11,usos,11,,22
+440-000-1S-JA5-2/3:LEKT:612,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,2,usos,2,,28
+440-000-1S-JA5-2/3:LEKT:613,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,3,usos,3,,22
+440-000-1S-JA5-2/3:LEKT:618,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,13,usos,13,,22
+440-000-1S-JA5-2/3:LEKT:619,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,7,usos,7,,28
+440-000-1S-JA5-2/3:LEKT:620,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,4,usos,4,,30
+440-000-1S-JA5-2/3:LEKT:630,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,15,usos,15,,32
+440-000-1S-JA5-2/3:LEKT:631,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,13,usos,13,,28
+440-000-1S-JA5-2/3:LEKT:634,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,12,usos,12,,25
+440-000-1S-JA5-2/3:LEKT:636,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,11,usos,11,,22
+440-000-1S-JA5-2/3:LEKT:637,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,17,usos,17,,22
+440-000-1S-JA5-2/3:LEKT:640,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,17,usos,17,,25
+440-000-1S-JA5-2/3:LEKT:641,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,8,usos,8,,27
+440-000-1S-JA5-2/3:LEKT:645,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,20,usos,20,,28
+440-000-1S-JA5-2/3:LEKT:647,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,16,usos,16,,28
+440-000-1S-JA5-2/3:LEKT:648,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,19,usos,19,,28
+440-000-1S-JA5-2/3:LEKT:649,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,18,usos,18,,25
+440-000-1S-JA5-2/3:LEKT:651,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,13,usos,13,,27
+440-000-1S-JA5-2/3:LEKT:652,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,13,usos,13,,22
+440-000-1S-JA5-2/3:LEKT:662,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,17,usos,17,,22
+440-000-1S-JA5-2/3:LEKT:663,440-000-1S-JA5-2/3,Język angielski 2/3,LEKT,18,usos,18,,30
+440-000-1S-JF5-2/3:LEKT:1842,440-000-1S-JF5-2/3,Język francuski 2/3,LEKT,14,usos,14,,20
+440-000-1S-JF5-2/3:LEKT:1843,440-000-1S-JF5-2/3,Język francuski 2/3,LEKT,16,usos,16,,28
+440-000-1S-JF5-2/3:LEKT:1844,440-000-1S-JF5-2/3,Język francuski 2/3,LEKT,6,usos,6,,21
+440-000-1S-JH5-2/3:LEKT:1850,440-000-1S-JH5-2/3,Język hiszpański 2/3,LEKT,2,usos,2,1,27
+440-000-1S-JH5-2/3:LEKT:1851,440-000-1S-JH5-2/3,Język hiszpański 2/3,LEKT,11,usos,11,,27
+440-000-1S-JH5-2/3:LEKT:1852,440-000-1S-JH5-2/3,Język hiszpański 2/3,LEKT,13,usos,13,,27
+440-000-1S-JH5-2/3:LEKT:1853,440-000-1S-JH5-2/3,Język hiszpański 2/3,LEKT,14,usos,14,,27
+440-000-1S-JH5-2/3:LEKT:1854,440-000-1S-JH5-2/3,Język hiszpański 2/3,LEKT,20,usos,20,,27
+440-000-1S-JN5-2/3:LEKT:1830,440-000-1S-JN5-2/3,Język niemiecki 2/3,LEKT,5,usos,5,7,21
+440-000-1S-JN5-2/3:LEKT:1831,440-000-1S-JN5-2/3,Język niemiecki 2/3,LEKT,3,usos,3,,21
+440-000-1S-JN5-2/3:LEKT:1832,440-000-1S-JN5-2/3,Język niemiecki 2/3,LEKT,18,usos,18,,21
+440-000-1S-JN5-2/3:LEKT:1833,440-000-1S-JN5-2/3,Język niemiecki 2/3,LEKT,13,usos,13,,21
+440-000-1S-JR5-2/3:LEKT:1860,440-000-1S-JR5-2/3,Język rosyjski 2/3,LEKT,12,usos,12,,21
+440-000-1S-JR5-2/3:LEKT:1861,440-000-1S-JR5-2/3,Język rosyjski 2/3,LEKT,10,usos,10,,21
+440-000-1S-JR5-2/3:LEKT:1862,440-000-1S-JR5-2/3,Język rosyjski 2/3,LEKT,10,usos,10,,21
 440-000-2S-JA:LEKT:800,440-000-2S-JA,Specjalistyczny język angielski B2+,LEKT,19,usos,19,19,22
 440-000-2S-JA:LEKT:801,440-000-2S-JA,Specjalistyczny język angielski B2+,LEKT,17,usos,17,19,22
 440-000-2S-JA:LEKT:802,440-000-2S-JA,Specjalistyczny język angielski B2+,LEKT,18,usos,18,19,22
@@ -595,46 +595,46 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 440-000-2S-JA:LEKT:939,440-000-2S-JA,Specjalistyczny język angielski B2+,LEKT,32,usos,32,0,27
 440-000-2S-JH:LEKT:1808,440-000-2S-JH,Specjalistyczny język hiszpański B2+,LEKT,5,usos,5,20,27
 440-000-2S-JN:LEKT:1807,440-000-2S-JN,Specjalistyczny język niemiecki B2+,LEKT,10,usos,10,20,21
-440-000-1S-JA6-2%2F3:LEKT:4386,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,27
-440-000-1S-JA6-2%2F3:LEKT:4416,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,6,usos,6,,28
-440-000-1S-JA6-2%2F3:LEKT:4426,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,4,usos,4,,28
-440-000-1S-JA6-2%2F3:LEKT:4456,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,5,usos,5,,32
-440-000-1S-JA6-2%2F3:LEKT:4486,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,6,usos,6,,30
-440-000-1S-JA6-2%2F3:LEKT:4816,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,17,room_capacity,0,,28
-440-000-1S-JA6-2%2F3:LEKT:4846,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,25
-440-000-1S-JA6-2%2F3:LEKT:4856,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,6,usos,6,,22
-440-000-1S-JA6-2%2F3:LEKT:5026,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,5,usos,5,,28
-440-000-1S-JA6-2%2F3:LEKT:5036,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,3,usos,3,,25
-440-000-1S-JA6-2%2F3:LEKT:5046,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,22
-440-000-1S-JA6-2%2F3:LEKT:5056,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,3,usos,3,,32
-440-000-1S-JA6-2%2F3:LEKT:5136,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,3,usos,3,,22
-440-000-1S-JA6-2%2F3:LEKT:5416,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,1,usos,1,,25
-440-000-1S-JA6-2%2F3:LEKT:5476,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,22
-440-000-1S-JA6-2%2F3:LEKT:5526,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,3,usos,3,,28
-440-000-1S-JA6-2%2F3:LEKT:5536,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,1,usos,1,,28
-440-000-1S-JA6-2%2F3:LEKT:5616,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,25
-440-000-1S-JA6-2%2F3:LEKT:5636,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,3,usos,3,,28
-440-000-1S-JA6-2%2F3:LEKT:5646,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,22
-440-000-1S-JA6-2%2F3:LEKT:5656,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,1,usos,1,,25
-440-000-1S-JA6-2%2F3:LEKT:5666,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,3,usos,3,,28
-440-000-1S-JA6-2%2F3:LEKT:5676,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,1,usos,1,,32
-440-000-1S-JA6-2%2F3:LEKT:5686,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,4,usos,4,,28
-440-000-1S-JA6-2%2F3:LEKT:5696,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,27
-440-000-1S-JA6-2%2F3:LEKT:5716,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,22
-440-000-1S-JA6-2%2F3:LEKT:5756,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,1,usos,1,,22
-440-000-1S-JA6-2%2F3:LEKT:6086,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,22
-440-000-1S-JA6-2%2F3:LEKT:6126,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,17,usos,17,,28
-440-000-1S-JA6-2%2F3:LEKT:6136,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,9,usos,9,,22
-440-000-1S-JA6-2%2F3:LEKT:6186,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,22
-440-000-1S-JA6-2%2F3:LEKT:6196,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,4,usos,4,,28
-440-000-1S-JA6-2%2F3:LEKT:6206,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,2,usos,2,,30
-440-000-1S-JA6-2%2F3:LEKT:6306,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,1,usos,1,,32
-440-000-1S-JA6-2%2F3:LEKT:6316,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,5,usos,5,,28
-440-000-1S-JA6-2%2F3:LEKT:6346,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,6,usos,6,,25
-440-000-1S-JA6-2%2F3:LEKT:6366,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,7,usos,7,,22
-440-000-1S-JA6-2%2F3:LEKT:6376,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,1,usos,1,,22
-440-000-1S-JA6-2%2F3:LEKT:6406,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,1,usos,1,,25
-440-000-1S-JA6-2%2F3:LEKT:6416,440-000-1S-JA6-2%2F3,Język angielski 2/3,LEKT,3,usos,3,,27
+440-000-1S-JA6-2/3:LEKT:4386,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,2,usos,2,,27
+440-000-1S-JA6-2/3:LEKT:4416,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,6,usos,6,,28
+440-000-1S-JA6-2/3:LEKT:4426,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,4,usos,4,,28
+440-000-1S-JA6-2/3:LEKT:4456,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,5,usos,5,,32
+440-000-1S-JA6-2/3:LEKT:4486,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,6,usos,6,,30
+440-000-1S-JA6-2/3:LEKT:4816,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,17,room_capacity,0,,28
+440-000-1S-JA6-2/3:LEKT:4846,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,2,usos,2,,25
+440-000-1S-JA6-2/3:LEKT:4856,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,6,usos,6,,22
+440-000-1S-JA6-2/3:LEKT:5026,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,5,usos,5,,28
+440-000-1S-JA6-2/3:LEKT:5036,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,3,usos,3,,25
+440-000-1S-JA6-2/3:LEKT:5046,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,2,usos,2,,22
+440-000-1S-JA6-2/3:LEKT:5056,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,3,usos,3,,32
+440-000-1S-JA6-2/3:LEKT:5136,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,3,usos,3,,22
+440-000-1S-JA6-2/3:LEKT:5416,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,1,usos,1,,25
+440-000-1S-JA6-2/3:LEKT:5476,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,2,usos,2,,22
+440-000-1S-JA6-2/3:LEKT:5526,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,3,usos,3,,28
+440-000-1S-JA6-2/3:LEKT:5536,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,1,usos,1,,28
+440-000-1S-JA6-2/3:LEKT:5616,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,2,usos,2,,25
+440-000-1S-JA6-2/3:LEKT:5636,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,3,usos,3,,28
+440-000-1S-JA6-2/3:LEKT:5646,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,2,usos,2,,22
+440-000-1S-JA6-2/3:LEKT:5656,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,1,usos,1,,25
+440-000-1S-JA6-2/3:LEKT:5666,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,3,usos,3,,28
+440-000-1S-JA6-2/3:LEKT:5676,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,1,usos,1,,32
+440-000-1S-JA6-2/3:LEKT:5686,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,4,usos,4,,28
+440-000-1S-JA6-2/3:LEKT:5696,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,2,usos,2,,27
+440-000-1S-JA6-2/3:LEKT:5716,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,2,usos,2,,22
+440-000-1S-JA6-2/3:LEKT:5756,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,1,usos,1,,22
+440-000-1S-JA6-2/3:LEKT:6086,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,2,usos,2,,22
+440-000-1S-JA6-2/3:LEKT:6126,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,17,usos,17,,28
+440-000-1S-JA6-2/3:LEKT:6136,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,9,usos,9,,22
+440-000-1S-JA6-2/3:LEKT:6186,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,2,usos,2,,22
+440-000-1S-JA6-2/3:LEKT:6196,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,4,usos,4,,28
+440-000-1S-JA6-2/3:LEKT:6206,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,2,usos,2,,30
+440-000-1S-JA6-2/3:LEKT:6306,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,1,usos,1,,32
+440-000-1S-JA6-2/3:LEKT:6316,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,5,usos,5,,28
+440-000-1S-JA6-2/3:LEKT:6346,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,6,usos,6,,25
+440-000-1S-JA6-2/3:LEKT:6366,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,7,usos,7,,22
+440-000-1S-JA6-2/3:LEKT:6376,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,1,usos,1,,22
+440-000-1S-JA6-2/3:LEKT:6406,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,1,usos,1,,25
+440-000-1S-JA6-2/3:LEKT:6416,440-000-1S-JA6-2/3,Język angielski 2/3,LEKT,3,usos,3,,27
 440-EXCHANGE-JP:LEKT:1800,440-EXCHANGE-JP,Język polski,LEKT,11,usos,11,15,28
 440-EXCHANGE-JP:LEKT:1801,440-EXCHANGE-JP,Język polski,LEKT,13,usos,13,15,28
 440-EXCHANGE-JP:LEKT:1802,440-EXCHANGE-JP,Język polski,LEKT,15,usos,15,15,20
@@ -646,15 +646,15 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 440-000-2S-JP:LEKT:1815,440-000-2S-JP,Język polski,LEKT,12,usos,12,,21
 440-000-2S-JP:LEKT:1817,440-000-2S-JP,Język polski,LEKT,1,usos,1,,20
 440-000-2S-JP:LEKT:1819,440-000-2S-JP,Język polski,LEKT,1,usos,1,,21
-440-000-1S-JP-1%2F2:LEKT:1809,440-000-1S-JP-1%2F2,Język polski 1/2,LEKT,11,usos,11,,21
-440-000-1S-JP-1%2F2:LEKT:1812,440-000-1S-JP-1%2F2,Język polski 1/2,LEKT,20,usos,20,,27
-440-000-1S-JP-1%2F2:LEKT:1814,440-000-1S-JP-1%2F2,Język polski 1/2,LEKT,9,usos,9,,21
-440-000-1S-JP-1%2F2:LEKT:1816,440-000-1S-JP-1%2F2,Język polski 1/2,LEKT,21,usos,21,,20
-440-000-1S-JP-1%2F2:LEKT:1818,440-000-1S-JP-1%2F2,Język polski 1/2,LEKT,11,usos,11,,21
-440-000-1S-JP-1%2F2:LEKT:1820,440-000-1S-JP-1%2F2,Język polski 1/2,LEKT,19,usos,19,,28
-440-000-1S-JP-1%2F2:LEKT:1821,440-000-1S-JP-1%2F2,Język polski 1/2,LEKT,21,usos,21,,21
-440-000-1S-JP-1%2F2:LEKT:1822,440-000-1S-JP-1%2F2,Język polski 1/2,LEKT,21,usos,21,,21
-440-000-1S-JP-1%2F2:LEKT:1823,440-000-1S-JP-1%2F2,Język polski 1/2,LEKT,21,usos,21,,21
+440-000-1S-JP-1/2:LEKT:1809,440-000-1S-JP-1/2,Język polski 1/2,LEKT,11,usos,11,,21
+440-000-1S-JP-1/2:LEKT:1812,440-000-1S-JP-1/2,Język polski 1/2,LEKT,20,usos,20,,27
+440-000-1S-JP-1/2:LEKT:1814,440-000-1S-JP-1/2,Język polski 1/2,LEKT,9,usos,9,,21
+440-000-1S-JP-1/2:LEKT:1816,440-000-1S-JP-1/2,Język polski 1/2,LEKT,21,usos,21,,20
+440-000-1S-JP-1/2:LEKT:1818,440-000-1S-JP-1/2,Język polski 1/2,LEKT,11,usos,11,,21
+440-000-1S-JP-1/2:LEKT:1820,440-000-1S-JP-1/2,Język polski 1/2,LEKT,19,usos,19,,28
+440-000-1S-JP-1/2:LEKT:1821,440-000-1S-JP-1/2,Język polski 1/2,LEKT,21,usos,21,,21
+440-000-1S-JP-1/2:LEKT:1822,440-000-1S-JP-1/2,Język polski 1/2,LEKT,21,usos,21,,21
+440-000-1S-JP-1/2:LEKT:1823,440-000-1S-JP-1/2,Język polski 1/2,LEKT,21,usos,21,,21
 150-INT-xS-309:KONW:1,150-INT-xS-309,Modern C++,KONW,29,usos,29,28,30
 150-INT-xS-309:CWL:1,150-INT-xS-309,Modern C++,CWL,13,usos,13,14,30
 150-INT-xS-309:CWL:2,150-INT-xS-309,Modern C++,CWL,16,usos,16,14,30
@@ -2079,9 +2079,9 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 110-IPP-1S-519:ZW:1,110-IPP-1S-519,Technologie wytwarzania materiałów inżynierskich,ZW,20,usos,20,,30
 110-IPP-1S-519:ZW:2,110-IPP-1S-519,Technologie wytwarzania materiałów inżynierskich,ZW,19,usos,19,,30
 110-INO-1S-384:ZW:1,110-INO-1S-384,Warsztaty modelowania,ZW,45,usos,45,,30
-440-110-1N-JA-2%2F4:LEKT:1,440-110-1N-JA-2%2F4,Język angielski 2/4,LEKT,18,usos,18,,
-440-110-1N-JA-2%2F4:LEKT:2,440-110-1N-JA-2%2F4,Język angielski 2/4,LEKT,16,usos,16,,
-440-110-1N-JA-4%2F4:LEKT:1,440-110-1N-JA-4%2F4,Język angielski 4/4,LEKT,18,usos,18,,
+440-110-1N-JA-2/4:LEKT:1,440-110-1N-JA-2/4,Język angielski 2/4,LEKT,18,usos,18,,
+440-110-1N-JA-2/4:LEKT:2,440-110-1N-JA-2/4,Język angielski 2/4,LEKT,16,usos,16,,
+440-110-1N-JA-4/4:LEKT:1,440-110-1N-JA-4/4,Język angielski 4/4,LEKT,18,usos,18,,
 440-110-2N-JA-INM:LEKT:1,440-110-2N-JA-INM,Specjalistyczny język angielski B2+,LEKT,4,usos,4,,
 440-110-2N-JA-ITE:LEKT:1,440-110-2N-JA-ITE,Specjalistyczny język angielski B2+,LEKT,14,usos,14,,
 440-110-2N-JA-ITE:LEKT:2,440-110-2N-JA-ITE,Specjalistyczny język angielski B2+,LEKT,15,usos,15,,
@@ -7066,8 +7066,8 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 190-ING-1S-221-IG:ZS:1,190-ING-1S-221-IG,Seminarium dyplomowe,ZS,6,usos,6,,20
 190-ING-1S-221-IN:ZS:1,190-ING-1S-221-IN,Seminarium dyplomowe,ZS,6,usos,6,,15
 190-ING-1S-221-WN:ZS:1,190-ING-1S-221-WN,Seminarium dyplomowe,ZS,10,usos,10,,20
-440-190-1N-JA-1%2F3:LEKT:1,440-190-1N-JA-1%2F3,Język angielski 1/3,LEKT,17,usos,17,,
-440-190-1N-JA-3%2F3:LEKT:1,440-190-1N-JA-3%2F3,Język angielski 3/3,LEKT,11,usos,11,,
+440-190-1N-JA-1/3:LEKT:1,440-190-1N-JA-1/3,Język angielski 1/3,LEKT,17,usos,17,,
+440-190-1N-JA-3/3:LEKT:1,440-190-1N-JA-3/3,Język angielski 3/3,LEKT,11,usos,11,,
 250-SPT-2S-001:W:1,250-SPT-2S-001,Aerodynamics and Aeroelasticity,W,37,usos,37,,136
 250-SPT-2S-003:W:1,250-SPT-2S-003,Attitude determination and control of small satellites,W,37,usos,37,,57
 250-SPT-2S-006:W:1,250-SPT-2S-006,Bioastronautics,W,7,usos,7,12,8
@@ -8168,9 +8168,9 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 200-ZIP-1S-324:ZW:1,200-ZIP-1S-324,Zarządzanie MSP,ZW,30,usos,30,,30
 200-ZIP-2N-347-ZJ:ZW:1,200-ZIP-2N-347-ZJ,Znormalizowane systemy zarządzania,ZW,10,usos,10,,
 200-ZIP-2S-347-ZJ:ZW:1,200-ZIP-2S-347-ZJ,Znormalizowane systemy zarządzania,ZW,6,usos,6,,20
-440-200-1N-JA-2%2F3:LEKT:1,440-200-1N-JA-2%2F3,Język angielski 2/3,LEKT,13,usos,13,,
-440-200-1N-JA-2%2F3:LEKT:2,440-200-1N-JA-2%2F3,Język angielski 2/3,LEKT,9,usos,9,,
-440-200-1N-JA-2%2F3:LEKT:3,440-200-1N-JA-2%2F3,Język angielski 2/3,LEKT,10,usos,10,,
+440-200-1N-JA-2/3:LEKT:1,440-200-1N-JA-2/3,Język angielski 2/3,LEKT,13,usos,13,,
+440-200-1N-JA-2/3:LEKT:2,440-200-1N-JA-2/3,Język angielski 2/3,LEKT,9,usos,9,,
+440-200-1N-JA-2/3:LEKT:3,440-200-1N-JA-2/3,Język angielski 2/3,LEKT,10,usos,10,,
 440-200-2N-JA:LEKT:1,440-200-2N-JA,Specjalistyczny język angielski B2+,LEKT,24,usos,24,,
 440-200-2N-JA:LEKT:2,440-200-2N-JA,Specjalistyczny język angielski B2+,LEKT,23,usos,23,,
 440-200-2N-JA:LEKT:3,440-200-2N-JA,Specjalistyczny język angielski B2+,LEKT,11,usos,11,,
@@ -9729,11 +9729,11 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 100-IZP-2S-815-LPP:ZW:1,100-IZP-2S-815-LPP,Nowoczesne technologie w gospodarce magazynowej,ZW,15,usos,15,,100
 100-IZP-2S-822-LPP:ZW:1,100-IZP-2S-822-LPP,Rachunek kosztów działań logistycznych,ZW,15,usos,15,,18
 100-IZP-2S-830-LPP:ZW:1,100-IZP-2S-830-LPP,Transport i spedycja międzynarodowa,ZW,15,usos,15,,76
-440-100-1N-JA-1%2F4:LEKT:1,440-100-1N-JA-1%2F4,Język angielski 1/4,LEKT,20,usos,20,,
-440-100-1N-JA-1%2F4:LEKT:2,440-100-1N-JA-1%2F4,Język angielski 1/4,LEKT,22,usos,22,,
-440-100-1N-JA-2%2F4:LEKT:1,440-100-1N-JA-2%2F4,Język angielski 2/4,LEKT,5,usos,5,,
-440-100-1N-JA-3%2F4:LEKT:1,440-100-1N-JA-3%2F4,Język angielski 3/4,LEKT,23,usos,23,,
-440-100-1N-JA-3%2F4:LEKT:2,440-100-1N-JA-3%2F4,Język angielski 3/4,LEKT,18,usos,18,,
+440-100-1N-JA-1/4:LEKT:1,440-100-1N-JA-1/4,Język angielski 1/4,LEKT,20,usos,20,,
+440-100-1N-JA-1/4:LEKT:2,440-100-1N-JA-1/4,Język angielski 1/4,LEKT,22,usos,22,,
+440-100-1N-JA-2/4:LEKT:1,440-100-1N-JA-2/4,Język angielski 2/4,LEKT,5,usos,5,,
+440-100-1N-JA-3/4:LEKT:1,440-100-1N-JA-3/4,Język angielski 3/4,LEKT,23,usos,23,,
+440-100-1N-JA-3/4:LEKT:2,440-100-1N-JA-3/4,Język angielski 3/4,LEKT,18,usos,18,,
 150-IGP-1S-006:W:1,150-IGP-1S-006,Algebra,W,93,usos,93,,94
 150-GIK-2S-483:W:1,150-GIK-2S-483,Algorytmy inżynierskie i modelowanie danych,W,17,usos,17,,42
 150-GIK-1S-549:W:1,150-GIK-1S-549,Analiza danych w Excelu i Power BI,W,43,usos,43,,500
@@ -10268,8 +10268,8 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 150-IGP-1S-637:ZW:2,150-IGP-1S-637,Zaawansowane analizy GIS,ZW,28,usos,28,,30
 150-RSG-2S-622:PK:1,150-RSG-2S-622,Transitional work on geo-informatics in remote sensing – individually selected issue solved under the supervision of a tutor,PK,18,usos,18,,
 150-RSG-2S-623:PK:1,150-RSG-2S-623,Transitional work on geoscience in environmental management – individually selected issue solved under the supervision of a tutor,PK,2,usos,2,,
-440-150-1N-JA-1%2F3:LEKT:1,440-150-1N-JA-1%2F3,Język angielski 1/3,LEKT,22,usos,22,,
-440-150-1N-JA-3%2F3:LEKT:1,440-150-1N-JA-3%2F3,Język angielski 3/3,LEKT,11,usos,11,,
+440-150-1N-JA-1/3:LEKT:1,440-150-1N-JA-1/3,Język angielski 1/3,LEKT,22,usos,22,,
+440-150-1N-JA-3/3:LEKT:1,440-150-1N-JA-3/3,Język angielski 3/3,LEKT,11,usos,11,,
 450-WF-1S-1:WF:2,450-WF-1S-1,Wychowanie fizyczne 1,WF,27,usos,27,28,
 450-WF-1S-1:WF:3,450-WF-1S-1,Wychowanie fizyczne 1,WF,23,usos,23,28,
 450-WF-1S-1:WF:4,450-WF-1S-1,Wychowanie fizyczne 1,WF,25,usos,25,28,
@@ -12227,10 +12227,10 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 120-IFM-1S-889:ZW:1,120-IFM-1S-889,Wyroby medyczne,ZW,25,usos,25,,32
 120-IFM-1S-889:ZW:2,120-IFM-1S-889,Wyroby medyczne,ZW,12,usos,12,,32
 120-ISI-1S-759:PK:1,120-ISI-1S-759,Prowadzenie badań naukowych 3,PK,10,usos,10,,500
-440-120-1N-JA-1%2F4:LEKT:1,440-120-1N-JA-1%2F4,Język angielski 1/4,LEKT,15,usos,15,,25
-440-120-1N-JA-1%2F4:LEKT:2,440-120-1N-JA-1%2F4,Język angielski 1/4,LEKT,16,usos,16,,27
-440-120-1N-JA-3%2F4:LEKT:1,440-120-1N-JA-3%2F4,Język angielski 3/4,LEKT,19,usos,19,,32
-440-120-1N-JA-3%2F4:LEKT:2,440-120-1N-JA-3%2F4,Język angielski 3/4,LEKT,16,usos,16,,27
+440-120-1N-JA-1/4:LEKT:1,440-120-1N-JA-1/4,Język angielski 1/4,LEKT,15,usos,15,,25
+440-120-1N-JA-1/4:LEKT:2,440-120-1N-JA-1/4,Język angielski 1/4,LEKT,16,usos,16,,27
+440-120-1N-JA-3/4:LEKT:1,440-120-1N-JA-3/4,Język angielski 3/4,LEKT,19,usos,19,,32
+440-120-1N-JA-3/4:LEKT:2,440-120-1N-JA-3/4,Język angielski 3/4,LEKT,16,usos,16,,27
 440-120-2N-JA:LEKT:1,440-120-2N-JA,Specjalistyczny język angielski B2+,LEKT,24,usos,24,,25
 440-120-2N-JA:LEKT:2,440-120-2N-JA,Specjalistyczny język angielski B2+,LEKT,10,usos,10,,30
 130-130-2S-001:W:1,130-130-2S-001,3D printing technology,W,19,usos,19,19,44
@@ -14091,13 +14091,13 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 130-IME-1S-835:ZW:3,130-IME-1S-835,Narzędzia i strategie studiowania,ZW,30,usos,30,30,44
 130-MEI-1S-851:ZW:1,130-MEI-1S-851,Tools and strategies for learning,ZW,27,usos,27,30,76
 130-MEI-1S-851:ZW:2,130-MEI-1S-851,Tools and strategies for learning,ZW,27,usos,27,30,76
-440-130-1N-JA-1%2F4:LEKT:1,440-130-1N-JA-1%2F4,Język angielski 1/4,LEKT,18,usos,18,21,
-440-130-1N-JA-1%2F4:LEKT:2,440-130-1N-JA-1%2F4,Język angielski 1/4,LEKT,17,usos,17,21,
-440-130-1N-JA-1%2F4:LEKT:3,440-130-1N-JA-1%2F4,Język angielski 1/4,LEKT,19,usos,19,21,
-440-130-1N-JA-1%2F4:LEKT:4,440-130-1N-JA-1%2F4,Język angielski 1/4,LEKT,18,usos,18,21,
-440-130-1N-JA-3%2F4:LEKT:1,440-130-1N-JA-3%2F4,Język angielski 3/4,LEKT,21,usos,21,21,
-440-130-1N-JA-3%2F4:LEKT:2,440-130-1N-JA-3%2F4,Język angielski 3/4,LEKT,21,usos,21,21,
-440-130-1N-JA-3%2F4:LEKT:3,440-130-1N-JA-3%2F4,Język angielski 3/4,LEKT,23,usos,23,21,
+440-130-1N-JA-1/4:LEKT:1,440-130-1N-JA-1/4,Język angielski 1/4,LEKT,18,usos,18,21,
+440-130-1N-JA-1/4:LEKT:2,440-130-1N-JA-1/4,Język angielski 1/4,LEKT,17,usos,17,21,
+440-130-1N-JA-1/4:LEKT:3,440-130-1N-JA-1/4,Język angielski 1/4,LEKT,19,usos,19,21,
+440-130-1N-JA-1/4:LEKT:4,440-130-1N-JA-1/4,Język angielski 1/4,LEKT,18,usos,18,21,
+440-130-1N-JA-3/4:LEKT:1,440-130-1N-JA-3/4,Język angielski 3/4,LEKT,21,usos,21,21,
+440-130-1N-JA-3/4:LEKT:2,440-130-1N-JA-3/4,Język angielski 3/4,LEKT,21,usos,21,21,
+440-130-1N-JA-3/4:LEKT:3,440-130-1N-JA-3/4,Język angielski 3/4,LEKT,23,usos,23,21,
 440-130-2N-JA:LEKT:1,440-130-2N-JA,Specjalistyczny język angielski B2+,LEKT,18,usos,18,20,
 440-130-2N-JA:LEKT:2,440-130-2N-JA,Specjalistyczny język angielski B2+,LEKT,15,usos,15,15,
 230-CBZ-1S-007:W:1,230-CBZ-1S-007,Algebra,W,57,usos,57,,120
@@ -15294,8 +15294,8 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 230-NTK-1S-111:ZW:2,230-NTK-1S-111,Komunikacja interpersonalna i praca zespołowa,ZW,27,usos,27,,46
 230-NTK-1S-293:ZW:1,230-NTK-1S-293,Psychologia przedsiębiorczości,ZW,24,usos,24,,36
 230-NTK-1S-295:ZW:1,230-NTK-1S-295,Psychologia wpływu społecznego,ZW,14,usos,14,,36
-440-230-1N-JA-1%2F3:LEKT:1,440-230-1N-JA-1%2F3,Język angielski 1/3,LEKT,12,usos,12,,
-440-230-1N-JA-3%2F3:LEKT:1,440-230-1N-JA-3%2F3,Język angielski 3/3,LEKT,12,usos,12,,
+440-230-1N-JA-1/3:LEKT:1,440-230-1N-JA-1/3,Język angielski 1/3,LEKT,12,usos,12,,
+440-230-1N-JA-3/3:LEKT:1,440-230-1N-JA-3/3,Język angielski 3/3,LEKT,12,usos,12,,
 100-BUD-1N-854:CWP:1,100-BUD-1N-854,Inżynieria obiektów zbiorowej ochrony,CWP,21,usos,21,,
 100-BUD-1N-854:W:1,100-BUD-1N-854,Inżynieria obiektów zbiorowej ochrony,W,21,usos,21,,
 240-IDS-2S-087:W:1,240-IDS-2S-087,Machine Learning in Bioinformatics,W,21,usos,21,,500
@@ -15340,7 +15340,7 @@ group_id,course_id,course_name,class_type,size,size_source,enrolled,limit,room_c
 440-000-1S-IAE:LEKT:704,440-000-1S-IAE,Introduction to Academic English,LEKT,21,usos,21,,25
 440-000-1S-IAE:LEKT:705,440-000-1S-IAE,Introduction to Academic English,LEKT,21,usos,21,,25
 440-000-1S-IAE:LEKT:706,440-000-1S-IAE,Introduction to Academic English,LEKT,24,usos,24,,28
-440-000-1S-JA5-1%2F3:LEKT:700,440-000-1S-JA5-1%2F3,Język angielski 1/3,LEKT,6,usos,6,,25
+440-000-1S-JA5-1/3:LEKT:700,440-000-1S-JA5-1/3,Język angielski 1/3,LEKT,6,usos,6,,25
 160-HES-1S-004:ZS:1,160-HES-1S-004,Motywacja czyli Święty Graal studenta,ZS,18,usos,18,18,32
 170-HES-1S-001:W:1,170-HES-1S-001,Finanse osobiste na start,W,19,usos,19,30,32
 000-SWY-2S-003:W:1,000-SWY-2S-003,Elektronika,W,29,usos,29,30,120

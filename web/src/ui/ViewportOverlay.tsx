@@ -86,11 +86,11 @@ function ScaleBar() {
   );
 }
 
-function Hint({ scene }: { scene: Scene }) {
+function Hint({ scene, catalog }: { scene: Scene; catalog: ReplayCatalog | undefined }) {
   const workspace = useApp((s) => s.workspace);
   const building = useApp((s) => pickBuilding(s.selection));
   const level = useApp((s) => s.level);
-  const replay = useApp((s) => s.playback.replayId);
+  const replay = useReplayOpen(catalog);
   const tool = useApp((s) => s.tool);
   let text: string | null = null;
   const routeSlot = useApp((s) => s.route.slot);
@@ -289,10 +289,16 @@ function WalkHelp() {
   );
 }
 
+/** A replay is open when its id is in the catalog (an id from an old link may not be). */
+function useReplayOpen(catalog: ReplayCatalog | undefined): boolean {
+  const id = useApp((s) => s.playback.replayId);
+  return id !== null && (!catalog || catalog.replays.some((r) => r.id === id));
+}
+
 /** Metro / Simulation workspace with no replay open: what can be opened, or how to make one. */
 function NoReplay({ catalog }: { catalog: ReplayCatalog | undefined }) {
   const workspace = useApp((s) => s.workspace);
-  const open = useApp((s) => s.playback.replayId !== null);
+  const open = useReplayOpen(catalog);
   if (open || (workspace !== "metro" && workspace !== "simulation")) return null;
   const kind: Replay["kind"] = workspace === "metro" ? "aco" : "simulation";
   const list = catalog?.replays.filter((r) => r.kind === kind) ?? [];
@@ -471,7 +477,7 @@ export function ViewportOverlay({ scene, catalog }: { scene: Scene; catalog: Rep
             Open {selectedBuilding}
           </button>
         )}
-        <Hint scene={scene} />
+        <Hint scene={scene} catalog={catalog} />
       </div>
       <div className="overlay-top-right">
         <Compass />

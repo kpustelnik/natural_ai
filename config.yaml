@@ -96,8 +96,9 @@ optimize:
   algorithm: mmas            # mmas | acs | random | greedy | brute_force
   brute_force_max_lines: 200000  # brute force tylko na małych instancjach
   local_search: true         # dopracowanie linii (zamiana / przestawienie stacji), wszystkie
-                             # algorytmy poza brute force; bez niej mrówki ledwo biją losowe
-  max_evaluations: null      # wspólny budżet różnych linii (null = tyle, ile iteracji)
+                             # algorytmy poza brute force; z nią optimum znajdowane niezawodnie
+  max_evaluations: null      # wspólny budżet różnych linii (null = bez limitu: wszystkie iteracje;
+                             # z local_search ocen jest wtedy wielokrotnie więcej)
 
 aco:                         # MMAS i ACS; random bierze n_ants × n_iterations losowych linii
   n_ants: 50

@@ -1,12 +1,13 @@
 """Stage 4: choose a k-station metro line (optimize.algorithm: MMAS, ACS or a baseline).
 
     uv run scripts/04_optimize.py
-    uv run scripts/04_optimize.py --processed data/processed/fake
+    uv run scripts/04_optimize.py --processed data/processed/fake   # after 06 --fake
     uv run scripts/04_optimize.py --instance path/to/instance.npz
 
 Reads ``instance/instance.npz`` (built from network + demand when missing or stale; k, speed,
 dwell, headway and shaft times always come from the current config),
-writes ``experiments/results/<run_id>/`` and ``experiments/results/best_line.json``.
+writes ``experiments/results/<run_id>/`` and ``experiments/results/best_line.json`` (with
+``--processed`` too: a fake run replaces the real best line).
 
 Does not export to the viewer; use ``06_export_web.py --aco`` / ``--metro`` later.
 """

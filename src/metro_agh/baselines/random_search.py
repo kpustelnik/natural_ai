@@ -47,8 +47,8 @@ def run_random(inst: Instance, cfg: dict, rng: np.random.Generator | None = None
             best, best_cost = lines[ib], costs[ib]
         rows.append((it, f.evaluations, best_cost, costs[ib], float(np.mean(costs))))
     log.info(
-        "random search: %d lines, best %.3e (%.1f%% below no metro)",
-        n_lines * n_iter, best_cost, 100 * (1 - best_cost / f.baseline),
+        "random search: %d lines evaluated, best %.3e (%.1f%% below no metro)",
+        f.evaluations, best_cost, 100 * (1 - best_cost / f.baseline),
     )  # fmt: skip
     return RunResult(
         algorithm="random",

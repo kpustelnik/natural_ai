@@ -62,6 +62,13 @@ export function PlaybackClock({ catalog }: { catalog: ReplayCatalog | undefined 
   const replay = catalog?.replays.find((r) => r.id === id);
   const ants = replay?.kind === "aco" && acoView === "ants" && !!replay.files.aco_trace;
   const trace = useAcoTrace(ants ? replay!.files.aco_trace : null).data;
+  useEffect(() => {
+    // a replay opened from the URL keeps the default speed: make it fit the view
+    if (!replay) return;
+    const p = app.get().playback;
+    if (ants && !ITER_SPEEDS.includes(p.speed)) setPlayback({ speed: 5 });
+    if (!ants && !DAY_SPEEDS.includes(p.speed)) setPlayback({ speed: 60 });
+  }, [replay, ants]);
   useClock(ants ? "iteration" : "day", !replay ? null : ants ? (trace ? trace.header.n_iterations - 1 : null) : DAY_END);
   return null;
 }
@@ -198,10 +205,12 @@ function AntControls({ replay }: { replay: Replay }) {
   );
   if (!trace || !curve) return <div className="dock-note muted">Loading the trace…</div>;
   const h = trace.header;
-  const { s } = sampleAt(trace.arrays.iterations as Int32Array, iteration);
+  const sampled = trace.arrays.iterations as Int32Array;
+  const { s } = sampleAt(sampled, iteration);
   const k = h.k;
   const best = Array.from((trace.arrays.best_tour as Int16Array).subarray(s * k, (s + 1) * k)).map((i) => h.candidate_ids[i]!);
-  const bestCost = curve.best.length ? curveAt(curve.iteration, curve.best, iteration) : h.best_s;
+  // the cost of the line shown: the trace keeps a best line every few iterations only
+  const bestCost = curve.best.length ? curveAt(curve.iteration, curve.best, sampled[s]!) : h.best_s;
   const saving = 1 - bestCost / h.baseline_s;
   const delta = `${saving >= 0 ? "−" : "+"}${Math.abs(100 * saving).toFixed(1)}%`;
   const line = best.join(" – ") + (h.topology === "loop" ? " (loop)" : "");
@@ -244,13 +253,6 @@ function AntControls({ replay }: { replay: Replay }) {
 
 function Dock({ replay }: { replay: Replay }) {
   const acoView = useApp((s) => s.playback.acoView);
-  useEffect(() => {
-    // a replay opened from the URL keeps the default speed: make it fit the view
-    const p = app.get().playback;
-    const ants = replay.kind === "aco" && p.acoView === "ants";
-    if (ants && !ITER_SPEEDS.includes(p.speed)) setPlayback({ speed: 5 });
-    if (!ants && !DAY_SPEEDS.includes(p.speed)) setPlayback({ speed: 60 });
-  }, [replay]);
   const sim = replay.kind === "simulation";
   const files = replay.files;
   const hasTrips = Object.keys(files.trips ?? {}).length > 0;

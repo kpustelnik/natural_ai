@@ -5,8 +5,8 @@ Sources (both public, no login, no API key):
 - USOS API ``apps.usos.agh.edu.pl/services`` (anonymous methods): buildings, their rooms and
   room capacities (``geo/building_index``, ``geo/building2``, ``geo/rooms``), terms;
 - USOSweb catalogue ``web.usos.agh.edu.pl`` (parsed in ``pages.py``): the weekly plan of
-  every didactic room, the course pages (cohorts = course groups) and the class-group
-  pages (meetings, "liczba osób w grupie / limit miejsc").
+  every didactic room (full crawl: every room), the course pages (cohorts = course groups)
+  and the class-group pages (meetings, "liczba osób w grupie / limit miejsc").
 
 The room plans only *discover* courses: USOSweb shows the current week, so a course that
 meets only in even weeks may be missing there. Its course page lists every unit of the
@@ -215,10 +215,11 @@ def _pages(http: CachedHttp, kind: str, params: dict) -> Iterator[str]:
     while page is not None:
         yield page
         m = _NEXT_PAGE.search(page)
-        if not m or m.group(1) in seen:
+        url = htmllib.unescape(m.group(1)) if m else ""
+        if not url.startswith(WEB) or url in seen:  # follow USOSweb's own pages only
             return
-        seen.add(m.group(1))
-        page = _page(http, kind, None, htmllib.unescape(m.group(1)))
+        seen.add(url)
+        page = _page(http, kind, None, url)
 
 
 _FACULTY_GROUPS = {"_action": "katalog2/przedmioty/szukajPrzedmiotu", "method": "faculty_groups"}

@@ -5,8 +5,9 @@ Writes, following the real contracts (sections 7 and 8), into ``data/processed/f
 
     results/<run_id>/run.json, convergence.csv, trace.npz
     results/best_line.json
+    network/, population/students.parquet, demand/legs.parquet + od.parquet, simulation/
 
-which the normal ``--aco`` / ``--metro`` exports then turn into replays. The instance is
+and the same ``--fake`` call turns them into replays. The instance is
 built from scene.json: every building with a ``metro_shaft`` entrance is a candidate, every
 building and stop an endpoint; the demand is a gravity model on straight-line distances.
 The optimiser is ``aco.run_mmas`` on a short run with a weak heuristic (``weak_aco``),

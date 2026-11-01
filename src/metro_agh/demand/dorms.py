@@ -4,7 +4,7 @@ A dorm YAML may give ``residents`` (beds). AGH does not publish beds per house, 
 total (Miasteczko Studenckie: over 8000 places, about 7000 for AGH students; the four big
 houses 720-900 each), so the others are estimated from the floor area: footprint x storeys,
 spread over ``population.dorm_beds`` minus the beds already known. Floor area is a better
-proxy than the footprint alone, since the houses range from 4 to 15 storeys.
+proxy than the footprint alone, since the houses range from 3 to 17 storeys.
 """
 
 from __future__ import annotations

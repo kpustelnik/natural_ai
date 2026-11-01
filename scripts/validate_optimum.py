@@ -58,7 +58,8 @@ def main() -> int:
     for sub in range(args.subsets):
         keep = sorted(np.random.default_rng(sub).choice(pool, args.n, replace=False).tolist())
         inst = full.subset(keep)
-        exact = run_algorithm(inst, {**cfg, "optimize": {"algorithm": "brute_force"}})
+        brute = {**cfg, "optimize": {**cfg["optimize"], "algorithm": "brute_force"}}
+        exact = run_algorithm(inst, brute)
         opt, base = exact.best_cost, exact.objective.baseline
         bound = teleport_bound(inst)
         bounds.append({"subset": sub, "candidates": "|".join(map(str, inst.candidate_ids)),

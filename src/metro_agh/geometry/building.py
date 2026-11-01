@@ -8,12 +8,13 @@ import math
 from dataclasses import dataclass
 
 import numpy as np
+import shapely
 from shapely.geometry import Polygon
 from shapely.geometry.polygon import orient
 
 from ..campus.geo import LocalFrame, to_metric
 from ..schemas.building import Building, Entrance
-from .mesh import Lines, Origin, TriMesh, flat, outline, walls
+from .mesh import Lines, Origin, TriMesh, flat, outline, polygons, walls
 
 # slabs float above their floor, so the L0 slab stays above the ground and the path
 # ribbons (up to 0.12 m, campus/ground.glb)
@@ -126,11 +127,9 @@ def match_osm(b: Building, osm_buildings, index: dict[str, int]):
 
 
 def largest_polygon(geom) -> Polygon | None:
-    if geom is None:
-        return None
-    parts = [geom] if geom.geom_type == "Polygon" else list(getattr(geom, "geoms", []))
-    parts = [p for p in parts if p.geom_type == "Polygon"]
-    return max(parts, key=lambda p: p.area) if parts else None
+    """The largest polygon part at any depth (make_valid can nest a MultiPolygon in a
+    GeometryCollection)."""
+    return max(polygons(geom), key=lambda p: p.area, default=None)
 
 
 def place(b: Building, cfg: dict, origin_z: float, osm_outline: Polygon | None) -> PlacedBuilding:
@@ -145,9 +144,11 @@ def place(b: Building, cfg: dict, origin_z: float, osm_outline: Polygon | None) 
         local = Polygon(ext, holes)
     else:
         raise ValueError(f"{b.id}: no footprint and no OSM outline")
-    local = orient(local.buffer(0) if not local.is_valid else local, 1.0)
-    if local.geom_type != "Polygon":  # buffer(0) of a bow-tie can split it
-        local = max(local.geoms, key=lambda p: p.area)
+    if not local.is_valid:  # make_valid splits a bow-tie in two (buffer(0) drops a lobe)
+        local = largest_polygon(shapely.make_valid(local))
+        if local is None:  # collinear points: no area left
+            raise ValueError(f"{b.id}: footprint has no area")
+    local = orient(local, 1.0)
     metric = Polygon(
         frame.to_metric(np.asarray(local.exterior.coords)),
         [frame.to_metric(np.asarray(r.coords)) for r in local.interiors],

@@ -1,17 +1,9 @@
 // Every non-AGH building in one mesh (one draw call). The mesh carries _FEATURE_ID per
 // vertex; hover and selection draw the feature's triangle range again in a highlight colour.
 
-import { useLoader } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
-import {
-  BufferGeometry,
-  LineBasicMaterial,
-  Mesh,
-  MeshLambertMaterial,
-  type Object3D,
-} from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { DATA_URL } from "../../data/loader";
+import { BufferGeometry, LineBasicMaterial, type Material, Mesh, MeshLambertMaterial } from "three";
+import { useFileVersion } from "../../data/live";
 import { useContextFeatures } from "../../data/resource";
 import type { SceneContext } from "../../generated/schemas";
 import { useApp } from "../../state/app";
@@ -19,6 +11,7 @@ import { buildBoundsTrees } from "../bvh";
 import { SCENE } from "../palette";
 import { noRaycast, setPickable } from "../picking";
 import { registry } from "../registry";
+import { useGlb } from "../useGlb";
 
 function Highlight({ source, start, count, color }: { source: BufferGeometry; start: number; count: number; color: string }) {
   const { geometry, material } = useMemo(() => {
@@ -49,21 +42,25 @@ function Highlight({ source, start, count, color }: { source: BufferGeometry; st
   return <mesh geometry={geometry} material={material} raycast={() => {}} />;
 }
 
-export function ContextBuildings({ context }: { context: SceneContext }) {
-  const gltf = useLoader(GLTFLoader, DATA_URL + context.glb);
+export function ContextBuildings({ context, visible }: { context: SceneContext; visible: boolean }) {
+  // a re-export (live reload) loads the new file; useGlb disposes the old geometry
+  const root = useGlb(context.glb, useFileVersion(context.glb));
   const features = useContextFeatures(context.features).data;
   const selected = useApp((s) => (s.selection?.kind === "context" ? s.selection.fid : null));
   const hovered = useApp((s) => (s.hover?.kind === "context" ? s.hover.fid : null));
   const ghost = useApp((s) => s.workspace === "building" && s.selection?.kind === "building");
 
-  const { root, mesh } = useMemo(() => {
+  const { mesh, materials } = useMemo(() => {
     let mesh: Mesh | null = null;
-    gltf.scene.traverse((o) => {
+    const materials: Material[] = [];
+    root?.traverse((o) => {
       if (o instanceof Mesh && o.userData.part === "context") {
         o.material = new MeshLambertMaterial({ color: SCENE.context });
+        materials.push(o.material);
         mesh = o;
       } else if (o.userData.part === "edges") {
         (o as Mesh).material = new LineBasicMaterial({ color: SCENE.contextEdge, transparent: true, opacity: 0.45 });
+        materials.push((o as Mesh).material as Material);
         noRaycast(o);
       }
     });
@@ -75,9 +72,10 @@ export function ContextBuildings({ context }: { context: SceneContext }) {
       });
       registry.context = m.geometry;
     }
-    buildBoundsTrees(gltf.scene, true); // keep triangle order: features are index ranges
-    return { root: gltf.scene as Object3D, mesh: m };
-  }, [gltf]);
+    if (root) buildBoundsTrees(root, true); // keep triangle order: features are index ranges
+    return { mesh: m, materials };
+  }, [root]);
+  useEffect(() => () => materials.forEach((m) => m.dispose()), [materials]);
 
   useEffect(() => {
     if (!mesh) return;
@@ -92,8 +90,9 @@ export function ContextBuildings({ context }: { context: SceneContext }) {
   const sel = range(selected);
   const hov = hovered !== selected ? range(hovered) : null;
 
+  if (!root) return null;
   return (
-    <group>
+    <group visible={visible}>
       <primitive object={root} />
       {mesh && sel && <Highlight source={mesh.geometry} start={sel.index_start} count={sel.index_count} color="#f0c4ca" />}
       {mesh && hov && <Highlight source={mesh.geometry} start={hov.index_start} count={hov.index_count} color="#e9ebed" />}

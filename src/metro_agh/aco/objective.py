@@ -29,7 +29,7 @@ class Objective:
         self.evaluations = 0
         self.budget = budget  # distinct lines an algorithm may evaluate (None: no limit)
         self.baseline = float((inst.od_weight * inst.od_walk_s).sum())
-        # walk times of every OD pair to / from every candidate, gathered once: (M, N)
+        # walk times of every candidate to / from every OD pair, gathered once: (N, M)
         self._access = np.ascontiguousarray(inst.access_s[inst.od_from].T)  # (N, M)
         self._egress = np.ascontiguousarray(inst.egress_s[:, inst.od_to])  # (N, M)
 

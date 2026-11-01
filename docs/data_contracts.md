@@ -33,8 +33,8 @@ the code disagree, the code wins and this document has a bug.
 ## 1. Pipeline and ownership
 
 ```
- hand-written (git)                    generated (data/processed; gitignored except
- ─────────────────                     usos/, transit/, population/dorms.csv)
+ hand-written (git)                    generated (data/processed; in git,
+ ─────────────────                     except fake/)
                                        ──────────────────────────────────────
                        01_fetch_usos (USOS API + USOSweb, public)
  usos_room_map.csv ──────────────────► usos/timetable.csv, groups.csv, rooms.csv,
@@ -107,7 +107,8 @@ Metres and seconds everywhere, no minutes. Name suffixes carry the unit:
 | `t`, `*_t` (web only) | seconds since 00:00 of that weekday | `t_start` |
 
 `timetable.csv` is the only file using `HH:MM` strings, because people check it by hand.
-`weekday` is always `1` (Monday) … `5` (Friday).
+`weekday` is `1` (Monday) … `7` (Sunday); the modelled week (`timetable.csv`, legs, simulation)
+uses only `1` … `5`.
 
 ### Identifiers
 
@@ -266,7 +267,8 @@ entrances:
 - The **main entrance** is the one with `metro_shaft: true`; if there is none, it's the
   first one listed. The endpoint key `D-17` resolves to it.
 - `metro_shaft: true` marks a **candidate station**. The station lies `metro.station_depth_m`
-  under that entrance, reached by one more flight of stairs (the shaft). At most one per
+  under the ground at that entrance, reached by one more flight of stairs (the shaft; an
+  entrance off the ground level is reported, as the objective assumes that depth). At most one per
   building. `metro.candidates` in config can narrow the set further.
 - An entrance links to the nearest OSM walk node, unless `osm_node` forces a specific one.
 
@@ -377,8 +379,9 @@ One row per **weekly meeting slot** of a class group.
 
 Only slots matching `demand.week_parity` (or `all`) enter the modelled week. Parity comes from
 the group's frequency text ("każdy wtorek" → `all`, "co drugi wtorek (nieparzyste)" → `odd`).
-Weekend meetings, one-off and monthly ones, and meetings in buildings the campus does not
-model are dropped; "wielokrotnie" (several dates) is kept as `all` when the crawled week has it.
+Weekend meetings and meetings in buildings the campus does not model are dropped. Lines that
+are not weekly (several dates, once, monthly, unknown) are kept as `all` only when the crawled
+week has them, else dropped.
 
 ### 4.2 `usos/groups.csv`: `tables.GROUPS`
 
@@ -450,7 +453,8 @@ boards (section 9).
 
 ### 5.1 `population/students.parquet`: `tables.STUDENTS`
 
-Synthetic students, `population.n_students` in total (20 000).
+Synthetic students, `population.n_students` in total (`auto`: the sum of the USOS cohorts,
+currently 22 571).
 
 | column | type | note |
 |---|---|---|
@@ -621,9 +625,9 @@ Node `key` format, so people can refer to nodes across rebuilds:
 | osm | `osm:<osm id>` | `osm:2187654` |
 | corridor | `<b>:<corridor>@<at, 2 dp>` | `D-17:c0@12.50` |
 | room | `<b>/<room>` | `D-17/1.38` |
-| door | `<b>/<room>#<n>` | `D-17/1.40#1` |
+| door | `<b>/<room>#<n>`; inside an entrance `<b>:<entrance>:in` | `D-17/1.40#1`, `D-17:main:in` |
 | stairs | `<b>:<stairs>:L<level>` | `A-0:s_main:L-1` |
-| entrance | `<b>:<entrance>:in` / `:out` | `D-17:main:out` |
+| entrance | `<b>:<entrance>:out` (outside the door) | `D-17:main:out` |
 | shaft_top / platform | `<b>:shaft` / `<b>:platform` | `D-17:platform` |
 | stop | stop id | `stop:miasteczko_studenckie_agh` |
 | place (LOD1 / building endpoint) | building id | `C-2` |
@@ -711,12 +715,14 @@ instance (section 7) and return the same result:
 | `greedy` | best pair, then the station + place that help most | evaluations it made | no |
 | `brute_force` | every distinct line (refuses more than `optimize.brute_force_max_lines`) | number of lines | no |
 
-`evaluations` counts distinct lines (a reversed line or a rotated loop is evaluated once), so
-it can be below the budget. `optimize.max_evaluations` gives every stochastic algorithm the
-same budget of distinct lines (it then stops after the iteration that reaches it, and
-`eval_budget` is that number). `optimize.local_search` polishes lines with a best-improvement
+`evaluations` counts distinct lines (a reversed line or a rotated loop is evaluated once).
+`optimize.max_evaluations` gives every stochastic algorithm the same budget of distinct lines:
+it then stops after the iteration that reaches it (a few lines over; local search checks every
+line), and `eval_budget` is that number. Without it, `eval_budget` is only the lines the ants
+build (`n_ants × n_iterations`). `optimize.local_search` polishes lines with a best-improvement
 descent (`aco/local_search.py`): MMAS, ACS and random search their iteration best, greedy its
-final line; its evaluations count too.
+final line; its evaluations count too, so without a budget `evaluations` can be many times
+`eval_budget`.
 
 ### 8.1 Run directory `experiments/results/<run_id>/`
 
@@ -752,7 +758,8 @@ and the web animation.
 ### 8.2 `experiments/results/runs.csv`: `tables.RUNS`
 
 One row per run, appended by `run_experiments.py`. It's the input for the algorithm
-comparison (`plot_experiments.py`: per-seed savings, Wilcoxon tests against MMAS) and the
+comparison (`plot_experiments.py`: per-seed savings, Wilcoxon tests against the first variant, MMAS +
+local search) and the
 gap-to-optimum table:
 
 `run_id, experiment, algorithm, topology, k, n_candidates, seed, eval_budget, evaluations,
@@ -1025,7 +1032,7 @@ itself; no per-frame train data is stored.
   `new Float32Array(bin, v.offset, v.count)`.
 - `count` is in elements; `shape` is the logical shape, and its product equals `count`.
 
-**Student trips `replays/<id>/trips/<scenario>/…`.** 20 000 students × 5 days won't fit as
+**Student trips `replays/<id>/trips/<scenario>/…`.** ~20 000 students × 5 days won't fit as
 one-polyline-per-trip, but most students on the same room-to-room leg walk the same path.
 Paths are therefore stored once and referenced by time-shifted segments.
 
@@ -1049,9 +1056,9 @@ by all days:
 | `t_start` | float32 (S) | seconds since 00:00 of that day |
 
 - A walking leg is one segment.
-- A metro leg has three: the walk to the platform, the ride, and the walk out. Between
-  segments of one leg the student stands at the end of the previous path (waiting on the
-  platform).
+- A metro or bus / tram leg has three: the walk to the platform / stop, the ride, and the
+  walk out. Between segments of one leg the student stands at the end of the previous path
+  (waiting).
 - Between legs the student is in class and is not drawn.
 - The student position at time `t` is the path interpolated at `t − t_start`.
 
@@ -1086,7 +1093,7 @@ replays. It is only for developing the viewer.
   longer_than_break_share, metro_share, transit_share` (bus / tram).
 - `saving_s`: total no_metro − total metro.
 - `per_hour[{weekday, hour, n_legs, no_metro_s, metro_s}]`: the time-of-day chart; a leg
-  counts in the hour it leaves in when walking (`no_metro` `depart_wt`), and `*_s` sum the
+  counts in the hour it leaves in without the metro (walk, bus or tram: `no_metro` `depart_wt`), and `*_s` sum the
   door-to-door times (`arrive_wt − depart_wt`, waiting included).
 - `stations[{building_id, boardings, alightings}]`.
 - `top_od[{from_key, to_key, n_legs, saving_s}]`: the 50 largest savings.
@@ -1106,7 +1113,7 @@ and for the route tool:
 | `edge_kind` | uint8 (E) | index into `edge_kind_names`: `footway`, `road`, `steps` for outdoor edges, else the `GRAPH_EDGES` kind |
 | `length_m` | float32 (E) | edge length |
 | `time_uv_s`, `time_vu_s` | float32 (E) | walking time u → v and v → u |
-| `segment_xyz` | float32 (S, 2, 3) | the edges' real polylines as segments, in edge order, for drawing |
+| `segment_xyz` | float32 (S, 2, 3) | the edges' real polylines as segments, in edge order, each edge from its node u to v |
 | `segment_edge` | uint32 (S) | edge index of each segment |
 
 The header also carries `node_keys` (per node, e.g. `osm:123`, `D-17/1.38`; OSM ids exceed
@@ -1218,8 +1225,8 @@ match `NetworkHeader` / the polylines the viewer draws.
   cohort; two USOS course groups for the same students (`ZIP-1S_2s_PP` and `ZIP-1S_2sem_PP`)
   are two cohorts, so the total is somewhat high.
 - **Commuters' arrival**: stops are weighted by peak vehicles. Buses and trams between campus
-  stops are simulated from `transit/trips.parquet`; the ACO instance uses the shortest rides of
-  `transit/rides.csv`.
+  stops are simulated from `transit/trips.parquet`; the ACO instance uses `transit/rides.csv`:
+  per stop pair half the median headway plus the median ride time, the best pair per OD.
 - **Elevators**: not routed in v1 (stairs only).
 - **Time-dependent closures** (gates open only at certain hours): not in v1; such ways go to
   `removed_ways` or stay open.

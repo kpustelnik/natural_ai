@@ -97,7 +97,7 @@ export function ReplayMenu({ catalog }: { catalog: ReplayCatalog | undefined }) 
               <p className="muted">Run the optimiser, then export:</p>
               <Command
                 lines={[
-                  "uv run scripts/04_optimize.py --processed data/processed/fake",
+                  "uv run scripts/04_optimize.py",
                   "uv run scripts/06_export_web.py --aco",
                 ]}
               />

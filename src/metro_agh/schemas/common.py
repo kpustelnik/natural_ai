@@ -120,7 +120,7 @@ class EdgeKind(StrEnum):
     ENTRANCE = "entrance"
     PASSAGE = "passage"
     SHAFT = "shaft"  # stairs from shaft top down to the platform
-    LINK = "link"  # generated connector (stop/place to nearest OSM node)
+    LINK = "link"  # generated connector: stop/place/entrance to the walk graph, entrance to shaft
 
 
 class StrictModel(BaseModel):

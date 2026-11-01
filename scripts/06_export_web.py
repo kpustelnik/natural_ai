@@ -73,7 +73,7 @@ def export_replays(cfg: dict, args: argparse.Namespace) -> int:
         export_demand(cfg, simulated, out, changed, note=sim_note)
     elif best_line is not None:
         schedule = path(cfg, "processed") / "simulation" / "metro" / "schedule.parquet"
-        export_best_line(cfg, best_line, out, changed, schedule_file=schedule, note=note)
+        export_best_line(cfg, best_line, out, changed, schedule_file=schedule)
         # heatmap from whatever demand/ exists next to the real pipeline
         export_demand(cfg, path(cfg, "processed"), out, changed)
     changed.append(write_replay_catalog(out, cfg))
@@ -96,6 +96,11 @@ def main() -> None:
     parser.add_argument("--fake", action="store_true", help="synthetic ACO run, line and week")
     parser.add_argument("--config", default=None, help="YAML of config.yaml keys merged over it")
     args = parser.parse_args()
+    if args.fake and (args.aco is not None or args.metro or args.sim):
+        # the synthetic run would label the real runs and simulation as synthetic too
+        parser.error("--fake cannot be combined with --aco, --metro or --sim")
+    if args.watch and (args.aco is not None or args.metro or args.sim or args.fake):
+        parser.error("--watch rebuilds only the campus: export replays in a separate run")
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     cfg = load_config(override=args.config)

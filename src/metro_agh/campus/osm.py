@@ -127,5 +127,8 @@ def fetch(cfg: dict, raw_dir: Path, refresh: bool = False) -> OsmRaw:
     ox.settings.useful_tags_way = WAY_TAGS
     ox.settings.useful_tags_node = NODE_TAGS
     features = ox.features.features_from_xml(features_file, tags=FEATURE_TAGS)
-    graph = ox.graph.graph_from_xml(walk_file, bidirectional=True, simplify=True, retain_all=True)
+    graph = ox.graph.graph_from_xml(walk_file, bidirectional=True, simplify=False, retain_all=True)
+    # merge chains of nodes into one edge, but never across a change of highway: a flight of
+    # steps merged into a footway would make the whole edge steps (time, drawing)
+    graph = ox.simplification.simplify_graph(graph, edge_attrs_differ=["highway"])
     return OsmRaw(bbox=bbox_polygon(cfg), features=features, graph=graph)

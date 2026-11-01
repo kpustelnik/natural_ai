@@ -157,6 +157,7 @@
           "type": "number"
         },
         "longer_than_break_share": {
+          "description": "between-class legs longer than the break, i.e. late ones",
           "maximum": 1,
           "minimum": 0,
           "title": "Longer Than Break Share",

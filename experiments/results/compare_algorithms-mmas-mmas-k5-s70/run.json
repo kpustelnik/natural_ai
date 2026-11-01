@@ -1,16 +1,16 @@
 {
   "provenance": {
     "schema_version": 1,
-    "generated_at": "2026-10-28T21:25:40+01:00",
+    "generated_at": "2026-11-01T00:50:31+01:00",
     "generator": "run_experiments.py",
     "config_hash": "c3ca8b488995f594",
-    "git_commit": "e3e521c"
+    "git_commit": "c509797"
   },
   "run_id": "compare_algorithms-mmas-mmas-k5-s70",
   "experiment": "compare_algorithms",
   "algorithm": "mmas",
   "instance": "C:/Users/kampu/Desktop/natural_ai/data/processed/instance/instance.npz",
-  "instance_hash": "394d9afdefbb7e71",
+  "instance_hash": "8c0ccb8b16174a29",
   "seed": 70,
   "params": {
     "n_ants": 20,
@@ -30,27 +30,27 @@
     "tag": "mmas"
   },
   "eval_budget": 5000,
-  "evaluations": 5002,
-  "wall_time_s": 2.34,
+  "evaluations": 5008,
+  "wall_time_s": 2.44,
   "best": {
     "provenance": {
       "schema_version": 1,
-      "generated_at": "2026-10-28T21:25:40+01:00",
+      "generated_at": "2026-11-01T00:50:31+01:00",
       "generator": "run_experiments.py",
       "config_hash": "c3ca8b488995f594",
-      "git_commit": "e3e521c"
+      "git_commit": "c509797"
     },
     "run_id": "compare_algorithms-mmas-mmas-k5-s70",
     "topology": "line",
     "stations": [
-      "H-D8",
-      "C-4",
-      "U-9",
+      "A-0",
+      "C-7",
       "D-10",
-      "A-0"
+      "U-9",
+      "B-2"
     ],
-    "objective_s": 136321447.9,
-    "baseline_s": 153888800.0,
-    "lower_bound_s": 90917717.8
+    "objective_s": 135719192.5,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
   }
 }

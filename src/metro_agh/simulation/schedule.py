@@ -84,7 +84,9 @@ def build_schedule(
         for t0, d in departures:
             order, offsets = plans[d]
             first = order[0]
-            ready = [f for f in free if f[1] == first and f[0] <= t0]
+            # a tolerance: a loop's departures are a float headway apart, and the train back
+            # exactly on time must not miss its next round by a rounding error
+            ready = [f for f in free if f[1] == first and f[0] <= t0 + 1e-6]
             if ready:
                 f = min(ready)
                 free.remove(f)

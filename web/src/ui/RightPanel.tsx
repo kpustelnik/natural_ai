@@ -6,7 +6,7 @@ import { area, duration, lonLat, metres, osmUrl } from "../lib/format";
 import { type Vec3, webToGeo } from "../lib/frames";
 import { useOpenReplay } from "../scene/layers/Replay";
 import { pickBox } from "../scene/registry";
-import { app, enterBuilding, focusBox, focusPoint, openedBuilding, type Pick, select, setRouteEnd, useApp } from "../state/app";
+import { app, copyText, enterBuilding, focusBox, focusPoint, openedBuilding, type Pick, select, setRouteEnd, useApp } from "../state/app";
 import { useSlice } from "../state/store";
 import { IconAlert, IconCode, IconCopy, IconEnter, IconExternal, IconFrame, IconInfo } from "./icons";
 import { RoutePanel } from "./RoutePanel";
@@ -89,18 +89,9 @@ function RouteButtons({ keyName }: { keyName: string }) {
 }
 
 function CopyButton({ text, label }: { text: string; label: string }) {
-  const [done, setDone] = useState(false);
   return (
-    <button
-      className="button"
-      onClick={() => {
-        void navigator.clipboard?.writeText(text).then(() => {
-          setDone(true);
-          setTimeout(() => setDone(false), 1200);
-        });
-      }}
-    >
-      <IconCopy size={14} /> {done ? "Copied" : label}
+    <button className="button" onClick={() => copyText(text, `Copied ${text}`)}>
+      <IconCopy size={14} /> {label}
     </button>
   );
 }
@@ -368,6 +359,7 @@ function Inspector({ scene }: { scene: Scene }) {
     case "edge": {
       if (!net) return <p className="muted">Loading…</p>;
       const h = net.header;
+      if (sel.index >= h.n_edges) return <p className="muted">Unknown edge (the network changed).</p>;
       const kind = h.edge_kind_names[(net.arrays.edge_kind as Uint8Array)[sel.index]!];
       const length = (net.arrays.length_m as Float32Array)[sel.index]!;
       const tuv = (net.arrays.time_uv_s as Float32Array)[sel.index]!;
@@ -436,8 +428,9 @@ function Inspector({ scene }: { scene: Scene }) {
       );
     }
     case "barrier": {
-      const b = net?.header.barriers[sel.index];
-      if (!b) return <p className="muted">Loading…</p>;
+      if (!net) return <p className="muted">Loading…</p>;
+      const b = net.header.barriers[sel.index];
+      if (!b) return <p className="muted">Unknown barrier (the network changed).</p>;
       return (
         <>
           <div className="inspector-head">

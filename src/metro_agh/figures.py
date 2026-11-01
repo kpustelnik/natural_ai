@@ -1,8 +1,8 @@
 """Report figures in one style: the dataviz reference palette, light mode, thin marks,
 recessive grid, selective direct labels, a footnote saying what is plotted.
 
-Used by ``scripts/plot_experiments.py`` and ``scripts/validate_optimum.py``; each figure
-also gets a CSV next to it (the table view).
+Used by ``scripts/plot_experiments.py``, ``validate_optimum.py`` and ``validate_field.py``;
+each figure also gets a CSV next to it (the table view).
 """
 
 from __future__ import annotations

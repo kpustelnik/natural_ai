@@ -95,7 +95,7 @@ def run_mmas(inst: Instance, cfg: dict, rng: np.random.Generator | None = None) 
         for a, b in zip(dep_line, dep_line[1:], strict=False):
             tau[a, b] += q
             tau[b, a] += q
-        if inst.meta.topology == "loop":
+        if inst.meta.topology == "loop" and len(dep_line) > 2:  # k = 2: the same pair
             a, b = dep_line[-1], dep_line[0]
             tau[a, b] += q
             tau[b, a] += q

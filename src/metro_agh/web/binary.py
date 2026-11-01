@@ -1,4 +1,4 @@
-"""Header + .bin pairs (docs/data_contracts.md, section 10.4)."""
+"""Header + .bin pairs (docs/data_contracts.md, section 10.6)."""
 
 from pathlib import Path
 

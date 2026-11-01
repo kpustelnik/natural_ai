@@ -158,7 +158,7 @@ def campus_transit(
         e = ev[ev["campus_stop"] == sid]
         am = e[(e["arr_s"] >= peak[0]) & (e["arr_s"] < peak[1])]
         day = e[(e["arr_s"] >= DAY_START_S) & (e["arr_s"] < DAY_END_S)]
-        weight = sum(seats.get(m, 90.0) * (am["mode"] == m).sum() for m in seats)
+        weight = float(am["mode"].map(lambda m: seats.get(m, 90.0)).sum())  # 90: unknown mode
         rows.append(
             {
                 "stop_id": sid,

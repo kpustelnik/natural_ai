@@ -1,10 +1,10 @@
 {
   "provenance": {
     "schema_version": 1,
-    "generated_at": "2026-10-28T21:21:12+01:00",
+    "generated_at": "2026-11-01T00:43:32+01:00",
     "generator": "04_optimize.py",
     "config_hash": "ece674aac4e8a815",
-    "git_commit": "e3e521c"
+    "git_commit": "c509797"
   },
   "run_id": "mmas-k5-s42",
   "topology": "line",
@@ -15,7 +15,7 @@
     "D-10",
     "A-0"
   ],
-  "objective_s": 136321447.9,
-  "baseline_s": 153888800.0,
-  "lower_bound_s": 90917717.8
+  "objective_s": 135315228.8,
+  "baseline_s": 153077344.0,
+  "lower_bound_s": 90876925.5
 }

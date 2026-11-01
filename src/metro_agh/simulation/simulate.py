@@ -104,7 +104,7 @@ class Connections:
         d2, a2 = dep[o2], arr[o2]
         late_i = np.arange(len(a2))
         for n in range(1, len(a2)):
-            if d2[late_i[n - 1]] > d2[n]:
+            if d2[late_i[n - 1]] >= d2[n]:  # a tie: the earlier arrival, already kept
                 late_i[n] = late_i[n - 1]
         return cls(d, a[best_i], d[best_i], a2, d2[late_i], a2[late_i])
 

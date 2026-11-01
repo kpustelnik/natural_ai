@@ -34,12 +34,12 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | path | what |
 |---|---|
 | `config.yaml` | every parameter (paths, campus bbox, time model, metro, ACO, population). Comments are Polish |
-| `data/campus/buildings/*.yaml` | hand-modelled buildings (89, mostly LOD1; U-13 from `osm_building_map.csv`) |
+| `data/campus/buildings/*.yaml` | building YAMLs (89, all LOD1: skeletons from OSM `--bootstrap`, edited by hand; U-13 from `osm_building_map.csv`) |
 | `data/campus/campus.yaml` | passages, extra paths, removed ways, stops with weights |
 | `data/campus/osm_building_map.csv`, `usos_room_map.csv` | hand-written mappings (USOS building ids: `aliases` in the building YAML) |
 | `data/campus/campus.yaml` `stops` | the 12 stops from GTFS (`01_fetch_transit.py --print-yaml`) |
-| `data/sample/campus/` | 5 buildings with interiors (D-17 is LOD3, A-0 is LOD2): use `--sample` |
-| `data/processed/` | generated, gitignored (except `usos/`, `transit/`, `population/dorms.csv`, committed): `osm/campus.gpkg`, `network/*.parquet`, `fake/…` |
+| `data/sample/campus/` | 5 buildings: D-17 and B-1 LOD3, A-0 LOD2, C-2 and DS-7 LOD1: use `--sample` |
+| `data/processed/` | generated, committed (only `fake/` is gitignored): `usos/`, `transit/`, `osm/campus.gpkg`, `network/*.parquet`, `population/`, `demand/`, `instance/`, `simulation/` |
 | `web/public/data/` | generated, gitignored: everything the viewer loads |
 
 ## Python: `src/metro_agh/`
@@ -66,7 +66,7 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | `usos/pages.py` | pure parsers of public USOSweb pages: `parse_room_week` (`Tile`), `parse_unit_groups` (`UnitPage`, `GroupRow`, `Meeting`), `parse_course` (`CoursePage`, `CourseGroup`), `parse_faculty_groups`, `parse_group_courses`; `parity_of`, `weekday_of` |
 | `usos/fetch.py` | `crawl` (rooms -> room plans -> courses -> class groups, one term; `full=True`: + every unit's catalogue and dated meetings) -> `Crawl`; `fetch_rooms`, `fetch_terms`, `fetch_faculties`, `fetch_catalogue` (every page of the catalogue lists, `_pages`), `fetch_meetings` (`tt/classgroups`) |
 | `usos/full.py` | `full_tables` (Crawl -> `FullTables`: course_groups, courses, class_groups, meetings in `usos/all/`) |
-| `usos/parse.py` | `build_tables` (Crawl -> `UsosTables`: timetable, groups with sizes, cohorts, group_cohorts, rooms); `group_ids`, `building_resolver`, `room_key`, `semester_of`, `study_level` + `pool_members` (courses in no cohort -> `pool:1S`) |
+| `usos/parse.py` | `build_tables` (Crawl -> `UsosTables`: timetable, groups with sizes, cohorts, group_cohorts, rooms); `group_ids`, `building_resolver`, `room_key`, `semester_of`, `study_level` + `pool_members` (courses in no cohort -> `pool:1S`); `duplicate_cohorts` (one year listed under two codes -> merged) |
 
 ### Public transport: `transit/`
 
@@ -121,7 +121,7 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | `baselines/greedy.py` | `run_greedy`: best pair, then the station + place that lower the objective most |
 | `baselines/brute_force.py` | `run_brute_force` (exact optimum, refuses more than `optimize.brute_force_max_lines`), `count_lines`, `all_lines` |
 | `optimize.py` | `ALGORITHMS`, `run_algorithm` (picks `optimize.algorithm`) |
-| `experiments.py` | parameter sweeps / ablations: `load_experiment`, `expand_jobs`, `execute_job`, `check_overrides` (refuses keys that change the instance arrays), `summarise`, `append_runs_csv` |
+| `experiments.py` | parameter sweeps / ablations: `load_experiment`, `expand_jobs`, `execute_job` (+ `save_run`: `results/<run_id>/` + runs.csv row), `resolve_instance` (load or rebuild `instance.npz` of a processed dir), `check_overrides` (refuses keys that change the instance arrays), `summarise`, `append_runs_csv` |
 
 ### Simulation (stage 5)
 
@@ -162,7 +162,7 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | `scripts/04_optimize.py` | build/load instance, `run_algorithm`, write `results/<run_id>/` + `best_line.json` |
 | `scripts/run_experiments.py` | YAML sweep / ablation → many runs + `runs.csv` + `summary_<name>.csv` |
 | `scripts/05_simulate.py` | stage 5 on `data/processed` |
-| `scripts/06_export_web.py` | flags `--campus --sample --watch --aerial --aco --metro --sim --fake`; `export_replays` (+ `export_demand`) |
+| `scripts/06_export_web.py` | flags `--campus --sample --watch --aerial --aco --metro --sim --fake` (`--fake` alone, not with `--aco/--metro/--sim`); `export_replays` (+ `export_demand`) |
 | `experiments/configs/*.yaml` | experiment specs: mode, seeds, sweep / variants. `compare_algorithms.yaml` (8 variants, with / without local search, k = 5), `compare_algorithms_hard.yaml` (k = 10), `aco_ablation.yaml` (MMAS parameters, real data), `aco_grid.yaml` (example on fake data), `k_sweep.yaml` |
 | `tests/test_web_export.py` | fixture `exported` (sample campus + synthetic OSM in a temp dir), used by the other export tests |
 | `tests/test_network.py`, `test_interior.py`, `test_osm.py`, `test_schemas.py` | graph, geometry, OSM, contracts |
@@ -187,7 +187,7 @@ through the store (`state/app.ts`). Values read every frame (clock, iteration) a
 |---|---|
 | `main.tsx` | entry: mounts `App`, imports `scene/bvh` and `theme.css` |
 | `App.tsx` | layout (top bar, panels, viewport, dock, status bar), **all keyboard shortcuts** (`useShortcuts`), presentation mode, the "no data" screen, `PlaybackClock` (always mounted) |
-| `state/app.ts` | the store: `AppState`, workspaces, `LAYER_GROUPS` + `WORKSPACE_LAYERS` (default layers per workspace), `Pick` (selection kinds), `Playback`, actions (`select`, `setPlayback`, `setRouteEnd`, `focusBox`, `focusPoint` + `boxAround`, `toast`, `splitActive`, …) |
+| `state/app.ts` | the store: `AppState`, workspaces, `LAYER_GROUPS` + `WORKSPACE_LAYERS` (default layers per workspace), `Pick` (selection kinds), `Playback`, actions (`select`, `setPlayback`, `setRouteEnd`, `focusBox`, `focusPoint` + `boxAround`, `toast`, `copyText`, `splitActive`, …) |
 | `state/url.ts` | store ↔ `location.hash` (`stateFromHash`, `writeHash`): add new URL params here |
 | `state/store.ts` | the tiny external store (`createStore`, `useSlice`) |
 | `data/loader.ts` | `fetchJson`, `loadBinary` (typed-array views), `MissingDataError` |

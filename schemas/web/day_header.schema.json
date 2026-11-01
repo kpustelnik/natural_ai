@@ -111,7 +111,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "``trips/<scenario>/day-<weekday>.{json,bin}``: who walks which path when.\n\nOne row = one segment: student ``student_id`` starts path ``path_id`` at ``t_start``.\nA metro leg is three segments (walk to platform, ride, walk out); between segments of\none leg the student stands at the end of the previous path (waiting). Between legs the\nstudent is inside a room and not drawn. Rows are sorted by t_start.",
+  "description": "``trips/<scenario>/day-<weekday>.{json,bin}``: who walks which path when.\n\nOne row = one segment: student ``student_id`` starts path ``path_id`` at ``t_start``.\nA metro or bus / tram leg is three segments (walk to the platform or stop, ride, walk\nout); between segments of one leg the student stands at the end of the previous path\n(waiting). Between legs the\nstudent is inside a room and not drawn. Rows are sorted by t_start.",
   "properties": {
     "provenance": {
       "$ref": "#/$defs/Provenance"

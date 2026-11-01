@@ -75,8 +75,10 @@ oddaniem sprawdzić strony i numery tomów w bazie wydawcy (Scopus / IEEE Xplore
 
 1. Funkcja celu z perspektywy pasażera (łączny czas, min(pieszo / autobus, metro)) jest
    typowa dla projektowania tras; brak kosztu budowy zastępuje analiza k.
-2. Sam algorytm mrówkowy bez lokalnego przeszukiwania jest słabszy od prostej heurystyki
-   zachłannej na naszej instancji; literatura (Stützle, Hoos 2000; Dorigo, Stützle 2004)
-   przewiduje to i zaleca hybrydę ACO + local search, co potwierdzają nasze wyniki.
+2. Sam algorytm mrówkowy bez lokalnego przeszukiwania przegrywa z prostą heurystyką
+   zachłanną przy małym budżecie (podinstancje, 200 linii) i wygrywa z nią dopiero po
+   ~2 000–3 000 ocenionych liniach, a optimum znajduje rzadko; literatura (Stützle, Hoos
+   2000; Dorigo, Stützle 2004) przewiduje to i zaleca hybrydę ACO + local search, co
+   potwierdzają nasze wyniki (84–94 % trafień optimum z local search).
 3. Porównanie algorytmów wymaga równego budżetu ewaluacji i testów nieparametrycznych na
    wielu seedach (Derrac i in. 2011); tak zbudowane są `compare_algorithms*.yaml`.

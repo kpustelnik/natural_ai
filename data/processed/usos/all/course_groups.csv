@@ -162,11 +162,11 @@ code,cohort_id,label,faculty_id,programme,semester,level,n_courses
 240-ZBI-1S-1R-L,240-ZBI-1S-1R-L,"240 - Informatyka - Zarządzanie Bezpieczeństwem Informacji, semestr 2",240-000,240-ZBI-1S,2,1S,8
 240-ZBI-1S-1R-Z,240-ZBI-1S-1R-Z,"240 - Informatyka - Zarządzanie Bezpieczeństwem Informacji, semestr 1",240-000,240-ZBI-1S,1,1S,8
 240-ZBI-1S-2R-Z,240-ZBI-1S-2R-Z,"240 - Informatyka - Zarządzanie bezpieczeństwem informacji, semestr 3",240-000,240-ZBI-1S,3,1S,15
-"240_INF-1S,7sem,po",240_INF-1S_7sem_po,"240_INF,stacjonarne, 1S,przedmioty obieralne",240-000,240_INF-1,7,1S,14
+"240_INF-1S,7sem,po",240_INF-1S_7sem_po,"240_INF,stacjonarne, 1S,przedmioty obieralne",240-000,240_INF-1S,7,1S,14
 250-SPT-2S-EL1,250-SPT-2S-EL1,Elective group1,250-000,250-SPT-2S-EL1,,2S,3
 250-SPT-2S-EL2,250-SPT-2S-EL2,Elective group 2,250-000,250-SPT-2S-EL2,,2S,2
 420-1S-s2,420-1S-s2,"Matematyka semestr 2, kanon",420-000,420-1S,2,1S,3
-420-1S-s4-PO,420-1S-s4-PO,Narzędzia informatyki - grupa przedmiotów obieralnych.,420-000,420-1S,,1S,4
+420-1S-s4-PO,420-1S-s4-PO,Narzędzia informatyki - grupa przedmiotów obieralnych.,420-000,420-1S,4,1S,4
 420-1S-s5-PKO,420-1S-s5-PKO,"Matematyka- przedmioty kierunkowe obieralne, semestr 5",420-000,420-1S,5,1S,0
 420-1S-s6-PKO,420-1S-s6-PKO,"Matematyka przedmioty kierunkowe obieralne, semestr 6",420-000,420-1S,6,1S,6
 420-1S-s6-POO,420-1S-s6-POO,"Matematyka przedmioty obieralne obcojęzyczne, semestr 6",420-000,420-1S,6,1S,0
@@ -286,22 +286,22 @@ BUD_2S_s3_IPB,BUD_2S_s3_IPB,"BUD, stacjonarne, 2 stopnia, 3 semestr, przedmioty 
 BUD_2S_s3_KBI,BUD_2S_s3_KBI,"BUD, stacjonarne, 2 stopnia, 3 semestr, przedmioty KBI",100-000,BUD_2S,3,2S,2
 BUD_2S_s3_PP,BUD_2S_s3_PP,"BUD, stacjonarne, 2 stopnia, 3 semestr, przedmioty podstawowe",100-000,BUD_2S,3,2S,1
 BUD_2S_s3_RiMOB,BUD_2S_s3_RiMOB,"BUD, stacjonarne, 2 stopnia, 3 semestr, przedmioty RiMOB",100-000,BUD_2S,3,2S,0
-"CER-1S,1sem,PP",CER-1S_1sem_PP,"Ceramika, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",160-000,CER-1,1,1S,8
-"CER-1S,2sem,PP",CER-1S_2sem_PP,"Ceramika, stacjonarne I stopnia, 2 semestr, przedmioty podstawowe",160-000,CER-1,2,1S,6
-"CER-1S,3sem,PP",CER-1S_3sem_PP,"Ceramika, stacjonarne I stopnia, 3 semestr, przedmioty podstawowe",160-000,CER-1,3,1S,7
-"CER-1S,4sem,PP",CER-1S_4sem_PP,"Ceramika, stacjonarne I stopnia, 4 semestr, przedmioty podstawowe",160-000,CER-1,4,1S,4
-"CER-1S,5sem,PP",CER-1S_5sem_PP,"Ceramika, stacjonarne I stopnia, 5 semestr, przedmioty podstawowe",160-000,CER-1,5,1S,7
-"CER-1S,6SEM,PP",CER-1S_6SEM_PP,"Ceramika, stacjonarne I stopnia, 6 semestr, przedmioty podstawowe",160-000,CER-1,6,1S,6
-"CER-1S,7sem,PP",CER-1S_7sem_PP,"Ceramika, stacjonarne I stopnia, 7 semestr, przedmioty podstawowe",160-000,CER-1,7,1S,5
-"CHB-1S,1sem,PP",CHB-1S_1sem_PP,"CHB, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",160-000,CHB-1,1,1S,2
-"CHB-1S,2sem,PP",CHB-1S_2sem_PP,"CHB, stacjonarne I stopnia, 2 semestr, przedmioty podstawowe",160-000,CHB-1,2,1S,0
-"CHB-1S,3sem,PP",CHB-1S_3sem_PP,"CHB, stacjonarne I stopni, 3 semestr, przedmioty podstawowe",160-000,CHB-1,3,1S,0
-"CHB-1S,4sem,PP",CHB-1S_4sem_PP,"CHB, stacjonarne I stopnia, 4 semestr, przedmioty podstawowe",160-000,CHB-1,4,1S,6
-"CHB-1S,5sem,PP",CHB-1S_5sem_PP,"CHB, stacjonarne I stopnia, 5 semestr - Politechnika Łódzka",160-000,CHB-1,5,1S,0
-"CHB-1S,7sem,PP",CHB-1S_7sem_PP,"CHB, stacjonarne I stopnia, 7 semestr, przedmioty podstawowe",160-000,CHB-1,7,1S,5
-"CHK-2S,1sem-Łódź",CHK-2S_1sem-_d,"CHK, stacjonarne II stopnia, 1 semestr - Politechnika Łódzka",160-000,CHK-2,1,2S,13
-"CHK-2S,2sem",CHK-2S_2sem,"CHK, stacjonarne II stopnia, 2 semestr",160-000,CHK-2,2,2S,11
-"CHK-2S,3sem",CHK-2S_3sem,"CHK, stacjonarne II stopnia, 3 semestr",160-000,CHK-2,3,2S,5
+"CER-1S,1sem,PP",CER-1S_1sem_PP,"Ceramika, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",160-000,CER-1S,1,1S,8
+"CER-1S,2sem,PP",CER-1S_2sem_PP,"Ceramika, stacjonarne I stopnia, 2 semestr, przedmioty podstawowe",160-000,CER-1S,2,1S,6
+"CER-1S,3sem,PP",CER-1S_3sem_PP,"Ceramika, stacjonarne I stopnia, 3 semestr, przedmioty podstawowe",160-000,CER-1S,3,1S,7
+"CER-1S,4sem,PP",CER-1S_4sem_PP,"Ceramika, stacjonarne I stopnia, 4 semestr, przedmioty podstawowe",160-000,CER-1S,4,1S,4
+"CER-1S,5sem,PP",CER-1S_5sem_PP,"Ceramika, stacjonarne I stopnia, 5 semestr, przedmioty podstawowe",160-000,CER-1S,5,1S,7
+"CER-1S,6SEM,PP",CER-1S_6SEM_PP,"Ceramika, stacjonarne I stopnia, 6 semestr, przedmioty podstawowe",160-000,CER-1S,6,1S,6
+"CER-1S,7sem,PP",CER-1S_7sem_PP,"Ceramika, stacjonarne I stopnia, 7 semestr, przedmioty podstawowe",160-000,CER-1S,7,1S,5
+"CHB-1S,1sem,PP",CHB-1S_1sem_PP,"CHB, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",160-000,CHB-1S,1,1S,2
+"CHB-1S,2sem,PP",CHB-1S_2sem_PP,"CHB, stacjonarne I stopnia, 2 semestr, przedmioty podstawowe",160-000,CHB-1S,2,1S,0
+"CHB-1S,3sem,PP",CHB-1S_3sem_PP,"CHB, stacjonarne I stopni, 3 semestr, przedmioty podstawowe",160-000,CHB-1S,3,1S,0
+"CHB-1S,4sem,PP",CHB-1S_4sem_PP,"CHB, stacjonarne I stopnia, 4 semestr, przedmioty podstawowe",160-000,CHB-1S,4,1S,6
+"CHB-1S,5sem,PP",CHB-1S_5sem_PP,"CHB, stacjonarne I stopnia, 5 semestr - Politechnika Łódzka",160-000,CHB-1S,5,1S,0
+"CHB-1S,7sem,PP",CHB-1S_7sem_PP,"CHB, stacjonarne I stopnia, 7 semestr, przedmioty podstawowe",160-000,CHB-1S,7,1S,5
+"CHK-2S,1sem-Łódź",CHK-2S_1sem-_d,"CHK, stacjonarne II stopnia, 1 semestr - Politechnika Łódzka",160-000,CHK-2S,1,2S,13
+"CHK-2S,2sem",CHK-2S_2sem,"CHK, stacjonarne II stopnia, 2 semestr",160-000,CHK-2S,2,2S,11
+"CHK-2S,3sem",CHK-2S_3sem,"CHK, stacjonarne II stopnia, 3 semestr",160-000,CHK-2S,3,2S,5
 CSC_1S_sem_1,CSC_1S_sem_1,CSC_1S_sem_1,120-000,CSC_1S,1,1S,7
 CSC_1S_sem_2,CSC_1S_sem_2,CSC_1S_sem_2,120-000,CSC_1S,2,1S,5
 CSC_1S_sem_3,CSC_1S_sem_3,CSC_1S_sem_3,120-000,CSC_1S,3,1S,7
@@ -392,7 +392,7 @@ ENW_2S_s3_all,ENW_2S_s3_all,"EW, stacjonarne II stopnia, semestr 3 all",210-000,
 EN_SMIUE_s2_all,EN_SMIUE_s2_all,"ENR, stacjonarne II stopnia, semestr 2, przedmioty all_SMIUE",210-000,EN_SMIUE,2,,19
 EN_USISE_s1_all,EN_USISE_s1_all,"ENR, USISE, stacjonarne II stopnia, semestr 1, all",210-000,EN_USISE,1,,5
 EN_specjalnośćEJ_s3,EN_specjalno_EJ_s3,"ENR, stacjonarne II stopnia, semestr 3 all",210-000,EN_specjalno_EJ,3,,4
-EOZ_1S_1s_all,EOZ_1S_1s_all,"EOZ, stacjonarne, I stopnia, 1 semestr all",210-000,EOZ_1,1,1S,12
+EOZ_1S_1s_all,EOZ_1S_1s_all,"EOZ, stacjonarne, I stopnia, 1 semestr all",210-000,EOZ_1S,1,1S,12
 EOZ_1S_s2_all,EOZ_1S_s2_all,"EOZ, stacjonarne, I stopnia, 2 semestr, all",210-000,EOZ_1S,2,1S,14
 EOZ_1S_s3_all,EOZ_1S_s3_all,"EOZ, stacjonarne, I stopnia, 3 semestr, all",210-000,EOZ_1S,3,1S,11
 EOZ_1S_s4_all,EOZ_1S_s4_all,"EOZ, stacjonane, I stopnia, 4 semestr, all",210-000,EOZ_1S,4,1S,12
@@ -447,7 +447,7 @@ GGO_1S_s7_WIG,GGO_1S_s7_WIG,"GiGO, stacjonarne I stopnia, semestr 7, Moduł WiG"
 GGO_2N_s1__PS-WiG,GGO_2N_s1__PS-WiG,"GiGO, niestacjonarne II stopnia, 1 semestr, przedmioty specjalistyczne, WiG",190-000,GGO_2N,1,2N,7
 GGO_2S_s2__PS-WIG,GGO_2S_s2__PS-WIG,"GGO, stacjonarne II stopnia, 2 semestr, przedmioty specjalistyczne, WIG",190-000,GGO_2S,2,2S,11
 "GIK-1N,1sem(23/24)",GIK-1N_1sem_23_24,"GIK, stud.niest. ( od 2023/24) sem.1",150-000,GIK-1N,1,1N,7
-"GIK-1N,2s(23/24)",GIK-1N_2s_23_24,"GIK-1N,2s(23/24) (od 2023/24)",150-000,GIK-1N_2,,1N,8
+"GIK-1N,2s(23/24)",GIK-1N_2s_23_24,"GIK-1N,2s(23/24) (od 2023/24)",150-000,GIK-1N,2,1N,8
 "GIK-1S,sem.1",GIK-1S_sem_1,150-GIK-1S-semestr 1,150-000,GIK-1S,1,1S,8
 "GIK-1S,sem.2",GIK-1S_sem_2,150-GIK-1S-semestr 2,150-000,GIK-1S,2,1S,8
 "GIK-1S,sem.3",GIK-1S_sem_3,150-GIK-1S-semestr 3,150-000,GIK-1S,3,1S,10
@@ -455,12 +455,12 @@ GGO_2S_s2__PS-WIG,GGO_2S_s2__PS-WIG,"GGO, stacjonarne II stopnia, 2 semestr, prz
 "GIK-1S,sem.5",GIK-1S_sem_5,150-GIK-1S-semestr 5,150-000,GIK-1S,5,1S,7
 "GIK-1S,sem.6",GIK-1S_sem_6,150-GIK-1S-semestr 6,150-000,GIK-1S,6,1S,13
 "GIK-1S,sem.7",GIK-1S_sem_7,150-GIK-1S-semestr 7,150-000,GIK-1S,7,1S,10
-"GIK-2S-GFIT,sem.2",GIK-2S-GFIT_sem_2,"150-GIK-2S-GFT, (od 2023/24) sem. 2",150-000,GIK-2S-GFIT,,2S,5
-"GIK-2S-GIP,sem.2",GIK-2S-GIP_sem_2,"150-GIK-2S-GIP, (od 2023/24) sem 2.",150-000,GIK-2S-GIP,,2S,7
-"GIK-2S-GNK,sem.2",GIK-2S-GNK_sem_2,"150-GIK-2S-GNK, (od 2023/24) sem. 2",150-000,GIK-2S-GNK,,2S,9
-"GIK-2S-MIG,sem.2",GIK-2S-MIG_sem_2,"150-GIK-2S-MIG, (od 2023/24) sem. 2",150-000,GIK-2S-MIG,,2S,6
-"GIK-2S-PAG,sem.2",GIK-2S-PAG_sem_2,"150-GIK-2S-PAG, (od 2023/24) sem. 2",150-000,GIK-2S-PAG,,2S,9
-"GIK_1N,7s(23/24)",GIK_1N_7s_23_24,GIK_1N semestr 7 (od 23/24),150-000,GIK_1N_7,7,1N,7
+"GIK-2S-GFIT,sem.2",GIK-2S-GFIT_sem_2,"150-GIK-2S-GFT, (od 2023/24) sem. 2",150-000,GIK-2S-GFIT,2,2S,5
+"GIK-2S-GIP,sem.2",GIK-2S-GIP_sem_2,"150-GIK-2S-GIP, (od 2023/24) sem 2.",150-000,GIK-2S-GIP,2,2S,7
+"GIK-2S-GNK,sem.2",GIK-2S-GNK_sem_2,"150-GIK-2S-GNK, (od 2023/24) sem. 2",150-000,GIK-2S-GNK,2,2S,9
+"GIK-2S-MIG,sem.2",GIK-2S-MIG_sem_2,"150-GIK-2S-MIG, (od 2023/24) sem. 2",150-000,GIK-2S-MIG,2,2S,6
+"GIK-2S-PAG,sem.2",GIK-2S-PAG_sem_2,"150-GIK-2S-PAG, (od 2023/24) sem. 2",150-000,GIK-2S-PAG,2,2S,9
+"GIK_1N,7s(23/24)",GIK_1N_7s_23_24,GIK_1N semestr 7 (od 23/24),150-000,GIK_1N,7,1N,7
 GIN_1S_s1_ALL,GIN_1S_s1_ALL,GIN_1S_s1_ALL,140-000,GIN_1S,1,1S,6
 GIN_1S_s2_ALL,GIN_1S_s2_ALL,GIN_1S_s2_ALL,140-000,GIN_1S,2,1S,7
 GIN_1S_s3_ALL,GIN_1S_s3_ALL,GIN_1S_s3_ALL,140-000,GIN_1S,3,1S,8
@@ -499,7 +499,7 @@ GST_GN_2S_s3_ALL,GST_GN_2S_s3_ALL,GST_GN_2S_s3_ALL,140-000,GST_GN_2S,3,2S,3
 GST_HG_2S_s1_ALL,GST_HG_2S_s1_ALL,GST_HG_2S_s1_ALL,140-000,GST_HG_2S,1,2S,11
 GST_HG_2S_s2_ALL,GST_HG_2S_s2_ALL,GST_HG_2S_s2_ALL,140-000,GST_HG_2S,2,2S,10
 GST_HG_2S_s3_ALL,GST_HG_2S_s3_ALL,GST_HG_2S_s3_ALL,140-000,GST_HG_2S,3,2S,7
-GST_MS_2S_s1_ALL,GST_MS_2S_s1_ALL,GST_MS_2S_s1_ALL,140-000,GST_M,1,2S,8
+GST_MS_2S_s1_ALL,GST_MS_2S_s1_ALL,GST_MS_2S_s1_ALL,140-000,GST_MS_2S,1,2S,8
 GTO_1N_s1,GTO_1N_s1,"GTO, niestacjonarne I stopnia, semestr 1, przedmioty podstawowe",190-000,GTO_1N,1,1N,8
 GTO_1N_s3,GTO_1N_s3,"GTO, niestacjonarne I stopnia, semestr 3, przedmioty podstawowe",190-000,GTO_1N,3,1N,7
 GTO_1S_s1,GTO_1S_s1,"GTO, stacjonarne I stopnia, semestr 1, przedmioty podstawowe",190-000,GTO_1S,1,1S,8
@@ -568,12 +568,12 @@ IFM_1S_sem_4,IFM_1S_sem_4,IFM_1S_sem_4,120-000,IFM_1S,4,1S,9
 IFM_1S_sem_5,IFM_1S_sem_5,IFM_1S_sem_5,120-000,IFM_1S,5,1S,8
 IFM_1S_sem_6,IFM_1S_sem_6,IFM_1S_sem_6,120-000,IFM_1S,6,1S,9
 IFM_2S_sem_1,IFM_2S_sem_1,IFM_2S_sem_1,120-000,IFM_2S,1,2S,9
-"IGP-1S,1sem(22/23)",IGP-1S_1sem_22_23,"150-IGP-1S, sem. 1",150-000,IGP-1,1,1S,3
-"IGP-1S,2sem(22/23)",IGP-1S_2sem_22_23,"150-GEI-1S, sem. 2",150-000,IGP-1,2,1S,0
-"IGP-1S,3sem.",IGP-1S_3sem,"150-IGP-1S, sem. 3",150-000,IGP-1,3,1S,14
-"IGP-1S,5sem.",IGP-1S_5sem,"150-IGP-1S, sem. 5",150-000,IGP-1,5,1S,16
-"IGP-1S,7sem.",IGP-1S_7sem,"150-IGP-1S, sem. 7",150-000,IGP-1,7,1S,11
-"IGP-2S_TIS,2sem.",IGP-2S_TIS_2sem,"150-IGP-2S-TGS, sem. 2",150-000,IGP-2S_TI,2,2S,3
+"IGP-1S,1sem(22/23)",IGP-1S_1sem_22_23,"150-IGP-1S, sem. 1",150-000,IGP-1S,1,1S,3
+"IGP-1S,2sem(22/23)",IGP-1S_2sem_22_23,"150-GEI-1S, sem. 2",150-000,IGP-1S,2,1S,0
+"IGP-1S,3sem.",IGP-1S_3sem,"150-IGP-1S, sem. 3",150-000,IGP-1S,3,1S,14
+"IGP-1S,5sem.",IGP-1S_5sem,"150-IGP-1S, sem. 5",150-000,IGP-1S,5,1S,16
+"IGP-1S,7sem.",IGP-1S_7sem,"150-IGP-1S, sem. 7",150-000,IGP-1S,7,1S,11
+"IGP-2S_TIS,2sem.",IGP-2S_TIS_2sem,"150-IGP-2S-TGS, sem. 2",150-000,IGP-2S_TIS,2,2S,3
 IGR_1N_s1,IGR_1N_s1,IGR_1N_s1,100-000,IGR_1N,1,1N,5
 IGR_1N_s2,IGR_1N_s2,IGR_1N_s2,100-000,IGR_1N,2,1N,7
 IGR_1N_s3,IGR_1N_s3,IGR_1N_s3,100-000,IGR_1N,3,1N,8
@@ -596,74 +596,74 @@ IGR_2N_s4,IGR_2N_s4,IGR_2N_s4,100-000,IGR_2N,4,2N,2
 IGR_2S_s1,IGR_2S_s1,IGR_2S_s1,100-000,IGR_2S,1,2S,9
 IGR_2S_s2,IGR_2S_s2,IGR_2S_s2,100-000,IGR_2S,2,2S,21
 IGR_2S_s3,IGR_2S_s3,IGR_2S_s3,100-000,IGR_2S,3,2S,3
-"IIE-1N,1s,PP",IIE-1N_1s_PP,"IiE, niestacjonarne I stopnia, 1 semestr,przedmioty podstawowe",200-000,IIE-1N_1s_PP,1,1N,7
+"IIE-1N,1s,PP",IIE-1N_1s_PP,"IiE, niestacjonarne I stopnia, 1 semestr,przedmioty podstawowe",200-000,IIE-1N,1,1N,7
 "IIE-1N,5sem,MO",IIE-1N_5sem_MO,"IIE,niestacjonarne 1 stopnia, 5 semestr,moduł obowiązkowy",200-000,IIE-1N,5,1N,7
 "IIE-1N,5sem,PO",IIE-1N_5sem_PO,"IIE,niestacjonarne 1 stopnia, 5 semestr,moduł ogólny",200-000,IIE-1N,5,1N,6
 "IIE-1N,5sem,PS",IIE-1N_5sem_PS,"IIE,niestacjonarne 1 stopnia, 5 semestr,moduł specjalistyczny",200-000,IIE-1N,5,1N,5
-"IIE-1S,1s,PP",IIE-1S_1s_PP,"IIE,stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",200-000,IIE-1,1,1S,7
-"IIE-1S,2sem,MO",IIE-1S_2sem_MO,"IiE, stacjonarne I stopnia, 2 semestr, przedmioty obierane moduł ogólny",200-000,IIE-1,2,1S,5
-"IIE-1S,2sem,MS",IIE-1S_2sem_MS,"IiE, stacjonarne I stopnia, 2 semestr, przedmioty obieralne moduł specjalistyczny",200-000,IIE-1,2,1S,4
-"IIE-1S,2semPP",IIE-1S_2semPP,"IiE, stacjonarne I stopnia, 2 semestr przedmioty podstawowe",200-000,IIE-1,2,1S,5
+"IIE-1S,1s,PP",IIE-1S_1s_PP,"IIE,stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",200-000,IIE-1S,1,1S,7
+"IIE-1S,2sem,MO",IIE-1S_2sem_MO,"IiE, stacjonarne I stopnia, 2 semestr, przedmioty obierane moduł ogólny",200-000,IIE-1S,2,1S,5
+"IIE-1S,2sem,MS",IIE-1S_2sem_MS,"IiE, stacjonarne I stopnia, 2 semestr, przedmioty obieralne moduł specjalistyczny",200-000,IIE-1S,2,1S,4
+"IIE-1S,2semPP",IIE-1S_2semPP,"IiE, stacjonarne I stopnia, 2 semestr przedmioty podstawowe",200-000,IIE-1S,2,1S,5
 "IIE-2N,1sem.,PP",IIE-2N_1sem_PP,"IIE, niestacjonarne II stopnia, 1 semestr, przedmioty podstawowe",200-000,IIE-2N,1,2N,7
 "IIE-2N,3sem,MO",IIE-2N_3sem_MO,"IIE, niestacjonarne II stopnia, 3 semestr, moduł ogólny od 24/25-Z",200-000,IIE-2N,3,2N,6
 "IIE-2N,3sem,MS",IIE-2N_3sem_MS,"IIE, niestacjonarne II stopnia, 3 semestr, moduł specjalistyczny",200-000,IIE-2N,3,2N,0
 "IIE-2N,3sem,PP",IIE-2N_3sem_PP,"IIE, niestacjonarne II stopnia, 3 semestr, przedmioty podstawowe",200-000,IIE-2N,3,2N,4
-"IIE-2S,1s,PP",IIE-2S_1s_PP,"IIE, stacjonarne II stopnia, 1 semestr, przedmioty podstawowe",200-000,IIE-2,1,2S,7
-"IIE-2S,2s,PP",IIE-2S_2s_PP,"IIE, stacjonarne II stopnia, 2 semestr, przedmioty podstawowe",200-000,IIE-2,2,2S,5
-"IIE-2S,2sem,MO",IIE-2S_2sem_MO,Iie stacjonarne II stopnia 2 semestr grupa obieralna 2,200-000,IIE-2,2,2S,0
-"IIE-2S,2sem,MS",IIE-2S_2sem_MS,"IiE stacjonarne II stopnia, 2 semestr, grupa obieralna 1",200-000,IIE-2,2,2S,6
-IKS_1N_s1,IKS_1N_s1,IKS_1N_s1,100-000,IK,1,1N,7
-IKS_1N_s2,IKS_1N_s2,IKS_1N_s2,100-000,IK,2,1N,8
-IKS_1N_s3,IKS_1N_s3,IKS_1N_s3,100-000,IK,3,1N,7
-IKS_1N_s4,IKS_1N_s4,IKS_1N_s4,100-000,IK,4,1N,9
-IKS_1N_s5,IKS_1N_s5,IKS_1N_s5,100-000,IK,5,1N,15
-IKS_1N_s6,IKS_1N_s6,IKS_1N_s6,100-000,IK,6,1N,12
-IKS_1N_s7,IKS_1N_s7,IKS_1N_s7,100-000,IK,7,1N,10
-IKS_1N_s8,IKS_1N_s8,IKS_1N_s8,100-000,IK,8,1N,9
-IKS_1S_s1,IKS_1S_s1,IKS_1S_s1,100-000,IK,1,1S,9
-IKS_1S_s2,IKS_1S_s2,IKS_1S_s2,100-000,IK,2,1S,8
-IKS_1S_s3,IKS_1S_s3,IKS_1S_s3,100-000,IK,3,1S,8
-IKS_1S_s4,IKS_1S_s4,IKS_1S_s4,100-000,IK,4,1S,13
-IKS_1S_s5,IKS_1S_s5,IKS_1S_s5,100-000,IK,5,1S,13
-IKS_1S_s6,IKS_1S_s6,IKS_1S_s6,100-000,IK,6,1S,19
-IKS_1S_s7_PP,IKS_1S_s7_PP,IKS_1S_s7,100-000,IK,7,1S,11
-IKS_2N_s1_PO,IKS_2N_s1_PO,"IKS, studia niestacjonarne, II st., 1 sem. przedmioty obieralne",100-000,IK,1,2N,3
-IKS_2N_s1_PP,IKS_2N_s1_PP,"IKS, niestacjonarne, 2 stopnia, 1 sem. przedmioty podstawowe",100-000,IK,1,2N,3
-IKS_2N_s1_WKP,IKS_2N_s1_WKP,"IKS, studia niestacjonarne II st, 1 sem",100-000,IK,1,2N,7
-IKS_2N_s3_ISR,IKS_2N_s3_ISR,"IKS, studia niestacjonarne II st, 3 sem, specj. ISR",100-000,IK,3,2N,7
-IKS_2S_s1_ISR,IKS_2S_s1_ISR,"IKS, stacjonarne 2 stopnia, 1 semestr, specj. ISR",100-000,IK,1,2S,3
-IKS_2S_s1_PO,IKS_2S_s1_PO,"IKS, stacjonarne 2 stopnia, 1 semestr, przedmioty obieralne",100-000,IK,1,2S,16
-IKS_2S_s1_PP,IKS_2S_s1_PP,"IKS, stacjonarne 2 stopnia, 1 semestr, przedmioty podstawowe+ISR",100-000,IK,1,2S,2
-IKS_2S_s1_WKP,IKS_2S_s1_WKP,"IKS, stacjonarne 2 stopnia, 1 semestr, specj. WIKP",100-000,IK,1,2S,3
-IKS_2S_s2_ISR,IKS_2S_s2_ISR,IKS_SS_s2_ISR_przedmioty podstawowe,100-000,IK,2,2S,2
-IKS_2S_s2_ISR_PO,IKS_2S_s2_ISR_PO,IKS_SS_2S_s2_ISR_przedmioty specjalizacyjne obieralne,100-000,IK,2,2S,13
-IKS_2S_s2_PP,IKS_2S_s2_PP,"IKS, stacjonarne 2 stopnia, 2 semestr, przedmioty podstawowe",100-000,IK,2,2S,1
-IKS_2S_s2_WKP,IKS_2S_s2_WKP,"IKS, stacjonarne 2 stopnia, 2 semestr, przedmioty podstawowe",100-000,IK,2,2S,8
-IKS_2S_s3_ISR,IKS_2S_s3_ISR,"IKS, stacjonarne 2 stopnia, 3 semestr, przedmioty podstawowe",100-000,IK,3,2S,3
-IKS_2S_s3_PP,IKS_2S_s3_PP,IKS_SS_2S_s3_przedmioty podstawowe,100-000,IK,3,2S,1
-IKS_2S_s3_WKP,IKS_2S_s3_WKP,"IKS, stacjonarne 2 stopnia, 3 semestr, przedmioty podstawowe",100-000,IK,3,2S,1
-IKS_2S_s3_WKP_PO,IKS_2S_s3_WKP_PO,IKS_SS_2S_s3_WIKP_przedmioty obieralne,100-000,IK,3,2S,3
-"IMA-1S,1sem,PP",IMA-1S_1sem_PP,"IM, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",160-000,IMA-1,1,1S,7
-"IMA-1S,2sem,WIMiC",IMA-1S_2sem_WIMiC,"IM, stacjonarne I stopnia, 2 semestr, WIMiC",160-000,IMA-1,2,1S,6
-"IMA-1S,2sem,WIMiIP",IMA-1S_2sem_WIMiIP,"IM, stacjonarne I stopnia, 2 semestr, WIMiIP",160-000,IMA-1,2,1S,0
-"IMA-1S,3sem,PP",IMA-1S_3sem_PP,"IM, stacjonarne I stopnia, 3 semestr, przedmioty podstawowe",160-000,IMA-1,3,1S,4
-"IMA-1S,4sem,PP",IMA-1S_4sem_PP,"IM, stacjonarne I stopnia, 4 semestr, przedmioty podstawowe",160-000,IMA-1,4,1S,4
-"IMA-1S,5sem,PP",IMA-1S_5sem_PP,"IM, stacjonarne I stopnia, 5 semestr, przedmioty podstawowe",160-000,IMA-1,5,1S,6
-"IMA-1S,6sem,PP",IMA-1S_6sem_PP,"IM, stacjonarne I stopnia, 6 semestr, przedmioty podstawowe",160-000,IMA-1,6,1S,3
-"IMA-1S,7sem,PP",IMA-1S_7sem_PP,"IM, stacjonarne 7 semestr",160-000,IMA-1,7,1S,2
-"IMA-2S,1sem",IMA-2S_1sem,"IM, stacjonarne II stopnia 4 semestralne, 1 semestr",160-000,IMA-2,4,2S,1
-"IMA-2S,1sem,PP",IMA-2S_1sem_PP,"IM, stacjonarne II stopnia, 1 semestr, przedmioty podstawowe",160-000,IMA-2,1,2S,3
-"IMA-2S,1sem-BiK",IMA-2S_1sem-BiK,"IM, stacjonarne II stopnia, 1 semestr, Biomateriały i kompozyty",160-000,IMA-2,1,2S,0
-"IMA-2S,1sem-FM",IMA-2S_1sem-FM,"IM, stacjonarne II stopnia, 1 semestr, Functional Materials",160-000,IMA-2,1,2S,1
-"IMA-2S,1sem-MF",IMA-2S_1sem-MF,"IM, stacjonarne II stopnia, 1 semestr, Materiały funkcjonalne",160-000,IMA-2,1,2S,0
-"IMA-2S,1sem-MKdMiT",IMA-2S_1sem-MKdMiT,"IM, st. II st., 1 sem - Materiały Kompozytowe dla Medycyny i Techniki",160-000,IMA-2,1,2S,3
-"IMA-2S,1sem-MdMiKE",IMA-2S_1sem-MdMiKE,"IM, st. II st., 1 sem - Materiały do Magazynowania i Konwersji Energii",160-000,IMA-2,1,2S,3
-"IMA-2S,1sem-ZMC",IMA-2S_1sem-ZMC,"IM, stacjonarne II stopnia, 1 semestr, Zaawansowane materiały ceramiczne",160-000,IMA-2,1,2S,0
-"IMA-2S,2sem,Obow.",IMA-2S_2sem_Obow,"IM, stacjonarne II stopnia, 2 semestr, przedmioty podstawowe",160-000,IMA-2,2,2S,1
-"IMA-2S,2sem,PP",IMA-2S_2sem_PP,"IM, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",160-000,IMA-2,1,2S,2
-"IMA-2S,2sem,obow.FM",IMA-2S_2sem_obow_FM,"IM, stacjonarne II stopnia, 2 semestr, przedmioty podstawowe - FM",160-000,IMA-2,2,2S,1
-"IMA-2S,2sem-BS",IMA-2S_2sem-BS,"IM, stacjonarne II stopnia, 2 semestr, Bloki specjalistyczne",160-000,IMA-2,2,2S,0
-"IMA-2S,3sem,PP",IMA-2S_3sem_PP,"IM, stacjonarne I stopnia, 3 semestr, przedmioty podstawowe",160-000,IMA-2,3,2S,4
+"IIE-2S,1s,PP",IIE-2S_1s_PP,"IIE, stacjonarne II stopnia, 1 semestr, przedmioty podstawowe",200-000,IIE-2S,1,2S,7
+"IIE-2S,2s,PP",IIE-2S_2s_PP,"IIE, stacjonarne II stopnia, 2 semestr, przedmioty podstawowe",200-000,IIE-2S,2,2S,5
+"IIE-2S,2sem,MO",IIE-2S_2sem_MO,Iie stacjonarne II stopnia 2 semestr grupa obieralna 2,200-000,IIE-2S,2,2S,0
+"IIE-2S,2sem,MS",IIE-2S_2sem_MS,"IiE stacjonarne II stopnia, 2 semestr, grupa obieralna 1",200-000,IIE-2S,2,2S,6
+IKS_1N_s1,IKS_1N_s1,IKS_1N_s1,100-000,IKS_1N,1,1N,7
+IKS_1N_s2,IKS_1N_s2,IKS_1N_s2,100-000,IKS_1N,2,1N,8
+IKS_1N_s3,IKS_1N_s3,IKS_1N_s3,100-000,IKS_1N,3,1N,7
+IKS_1N_s4,IKS_1N_s4,IKS_1N_s4,100-000,IKS_1N,4,1N,9
+IKS_1N_s5,IKS_1N_s5,IKS_1N_s5,100-000,IKS_1N,5,1N,15
+IKS_1N_s6,IKS_1N_s6,IKS_1N_s6,100-000,IKS_1N,6,1N,12
+IKS_1N_s7,IKS_1N_s7,IKS_1N_s7,100-000,IKS_1N,7,1N,10
+IKS_1N_s8,IKS_1N_s8,IKS_1N_s8,100-000,IKS_1N,8,1N,9
+IKS_1S_s1,IKS_1S_s1,IKS_1S_s1,100-000,IKS_1S,1,1S,9
+IKS_1S_s2,IKS_1S_s2,IKS_1S_s2,100-000,IKS_1S,2,1S,8
+IKS_1S_s3,IKS_1S_s3,IKS_1S_s3,100-000,IKS_1S,3,1S,8
+IKS_1S_s4,IKS_1S_s4,IKS_1S_s4,100-000,IKS_1S,4,1S,13
+IKS_1S_s5,IKS_1S_s5,IKS_1S_s5,100-000,IKS_1S,5,1S,13
+IKS_1S_s6,IKS_1S_s6,IKS_1S_s6,100-000,IKS_1S,6,1S,19
+IKS_1S_s7_PP,IKS_1S_s7_PP,IKS_1S_s7,100-000,IKS_1S,7,1S,11
+IKS_2N_s1_PO,IKS_2N_s1_PO,"IKS, studia niestacjonarne, II st., 1 sem. przedmioty obieralne",100-000,IKS_2N,1,2N,3
+IKS_2N_s1_PP,IKS_2N_s1_PP,"IKS, niestacjonarne, 2 stopnia, 1 sem. przedmioty podstawowe",100-000,IKS_2N,1,2N,3
+IKS_2N_s1_WKP,IKS_2N_s1_WKP,"IKS, studia niestacjonarne II st, 1 sem",100-000,IKS_2N,1,2N,7
+IKS_2N_s3_ISR,IKS_2N_s3_ISR,"IKS, studia niestacjonarne II st, 3 sem, specj. ISR",100-000,IKS_2N,3,2N,7
+IKS_2S_s1_ISR,IKS_2S_s1_ISR,"IKS, stacjonarne 2 stopnia, 1 semestr, specj. ISR",100-000,IKS_2S,1,2S,3
+IKS_2S_s1_PO,IKS_2S_s1_PO,"IKS, stacjonarne 2 stopnia, 1 semestr, przedmioty obieralne",100-000,IKS_2S,1,2S,16
+IKS_2S_s1_PP,IKS_2S_s1_PP,"IKS, stacjonarne 2 stopnia, 1 semestr, przedmioty podstawowe+ISR",100-000,IKS_2S,1,2S,2
+IKS_2S_s1_WKP,IKS_2S_s1_WKP,"IKS, stacjonarne 2 stopnia, 1 semestr, specj. WIKP",100-000,IKS_2S,1,2S,3
+IKS_2S_s2_ISR,IKS_2S_s2_ISR,IKS_SS_s2_ISR_przedmioty podstawowe,100-000,IKS_2S,2,2S,2
+IKS_2S_s2_ISR_PO,IKS_2S_s2_ISR_PO,IKS_SS_2S_s2_ISR_przedmioty specjalizacyjne obieralne,100-000,IKS_2S,2,2S,13
+IKS_2S_s2_PP,IKS_2S_s2_PP,"IKS, stacjonarne 2 stopnia, 2 semestr, przedmioty podstawowe",100-000,IKS_2S,2,2S,1
+IKS_2S_s2_WKP,IKS_2S_s2_WKP,"IKS, stacjonarne 2 stopnia, 2 semestr, przedmioty podstawowe",100-000,IKS_2S,2,2S,8
+IKS_2S_s3_ISR,IKS_2S_s3_ISR,"IKS, stacjonarne 2 stopnia, 3 semestr, przedmioty podstawowe",100-000,IKS_2S,3,2S,3
+IKS_2S_s3_PP,IKS_2S_s3_PP,IKS_SS_2S_s3_przedmioty podstawowe,100-000,IKS_2S,3,2S,1
+IKS_2S_s3_WKP,IKS_2S_s3_WKP,"IKS, stacjonarne 2 stopnia, 3 semestr, przedmioty podstawowe",100-000,IKS_2S,3,2S,1
+IKS_2S_s3_WKP_PO,IKS_2S_s3_WKP_PO,IKS_SS_2S_s3_WIKP_przedmioty obieralne,100-000,IKS_2S,3,2S,3
+"IMA-1S,1sem,PP",IMA-1S_1sem_PP,"IM, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",160-000,IMA-1S,1,1S,7
+"IMA-1S,2sem,WIMiC",IMA-1S_2sem_WIMiC,"IM, stacjonarne I stopnia, 2 semestr, WIMiC",160-000,IMA-1S,2,1S,6
+"IMA-1S,2sem,WIMiIP",IMA-1S_2sem_WIMiIP,"IM, stacjonarne I stopnia, 2 semestr, WIMiIP",160-000,IMA-1S,2,1S,0
+"IMA-1S,3sem,PP",IMA-1S_3sem_PP,"IM, stacjonarne I stopnia, 3 semestr, przedmioty podstawowe",160-000,IMA-1S,3,1S,4
+"IMA-1S,4sem,PP",IMA-1S_4sem_PP,"IM, stacjonarne I stopnia, 4 semestr, przedmioty podstawowe",160-000,IMA-1S,4,1S,4
+"IMA-1S,5sem,PP",IMA-1S_5sem_PP,"IM, stacjonarne I stopnia, 5 semestr, przedmioty podstawowe",160-000,IMA-1S,5,1S,6
+"IMA-1S,6sem,PP",IMA-1S_6sem_PP,"IM, stacjonarne I stopnia, 6 semestr, przedmioty podstawowe",160-000,IMA-1S,6,1S,3
+"IMA-1S,7sem,PP",IMA-1S_7sem_PP,"IM, stacjonarne 7 semestr",160-000,IMA-1S,7,1S,2
+"IMA-2S,1sem",IMA-2S_1sem,"IM, stacjonarne II stopnia 4 semestralne, 1 semestr",160-000,IMA-2S,1,2S,1
+"IMA-2S,1sem,PP",IMA-2S_1sem_PP,"IM, stacjonarne II stopnia, 1 semestr, przedmioty podstawowe",160-000,IMA-2S,1,2S,3
+"IMA-2S,1sem-BiK",IMA-2S_1sem-BiK,"IM, stacjonarne II stopnia, 1 semestr, Biomateriały i kompozyty",160-000,IMA-2S,1,2S,0
+"IMA-2S,1sem-FM",IMA-2S_1sem-FM,"IM, stacjonarne II stopnia, 1 semestr, Functional Materials",160-000,IMA-2S,1,2S,1
+"IMA-2S,1sem-MF",IMA-2S_1sem-MF,"IM, stacjonarne II stopnia, 1 semestr, Materiały funkcjonalne",160-000,IMA-2S,1,2S,0
+"IMA-2S,1sem-MKdMiT",IMA-2S_1sem-MKdMiT,"IM, st. II st., 1 sem - Materiały Kompozytowe dla Medycyny i Techniki",160-000,IMA-2S,1,2S,3
+"IMA-2S,1sem-MdMiKE",IMA-2S_1sem-MdMiKE,"IM, st. II st., 1 sem - Materiały do Magazynowania i Konwersji Energii",160-000,IMA-2S,1,2S,3
+"IMA-2S,1sem-ZMC",IMA-2S_1sem-ZMC,"IM, stacjonarne II stopnia, 1 semestr, Zaawansowane materiały ceramiczne",160-000,IMA-2S,1,2S,0
+"IMA-2S,2sem,Obow.",IMA-2S_2sem_Obow,"IM, stacjonarne II stopnia, 2 semestr, przedmioty podstawowe",160-000,IMA-2S,2,2S,1
+"IMA-2S,2sem,PP",IMA-2S_2sem_PP,"IM, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",160-000,IMA-2S,1,2S,2
+"IMA-2S,2sem,obow.FM",IMA-2S_2sem_obow_FM,"IM, stacjonarne II stopnia, 2 semestr, przedmioty podstawowe - FM",160-000,IMA-2S,2,2S,1
+"IMA-2S,2sem-BS",IMA-2S_2sem-BS,"IM, stacjonarne II stopnia, 2 semestr, Bloki specjalistyczne",160-000,IMA-2S,2,2S,0
+"IMA-2S,3sem,PP",IMA-2S_3sem_PP,"IM, stacjonarne I stopnia, 3 semestr, przedmioty podstawowe",160-000,IMA-2S,3,2S,4
 "IME-2S_s1L,POHS",IME-2S_s1L_POHS,"WIMiR_IME, stacjonarne, 2S, 1sem.L, przedmioty obieralne humanistyczno-społeczne",130-000,IME-2S,1,2S,2
 "IME-2S_s1L,PP",IME-2S_s1L_PP,"WIMiR_IME, stacjonarne, 2S, 1sem.L, przedmioty podstawowe",130-000,IME-2S,1,2S,6
 "IME-2S_s2Z,POSangPRM",IME-2S_s2Z_POSangPRM,"WIMiR_IME-PRM, stacjonarne, 2S, 2sem.Z, przedmioty obieralne specjalnościowe w j.ang.",130-000,IME-2S,2,2S,3
@@ -790,15 +790,15 @@ INO_1S_sem4,INO_1S_sem4,INO_1S_sem4,110-000,INO_1S,4,1S,8
 INO_1S_sem5,INO_1S_sem5,INO_1S_sem5,110-000,INO_1S,5,1S,5
 INO_1S_sem6,INO_1S_sem6,INO_1S_sem6,110-000,INO_1S,6,1S,13
 INO_1S_sem7,INO_1S_sem7,INO_1S_sem7,110-000,INO_1S,7,1S,8
-IOS_1S_s1_ALL,IOS_1S_s1_ALL,IOS_1S_s1_ALL,140-000,IO,1,1S,9
-IOS_1S_s2_ALL,IOS_1S_s2_ALL,IOS_1S_s2_ALL,140-000,IO,2,1S,8
-IOS_1S_s3_ALL,IOS_1S_s3_ALL,IOS_1S_s3_ALL,140-000,IO,3,1S,8
-IOS_1S_s4_ALL,IOS_1S_s4_ALL,IOS_1S_s4_ALL,140-000,IO,4,1S,8
-IOS_1S_s5_ALL,IOS_1S_s5_ALL,IOS_1S_s5_ALL,140-000,IO,5,1S,14
-IOS_1S_s6_ALL,IOS_1S_s6_ALL,IOS_1S_s6_ALL,140-000,IO,6,1S,11
-IOS_1S_s7_ALL,IOS_1S_s7_ALL,IOS_1S_s7_ALL,140-000,IO,7,1S,13
-IOS_MM_2S_2s_ALL,IOS_MM_2S_2s_ALL,"IOS-MM, stacjonarne II stopnia, 2 semestr, ALL",140-000,IOS_MM_2,2,2S,6
-IOS_MM_2S_3s_ALL,IOS_MM_2S_3s_ALL,"IOS-MM, stacjonarne II stopnia, 3 semestr, ALL",140-000,IOS_MM_2,3,2S,4
+IOS_1S_s1_ALL,IOS_1S_s1_ALL,IOS_1S_s1_ALL,140-000,IOS_1S,1,1S,9
+IOS_1S_s2_ALL,IOS_1S_s2_ALL,IOS_1S_s2_ALL,140-000,IOS_1S,2,1S,8
+IOS_1S_s3_ALL,IOS_1S_s3_ALL,IOS_1S_s3_ALL,140-000,IOS_1S,3,1S,8
+IOS_1S_s4_ALL,IOS_1S_s4_ALL,IOS_1S_s4_ALL,140-000,IOS_1S,4,1S,8
+IOS_1S_s5_ALL,IOS_1S_s5_ALL,IOS_1S_s5_ALL,140-000,IOS_1S,5,1S,14
+IOS_1S_s6_ALL,IOS_1S_s6_ALL,IOS_1S_s6_ALL,140-000,IOS_1S,6,1S,11
+IOS_1S_s7_ALL,IOS_1S_s7_ALL,IOS_1S_s7_ALL,140-000,IOS_1S,7,1S,13
+IOS_MM_2S_2s_ALL,IOS_MM_2S_2s_ALL,"IOS-MM, stacjonarne II stopnia, 2 semestr, ALL",140-000,IOS_MM_2S,2,2S,6
+IOS_MM_2S_3s_ALL,IOS_MM_2S_3s_ALL,"IOS-MM, stacjonarne II stopnia, 3 semestr, ALL",140-000,IOS_MM_2S,3,2S,4
 IOS_MO_2S_s1_ALL,IOS_MO_2S_s1_ALL,IOS_MO_2S_s1_ALL,140-000,IOS_MO_2S,1,2S,8
 IOS_MO_2S_s2_ALL,IOS_MO_2S_s2_ALL,IOS_MO_2S_s2_ALL,140-000,IOS_MO_2S,2,2S,7
 IOS_MO_2S_s3_ALL,IOS_MO_2S_s3_ALL,IOS_MO_2S_s3_ALL,140-000,IOS_MO_2S,3,2S,6
@@ -917,15 +917,15 @@ IZP_2S_s3,IZP_2S_s3,IZP_2S_s3,100-000,IZP_2S,3,2S,4
 "IiE-1N,3sem,MO",IiE-1N_3sem_MO,"IiE, niestacjonarne I stopnia, 3 semestr, moduł ogólny",200-000,IiE-1N,3,1N,5
 "IiE-1N,3sem.,MS",IiE-1N_3sem_MS,"IiE, studia niestacjonarne 1 stopnia, moduł specjalistyczny",200-000,IiE-1N,3,1N,4
 "IiE-1N,3sem.,PP",IiE-1N_3sem_PP,"IiE, studia niestacjonarne 1 stopnia, przedmioty obowiązkowe",200-000,IiE-1N,3,1N,4
-"IiE-1S,3sem,MO",IiE-1S_3sem_MO,"IiE, stacjonarne I stopnia, 3 semestr, moduł ogólny",200-000,IiE-1,3,1S,5
-"IiE-1S,3sem,MS",IiE-1S_3sem_MS,"IiE, stacjonarne I stopnia, 3 semestr, moduł specjalistyczny",200-000,IiE-1,3,1S,4
-"IiE-1S,3sem,PP",IiE-1S_3sem_PP,"IiE stacjonarne 1 stopnia, semestr 3 przedmioty podstawowe",200-000,IiE-1,3,1S,4
+"IiE-1S,3sem,MO",IiE-1S_3sem_MO,"IiE, stacjonarne I stopnia, 3 semestr, moduł ogólny",200-000,IiE-1S,3,1S,5
+"IiE-1S,3sem,MS",IiE-1S_3sem_MS,"IiE, stacjonarne I stopnia, 3 semestr, moduł specjalistyczny",200-000,IiE-1S,3,1S,4
+"IiE-1S,3sem,PP",IiE-1S_3sem_PP,"IiE stacjonarne 1 stopnia, semestr 3 przedmioty podstawowe",200-000,IiE-1S,3,1S,4
 "IiE-2N,3sem,HES",IiE-2N_3sem_HES,"IiE, niestacjonarne II stopnia, 3 semestr, przedmioty humanistyczne",200-000,IiE-2N,3,2N,2
-"IiE-2S,3sem,MO",IiE-2S_3sem_MO,"IiE, stacjonarne II stopnia, 3 semestr, moduł ogólny",200-000,IiE-2,3,2S,0
-"IiE-2S,3sem,MS",IiE-2S_3sem_MS,"IiE, stacjonarne II stopnia, 3 semestr, moduł specjalistyczny",200-000,IiE-2,3,2S,6
-"IiE-2S,3sem,PP",IiE-2S_3sem_PP,"IIE, stacjonarne II stopnia, 3 semestr, przedmioty podstawowe",200-000,IiE-2,3,2S,4
-IiE_2S_1sem_PP,IiE_2S_1sem_PP,"IiE, niestacjonarne II stopnia, semstr 1, przedmioty podstawowe",200-000,IiE_2,1,2S,4
-"KWI-1S,3sem",KWI-1S_3sem,"KWI, stacjonarne I stopnia, 2 semestr",160-000,KWI-1,2,1S,5
+"IiE-2S,3sem,MO",IiE-2S_3sem_MO,"IiE, stacjonarne II stopnia, 3 semestr, moduł ogólny",200-000,IiE-2S,3,2S,0
+"IiE-2S,3sem,MS",IiE-2S_3sem_MS,"IiE, stacjonarne II stopnia, 3 semestr, moduł specjalistyczny",200-000,IiE-2S,3,2S,6
+"IiE-2S,3sem,PP",IiE-2S_3sem_PP,"IIE, stacjonarne II stopnia, 3 semestr, przedmioty podstawowe",200-000,IiE-2S,3,2S,4
+IiE_2S_1sem_PP,IiE_2S_1sem_PP,"IiE, niestacjonarne II stopnia, semstr 1, przedmioty podstawowe",200-000,IiE_2S,1,2S,4
+"KWI-1S,3sem",KWI-1S_3sem,"KWI, stacjonarne I stopnia, 2 semestr",160-000,KWI-1S,2,1S,5
 "MBM-1N_s1,PP",MBM-1N_s1_PP,"MBM niestacjonarne 1 stopnia, 1 semestr, przedmioty podstawowe",130-000,MBM-1N,1,1N,7
 "MBM-1N_s2,PP",MBM-1N_s2_PP,"MBM niestacjonarne 1 stopnia, 2 semestr, przedmioty podstawowe",130-000,MBM-1N,2,1N,7
 "MBM-1N_s3,PP",MBM-1N_s3_PP,"MBM niestacjonarne 1 stopnia, 3 semestr, przedmioty podstawowe",130-000,MBM-1N,3,1N,6
@@ -1056,17 +1056,17 @@ NTP_2S_s3_OŚwTP_all,NTP_2S_s3_O_wTP_all,"NTP, stacjonarne, II stopnia, semestr 
 NTP_2S_s3_P1_all,NTP_2S_s3_P1_all,"NTP, stacjonarne, II stopnia, semestr 3, przedmioty all_P1",210-000,NTP_2S,3,2S,0
 NTP_2S_s3_P2_all,NTP_2S_s3_P2_all,"NTP, stacjonarne, II stopnia, semestr 3, przedmioty all_P2",210-000,NTP_2S,3,2S,0
 NTP_2S_s3_ZTP_all,NTP_2S_s3_ZTP_all,"NTP, stacjonarne, II stopnia, semestr 3, all_ZTP",210-000,NTP_2S,3,2S,12
-"PNM-2S,1sem",PNM-2S_1sem,"Nanoinżynieria Materiałów, stac. II stopnia, 1 semestr",160-000,PNM-2,1,2S,8
-"PNM-2S,2sem",PNM-2S_2sem,"Nanoinżynieria Materiałów, stac. II stopnia, 2 semestr",160-000,PNM-2,2,2S,6
-"PNM-2S,3sem",PNM-2S_3sem,"Nanoinżynieria Materiałów, stac. II stopnia, 3 sem",160-000,PNM-2,3,2S,7
+"PNM-2S,1sem",PNM-2S_1sem,"Nanoinżynieria Materiałów, stac. II stopnia, 1 semestr",160-000,PNM-2S,1,2S,8
+"PNM-2S,2sem",PNM-2S_2sem,"Nanoinżynieria Materiałów, stac. II stopnia, 2 semestr",160-000,PNM-2S,2,2S,6
+"PNM-2S,3sem",PNM-2S_3sem,"Nanoinżynieria Materiałów, stac. II stopnia, 3 sem",160-000,PNM-2S,3,2S,7
 PPM_2S_sem1,PPM_2S_sem1,PPM_2S_sem1,110-000,PPM_2S,1,2S,10
 PPM_2S_sem2,PPM_2S_sem2,PPM_2S_sem2,110-000,PPM_2S,2,2S,10
 PPM_2S_sem3,PPM_2S_sem3,PPM_2S_sem3,110-000,PPM_2S,3,2S,4
 PW-2021,PW-2021,Przedmioty wyrównawcze 21/22-Z,000-000,PW-2021,,,0
-RMV_2S_1,RMV_2S_1,RMV_2S_1,100-000,RMV_2,,2S,12
-RMV_2S_2,RMV_2S_2,RMV_2S_2,100-000,RMV_2,,2S,8
-RMV_2S_3,RMV_2S_3,RMV_2S_3,100-000,RMV_2,,2S,7
-RMV_2S_4,RMV_2S_4,RMV_2S_4,100-000,RMV_2,,2S,4
+RMV_2S_1,RMV_2S_1,RMV_2S_1,100-000,RMV_2S_1,,2S,12
+RMV_2S_2,RMV_2S_2,RMV_2S_2,100-000,RMV_2S_2,,2S,8
+RMV_2S_3,RMV_2S_3,RMV_2S_3,100-000,RMV_2S_3,,2S,7
+RMV_2S_4,RMV_2S_4,RMV_2S_4,100-000,RMV_2S_4,,2S,4
 "RSG-2S,sem.1",RSG-2S_sem_1,150-RSG-2S-semestr 1,150-000,RSG-2S,1,2S,3
 "RSG-2S,sem.2",RSG-2S_sem_2,150-RSG-2S-semestr 2,150-000,RSG-2S,2,2S,0
 "RSG-2S,sem.3",RSG-2S_sem_3,150-RSG-2S-semestr 3,150-000,RSG-2S,3,2S,3
@@ -1081,30 +1081,30 @@ RTZ_1S_s7,RTZ_1S_s7,RTZ_1S_s7,100-000,RTZ_1S,7,1S,4
 RTZ_2S_s1,RTZ_2S_s1,RTZ_2S_s1,100-000,RTZ_2S,1,2S,10
 RTZ_2S_s2,RTZ_2S_s2,RTZ_2S_s2,100-000,RTZ_2S,2,2S,15
 RTZ_2S_s3,RTZ_2S_s3,RTZ_2S_s3,100-000,RTZ_2S,3,2S,3
-SES_2S4_s1_ALL,SES_2S4_s1_ALL,"SES, stacjonarne II stopnia 4 semestry, semestr 1, przedmioty ALL",210-000,SE,4,,7
-SES_2S4_s2_ALL,SES_2S4_s2_ALL,"SES, stacjonarne II stopnia 4 semestry, semestr 2, przedmioty ALL",210-000,SE,4,,5
-SES_2S_s1_ALL,SES_2S_s1_ALL,"SES, stacjonarne II stopnia, semestr 1, przedmioty ALL",210-000,SE,1,2S,5
+SES_2S4_s1_ALL,SES_2S4_s1_ALL,"SES, stacjonarne II stopnia 4 semestry, semestr 1, przedmioty ALL",210-000,SES_2S4,1,2S,7
+SES_2S4_s2_ALL,SES_2S4_s2_ALL,"SES, stacjonarne II stopnia 4 semestry, semestr 2, przedmioty ALL",210-000,SES_2S4,2,2S,5
+SES_2S_s1_ALL,SES_2S_s1_ALL,"SES, stacjonarne II stopnia, semestr 1, przedmioty ALL",210-000,SES_2S,1,2S,5
 SJO_NIEST_sem_letni,SJO_NIEST_sem_letni,SJO_NIEST_sem_letni,440-000,SJO_NIEST_sem_letni,,,16
 SJO_NIEST_sem_zimowy,SJO_NIEST_sem_zimowy,SJO_NIEST_sem_zimowy,440-000,SJO_NIEST_sem_zimowy,,,22
 SME,SME,"SME, stacjonarne II stopnia, semestr 1, ALL",210-000,SME,1,,6
-ST-EL-SEM2-WINT,ST-EL-SEM2-WINT,Elective subjects for 2nd semester of Space Technologies,250-000,ST-EL,,,0
+ST-EL-SEM2-WINT,ST-EL-SEM2-WINT,Elective subjects for 2nd semester of Space Technologies,250-000,ST-EL,2,,0
 SzD-455,SzD-455,Grupa wszystkich przedmiotów w Szkole Doktorskiej,455-000,SzD-455,,,51
 SzD-455-200-440-zima,SzD-455-200-440-zima,Grupa przedmiotów Szkoły Doktorskiej w semestrze zimowym prowadzona przez wydziały od 200,455-000,SzD-455-200-440-zima,,,13
 SzD_WB_23_24,SzD_WB_23_24,Warsztat Badacza 2023/2024,455-000,SzD_WB_23_24,,,0
-"TCH-1S,1sem,PP",TCH-1S_1sem_PP,"TCH, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",160-000,TCH-1,1,1S,8
-"TCH-1S,2sem,PP",TCH-1S_2sem_PP,"TCH, stacjonarne I stopnia, 2 semestr, przedmioty podstawowe",160-000,TCH-1,2,1S,5
-"TCH-1S,3sem,Obow.",TCH-1S_3sem_Obow,"TCH, stacjoonarne I stopnia, 3 semestr, przedmioty podstawowe",160-000,TCH-1,3,1S,5
-"TCH-1S,4sem,PP",TCH-1S_4sem_PP,"TCH, stacjonarne I stopnia, 4 semestr, przedmioty podstawowe",160-000,TCH-1,4,1S,6
-"TCH-1S,5sem,PP",TCH-1S_5sem_PP,"TCH, stacjonarne I stopnia, 5 semestr, przedmioty podstawowe",160-000,TCH-1,5,1S,5
-"TCH-1S,6sem,PP",TCH-1S_6sem_PP,"TCH, stacjonarne I stopnia, 6 semestr, przedmioty podstawowe",160-000,TCH-1,6,1S,6
-"TCH-1S,7sem,PP",TCH-1S_7sem_PP,"TCH, stacjonarne I stopnia, 7 semestr, przedmioty podstawowe",160-000,TCH-1,7,1S,3
+"TCH-1S,1sem,PP",TCH-1S_1sem_PP,"TCH, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",160-000,TCH-1S,1,1S,8
+"TCH-1S,2sem,PP",TCH-1S_2sem_PP,"TCH, stacjonarne I stopnia, 2 semestr, przedmioty podstawowe",160-000,TCH-1S,2,1S,5
+"TCH-1S,3sem,Obow.",TCH-1S_3sem_Obow,"TCH, stacjoonarne I stopnia, 3 semestr, przedmioty podstawowe",160-000,TCH-1S,3,1S,5
+"TCH-1S,4sem,PP",TCH-1S_4sem_PP,"TCH, stacjonarne I stopnia, 4 semestr, przedmioty podstawowe",160-000,TCH-1S,4,1S,6
+"TCH-1S,5sem,PP",TCH-1S_5sem_PP,"TCH, stacjonarne I stopnia, 5 semestr, przedmioty podstawowe",160-000,TCH-1S,5,1S,5
+"TCH-1S,6sem,PP",TCH-1S_6sem_PP,"TCH, stacjonarne I stopnia, 6 semestr, przedmioty podstawowe",160-000,TCH-1S,6,1S,6
+"TCH-1S,7sem,PP",TCH-1S_7sem_PP,"TCH, stacjonarne I stopnia, 7 semestr, przedmioty podstawowe",160-000,TCH-1S,7,1S,3
 TCH-1S_s3_all,TCH-1S_s3_all,"TCH, stacjonarne I stopnia, semestr 3 all",210-000,TCH-1S,3,1S,26
 TCH-1S_s5_all,TCH-1S_s5_all,"TCH, stacjonarne I stopnia, semestr 5 all",210-000,TCH-1S,5,1S,16
-"TCH-2S,1sem,TCiMO",TCH-2S_1sem_TCiMO,"TCH, stacjonarne II stopnia, 1 semestr, Technologia ceramiki i materiałów ogniotrwałych",160-000,TCH-2,1,2S,0
-"TCH-2S,1sem,TSziPA",TCH-2S_1sem_TSziPA,"TCH, stacjonarne II stopnia, 1 semestr, Technologia szkła i powłok amorficznych",160-000,TCH-2,1,2S,3
-"TCH-2S,2sem,AiKJ",TCH-2S_2sem_AiKJ,"TCH, stacjonarne II stopnia, 2sem.,Analityka i Kontrola Jakości",160-000,TCH-2,2,2S,6
-"TCH-2S,2sem,IiZPP",TCH-2S_2sem_IiZPP,"TCH, stacjonarne II stopnia, 2 semestr, przedmioty podstawowe",160-000,TCH-2,2,2S,3
-"TCH-2S,2sem-BS",TCH-2S_2sem-BS,"TCH, stacjonarne II stopnia, 2 semestr, Bloki specjalistyczne",160-000,TCH-2,2,2S,2
+"TCH-2S,1sem,TCiMO",TCH-2S_1sem_TCiMO,"TCH, stacjonarne II stopnia, 1 semestr, Technologia ceramiki i materiałów ogniotrwałych",160-000,TCH-2S,1,2S,0
+"TCH-2S,1sem,TSziPA",TCH-2S_1sem_TSziPA,"TCH, stacjonarne II stopnia, 1 semestr, Technologia szkła i powłok amorficznych",160-000,TCH-2S,1,2S,3
+"TCH-2S,2sem,AiKJ",TCH-2S_2sem_AiKJ,"TCH, stacjonarne II stopnia, 2sem.,Analityka i Kontrola Jakości",160-000,TCH-2S,2,2S,6
+"TCH-2S,2sem,IiZPP",TCH-2S_2sem_IiZPP,"TCH, stacjonarne II stopnia, 2 semestr, przedmioty podstawowe",160-000,TCH-2S,2,2S,3
+"TCH-2S,2sem-BS",TCH-2S_2sem-BS,"TCH, stacjonarne II stopnia, 2 semestr, Bloki specjalistyczne",160-000,TCH-2S,2,2S,2
 TCH_1S_s1_all,TCH_1S_s1_all,"TCH, stacjonarne I stopnia, semestr 1, all",210-000,TCH_1S,1,1S,10
 TCH_1S_s2_all,TCH_1S_s2_all,"TCH, stacjonarne I stopnia, semestr 2, all",210-000,TCH_1S,2,1S,7
 TCH_1S_s4_all,TCH_1S_s4_all,"TCH, stacjonarne I stopnia, semestr 4 all",210-000,TCH_1S,4,1S,25
@@ -1129,49 +1129,49 @@ TCH_2S_s3_PP_all,TCH_2S_s3_PP_all,"TCH, stacjonarne, II stopnia, semestr 3, prze
 "TWP-2S_s3L,POHS-2",TWP-2S_s3L_POHS-2,"WIMiR_TWP-2, stacjonarne, 2S, 3sem.L, przedmioty obieralne humanistyczno-społeczne grupa 2",130-000,TWP-2S,3,2S,4
 "TWP-2S_s3L,PP",TWP-2S_s3L_PP,"WIMiR_TWP, stacjonarne, 2S, 3sem.L, przedmioty podstawowe",130-000,TWP-2S,3,2S,4
 "WIMIC-1S,HES",WIMIC-1S_HES,"WIMIC, 1 stopień, przedmioty HES",160-000,WIMIC-1S_HES,,1S,4
-ZEJ_2S_1s_all,ZEJ_2S_1s_all,"IiZwEJ_stacjonarne II stopnia, 1 semestr, przedmioty all",210-000,ZEJ_2,1,2S,8
-ZEJ_2S_2s_all,ZEJ_2S_2s_all,"IiZwEJ_stacjonarne II stopnia, 2 semestr, przedmioty all",210-000,ZEJ_2,2,2S,14
-ZEJ_2S_3s_all,ZEJ_2S_3s_all,"IiZwEJ_stacjonarne II stopnia, 3 semestr, przedmioty all",210-000,ZEJ_2,3,2S,8
-"ZIP-1N,1s,PP",ZIP-1N_1s_PP,"ZIP, niestacjonarne I stopnia, 1 semestr, przedmioty podstawowe",200-000,ZIP-1N_1s_PP,1,1N,7
-"ZIP-1N,3s,PK24",ZIP-1N_3s_PK24,"ZIP, niestacjonarne I stopnia, 3 semestr, obieralne grupa kierunkowa",200-000,ZIP-1N_3s_PK24,3,1N,5
-"ZIP-1N,3s,PO",ZIP-1N_3s_PO,"ZIP, niestacjonarne I stopnia, 3 semestr, przedmioty obieralne",200-000,ZIP-1N_3s_PO,3,1N,12
-"ZIP-1N,3s,PO24",ZIP-1N_3s_PO24,"ZIP, niestacjonarne I stopnia, 3 semestr, obieralne grupa ogólna",200-000,ZIP-1N_3s_PO24,3,1N,5
-"ZIP-1N,3s,PP",ZIP-1N_3s_PP,"ZIP, niestacjonarne I stopnia, 3 semestr, przedmioty podstawowe",200-000,ZIP-1N_3s_PP,3,1N,4
-"ZIP-1N,4s,PO",ZIP-1N_4s_PO,"ZIP, niestacjonarne I stopnia, 4 semestr, przedmioty obieralne",200-000,ZIP-1N_4s_PO,4,1N,14
+ZEJ_2S_1s_all,ZEJ_2S_1s_all,"IiZwEJ_stacjonarne II stopnia, 1 semestr, przedmioty all",210-000,ZEJ_2S,1,2S,8
+ZEJ_2S_2s_all,ZEJ_2S_2s_all,"IiZwEJ_stacjonarne II stopnia, 2 semestr, przedmioty all",210-000,ZEJ_2S,2,2S,14
+ZEJ_2S_3s_all,ZEJ_2S_3s_all,"IiZwEJ_stacjonarne II stopnia, 3 semestr, przedmioty all",210-000,ZEJ_2S,3,2S,8
+"ZIP-1N,1s,PP",ZIP-1N_1s_PP,"ZIP, niestacjonarne I stopnia, 1 semestr, przedmioty podstawowe",200-000,ZIP-1N,1,1N,7
+"ZIP-1N,3s,PK24",ZIP-1N_3s_PK24,"ZIP, niestacjonarne I stopnia, 3 semestr, obieralne grupa kierunkowa",200-000,ZIP-1N,3,1N,5
+"ZIP-1N,3s,PO",ZIP-1N_3s_PO,"ZIP, niestacjonarne I stopnia, 3 semestr, przedmioty obieralne",200-000,ZIP-1N,3,1N,12
+"ZIP-1N,3s,PO24",ZIP-1N_3s_PO24,"ZIP, niestacjonarne I stopnia, 3 semestr, obieralne grupa ogólna",200-000,ZIP-1N,3,1N,5
+"ZIP-1N,3s,PP",ZIP-1N_3s_PP,"ZIP, niestacjonarne I stopnia, 3 semestr, przedmioty podstawowe",200-000,ZIP-1N,3,1N,4
+"ZIP-1N,4s,PO",ZIP-1N_4s_PO,"ZIP, niestacjonarne I stopnia, 4 semestr, przedmioty obieralne",200-000,ZIP-1N,4,1N,14
 "ZIP-1N,5sem,PO",ZIP-1N_5sem_PO,"ZIP niestacjonarne I stopnia, semestr 5, przedmioty obieralne ogólne",200-000,ZIP-1N,5,1N,12
 "ZIP-1N,5sem,POKIER",ZIP-1N_5sem_POKIER,ZIP niestacjonarne I stopnia semestr 5 przedmioty obieralne,200-000,ZIP-1N,5,1N,7
 "ZIP-1N,5sem,PP",ZIP-1N_5sem_PP,"ZIP niestacjonarne 1 stopnia, 5 semestr, przedmioty podstawowe",200-000,ZIP-1N,5,1N,6
 "ZIP-1N,7sem,PO",ZIP-1N_7sem_PO,"ZIP, niestacjonarne 1 stopnia, 7 semestr, przedmioty obierlane",200-000,ZIP-1N,7,1N,13
-"ZIP-1S,1s,PP",ZIP-1S_1s_PP,"ZIP, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",200-000,ZIP-1,1,1S,3
-"ZIP-1S,1sem,PP",ZIP-1S_1sem_PP,"ZIP, stacjonarne 1 stopnia, semestr 1, przedmioty podstawowe od 26/27",200-000,ZIP-1,1,1S,8
-"ZIP-1S,2s,PP",ZIP-1S_2s_PP,"ZIP, stacjonarne I stopnia, semestr 2 , przedmioty podstawowe",200-000,ZIP-1,2,1S,7
-"ZIP-1S,2sem,PP",ZIP-1S_2sem_PP,"ZIP, stacjonarne 1 stopnia, semestr 2, przedmioty podstawowe od 26/27",200-000,ZIP-1,2,1S,9
-"ZIP-1S,3sem,PO1",ZIP-1S_3sem_PO1,"ZIP, stacjonarne, 1stopnia, 3semestr, przedmioty obieralne",200-000,ZIP-1,3,1S,12
-"ZIP-1S,3sem,PP",ZIP-1S_3sem_PP,"ZIP stacjonarne I stopnia, semestr 3, przedmioty podstawowe",200-000,ZIP-1,3,1S,5
-"ZIP-1S,4sem,PO",ZIP-1S_4sem_PO,"ZIP stacjonarne I stopnia, semestr 4, przedmioty obieralne",200-000,ZIP-1,4,1S,14
-"ZIP-1S,4sem,PP",ZIP-1S_4sem_PP,"ZIP stacjonarne I stopnia, semestr 4, przedmioty podstawowe",200-000,ZIP-1,4,1S,5
-"ZIP-1S,5sem,PO1",ZIP-1S_5sem_PO1,"ZIP stacjonarne I stopnia, semestr 5, przedmioty obieralne",200-000,ZIP-1,5,1S,12
-"ZIP-1S,5sem,PO2",ZIP-1S_5sem_PO2,"ZIP stacjonarne I stopnia, semestr 5, przedmioty obieralne",200-000,ZIP-1,5,1S,0
-"ZIP-1S,5semPP",ZIP-1S_5semPP,"ZIP stacjonarne I stopnia, semestr 5, przedmioty podstawiwe",200-000,ZIP-1,5,1S,6
-"ZIP-1S,6sem,POANG",ZIP-1S_6sem_POANG,"ZIP stacjonarne I stopnia, semestr 6, przedmioty obieralne w języku angielskim",200-000,ZIP-1,6,1S,4
-"ZIP-1S,6sem,POPOL",ZIP-1S_6sem_POPOL,"ZIP stacjonarne I stopnia, semestr 6, przedmioty obieralne",200-000,ZIP-1,6,1S,10
-"ZIP-1S,6sem,PP",ZIP-1S_6sem_PP,"ZIP stacjonarne I stopnia, semestr 6, przedmioty podstawowe",200-000,ZIP-1,6,1S,7
-"ZIP-1S,7sem,PP",ZIP-1S_7sem_PP,"ZIP stacjonarne I stopnia, semestr 7, przedmioty podstawowe",200-000,ZIP-1,7,1S,1
-"ZIP-1S,7semPO1",ZIP-1S_7semPO1,"ZIP stacjonarne I stopnia, smestr 7, przedmioty obieralne",200-000,ZIP-1,7,1S,12
-"ZIP-2N, 2 sem ZJ PP",ZIP-2N_2_sem_ZJ_PP,Zarządzanie i inżynieria produkcji niestacjonarne 2 stopnia ścieżka zarządzanie jakością,200-000,ZIP-2N_2_sem_ZJ_PP,,2N,8
-"ZIP-2N, 2 sem ZL PP",ZIP-2N_2_sem_ZL_PP,Zarządzanie i inżynieria produkcji niestacjonarne 2 stopnia ścieżka zarządzanie logistyczne,200-000,ZIP-2N_2_sem_ZL_PP,,2N,8
-"ZIP-2N, 2 sem ZP PP",ZIP-2N_2_sem_ZP_PP,Zarządzanie i inżynieria produkcji niestacjonarne 2 stopnia ścieżka zarządzanie produkcją,200-000,ZIP-2N_2_sem_ZP_PP,,2N,9
-"ZIP-2N,3s,PO",ZIP-2N_3s_PO,"ZIP, niestacjonarne II stopnia, semestr 3, przedmioty obieralne",200-000,ZIP-2N_3s_PO,3,2N,6
-"ZIP-2N,3s,POJA",ZIP-2N_3s_POJA,"ZIP, niestacjonarne II stopnia, semestr 3, przedmioty obieralne w języku angielskim",200-000,ZIP-2N_3s_POJA,3,2N,7
-"ZIP-2S,1sem,PP",ZIP-2S_1sem_PP,"ZIP, 2stopień, stacjonarne, 1 semestr, przedmioty podstawowe",200-000,ZIP-2,1,2S,8
-"ZIP-2S,2SemZJ,PP",ZIP-2S_2SemZJ_PP,"ZIP stacjonrne II stopnia, 2 semestr, ścieżka Zarządzanie Jakością, przedmioty podstawowe",200-000,ZIP-2,2,2S,8
-"ZIP-2S,2SemZL,PP",ZIP-2S_2SemZL_PP,"ZIP stacjonarne II stopnia, 2 semestr, ścieżka Zarządzanie Logistyczne, przedmioty podstawowe",200-000,ZIP-2,2,2S,8
-"ZIP-2S,2SemZP,PP",ZIP-2S_2SemZP_PP,"ZIP, stacjonarne II stopień, 2 semestr, ścieżka Zarządzamie Produkcją, przedmioty podstawowe",200-000,ZIP-2,2,2S,9
-"ZIP-2S,3sem,POANG",ZIP-2S_3sem_POANG,"ZIP stacjonarne II stopnia, semestr 3, przedmioty obieralne w języku angielskim",200-000,ZIP-2,3,2S,3
-"ZIP-2S,3sem,POPOL",ZIP-2S_3sem_POPOL,"ZIP stacjonarne II stopnia, semestr 3, przedmioty obieralne w języku polskim",200-000,ZIP-2,3,2S,4
-"ZIP-2S,3semZJ,PP",ZIP-2S_3semZJ_PP,"ZIP stacjonarne II stopnia, semestr 3, przedmioty podstawowe",200-000,ZIP-2,3,2S,2
-"ZIP-2S,3semZL,PP",ZIP-2S_3semZL_PP,"ZIP stacjonarne II stopnia. semestr3, ścieżka Zarządzanie Logistyczne",200-000,ZIP-2,3,2S,2
-"ZIP-2S,3semZP,PP",ZIP-2S_3semZP_PP,"ZIP stacjonarne II stopnia, semestr3, ścieżka Zarządzanie Produkcją",200-000,ZIP-2,3,2S,2
+"ZIP-1S,1s,PP",ZIP-1S_1s_PP,"ZIP, stacjonarne I stopnia, 1 semestr, przedmioty podstawowe",200-000,ZIP-1S,1,1S,3
+"ZIP-1S,1sem,PP",ZIP-1S_1sem_PP,"ZIP, stacjonarne 1 stopnia, semestr 1, przedmioty podstawowe od 26/27",200-000,ZIP-1S,1,1S,8
+"ZIP-1S,2s,PP",ZIP-1S_2s_PP,"ZIP, stacjonarne I stopnia, semestr 2 , przedmioty podstawowe",200-000,ZIP-1S,2,1S,7
+"ZIP-1S,2sem,PP",ZIP-1S_2sem_PP,"ZIP, stacjonarne 1 stopnia, semestr 2, przedmioty podstawowe od 26/27",200-000,ZIP-1S,2,1S,9
+"ZIP-1S,3sem,PO1",ZIP-1S_3sem_PO1,"ZIP, stacjonarne, 1stopnia, 3semestr, przedmioty obieralne",200-000,ZIP-1S,3,1S,12
+"ZIP-1S,3sem,PP",ZIP-1S_3sem_PP,"ZIP stacjonarne I stopnia, semestr 3, przedmioty podstawowe",200-000,ZIP-1S,3,1S,5
+"ZIP-1S,4sem,PO",ZIP-1S_4sem_PO,"ZIP stacjonarne I stopnia, semestr 4, przedmioty obieralne",200-000,ZIP-1S,4,1S,14
+"ZIP-1S,4sem,PP",ZIP-1S_4sem_PP,"ZIP stacjonarne I stopnia, semestr 4, przedmioty podstawowe",200-000,ZIP-1S,4,1S,5
+"ZIP-1S,5sem,PO1",ZIP-1S_5sem_PO1,"ZIP stacjonarne I stopnia, semestr 5, przedmioty obieralne",200-000,ZIP-1S,5,1S,12
+"ZIP-1S,5sem,PO2",ZIP-1S_5sem_PO2,"ZIP stacjonarne I stopnia, semestr 5, przedmioty obieralne",200-000,ZIP-1S,5,1S,0
+"ZIP-1S,5semPP",ZIP-1S_5semPP,"ZIP stacjonarne I stopnia, semestr 5, przedmioty podstawiwe",200-000,ZIP-1S,5,1S,6
+"ZIP-1S,6sem,POANG",ZIP-1S_6sem_POANG,"ZIP stacjonarne I stopnia, semestr 6, przedmioty obieralne w języku angielskim",200-000,ZIP-1S,6,1S,4
+"ZIP-1S,6sem,POPOL",ZIP-1S_6sem_POPOL,"ZIP stacjonarne I stopnia, semestr 6, przedmioty obieralne",200-000,ZIP-1S,6,1S,10
+"ZIP-1S,6sem,PP",ZIP-1S_6sem_PP,"ZIP stacjonarne I stopnia, semestr 6, przedmioty podstawowe",200-000,ZIP-1S,6,1S,7
+"ZIP-1S,7sem,PP",ZIP-1S_7sem_PP,"ZIP stacjonarne I stopnia, semestr 7, przedmioty podstawowe",200-000,ZIP-1S,7,1S,1
+"ZIP-1S,7semPO1",ZIP-1S_7semPO1,"ZIP stacjonarne I stopnia, smestr 7, przedmioty obieralne",200-000,ZIP-1S,7,1S,12
+"ZIP-2N, 2 sem ZJ PP",ZIP-2N_2_sem_ZJ_PP,Zarządzanie i inżynieria produkcji niestacjonarne 2 stopnia ścieżka zarządzanie jakością,200-000,ZIP-2N,2,2N,8
+"ZIP-2N, 2 sem ZL PP",ZIP-2N_2_sem_ZL_PP,Zarządzanie i inżynieria produkcji niestacjonarne 2 stopnia ścieżka zarządzanie logistyczne,200-000,ZIP-2N,2,2N,8
+"ZIP-2N, 2 sem ZP PP",ZIP-2N_2_sem_ZP_PP,Zarządzanie i inżynieria produkcji niestacjonarne 2 stopnia ścieżka zarządzanie produkcją,200-000,ZIP-2N,2,2N,9
+"ZIP-2N,3s,PO",ZIP-2N_3s_PO,"ZIP, niestacjonarne II stopnia, semestr 3, przedmioty obieralne",200-000,ZIP-2N,3,2N,6
+"ZIP-2N,3s,POJA",ZIP-2N_3s_POJA,"ZIP, niestacjonarne II stopnia, semestr 3, przedmioty obieralne w języku angielskim",200-000,ZIP-2N,3,2N,7
+"ZIP-2S,1sem,PP",ZIP-2S_1sem_PP,"ZIP, 2stopień, stacjonarne, 1 semestr, przedmioty podstawowe",200-000,ZIP-2S,1,2S,8
+"ZIP-2S,2SemZJ,PP",ZIP-2S_2SemZJ_PP,"ZIP stacjonrne II stopnia, 2 semestr, ścieżka Zarządzanie Jakością, przedmioty podstawowe",200-000,ZIP-2S,2,2S,8
+"ZIP-2S,2SemZL,PP",ZIP-2S_2SemZL_PP,"ZIP stacjonarne II stopnia, 2 semestr, ścieżka Zarządzanie Logistyczne, przedmioty podstawowe",200-000,ZIP-2S,2,2S,8
+"ZIP-2S,2SemZP,PP",ZIP-2S_2SemZP_PP,"ZIP, stacjonarne II stopień, 2 semestr, ścieżka Zarządzamie Produkcją, przedmioty podstawowe",200-000,ZIP-2S,2,2S,9
+"ZIP-2S,3sem,POANG",ZIP-2S_3sem_POANG,"ZIP stacjonarne II stopnia, semestr 3, przedmioty obieralne w języku angielskim",200-000,ZIP-2S,3,2S,3
+"ZIP-2S,3sem,POPOL",ZIP-2S_3sem_POPOL,"ZIP stacjonarne II stopnia, semestr 3, przedmioty obieralne w języku polskim",200-000,ZIP-2S,3,2S,4
+"ZIP-2S,3semZJ,PP",ZIP-2S_3semZJ_PP,"ZIP stacjonarne II stopnia, semestr 3, przedmioty podstawowe",200-000,ZIP-2S,3,2S,2
+"ZIP-2S,3semZL,PP",ZIP-2S_3semZL_PP,"ZIP stacjonarne II stopnia. semestr3, ścieżka Zarządzanie Logistyczne",200-000,ZIP-2S,3,2S,2
+"ZIP-2S,3semZP,PP",ZIP-2S_3semZP_PP,"ZIP stacjonarne II stopnia, semestr3, ścieżka Zarządzanie Produkcją",200-000,ZIP-2S,3,2S,2
 "ZIP-2S,HESdoWYM,3sem",ZIP-2S_HESdoWYM_3sem,ZIP stacjonarne II stopnia HES do wymagań 3 sem po polsku,200-000,ZIP-2S_HESdoWYM,3,2S,36
 "ZKL-2S,sem.1",ZKL-2S_sem_1,150-ZKL-2S-semestr 1,150-000,ZKL-2S,1,2S,0
 "ZKL-2S,sem.2",ZKL-2S_sem_2,150-ZKL-2S-semestr 2,150-000,ZKL-2S,2,2S,7
@@ -1182,49 +1182,49 @@ ZEJ_2S_3s_all,ZEJ_2S_3s_all,"IiZwEJ_stacjonarne II stopnia, 3 semestr, przedmiot
 "ZRZ-1N,3sem,PP",ZRZ-1N_3sem_PP,"ZRZ, niestacjonarne I stopnia, sem.3, przedmioty podstawowe",200-000,ZRZ-1N,3,1N,4
 "ZRZ-1N,5sem,MO",ZRZ-1N_5sem_MO,"ZRZ, niestacjonarne I stopnia, 5 semestr, modul obieralny",200-000,ZRZ-1N,5,1N,10
 "ZRZ-1N,5sem,PP",ZRZ-1N_5sem_PP,"ZRZ, niestacjonarne I stopnia, 5 semestr, przedmioty podstawowe",200-000,ZRZ-1N,5,1N,6
-"ZRZ-1S,1sem,PP",ZRZ-1S_1sem_PP,"ZRZ, stacjonarne I stopnia,1 semestr, przedmioty podstawowe",200-000,ZRZ-1,1,1S,7
-"ZRZ-1S,2sem,PO",ZRZ-1S_2sem_PO,"ZRZ,stacjonarne 1 stopnia, 2 semestr, przedmioty obieralne",200-000,ZRZ-1,2,1S,9
-"ZRZ-1S,2sem,PP",ZRZ-1S_2sem_PP,"ZRZ, stacjonarne 1 stopnia, semestr 2, przedmioty podstawowe",200-000,ZRZ-1,2,1S,4
-"ZRZ-1S,3sem,PO",ZRZ-1S_3sem_PO,"ZRZ, stacjonarne 1 stopnia, sem3, przedmioty obieralne",200-000,ZRZ-1,3,1S,9
-"ZRZ-1S,3sem,PP",ZRZ-1S_3sem_PP,"ZRZ, stacjonarne, 1 stopnia,3 semestr, przedmioty podstawowe",200-000,ZRZ-1,3,1S,4
-"ZRZ-1S,4sem,PO",ZRZ-1S_4sem_PO,"ZRZ, stacjonarne I stopnia, 4 semestr, przedmioty obieralne",200-000,ZRZ-1,4,1S,11
-"ZRZ-1S,4sem,PP",ZRZ-1S_4sem_PP,"ZRZ, stacjonarne I stopnia, 4 semestr, przedmioty podstawowe",200-000,ZRZ-1,4,1S,4
-"ZRZ-1S,5sem,PO",ZRZ-1S_5sem_PO,"ZRZ, stacjonarne I stopnia, 5 semestr, przedmioty obieralne",200-000,ZRZ-1,5,1S,9
-"ZRZ-1S,5sem,PP",ZRZ-1S_5sem_PP,"ZRZ, stacjonarne I stopnia, 5 semestr, przedmioty podstawowe",200-000,ZRZ-1,5,1S,6
-"ZRZ-1S,6sem,A,PO",ZRZ-1S_6sem_A_PO,"ZRZ,stscjonarne I stopnia, 6 semestr, przedmioty obieralne w j. angielskim",200-000,ZRZ-1,6,1S,7
-"ZRZ-1S,6sem,PL,PO",ZRZ-1S_6sem_PL_PO,"ZRZ,stacjonarne I stopnia, 6 semestr, przedmioty obieralne w j. polskim",200-000,ZRZ-1,6,1S,14
+"ZRZ-1S,1sem,PP",ZRZ-1S_1sem_PP,"ZRZ, stacjonarne I stopnia,1 semestr, przedmioty podstawowe",200-000,ZRZ-1S,1,1S,7
+"ZRZ-1S,2sem,PO",ZRZ-1S_2sem_PO,"ZRZ,stacjonarne 1 stopnia, 2 semestr, przedmioty obieralne",200-000,ZRZ-1S,2,1S,9
+"ZRZ-1S,2sem,PP",ZRZ-1S_2sem_PP,"ZRZ, stacjonarne 1 stopnia, semestr 2, przedmioty podstawowe",200-000,ZRZ-1S,2,1S,4
+"ZRZ-1S,3sem,PO",ZRZ-1S_3sem_PO,"ZRZ, stacjonarne 1 stopnia, sem3, przedmioty obieralne",200-000,ZRZ-1S,3,1S,9
+"ZRZ-1S,3sem,PP",ZRZ-1S_3sem_PP,"ZRZ, stacjonarne, 1 stopnia,3 semestr, przedmioty podstawowe",200-000,ZRZ-1S,3,1S,4
+"ZRZ-1S,4sem,PO",ZRZ-1S_4sem_PO,"ZRZ, stacjonarne I stopnia, 4 semestr, przedmioty obieralne",200-000,ZRZ-1S,4,1S,11
+"ZRZ-1S,4sem,PP",ZRZ-1S_4sem_PP,"ZRZ, stacjonarne I stopnia, 4 semestr, przedmioty podstawowe",200-000,ZRZ-1S,4,1S,4
+"ZRZ-1S,5sem,PO",ZRZ-1S_5sem_PO,"ZRZ, stacjonarne I stopnia, 5 semestr, przedmioty obieralne",200-000,ZRZ-1S,5,1S,9
+"ZRZ-1S,5sem,PP",ZRZ-1S_5sem_PP,"ZRZ, stacjonarne I stopnia, 5 semestr, przedmioty podstawowe",200-000,ZRZ-1S,5,1S,6
+"ZRZ-1S,6sem,A,PO",ZRZ-1S_6sem_A_PO,"ZRZ,stscjonarne I stopnia, 6 semestr, przedmioty obieralne w j. angielskim",200-000,ZRZ-1S,6,1S,7
+"ZRZ-1S,6sem,PL,PO",ZRZ-1S_6sem_PL_PO,"ZRZ,stacjonarne I stopnia, 6 semestr, przedmioty obieralne w j. polskim",200-000,ZRZ-1S,6,1S,14
 "ZRZ-2N,1sem,PP",ZRZ-2N_1sem_PP,"Zarządzanie, niestacjonarne 2 stopnia, semestr 1 , przedmioty podstawowe",200-000,ZRZ-2N,1,2N,7
 "ZRZ-2N,3sem,HUM",ZRZ-2N_3sem_HUM,"Zarządzanie, niestacjonarne, 2 stopnia, semestr3, przedmioty humanistyczne",200-000,ZRZ-2N,3,2N,2
 "ZRZ-2N,3sem,MAR",ZRZ-2N_3sem_MAR,"Zarządzanie, niestacjonarne II stopnia, 3 semestr, ścieżka Marketing",200-000,ZRZ-2N,3,2N,9
 "ZRZ-2N,3sem,MO",ZRZ-2N_3sem_MO,"Zarządzanie, niestacjonarne II stopnia, 3 semestr, moduł obieralny",200-000,ZRZ-2N,3,2N,5
 "ZRZ-2N,3sem,PP",ZRZ-2N_3sem_PP,"Zarządzanie, niestacjonarne II stopnia, 3 semestr, przedmioty podstawowe",200-000,ZRZ-2N,3,2N,1
-"ZRZ-2S,1s,PP",ZRZ-2S_1s_PP,"Zarządzanie, 2 stopień stacjonarne, semestr 1,przedmioty podstawowe",200-000,ZRZ-2,1,2S,7
-"ZRZ-2S,1sem,IM",ZRZ-2S_1sem_IM,"ZRZ, stacjonarne 2 stopnia, 1 semestr, ścieżka IM",200-000,ZRZ-2,1,2S,4
-"ZRZ-2S,1sem,UKR",ZRZ-2S_1sem_UKR,"ZRZ, 2 stopień, 1semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2,1,2S,4
-"ZRZ-2S,2sem,IM",ZRZ-2S_2sem_IM,"ZRZ, stacjonarne 2 stopnia, 2 semestr, ścieżka IM",200-000,ZRZ-2,2,2S,8
-"ZRZ-2S,2sem,MA",ZRZ-2S_2sem_MA,"ZRZ, stacjonarne 2 stopnia, 2 semestr, ścieżka MA",200-000,ZRZ-2,2,2S,10
-"ZRZ-2S,2sem,PO",ZRZ-2S_2sem_PO,"ZRZ, stacjonarne 2 stopnia, 2 semestr, przedmioty obieralne",200-000,ZRZ-2,2,2S,7
-"ZRZ-2S,2sem,ZF",ZRZ-2S_2sem_ZF,"ZRZ,stacjonarne 2 stopnia, 2 semestr, ścieżka ZF",200-000,ZRZ-2,2,2S,0
-"ZRZ-2S,2sem,ZF,UKR",ZRZ-2S_2sem_ZF_UKR,"ZRZ, ZF, 2stopień, 2semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2,2,2S,1
-"ZRZ-2S,2sem,ZFI",ZRZ-2S_2sem_ZFI,"ZRZ, stacjonarne 2 stopnia, 2 semestr, ścieżka ZFI",200-000,ZRZ-2,2,2S,8
-"ZRZ-2S,2sem,ZK",ZRZ-2S_2sem_ZK,"ZRZ, stacjonarne 2 stopnia, 2 semestr, ścieżka ZK",200-000,ZRZ-2,2,2S,0
-"ZRZ-2S,2sem,ZKL",ZRZ-2S_2sem_ZKL,"ZRZ, stacjonarne 2 stopnia, 2 semesstr, ścieżka ZKL",200-000,ZRZ-2,2,2S,7
-"ZRZ-2S,2sem,ZP,UKR",ZRZ-2S_2sem_ZP_UKR,"ZRZ,ZP, 2 stopień, 2semestr,Ukraina, przedmioty podstawowe",200-000,ZRZ-2,2,2S,6
-"ZRZ-2S,3sem,IM",ZRZ-2S_3sem_IM,"ZRZ, stacjonarne 2 stopnia, 3 semestr, ścieżka IM,przedmioty podstawowe",200-000,ZRZ-2,3,2S,4
-"ZRZ-2S,3sem,IM,PO",ZRZ-2S_3sem_IM_PO,"ZRZ, stacjonarne 3 stopnia, 3semestr, ścieżka IM, przedmioty obieralne",200-000,ZRZ-2,3,2S,3
-"ZRZ-2S,3sem,MA",ZRZ-2S_3sem_MA,"ZRZ, stacjonarne 2 stopnia, 3 semestr, ścieżka M",200-000,ZRZ-2,3,2S,10
-"ZRZ-2S,3sem,PO",ZRZ-2S_3sem_PO,"ZRZ,stacjonarne 2 stopnia, 3 semestr, przedmioty obieralne",200-000,ZRZ-2,3,2S,6
-"ZRZ-2S,3sem,POH",ZRZ-2S_3sem_POH,"ZRZ,stcjonarne 2 stopnia, 3semestr, przedmioty obieralne humanistyczne",200-000,ZRZ-2,3,2S,4
-"ZRZ-2S,3sem,ZF",ZRZ-2S_3sem_ZF,"ZRZ, stacjonarne 2 stopnia, 3 semestr, ścieżka ZF",200-000,ZRZ-2,3,2S,0
-"ZRZ-2S,3sem,ZF,UKR",ZRZ-2S_3sem_ZF_UKR,"ZRZ, ZF, 2stopień, 3semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2,3,2S,0
-"ZRZ-2S,3sem,ZFI",ZRZ-2S_3sem_ZFI,"ZRZ, stacjonarne 2 stopnia,3 semestr, ścieżka ZFI",200-000,ZRZ-2,3,2S,6
-"ZRZ-2S,3sem,ZK",ZRZ-2S_3sem_ZK,"ZRZ,stacjonarne 2 stopnia, 2semestr, ścieżka ZK",200-000,ZRZ-2,2,2S,0
-"ZRZ-2S,3sem,ZKL",ZRZ-2S_3sem_ZKL,"ZRZ,stacjonarne 2 stopnia, 3 semestr, ścieżka ZKL",200-000,ZRZ-2,3,2S,6
-"ZRZ-2S,3sem,ZP,UKR",ZRZ-2S_3sem_ZP_UKR,"ZRZ, ZP, 2stopień, 3semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2,3,2S,5
-"ZRZ-2S,4sem,IM,PO",ZRZ-2S_4sem_IM_PO,"ZRZ,stacjonarne 2 stopnia, 4 semestr, przedmioty obieralne",200-000,ZRZ-2,4,2S,2
-"ZRZ-2S,4sem,PO,Ang",ZRZ-2S_4sem_PO_Ang,"ZRZ, stacjonarne 2 stopnia, 4 semestr, przedmioty obieralne angielskie",200-000,ZRZ-2,4,2S,6
-"ZRZ-2S,4sem,PO,Pol",ZRZ-2S_4sem_PO_Pol,"ZRZ, stacjonarne 2 stopnia, 4 semestr, przedmioty obieralne polskie",200-000,ZRZ-2,4,2S,6
-"ZRZ-2S,4sem,POH",ZRZ-2S_4sem_POH,"ZRZ, stacjonarne 2 stopnia, 4 semestr, przedmopty obieralne humanistyczne",200-000,ZRZ-2,4,2S,5
-"ZRZ-2S,4sem,ZF,UKR",ZRZ-2S_4sem_ZF_UKR,"ZRZ, ZF, 2stopień, 4semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2,4,2S,1
-"ZRZ-2S,4sem,ZP,UKR",ZRZ-2S_4sem_ZP_UKR,"ZRZ, ZP, 2stopień, 4semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2,4,2S,3
+"ZRZ-2S,1s,PP",ZRZ-2S_1s_PP,"Zarządzanie, 2 stopień stacjonarne, semestr 1,przedmioty podstawowe",200-000,ZRZ-2S,1,2S,7
+"ZRZ-2S,1sem,IM",ZRZ-2S_1sem_IM,"ZRZ, stacjonarne 2 stopnia, 1 semestr, ścieżka IM",200-000,ZRZ-2S,1,2S,4
+"ZRZ-2S,1sem,UKR",ZRZ-2S_1sem_UKR,"ZRZ, 2 stopień, 1semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2S,1,2S,4
+"ZRZ-2S,2sem,IM",ZRZ-2S_2sem_IM,"ZRZ, stacjonarne 2 stopnia, 2 semestr, ścieżka IM",200-000,ZRZ-2S,2,2S,8
+"ZRZ-2S,2sem,MA",ZRZ-2S_2sem_MA,"ZRZ, stacjonarne 2 stopnia, 2 semestr, ścieżka MA",200-000,ZRZ-2S,2,2S,10
+"ZRZ-2S,2sem,PO",ZRZ-2S_2sem_PO,"ZRZ, stacjonarne 2 stopnia, 2 semestr, przedmioty obieralne",200-000,ZRZ-2S,2,2S,7
+"ZRZ-2S,2sem,ZF",ZRZ-2S_2sem_ZF,"ZRZ,stacjonarne 2 stopnia, 2 semestr, ścieżka ZF",200-000,ZRZ-2S,2,2S,0
+"ZRZ-2S,2sem,ZF,UKR",ZRZ-2S_2sem_ZF_UKR,"ZRZ, ZF, 2stopień, 2semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2S,2,2S,1
+"ZRZ-2S,2sem,ZFI",ZRZ-2S_2sem_ZFI,"ZRZ, stacjonarne 2 stopnia, 2 semestr, ścieżka ZFI",200-000,ZRZ-2S,2,2S,8
+"ZRZ-2S,2sem,ZK",ZRZ-2S_2sem_ZK,"ZRZ, stacjonarne 2 stopnia, 2 semestr, ścieżka ZK",200-000,ZRZ-2S,2,2S,0
+"ZRZ-2S,2sem,ZKL",ZRZ-2S_2sem_ZKL,"ZRZ, stacjonarne 2 stopnia, 2 semesstr, ścieżka ZKL",200-000,ZRZ-2S,2,2S,7
+"ZRZ-2S,2sem,ZP,UKR",ZRZ-2S_2sem_ZP_UKR,"ZRZ,ZP, 2 stopień, 2semestr,Ukraina, przedmioty podstawowe",200-000,ZRZ-2S,2,2S,6
+"ZRZ-2S,3sem,IM",ZRZ-2S_3sem_IM,"ZRZ, stacjonarne 2 stopnia, 3 semestr, ścieżka IM,przedmioty podstawowe",200-000,ZRZ-2S,3,2S,4
+"ZRZ-2S,3sem,IM,PO",ZRZ-2S_3sem_IM_PO,"ZRZ, stacjonarne 3 stopnia, 3semestr, ścieżka IM, przedmioty obieralne",200-000,ZRZ-2S,3,2S,3
+"ZRZ-2S,3sem,MA",ZRZ-2S_3sem_MA,"ZRZ, stacjonarne 2 stopnia, 3 semestr, ścieżka M",200-000,ZRZ-2S,3,2S,10
+"ZRZ-2S,3sem,PO",ZRZ-2S_3sem_PO,"ZRZ,stacjonarne 2 stopnia, 3 semestr, przedmioty obieralne",200-000,ZRZ-2S,3,2S,6
+"ZRZ-2S,3sem,POH",ZRZ-2S_3sem_POH,"ZRZ,stcjonarne 2 stopnia, 3semestr, przedmioty obieralne humanistyczne",200-000,ZRZ-2S,3,2S,4
+"ZRZ-2S,3sem,ZF",ZRZ-2S_3sem_ZF,"ZRZ, stacjonarne 2 stopnia, 3 semestr, ścieżka ZF",200-000,ZRZ-2S,3,2S,0
+"ZRZ-2S,3sem,ZF,UKR",ZRZ-2S_3sem_ZF_UKR,"ZRZ, ZF, 2stopień, 3semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2S,3,2S,0
+"ZRZ-2S,3sem,ZFI",ZRZ-2S_3sem_ZFI,"ZRZ, stacjonarne 2 stopnia,3 semestr, ścieżka ZFI",200-000,ZRZ-2S,3,2S,6
+"ZRZ-2S,3sem,ZK",ZRZ-2S_3sem_ZK,"ZRZ,stacjonarne 2 stopnia, 2semestr, ścieżka ZK",200-000,ZRZ-2S,2,2S,0
+"ZRZ-2S,3sem,ZKL",ZRZ-2S_3sem_ZKL,"ZRZ,stacjonarne 2 stopnia, 3 semestr, ścieżka ZKL",200-000,ZRZ-2S,3,2S,6
+"ZRZ-2S,3sem,ZP,UKR",ZRZ-2S_3sem_ZP_UKR,"ZRZ, ZP, 2stopień, 3semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2S,3,2S,5
+"ZRZ-2S,4sem,IM,PO",ZRZ-2S_4sem_IM_PO,"ZRZ,stacjonarne 2 stopnia, 4 semestr, przedmioty obieralne",200-000,ZRZ-2S,4,2S,2
+"ZRZ-2S,4sem,PO,Ang",ZRZ-2S_4sem_PO_Ang,"ZRZ, stacjonarne 2 stopnia, 4 semestr, przedmioty obieralne angielskie",200-000,ZRZ-2S,4,2S,6
+"ZRZ-2S,4sem,PO,Pol",ZRZ-2S_4sem_PO_Pol,"ZRZ, stacjonarne 2 stopnia, 4 semestr, przedmioty obieralne polskie",200-000,ZRZ-2S,4,2S,6
+"ZRZ-2S,4sem,POH",ZRZ-2S_4sem_POH,"ZRZ, stacjonarne 2 stopnia, 4 semestr, przedmopty obieralne humanistyczne",200-000,ZRZ-2S,4,2S,5
+"ZRZ-2S,4sem,ZF,UKR",ZRZ-2S_4sem_ZF_UKR,"ZRZ, ZF, 2stopień, 4semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2S,4,2S,1
+"ZRZ-2S,4sem,ZP,UKR",ZRZ-2S_4sem_ZP_UKR,"ZRZ, ZP, 2stopień, 4semestr, Ukraina, przedmioty podstawowe",200-000,ZRZ-2S,4,2S,3
 "_SWY-IAK-2S_s1Z,PP",SWY-IAK-2S_s1Z_PP,"SWY_IAK, stacjonarne, 2S, 1sem.Z, przedmioty podstawowe",130-000,SWY-IAK-2S,1,2S,6

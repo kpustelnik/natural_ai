@@ -108,12 +108,12 @@ function writeHash(): void {
   const p = s.playback;
   if (p.replayId) {
     q.set("replay", p.replayId);
+    q.set("day", String(p.weekday));
+    if (p.acoView === "trains") q.set("view", "trains");
     // the moment of the replay, while paused (a running clock would rewrite the URL every frame)
     if (!p.playing) {
-      q.set("day", String(p.weekday));
       q.set("t", String(Math.round(p.t)));
       q.set("it", String(Math.round(p.iteration * 10) / 10));
-      if (p.acoView === "trains") q.set("view", "trains");
     }
     q.set("speed", String(p.speed));
     if (s.workspace === "simulation") {
@@ -151,6 +151,8 @@ export function bindUrl(): () => void {
       s.present !== prev.present ||
       s.perf !== prev.perf ||
       s.playback.split !== prev.playback.split ||
+      s.playback.weekday !== prev.playback.weekday ||
+      s.playback.acoView !== prev.playback.acoView ||
       s.playback.scenario !== prev.playback.scenario
     ) {
       writeHash();

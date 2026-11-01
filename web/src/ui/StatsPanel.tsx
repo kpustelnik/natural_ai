@@ -113,7 +113,7 @@ function HourChart({ stats }: { stats: Stats }) {
         </span>
       </div>
       <svg
-        className="chart-plot"
+        className="chart-plot hour-plot"
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
         role="img"

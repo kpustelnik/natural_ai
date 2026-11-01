@@ -1,10 +1,10 @@
 {
  "provenance": {
   "schema_version": 1,
-  "generated_at": "2026-10-14T16:37:31+02:00",
+  "generated_at": "2026-11-01T00:42:50+01:00",
   "generator": "02_build_campus.py",
-  "config_hash": "99f741f43331fef9",
-  "git_commit": "5db004c"
+  "config_hash": "ece674aac4e8a815",
+  "git_commit": "c509797"
  },
  "issues": [
   {
@@ -268,6 +268,14 @@
    "section": "Buildings with several entrance=main (first by node id used)",
    "message": "D-7",
    "building_id": "D-7",
+   "osm_id": null,
+   "position": null
+  },
+  {
+   "severity": "warning",
+   "section": "Buildings with several entrance=main (first by node id used)",
+   "message": "DS-4",
+   "building_id": "DS-4",
    "osm_id": null,
    "position": null
   },

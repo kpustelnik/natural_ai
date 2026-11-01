@@ -7,7 +7,7 @@ import { Color, CylinderGeometry, InstancedMesh, Matrix4, MeshLambertMaterial, V
 import type { NetworkBarrier, Scene, SceneStop } from "../../generated/schemas";
 import type { Vec3 } from "../../lib/frames";
 import { app, type Pick, pickKey, useApp } from "../../state/app";
-import { ACCENT, MARKERS } from "../palette";
+import { ACCENT, MARKERS, SCENE } from "../palette";
 import { setPickable } from "../picking";
 
 interface Marker {
@@ -46,7 +46,7 @@ export function MarkerSet({ markers, height }: { markers: Marker[]; height: numb
     markers.forEach((mk, i) => {
       const key = pickKey(mk.pick);
       c.set(key === selKey ? ACCENT : mk.color);
-      if (key === hovKey && key !== selKey) c.lerp(new Color("#ffffff"), 0.4);
+      if (key === hovKey && key !== selKey) c.lerp(new Color(SCENE.hover), 0.4);
       mesh.setColorAt(i, c);
     });
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
@@ -54,7 +54,8 @@ export function MarkerSet({ markers, height }: { markers: Marker[]; height: numb
 
   useFrame(() => {
     const mpp = app.get().metresPerPixel;
-    if (Math.abs(mpp - lastScale.current) / (lastScale.current || 1) < 0.02) return;
+    // rescale only when the zoom changed by 2 % (a new mesh, lastScale 0, always does)
+    if (lastScale.current && Math.abs(mpp - lastScale.current) / lastScale.current < 0.02) return;
     lastScale.current = mpp;
     const m = new Matrix4();
     const s = new Vector3();

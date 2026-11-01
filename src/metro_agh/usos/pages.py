@@ -52,8 +52,8 @@ def weekday_of(s: str) -> int | None:
 
 
 def parity_of(frequency: str) -> str | None:
-    """``all`` / ``odd`` / ``even`` from a USOS frequency text; None = not weekly
-    (once, monthly, irregular), which a typical week does not contain."""
+    """``all`` / ``odd`` / ``even`` from a USOS frequency text; None = not weekly (once,
+    monthly, irregular): ``parse`` keeps such a line only when the crawled week shows it."""
     f = frequency.lower()
     if "nieparzyst" in f:
         return "odd"
@@ -113,7 +113,7 @@ def parse_room_week(page: str) -> list[Tile]:
                     weekday=day,
                     start=hhmm(h1, m1),
                     end=hhmm(h2, m2),
-                    course_code=htmllib.unescape(code.group(1)),
+                    course_code=unquote(htmllib.unescape(code.group(1))),
                     course_name=htmllib.unescape(name.group(1)) if name else "",
                     class_type=ctype,
                     group_nr=int(link.group(2)),
@@ -191,7 +191,7 @@ def parse_unit_groups(page: str, unit_id: int) -> UnitPage:
     term = re.search(r"cdyd_kod=([^'\"&]+)", page)
     unit = UnitPage(
         unit_id=unit_id,
-        course_code=htmllib.unescape(code.group(1)) if code else None,
+        course_code=unquote(htmllib.unescape(code.group(1))) if code else None,  # JA-3%2F4
         course_name=text(name.group(1)) if name else None,
         class_type=text(ctype.group(2)) if ctype else None,
         class_type_name=text(ctype.group(1)) if ctype else None,

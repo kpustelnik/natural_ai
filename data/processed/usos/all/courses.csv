@@ -8712,30 +8712,30 @@ course_id,course_name,faculty_id,course_groups,n_units,n_groups,enrolled
 430-SOC-2S-561-EGO,Zarządzanie marką na rynku pracy,200-000,,1,1,3
 430-SOC-2S-563-EGO,Socjologia wizualna,430-000,,2,2,3
 440-000-1S-IAE,Introduction to Academic English,440-000,,2,10,105
-440-000-1S-JA5-1/3,Język angielski 1/3,440-000,440-JO-1S-1/3,1,0,
-440-000-1S-JA5-2/3,Język angielski 2/3,440-000,440-JO-1S-2/3,1,0,
+440-000-1S-JA5-1/3,Język angielski 1/3,440-000,440-JO-1S-1/3,1,1,6
+440-000-1S-JA5-2/3,Język angielski 2/3,440-000,440-JO-1S-2/3,1,93,1330
 440-000-1S-JA5-3/3,Język angielski 3/3,440-000,440-JO-1S-3/3,0,0,
 440-000-1S-JA6-1/3,Język angielski 1/3,440-000,440-JO-1S-1/3,1,0,
-440-000-1S-JA6-2/3,Język angielski 2/3,440-000,440-JO-1S-2/3,1,0,
+440-000-1S-JA6-2/3,Język angielski 2/3,440-000,440-JO-1S-2/3,1,40,135
 440-000-1S-JA6-3/3,Język angielski 3/3,440-000,440-JO-1S-3/3,0,0,
 440-000-1S-JF5-1/3,Język francuski 1/3,440-000,440-JO-1S-1/3,0,0,
-440-000-1S-JF5-2/3,Język francuski 2/3,440-000,440-JO-1S-2/3,1,0,
+440-000-1S-JF5-2/3,Język francuski 2/3,440-000,440-JO-1S-2/3,1,3,36
 440-000-1S-JF5-3/3,Język francuski 3/3,440-000,440-JO-1S-3/3,0,0,
 440-000-1S-JF6-1/3,Język francuski 1/3,440-000,440-JO-1S-1/3,0,0,
 440-000-1S-JF6-3/3,Język francuski 3/3,440-000,440-JO-1S-3/3,0,0,
 440-000-1S-JH5-1/3,Język hiszpański 1/3,440-000,440-JO-1S-1/3,0,0,
-440-000-1S-JH5-2/3,Język hiszpański 2/3,440-000,440-JO-1S-2/3,1,0,
+440-000-1S-JH5-2/3,Język hiszpański 2/3,440-000,440-JO-1S-2/3,1,5,60
 440-000-1S-JH5-3/3,Język hiszpański 3/3,440-000,440-JO-1S-3/3,0,0,
 440-000-1S-JH6-1/3,Język hiszpański 1/3,440-000,440-JO-1S-1/3,0,0,
 440-000-1S-JH6-3/3,Język hiszpański 3/3,440-000,440-JO-1S-3/3,0,0,
 440-000-1S-JN5-1/3,Język niemiecki 1/3,440-000,440-JO-1S-1/3,0,0,
-440-000-1S-JN5-2/3,Język niemiecki 2/3,440-000,440-JO-1S-2/3,1,0,
+440-000-1S-JN5-2/3,Język niemiecki 2/3,440-000,440-JO-1S-2/3,1,4,39
 440-000-1S-JN5-3/3,Język niemiecki 3/3,440-000,440-JO-1S-3/3,0,0,
 440-000-1S-JN6-1/3,Język niemiecki 1/3,440-000,440-JO-1S-1/3,0,0,
 440-000-1S-JN6-3/3,Język niemiecki 3/3,440-000,440-JO-1S-3/3,0,0,
-440-000-1S-JP-1/2,Język polski 1/2,440-000,,1,0,
+440-000-1S-JP-1/2,Język polski 1/2,440-000,,1,9,154
 440-000-1S-JR5-1/3,Język rosyjski 1/3,440-000,440-JO-1S-1/3,0,0,
-440-000-1S-JR5-2/3,Język rosyjski 2/3,440-000,440-JO-1S-2/3,1,0,
+440-000-1S-JR5-2/3,Język rosyjski 2/3,440-000,440-JO-1S-2/3,1,3,32
 440-000-1S-JR5-3/3,Język rosyjski 3/3,440-000,440-JO-1S-3/3,0,0,
 440-000-1S-JR6-1/3,Język rosyjski 1/3,440-000,440-JO-1S-1/3,0,0,
 440-000-1S-JR6-3/3,Język rosyjski 3/3,440-000,440-JO-1S-3/3,0,0,
@@ -8750,43 +8750,43 @@ course_id,course_name,faculty_id,course_groups,n_units,n_groups,enrolled
 440-000-JH-EGZ,Język hiszpański egzamin,440-000,440-JO-1S-1/3|440-JO-1S-2/3|440-JO-1S-3/3,1,0,
 440-000-JN-EGZ,Język niemiecki egzamin,440-000,440-JO-1S-1/3|440-JO-1S-2/3|440-JO-1S-3/3,1,0,
 440-000-JR-EGZ,Język rosyjski egzamin,440-000,440-JO-1S-1/3|440-JO-1S-2/3|440-JO-1S-3/3,1,0,
-440-100-1N-JA-1/4,Język angielski 1/4,440-000,BUD_1N_s3|IGR_1N_s2|IKS_1N_s3|IZP_1N_s3|SJO_NIEST_sem_zimowy,1,0,
-440-100-1N-JA-2/4,Język angielski 2/4,440-000,BUD_1N_s4|IGR_1N_s3|IKS_1N_s4|IZP_1N_s4|SJO_NIEST_sem_letni,1,0,
-440-100-1N-JA-3/4,Język angielski 3/4,440-000,BUD_1N_s5|IGR_1N_s4|IGR_1N_s5|IKS_1N_s5|IZP_1N_s5|SJO_NIEST_sem_zimowy,1,0,
+440-100-1N-JA-1/4,Język angielski 1/4,440-000,BUD_1N_s3|IGR_1N_s2|IKS_1N_s3|IZP_1N_s3|SJO_NIEST_sem_zimowy,1,2,42
+440-100-1N-JA-2/4,Język angielski 2/4,440-000,BUD_1N_s4|IGR_1N_s3|IKS_1N_s4|IZP_1N_s4|SJO_NIEST_sem_letni,1,1,5
+440-100-1N-JA-3/4,Język angielski 3/4,440-000,BUD_1N_s5|IGR_1N_s4|IGR_1N_s5|IKS_1N_s5|IZP_1N_s5|SJO_NIEST_sem_zimowy,1,2,41
 440-100-1N-JA-4/4,Język angielski 4/4,440-000,BUD_1N_s6|IGR_1N_s6|IKS_1N_s6|IZP_1N_s6|SJO_NIEST_sem_letni,0,0,
 440-100-2N-JA,Specjalistyczny język angielski B2+,440-000,BUD_2N_s2|IGR_2N_s2|INB_2N_s1_BOP|IZP_2N_s2_CPP|IZP_2N_s2_PP|SJO_NIEST_sem_letni|SJO_NIEST_sem_zimowy,2,0,
 440-110-1N-JA-1/4,Język angielski 1/4,440-000,INM_1N_sem2|IPP_1N_sem2|ITE_1N_sem2|SJO_NIEST_sem_letni,0,0,
-440-110-1N-JA-2/4,Język angielski 2/4,440-000,INM_1N_sem3|IPP_1N_sem3|ITE_1N_sem3|SJO_NIEST_sem_zimowy,1,0,
+440-110-1N-JA-2/4,Język angielski 2/4,440-000,INM_1N_sem3|IPP_1N_sem3|ITE_1N_sem3|SJO_NIEST_sem_zimowy,1,2,34
 440-110-1N-JA-3/4,Język angielski 3/4,440-000,INM_1N_sem4|IPP_1N_sem4|ITE_1N_sem4|SJO_NIEST_sem_letni,0,0,
-440-110-1N-JA-4/4,Język angielski 4/4,440-000,INM_1N_sem5|IPP_1N_sem5|ITE_1N_sem5|SJO_NIEST_sem_zimowy,2,0,
+440-110-1N-JA-4/4,Język angielski 4/4,440-000,INM_1N_sem5|IPP_1N_sem5|ITE_1N_sem5|SJO_NIEST_sem_zimowy,2,2,18
 440-110-2N-JA-INM,Specjalistyczny język angielski B2+,440-000,INM_2N_sem1|SJO_NIEST_sem_zimowy,2,2,4
 440-110-2N-JA-ITE,Specjalistyczny język angielski B2+,440-000,ITE_2N_sem1|SJO_NIEST_sem_zimowy,2,4,29
 440-110-2N-JA-MET,Specjalistyczny język angielski B2+,440-000,SJO_NIEST_sem_zimowy,2,0,
-440-120-1N-JA-1/4,Język angielski 1/4,440-000,ELT_1N_sem_3|SJO_NIEST_sem_zimowy,1,0,
+440-120-1N-JA-1/4,Język angielski 1/4,440-000,ELT_1N_sem_3|SJO_NIEST_sem_zimowy,1,2,31
 440-120-1N-JA-2/4,Język angielski 2/4,440-000,ELT_1N_sem_4|SJO_NIEST_sem_letni,0,0,
-440-120-1N-JA-3/4,Język angielski 3/4,440-000,ELT_1N_sem_5|SJO_NIEST_sem_zimowy,1,0,
+440-120-1N-JA-3/4,Język angielski 3/4,440-000,ELT_1N_sem_5|SJO_NIEST_sem_zimowy,1,2,35
 440-120-1N-JA-4/4,Język angielski 4/4,440-000,ELT_1N_sem_6|SJO_NIEST_sem_letni,0,0,
 440-120-2N-JA,Specjalistyczny język angielski B2+,440-000,ELT_2N_sem_1_AiM|ELT_2N_sem_1_ELE|SJO_NIEST_sem_zimowy,2,4,34
-440-130-1N-JA-1/4,Język angielski 1/4,440-000,"APR-1N_s3,PP|MBM-1N_s3,PP|SJO_NIEST_sem_zimowy",1,0,
+440-130-1N-JA-1/4,Język angielski 1/4,440-000,"APR-1N_s3,PP|MBM-1N_s3,PP|SJO_NIEST_sem_zimowy",1,4,72
 440-130-1N-JA-2/4,Język angielski 2/4,440-000,"APR-1N_s4,PP|MBM-1N_s4,PP|SJO_NIEST_sem_letni",0,0,
-440-130-1N-JA-3/4,Język angielski 3/4,440-000,"APR-1N_s5,PP|MBM-1N_s5,PP|SJO_NIEST_sem_zimowy",1,0,
+440-130-1N-JA-3/4,Język angielski 3/4,440-000,"APR-1N_s5,PP|MBM-1N_s5,PP|SJO_NIEST_sem_zimowy",1,3,65
 440-130-1N-JA-4/4,Język angielski 4/4,440-000,"APR-1N_s6,PP|MBM-1N_s6,PP|SJO_NIEST_sem_letni",0,0,
 440-130-2N-JA,Specjalistyczny język angielski B2+,440-000,"APR-2N_s1,PP|MBM-2N_s3,EP|MBM-2N_s3,ISW|MBM-2N_s3,KW|SJO_NIEST_sem_zimowy",2,4,33
-440-150-1N-JA-1/3,Język angielski 1/3,440-000,"GiK-1N,3sem(21/22)|SJO_NIEST_sem_zimowy",1,0,
+440-150-1N-JA-1/3,Język angielski 1/3,440-000,"GiK-1N,3sem(21/22)|SJO_NIEST_sem_zimowy",1,1,22
 440-150-1N-JA-2/3,Język angielski 2/3,440-000,"GiK-1N,4sem(22/23)|SJO_NIEST_sem_letni",0,0,
-440-150-1N-JA-3/3,Język angielski 3/3,440-000,"GiK-1N,5sem(21/22)|SJO_NIEST_sem_zimowy",2,0,
+440-150-1N-JA-3/3,Język angielski 3/3,440-000,"GiK-1N,5sem(21/22)|SJO_NIEST_sem_zimowy",2,2,11
 440-170-2N-JA,Specjalistyczny język angielski B2+,440-000,SJO_NIEST_sem_letni,0,0,
-440-190-1N-JA-1/3,Język angielski 1/3,440-000,GTO_1N_s3|ING_1N_s3|SJO_NIEST_sem_zimowy,1,0,
+440-190-1N-JA-1/3,Język angielski 1/3,440-000,GTO_1N_s3|ING_1N_s3|SJO_NIEST_sem_zimowy,1,1,17
 440-190-1N-JA-2/3,Język angielski 2/3,440-000,SJO_NIEST_sem_letni,0,0,
-440-190-1N-JA-3/3,Język angielski 3/3,440-000,GGO_1N_s5|SJO_NIEST_sem_zimowy,2,0,
+440-190-1N-JA-3/3,Język angielski 3/3,440-000,GGO_1N_s5|SJO_NIEST_sem_zimowy,2,2,11
 440-190-2N-JA,Specjalistyczny język angielski B2+,440-000,ING_2N_s2__ING-IG|SJO_NIEST_sem_letni,0,0,
 440-200-1N-JA-1/3,Język angielski 1/3,440-000,SJO_NIEST_sem_letni,0,0,
-440-200-1N-JA-2/3,Język angielski 2/3,440-000,SJO_NIEST_sem_zimowy,1,0,
+440-200-1N-JA-2/3,Język angielski 2/3,440-000,SJO_NIEST_sem_zimowy,1,3,32
 440-200-1N-JA-3/3,Język angielski 3/3,440-000,SJO_NIEST_sem_letni,0,0,
 440-200-2N-JA,Specjalistyczny język angielski B2+,440-000,SJO_NIEST_sem_zimowy,2,10,100
-440-230-1N-JA-1/3,Język angielski 1/3,440-000,230-EiT_1N_sem5|SJO_NIEST_sem_zimowy,1,0,
+440-230-1N-JA-1/3,Język angielski 1/3,440-000,230-EiT_1N_sem5|SJO_NIEST_sem_zimowy,1,1,12
 440-230-1N-JA-2/3,Język angielski 2/3,440-000,230-EiT_1N_sem6|SJO_NIEST_sem_letni,0,0,
-440-230-1N-JA-3/3,Język angielski 3/3,440-000,230-EiT_1N_sem7|SJO_NIEST_sem_zimowy,2,0,
+440-230-1N-JA-3/3,Język angielski 3/3,440-000,230-EiT_1N_sem7|SJO_NIEST_sem_zimowy,2,1,12
 440-EEE-2S-JP,Polish Language,440-000,EEE_2S_s2_all,2,2,6
 440-EXCHANGE-JP,Język polski,440-000,,1,6,68
 440-INT-xS-241,English C-1: Terms and Concepts of Space,440-000,000-INT-H-SOC,1,1,12

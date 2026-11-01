@@ -2,7 +2,7 @@
 
 Every table that crosses a module boundary is declared here. Writers call
 ``TABLE.validate(df)`` before saving, readers may call it after loading.
-Paths are relative to ``paths.processed`` (or ``paths.sample`` with --sample),
+Paths are relative to ``paths.processed`` (also with --sample, which only swaps the campus),
 except where marked as hand-written (``data/campus``, ``data/validation``).
 """
 
@@ -772,7 +772,7 @@ GRAPH_NODES = Table(
     primary_key=("node_id",),
     columns=(
         Column("node_id", "int", "dense index 0..n-1, valid only within one build", min=0),
-        Column("key", "str", "stable readable id, e.g. 'osm:123', 'D-17/1.38', 'D-17:c0@12.5'"),
+        Column("key", "str", "stable readable id, e.g. 'osm:123', 'D-17/1.38', 'D-17:c0@12.50'"),
         Column("kind", "str", "node type", allowed=_values(NodeKind)),
         Column("x", "float", "EPSG:2180 easting, m"),
         Column("y", "float", "EPSG:2180 northing, m"),
@@ -899,7 +899,14 @@ RUNS = Table(
         Column("k", "int", "number of stations", min=2),
         Column("n_candidates", "int", "N", min=2),
         Column("seed", "int", "RNG seed"),
-        Column("eval_budget", "int", "max objective evaluations", min=1),
+        Column(
+            "eval_budget",
+            "int",
+            "optimize.max_evaluations, else for the colonies and random search the lines the "
+            "ants build (local search evaluates more on top); greedy: its own evaluations; "
+            "brute force: every line",
+            min=1,
+        ),
         Column("evaluations", "int", "evaluations used", min=1),
         Column("evaluations_to_best", "int", "when the final best was found", min=0),
         Column("best_s", "float", "objective of the best line", min=0),

@@ -106,7 +106,7 @@
         }
       ],
       "default": null,
-      "description": "teleport bound: every leg takes 0 s via metro access",
+      "description": "teleport bound: the metro ride takes 0 s and every OD pair gets its two best stations (shafts and wait still counted); no line beats it",
       "title": "Lower Bound S"
     }
   },

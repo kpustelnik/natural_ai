@@ -17,7 +17,7 @@ from .simulation.simulate import walk_matrix
 def compare_field(measured: pd.DataFrame, nodes: pd.DataFrame, edges: pd.DataFrame) -> pd.DataFrame:
     """Per measurement: the model's shortest walk (``model_s``) and the error
     (``error_s`` = model - measured, ``error_pct`` of the measured time). Keys missing from
-    the graph give NaN."""
+    the graph, or not connected by any walk, give NaN."""
     node_of = {str(k): int(i) for k, i in zip(nodes.endpoint_key, nodes.node_id, strict=True)
                if isinstance(k, str)}  # fmt: skip
     out = measured.copy()
@@ -29,6 +29,7 @@ def compare_field(measured: pd.DataFrame, nodes: pd.DataFrame, edges: pd.DataFra
         for n, (a, b) in enumerate(zip(out.from_key, out.to_key, strict=True)):
             if a in node_of and b in node_of:
                 model[n] = times[row[node_of[a]], node_of[b]]
+    model[~np.isfinite(model)] = np.nan  # cut off from each other: unknown, not infinite
     out["model_s"] = np.round(model, 1)
     out["error_s"] = (out["model_s"] - out["measured_s"]).round(1)
     out["error_pct"] = (100 * out["error_s"] / out["measured_s"]).round(1)

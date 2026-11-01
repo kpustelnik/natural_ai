@@ -1,16 +1,16 @@
 {
   "provenance": {
     "schema_version": 1,
-    "generated_at": "2026-10-28T21:27:00+01:00",
+    "generated_at": "2026-11-01T00:55:55+01:00",
     "generator": "run_experiments.py",
     "config_hash": "48b266e00e15ad8b",
-    "git_commit": "e3e521c"
+    "git_commit": "c509797"
   },
   "run_id": "compare_algorithms-random-random-k5-s46",
   "experiment": "compare_algorithms",
   "algorithm": "random",
   "instance": "C:/Users/kampu/Desktop/natural_ai/data/processed/instance/instance.npz",
-  "instance_hash": "394d9afdefbb7e71",
+  "instance_hash": "8c0ccb8b16174a29",
   "seed": 46,
   "params": {
     "n_ants": 20,
@@ -27,14 +27,14 @@
   },
   "eval_budget": 5000,
   "evaluations": 5000,
-  "wall_time_s": 1.5,
+  "wall_time_s": 1.78,
   "best": {
     "provenance": {
       "schema_version": 1,
-      "generated_at": "2026-10-28T21:27:00+01:00",
+      "generated_at": "2026-11-01T00:55:55+01:00",
       "generator": "run_experiments.py",
       "config_hash": "48b266e00e15ad8b",
-      "git_commit": "e3e521c"
+      "git_commit": "c509797"
     },
     "run_id": "compare_algorithms-random-random-k5-s46",
     "topology": "line",
@@ -45,8 +45,8 @@
       "B-1",
       "H-D8"
     ],
-    "objective_s": 138714668.0,
-    "baseline_s": 153888800.0,
-    "lower_bound_s": 90917717.8
+    "objective_s": 137861138.4,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
   }
 }

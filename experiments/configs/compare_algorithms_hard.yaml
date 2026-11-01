@@ -1,13 +1,15 @@
 # Validation test 2, the harder setting: k = 10 (on k = 5 every algorithm with local search
-# finds the same line, see compare_algorithms.yaml). All with local search, 30 seeds; 6000
-# distinct lines, so greedy fits too (it cannot stop halfway: about 5600 at k = 10); greedy
-# is deterministic.
+# finds the same line, see compare_algorithms.yaml). All with local search, 30 seeds; 60 000
+# distinct lines: one local-search descent at k = 10 takes ~6000, so MMAS and random get
+# 9-13 iterations and ACS 18-36 (its ants repeat lines, which are not counted again), and
+# the pheromone gets a say (at 6000 they finished 1-2). Greedy (~5600, it
+# cannot stop halfway) fits; it is deterministic.
 #
 #   uv run scripts/run_experiments.py --config experiments/configs/compare_algorithms_hard.yaml
 #   uv run scripts/plot_experiments.py compare_algorithms_hard
 
 name: compare_algorithms_hard
-description: MMAS vs ACS vs random vs greedy with local search, k = 10, 6000 evaluations
+description: MMAS vs ACS vs random vs greedy with local search, k = 10, 60000 evaluations
 mode: variants
 seeds: [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56,
         57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
@@ -15,8 +17,8 @@ save_trace: false
 
 defaults:
   metro: { n_stations: 10 }
-  optimize: { max_evaluations: 6000, local_search: true }
-  aco: { n_ants: 20, n_iterations: 1000 }   # iterations: an upper bound, the budget ends a run
+  optimize: { max_evaluations: 60000, local_search: true }
+  aco: { n_ants: 20, n_iterations: 5000 }   # iterations: an upper bound, the budget ends a run
 
 variants:
   - { name: mmas-ls, optimize.algorithm: mmas }

@@ -26,7 +26,10 @@ class BestLine(StrictModel):
     objective_s: float = Field(ge=0, description="weighted total travel time with this line")
     baseline_s: float = Field(ge=0, description="same without metro")
     lower_bound_s: float | None = Field(
-        default=None, ge=0, description="teleport bound: every leg takes 0 s via metro access"
+        default=None,
+        ge=0,
+        description="teleport bound: the metro ride takes 0 s and every OD pair gets its two "
+        "best stations (shafts and wait still counted); no line beats it",
     )
 
     @model_validator(mode="after")

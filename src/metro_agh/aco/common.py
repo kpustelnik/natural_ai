@@ -24,7 +24,10 @@ class RunResult:
     convergence: pd.DataFrame  # tables.CONVERGENCE
     trace: AcoTrace | None  # ant colonies only
     params: dict
-    eval_budget: int  # evaluations the algorithm may use (runs.csv: compare at equal budget)
+    # optimize.max_evaluations when set (a real cap); else the lines the ants build, and
+    # local search evaluates more on top (runs.csv: compare at equal budget). Greedy and
+    # brute force report their own evaluations / every line
+    eval_budget: int
 
 
 def convergence_frame(rows: list[tuple]) -> pd.DataFrame:

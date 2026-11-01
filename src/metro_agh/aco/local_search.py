@@ -7,8 +7,8 @@
 The colonies apply it to the iteration-best line before the pheromone update
 (``optimize.local_search``), as MMAS does in Stützle & Hoos (2000): the ants find the region,
 the local search the bottom of it. Random search polishes its iteration best the same way
-(multi-start local search) and greedy its final line, so the comparison is fair. Every line
-it tries counts as an evaluation.
+(multi-start local search) and greedy its final line, so the comparison is fair. Every new
+line it tries counts as an evaluation (lines seen before come from the objective's cache).
 """
 
 from __future__ import annotations

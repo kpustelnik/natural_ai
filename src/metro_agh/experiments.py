@@ -79,7 +79,8 @@ def get_path(cfg: dict, dotted: str) -> Any:
 
 
 def set_path(cfg: dict, dotted: str, value: Any) -> dict:
-    """Return a deep copy of ``cfg`` with ``dotted`` set to ``value``."""
+    """A copy of ``cfg`` with ``dotted`` set to ``value``: the dicts along the path are
+    copied, the rest is shared with ``cfg`` (nothing here mutates it)."""
     parts = dotted.split(".")
     out = dict(cfg)
     node = out
@@ -238,7 +239,24 @@ def append_runs_csv(results_dir: Path, row: dict[str, Any]) -> None:
     df["algorithm"] = df["algorithm"].astype("string")
     df["topology"] = df["topology"].astype("string")
     df["run_id"] = df["run_id"].astype("string")
-    RUNS.write(df, path)
+    write_runs_csv(df, results_dir)
+
+
+def write_runs_csv(df: pd.DataFrame, results_dir: Path) -> None:
+    """``runs.csv``, written next to it and then swapped in: a sweep of hundreds of runs must
+    not die (or leave a half-written file) because another program briefly holds it
+    (seen on Windows as EINVAL), so the swap is retried."""
+    path = Path(results_dir) / "runs.csv"
+    tmp = path.with_name("runs.part.csv")  # the suffix picks the format
+    RUNS.write(df, tmp)
+    for attempt in range(20):
+        try:
+            tmp.replace(path)
+            return
+        except OSError:  # a lock shows up as PermissionError or EINVAL
+            if attempt == 19:
+                raise
+            time.sleep(0.5)
 
 
 def save_run(

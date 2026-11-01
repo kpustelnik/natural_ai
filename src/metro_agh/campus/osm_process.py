@@ -255,7 +255,8 @@ def buildings_layer(
                 f"{code}: {missing}",
                 building_id=code,
             )
-    for code in out.loc[(out.category != "context") & out.levels.isna(), "building_id"]:
+    default = (out.category != "context") & (out.height_source == "default")
+    for code in out.loc[default, "building_id"]:
         issues.add(
             "AGH buildings without building:levels (default height used)",
             code,
@@ -289,18 +290,21 @@ def entrances_layer(
         crs=METRIC_CRS,
     )
 
-    # nearest building outline within entrance_snap_m (AGH buildings win over context)
+    # nearest building outline within entrance_snap_m; an AGH outline in reach wins over a
+    # nearer context one (sjoin_nearest alone returns only the nearest, so two passes)
     snap = cfg["osm"]["entrance_snap_m"]
     outlines = buildings[["osm_id", "building_id", "category", "geometry"]].copy()
     outlines["geometry"] = outlines.geometry.boundary
-    joined = gpd.sjoin_nearest(
-        ent, outlines, how="left", max_distance=snap, distance_col="dist"
-    ).reset_index(names="_row")
-    joined["_rank"] = joined.building_id.isna().astype(int)
-    joined = joined.sort_values(["_row", "_rank", "dist"]).drop_duplicates("_row")
-    joined = joined.sort_values("_row").set_index("_row")
-    ent["building_id"] = joined.building_id.to_numpy()
-    ent["building_osm_id"] = joined.osm_id.to_numpy()
+
+    def nearest(candidates: gpd.GeoDataFrame) -> pd.DataFrame:
+        j = gpd.sjoin_nearest(ent, candidates, how="left", max_distance=snap, distance_col="dist")
+        j = j.reset_index(names="_row").sort_values(["_row", "dist"])
+        return j.drop_duplicates("_row").set_index("_row").reindex(ent.index)
+
+    agh, any_ = nearest(outlines[outlines.building_id.notna()]), nearest(outlines)
+    found = agh.osm_id.notna()
+    ent["building_id"] = agh.building_id.where(found, any_.building_id).to_numpy()
+    ent["building_osm_id"] = agh.osm_id.where(found, any_.osm_id).to_numpy()
 
     # main entrance per AGH building: entrance=main, then yes, then anything usable
     priority = {"main": 0, "yes": 1, "entrance": 1, "home": 2, "staircase": 2, "service": 3}

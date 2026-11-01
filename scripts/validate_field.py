@@ -52,7 +52,7 @@ def main() -> int:
     print(cmp.to_string(index=False))
     print(s)
     if s["unknown_keys"]:
-        print(f"{s['unknown_keys']} measurements name keys the graph does not have",
+        print(f"{s['unknown_keys']} measurements: keys missing from the graph or not connected",
               file=sys.stderr)  # fmt: skip
     print(f"wrote {figures / 'field_validation'}.png and .csv")
     return 0

@@ -11,7 +11,7 @@ from metro_agh.schemas.results import BestLine, load_json
 from metro_agh.schemas.tables import LEGS, SIM_LEGS
 from metro_agh.schemas.web import DayHeader, PathsHeader, Replay, Stats
 from metro_agh.simulation.schedule import build_schedule, hhmm
-from metro_agh.simulation.simulate import Line, connections, simulate
+from metro_agh.simulation.simulate import Connections, Line, connections, simulate
 from metro_agh.web.export_metro import load_scene
 from metro_agh.web.export_sim import export_simulation
 from metro_agh.web.fake import write_fake_results, write_fake_simulation
@@ -122,6 +122,13 @@ def test_loop_rides_through_station_0():
     assert fastest(connections(schedule, names)) == pytest.approx(170, abs=2)  # within runs
     gaps = schedule[(schedule.direction == 1) & (schedule.stop_seq == 0)].depart_wt.diff()
     assert gaps.max() <= 60  # never less often than the headway
+
+
+def test_latest_train_takes_the_faster_of_a_tie():
+    # both loop directions (or two buses) leave at the same second: aim for the earlier arrival
+    c = Connections.build(np.array([100.0, 100.0]), np.array([300.0, 200.0]))
+    assert c.latest(np.array([400.0])) == (100.0, 200.0)
+    assert c.earliest(np.array([50.0])) == (100.0, 200.0)
 
 
 def test_unknown_endpoint_is_an_error():
@@ -251,3 +258,13 @@ def test_field_measurements_vs_the_graph():
     s = summary(cmp.reset_index())
     assert s["routes"] == 2 and s["unknown_keys"] == 1
     assert s["mae_s"] == pytest.approx((abs(1000 / 1.3 - 800) + abs(50 / 1.3 - 40)) / 2, abs=0.1)
+
+
+def test_loop_trains_go_round_without_spares():
+    # A-B-C-A is ~2720 m: 272 s + 2 dwells + the dwell at A = a 362 s cycle, so 2 trains per
+    # direction keep the 353 s headway; a float rounding must not start spare trains
+    cfg = {"metro": {"speed_mps": 10, "dwell_s": 30, "headway_s": 353,
+                     "service": {"start": "07:00", "end": "21:00"}}}  # fmt: skip
+    xy = np.array([[0, 0], [1000, 0], [500, 700]], float)
+    schedule = build_schedule(["A", "B", "C"], xy, "loop", cfg, [1])
+    assert schedule.train_id.nunique() == 4

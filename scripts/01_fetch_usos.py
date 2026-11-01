@@ -100,6 +100,11 @@ def main() -> int:
     tables = build_tables(result, known, aliases, room_map)
     out = path(cfg, "processed")
     tables.write(out)
+    if not full and (out / "usos" / "all" / "meetings.csv").exists():
+        log.warning(
+            "usos/all/ is from an earlier full crawl: 03_build_demand (week: auto) still "
+            "takes its dated meetings; rerun the full crawl or use --typical"
+        )
     if full:
         everything = full_tables(result, tables.rooms)
         everything.write(out)

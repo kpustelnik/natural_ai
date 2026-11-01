@@ -4,8 +4,9 @@
 
 Reads data/processed/demand/legs.parquet and simulation/{no_metro,metro}/legs.parquet,
 writes docs/figures/simulation_metrics.csv: per scenario the student-hours per week, mean
-leg, legs longer than their break, late legs, late classes (a class = weekday, room, start;
-late when any student arrives after the start), metro and bus / tram shares; and the saving
+leg, legs longer than their break, late legs, late classes (a class = arrival endpoint and
+week-time start: the building, or the room in LOD3 buildings; late when any student
+arrives after the start), metro and bus / tram shares; and the saving
 of the metro in student-minutes per week and per student.
 """
 

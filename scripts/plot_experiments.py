@@ -142,8 +142,10 @@ def plot_algorithms(t: pd.DataFrame, runs: pd.DataFrame, out: Path) -> None:
 
 
 def convergence(runs: pd.DataFrame, results: Path, points: int = 120) -> pd.DataFrame:
-    """Mean best saving so far at evaluation counts 0..budget, per variant (the colonies
-    and random search; greedy is not iterative)."""
+    """Mean best saving so far per variant (the colonies and random search; greedy is not
+    iterative) on a grid from the variant's earliest first evaluation count to the budget.
+    A point averages the runs that already have a line there and needs half of them, so
+    the mean can dip slightly when a later, worse run joins."""
     r = runs.assign(variant=variants(runs))
     r = r[r.algorithm.isin(["mmas", "acs", "random"])]
     loaded = {}
@@ -159,36 +161,43 @@ def convergence(runs: pd.DataFrame, results: Path, points: int = 120) -> pd.Data
         runs_v = [run for run in g.itertuples() if run.Index in loaded]
         if not runs_v:
             continue
-        # from the count where every run of the variant has a best line
-        start = max(float(loaded[run.Index]["evaluations"].iloc[0]) for run in runs_v)
+        # each run counts from its first best line (a local-search descent can use most of the
+        # budget first); a point needs half of the runs, so one early run does not stand alone
+        start = min(float(loaded[run.Index]["evaluations"].iloc[0]) for run in runs_v)
         grid = np.linspace(start, budget, points)
         curves = []
         for run in runs_v:
             c = loaded[run.Index]
             saving = 100 * (1 - c["best_s"].to_numpy() / run.baseline_s)
             n = np.searchsorted(c["evaluations"].to_numpy(), grid, side="right") - 1
-            curves.append(saving[np.maximum(n, 0)])  # best so far at that count
-        if curves:
-            mean = np.array(curves).mean(axis=0)
-            rows += [{"variant": v, "evaluations": e, "mean_saving": m}
-                     for e, m in zip(grid, mean, strict=True)]  # fmt: skip
+            curves.append(np.where(n >= 0, saving[np.maximum(n, 0)], np.nan))  # best so far
+        curves = np.array(curves)
+        have = (~np.isnan(curves)).sum(axis=0)
+        mean = np.nansum(curves, axis=0) / np.maximum(have, 1)
+        rows += [{"variant": v, "evaluations": e, "mean_saving": m, "runs": int(h)}
+                 for e, m, h in zip(grid, mean, have, strict=True)
+                 if h >= len(runs_v) / 2]  # fmt: skip
     return pd.DataFrame(rows)
 
 
 def plot_convergence(c: pd.DataFrame, out: Path) -> None:
-    panels = [("without local search", ""), ("with local search", "-ls")]
-    fig, axs = fg.axes(2, width=9.6, sharex=True)
-    for ax, (title, suffix) in zip(axs, panels, strict=True):
+    panels = []  # only the panels the experiment has variants for
+    for title, suffix in (("without local search", ""), ("with local search", "-ls")):
         series = []
         for a in ("mmas", "acs", "random"):
-            d = c[c.variant == a + suffix].dropna()
-            if len(d):
+            d = c[c.variant == a + suffix]
+            if len(d) > 1:
                 series.append((NAMES[a], d.evaluations.to_numpy(), d.mean_saving.to_numpy()))
         if series:
-            fg.lines(ax, series)
-        fg.finish(ax, title, "distinct lines evaluated", fg.SAVING if not suffix else None)
-    fg.save(fig, out, "USOS demand; best saving so far, mean over the seeds (local search: "
-                      "from the end of its first descent)")  # fmt: skip
+            panels.append((title, series))
+    if not panels:
+        return
+    fig, axs = fg.axes(len(panels), width=4.8 * len(panels) + 0.6, sharex=True)
+    for i, (ax, (title, series)) in enumerate(zip(axs, panels, strict=True)):
+        fg.lines(ax, series)
+        fg.finish(ax, title, "distinct lines evaluated", fg.SAVING if i == 0 else None)
+    fg.save(fig, out, "USOS demand; best saving so far, mean over the seeds that have one "
+                      "(at least half of them)")  # fmt: skip
 
 
 # --- one parameter at a time -------------------------------------------------------------------
@@ -254,7 +263,7 @@ def main() -> int:
         t = by_algorithm(runs)
         plot_algorithms(t, runs, out.with_suffix(".png"))
         c = convergence(runs, results)
-        if len(c):
+        if len(c) and (c.groupby("variant").size() > 1).any():
             conv = figures / f"{args.experiment}_convergence"
             plot_convergence(c, conv.with_suffix(".png"))
             c.round(3).to_csv(conv.with_suffix(".csv"), index=False, lineterminator="\n")

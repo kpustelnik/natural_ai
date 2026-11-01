@@ -108,3 +108,17 @@ def test_every_endpoint_is_reachable_from_a_stop(graph):
             graph, "stop:czarnowiejska", graph.nodes.key[graph.nodes.endpoint_key == key].iloc[0]
         )
         assert np.isfinite(t), key
+
+
+def test_edge_geometry_runs_from_u_to_v(graph):
+    """The exported segments, the route tool and the students' paths draw an edge from u to
+    v; osmnx keeps the way's own drawing direction, which the graph turns where needed."""
+    xy = graph.nodes.set_index("node_id")[["x", "y"]]
+    checked = 0
+    for e, geom in zip(graph.edges.itertuples(), graph.edge_geometry, strict=True):
+        if geom is None:
+            continue
+        assert np.allclose(geom[0, :2], xy.loc[e.u], atol=0.01), e
+        assert np.allclose(geom[-1, :2], xy.loc[e.v], atol=0.01), e
+        checked += 1
+    assert checked

@@ -1,20 +1,20 @@
 {
   "provenance": {
     "schema_version": 1,
-    "generated_at": "2026-10-28T21:28:13+01:00",
+    "generated_at": "2026-11-01T01:04:13+01:00",
     "generator": "run_experiments.py",
-    "config_hash": "2cacce9b39c5c225",
-    "git_commit": "e3e521c"
+    "config_hash": "287bfd4260a1f507",
+    "git_commit": "c509797"
   },
   "run_id": "compare_algorithms_hard-mmas-ls-mmas-k10-s44",
   "experiment": "compare_algorithms_hard",
   "algorithm": "mmas",
   "instance": "C:/Users/kampu/Desktop/natural_ai/data/processed/instance/instance.npz",
-  "instance_hash": "394d9afdefbb7e71",
+  "instance_hash": "8c0ccb8b16174a29",
   "seed": 44,
   "params": {
     "n_ants": 20,
-    "n_iterations": 1000,
+    "n_iterations": 5000,
     "alpha": 1.0,
     "beta": 1.0,
     "rho": 0.1,
@@ -28,33 +28,33 @@
     },
     "tag": "mmas-ls"
   },
-  "eval_budget": 6000,
-  "evaluations": 6000,
-  "wall_time_s": 5.25,
+  "eval_budget": 60000,
+  "evaluations": 60000,
+  "wall_time_s": 208.91,
   "best": {
     "provenance": {
       "schema_version": 1,
-      "generated_at": "2026-10-28T21:28:13+01:00",
+      "generated_at": "2026-11-01T01:04:13+01:00",
       "generator": "run_experiments.py",
-      "config_hash": "2cacce9b39c5c225",
-      "git_commit": "e3e521c"
+      "config_hash": "287bfd4260a1f507",
+      "git_commit": "c509797"
     },
     "run_id": "compare_algorithms_hard-mmas-ls-mmas-k10-s44",
     "topology": "line",
     "stations": [
-      "D-11",
-      "C-4",
-      "U-9",
+      "U-13",
+      "D-14",
       "H-D8",
-      "B-4",
-      "C-3",
+      "C-4",
       "A-0",
       "C-7",
       "D-10",
-      "D-14"
+      "U-9",
+      "B-4",
+      "A-1"
     ],
-    "objective_s": 131148393.7,
-    "baseline_s": 153888800.0,
-    "lower_bound_s": 90917717.8
+    "objective_s": 130004604.6,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
   }
 }

@@ -18,21 +18,24 @@ metra, autobusów i tramwajów.
 
 | źródło | co | skala |
 |---|---|---|
-| USOS AGH (publiczne API + katalog USOSweb) | plany sal, grupy zajęć, liczebności, kohorty (kierunek + semestr), daty spotkań | 13 881 zajęć tygodniowo, 15 395 grup, 539 kohort; cały semestr: 8 889 przedmiotów, 157 437 spotkań |
-| OpenStreetMap | budynki, wejścia, chodniki, schody, bariery | graf: 5 358 węzłów, 6 523 krawędzie |
-| model kampusu (`data/campus/`, ręcznie) | 89 budynków w YAML (LOD1–LOD3: piętra, korytarze, sale, schody), przejścia, 12 przystanków | |
+| USOS AGH (publiczne API + katalog USOSweb) | plany sal, grupy zajęć, liczebności, kohorty (kierunek + semestr), daty spotkań | 13 881 zajęć tygodniowo, 15 395 grup, 544 kohorty; cały semestr: 8 889 przedmiotów, 157 437 spotkań |
+| OpenStreetMap | budynki, wejścia, chodniki, schody, bariery | graf pieszy: 5 622 węzły, 6 832 krawędzie |
+| model kampusu (`data/campus/`) | 89 budynków w YAML (szkielety LOD1 z OSM, uzupełnione ręcznie: obrys, wysokość, wejścia, aliasy USOS), 12 przystanków; bez przejść między budynkami | |
 | GTFS ZTP Kraków | autobusy i tramwaje między przystankami kampusu | kursy jednego dnia roboczego |
 | akademiki | 20 domów studenckich, 6 997 miejsc | |
 
-Z planów zajęć powstaje syntetyczna populacja (22 498 studentów w kohortach, mieszkańcy
-akademików i dojeżdżający) i ich tygodniowe przejścia: **286 626 przejść** (zajęcia →
-zajęcia, dom → zajęcia, zajęcia → dom), zagregowane do 4 840 par (skąd, dokąd).
+Z planów zajęć powstaje syntetyczna populacja (22 571 studentów w kohortach, mieszkańcy
+akademików i dojeżdżający) i ich tygodniowe przejścia: **286 265 przejść** (zajęcia →
+zajęcia, dom → zajęcia, zajęcia → dom), zagregowane do 4 835 par (skąd, dokąd).
 
 ## 3. Model
 
-**Graf.** Chodniki z OSM połączone z grafami wnętrz budynków (korytarze, drzwi sal, schody,
-wejścia) i z przystankami; czas krawędzi z prędkości pieszej 1,3 m/s i osobnych prędkości
-na schodach w górę i w dół. Kandydat na stację to szyb pod wejściem budynku (głębokość
+**Graf.** Chodniki z OSM połączone z budynkami i przystankami; czas krawędzi z prędkości
+pieszej 1,3 m/s i osobnych prędkości na schodach w górę i w dół. Wszystkie 89 budynków
+kampusu jest w LOD1 (bryła bez wnętrza): budynek to jeden węzeł przy głównym wejściu,
+połączony z każdym wejściem. Model obsługuje też wnętrza (LOD2: piętra, korytarze, schody;
+LOD3: sale, wtedy przejścia kończą się w sali), ale sprawdzono je tylko na przykładowym
+kampusie (`data/sample/campus`). Kandydat na stację to szyb pod wejściem budynku (głębokość
 15 m): **N = 55 kandydatów**.
 
 **Metro.** Tunel po prostej między stacjami, 10 m/s, postój 30 s na każdej stacji
@@ -50,9 +53,9 @@ porównanie jest uczciwe: metro musi wygrać z istniejącą komunikacją. Instan
 tylko tablice NumPy (N × E czasy dojść, E = 101 punktów końcowych), więc ocena linii to
 arytmetyka bez Dijkstry: **0,46 ms** na linię.
 
-**Granice (test 6).** Bez metra: 153,9 mln s (42 747 studento-godzin tygodniowo). Dolne
+**Granice (test 6).** Bez metra: 152,7 mln s (42 407 studento-godzin tygodniowo). Dolne
 ograniczenie „teleportacji” (przejazd trwa 0 s, każda para ma swoje dwie najlepsze stacje):
-90,9 mln s, czyli żadna linia nie da więcej niż **40,9 %** oszczędności. Każda znaleziona
+90,5 mln s, czyli żadna linia nie da więcej niż **40,7 %** oszczędności. Każda znaleziona
 linia mieści się między granicami (sprawdzane w `bounds.csv` i w każdym `best_line.json`).
 
 ## 4. Algorytmy
@@ -62,7 +65,8 @@ linia mieści się między granicami (sprawdzane w `bounds.csv` i w każdym `bes
   najlepsza mrówka iteracji (co trzecią iterację najlepsza globalnie).
 - **ACS** (Dorigo, Gambardella 1997): reguła q0 (z prawdopodobieństwem q0 najlepsza stacja),
   lokalne parowanie ξ po każdym kroku, globalnie wzmacnia tylko najlepsza dotąd linia.
-  Literaturowe q0 = 0,9 sprawiało, że mrówki budowały wciąż te same ~790 linii; przyjęto 0,5.
+  Literaturowe q0 = 0,9 sprawiało, że mrówki budowały wciąż te same linie (50 × 200 mrówek:
+  ~2 700 różnych, przy q0 = 0,5 ~7 900) i kończyły niżej; przyjęto 0,5.
 - **Local search** (opcja wszystkich algorytmów poza przeglądem zupełnym): wymiana stacji
   na inną, zamiana dwóch, przestawienie jednej; najlepsza poprawa, aż żadna nie pomaga.
   Kolonie i losowe poprawiają najlepszą linię iteracji, zachłanny swoją końcową.
@@ -70,27 +74,28 @@ linia mieści się między granicami (sprawdzane w `bounds.csv` i w każdym `bes
   potem k − 2 razy stacja i miejsce w linii, które najbardziej obniżają cel.
   **Przegląd zupełny**: każda linia raz (linia i jej odwrócenie to ta sama linia).
 - **Uczciwe porównanie** (Derrac i in. 2011): wspólny budżet różnych ocenionych linii
-  (`optimize.max_evaluations`, sprawdzany co linię), 30 seedów, test Wilcoxona dla prób
-  sparowanych po seedzie.
+  (`optimize.max_evaluations`, sprawdzany po każdej iteracji, więc przekroczony najwyżej
+  o ~20 linii), 30 seedów, test Wilcoxona dla prób sparowanych po seedzie.
 
 ## 5. Wyniki optymalizacji
 
 ### 5.1 Najlepsza linia (k = 5)
 
-**H-D8 – C-4 – U-9 – D-10 – A-0**: cel 136,3 mln s, **11,4 % mniej** niż bez metra
-(4 880 studento-godzin tygodniowo). Tę samą linię znajduje każdy algorytm z local search
-przy każdym z 30 seedów.
+**H-D8 – C-4 – U-9 – D-10 – A-0**: cel 135,0 mln s, **11,6 % mniej** niż bez metra
+(4 916 studento-godzin tygodniowo). Tę linię znajdują MMAS + LS i losowe + LS przy każdym
+z 30 seedów, ACS + LS przy 29.
 
 ### 5.2 Ile stacji (`k_sweep.png`)
 
 | k | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
 |---|---|---|---|---|---|---|---|---|---|
-| oszczędność % | 6,44 | 8,71 | 10,05 | 11,42 | 12,49 | 13,32 | 13,98 | 14,44 | 14,93 |
-| przyrost (p.p.) | | +2,27 | +1,34 | +1,37 | +1,07 | +0,83 | +0,66 | +0,46 | +0,49 |
+| oszczędność % | 6,62 | 8,94 | 10,25 | 11,59 | 12,68 | 13,49 | 14,16 | 14,72 | 15,16 |
+| przyrost (p.p.) | | +2,32 | +1,31 | +1,34 | +1,09 | +0,81 | +0,67 | +0,56 | +0,44 |
 
-Krzywa ma malejące przyrosty: pierwsze stacje obsługują najliczniejsze pary budynków, kolejne
-coraz rzadsze, a każdy postój spowalnia jadących dalej. Powyżej k ≈ 7 każda stacja dodaje
-mniej niż 0,7 p.p.; to rozsądna górna granica, jeśli liczyć koszt budowy stacji.
+Przyrosty na ogół maleją (z drobnym wyjątkiem k = 5): pierwsze stacje obsługują
+najliczniejsze pary budynków, kolejne coraz rzadsze, a każdy postój spowalnia jadących
+dalej. Powyżej k = 7 każda stacja dodaje mniej niż 0,7 p.p.; to rozsądna górna granica,
+jeśli liczyć koszt budowy stacji.
 
 ### 5.3 Porównanie algorytmów (test 2, `compare_algorithms.png`)
 
@@ -98,20 +103,27 @@ k = 5, 5 000 linii na uruchomienie, 30 seedów:
 
 | | z local search | bez |
 |---|---|---|
-| MMAS | 11,42 % (zawsze) | 11,22 % (11,02–11,42) |
-| ACS | 11,42 % (zawsze) | 11,16 % (10,60–11,42) |
-| losowe | 11,42 % (zawsze) | 9,52 % (9,02–10,18) |
-| zachłanny | 11,42 % | 11,02 % |
+| MMAS | 11,59 % (zawsze) | 11,38 % (11,06–11,59) |
+| ACS | 11,59 % (11,39–11,59) | 11,38 % (10,96–11,59) |
+| losowe | 11,59 % (zawsze) | 9,71 % (9,18–10,32) |
+| zachłanny | 11,26 % | 11,26 % |
 
-Bez local search obie kolonie są istotnie lepsze od losowego przeszukiwania i od metody
-zachłannej (Wilcoxon, p < 10⁻⁵): mrówki uczą się struktury problemu. Z local search przy
-k = 5 instancja jest łatwa i każda metoda dochodzi do tej samej linii.
+Bez local search obie kolonie biją losowe przeszukiwanie przy każdym z 30 seedów
+(Wilcoxon, p ≈ 2·10⁻⁹): mrówki uczą się struktury problemu. Metodę zachłanną MMAS bije
+przy 28 seedach (1 porażka, 1 remis; p ≈ 2·10⁻⁵), ACS przy 23 (6 porażek; p ≈ 3·10⁻⁴);
+MMAS i ACS nie różnią się istotnie (p = 0,96). Kolonie potrzebują na to budżetu: średnio
+przeganiają zachłanny (11,26 %) dopiero po ~1 950 (MMAS) i ~2 870 (ACS) ocenionych liniach
+(5.5), a zachłanny zużywa ich 2 107. Z local search przy k = 5 instancja jest łatwa:
+kolonie i losowe dochodzą do tej samej linii, a zachłanny + LS zostaje przy swojej
+(11,26 %), bo jest ona lokalnym optimum wymian, zamian i przestawień.
 
-Trudniejsze ustawienie (`compare_algorithms_hard.png`, k = 10, 6 000 linii): ACS + LS
-14,78 %, MMAS + LS 14,72 %, losowe + LS 14,69 %, zachłanny + LS 14,69 %; najlepsza znaleziona
-linia 14,93 %. Różnice względem MMAS + LS nie są istotne (p = 0,08; 0,47; 0,15). Na tej
-instancji o jakości decyduje local search, a strategia, która dostarcza mu punkty startowe,
-ma drugorzędne znaczenie.
+Trudniejsze ustawienie (`compare_algorithms_hard.png`, k = 10, 60 000 linii): MMAS + LS
+15,14 %, losowe + LS 15,13 %, ACS + LS 15,12 %, zachłanny + LS 14,85 %; najlepsza znaleziona
+linia 15,16 % (MMAS + LS trafia ją przy 20 seedach, losowe + LS przy 19, ACS + LS przy 16).
+Różnice między MMAS + LS, ACS + LS i losowym + LS nie są istotne (p = 0,10; 0,25; 0,53);
+każda z tych trzech bije zachłanny + LS przy każdym seedzie (p < 10⁻⁵). Na tej instancji
+o jakości decyduje local search, a strategia, która dostarcza mu punkty startowe, ma
+drugorzędne znaczenie.
 
 ### 5.4 Odległość od optimum (test 1, `gap_to_optimum.png`)
 
@@ -121,23 +133,31 @@ algorytm nie znalazł.
 
 | | trafienie optimum | średnia luka | maks. luka |
 |---|---|---|---|
-| MMAS + LS | 92 % | 0,14 % | 2,78 % |
-| ACS + LS | 90 % | 0,15 % | 2,78 % |
-| losowe + LS | 88 % | 0,22 % | 2,78 % |
-| zachłanny + LS | 4 / 5 | 0,41 % | 2,05 % |
-| MMAS | 12 % | 5,23 % | 17,45 % |
-| ACS | 18 % | 3,27 % | 12,06 % |
-| losowe | 4 % | 8,23 % | 26,44 % |
-| zachłanny | 3 / 5 | 1,52 % | 5,56 % |
+| MMAS + LS | 84 % | 0,39 % | 2,50 % |
+| ACS + LS | 94 % | 0,11 % | 2,38 % |
+| losowe + LS | 88 % | 0,29 % | 2,50 % |
+| zachłanny + LS | 4 / 5 | 0,48 % | 2,38 % |
+| MMAS | 16 % | 3,72 % | 12,84 % |
+| ACS | 30 % | 2,67 % | 15,29 % |
+| losowe | 4 % | 7,65 % | 17,51 % |
+| zachłanny | 3 / 5 | 0,48 % | 2,38 % |
 
-Przy 3 % budżetu MMAS z local search znajduje dokładne optimum w 92 % uruchomień.
+Przy 3 % budżetu kolonie z local search znajdują dokładne optimum w 84–94 % uruchomień.
+Bez local search zachłanny wypada tu lepiej od kolonii: 200 linii to tylko ~20 (MMAS) – 40 (ACS)
+iteracji po 10 mrówek, za mało, żeby feromon się czegoś nauczył, a zachłanny mieści się w budżecie w całości
+(~130 linii). Na pełnej instancji z 5 000 linii kolejność się odwraca (5.3).
 
 ### 5.5 Zbieżność (test 3, `compare_algorithms_convergence.png`)
 
-Bez local search MMAS i ACS rosną podobnie: ACS szybciej na początku (reguła q0
-eksploatuje), MMAS dogania po ~1 000 linii i kończy nieco wyżej; obie wyraźnie ponad
-losowym od ~300 ocenionych linii. Z local search pierwsze zejście zużywa ~2 500 linii i
-od razu daje ~11,4 %.
+Bez local search ACS rośnie szybciej na początku (reguła q0 eksploatuje): końcowy wynik
+losowego przeszukiwania (9,71 %) osiąga po ~270 liniach, MMAS po ~480. Obie kolonie są
+na 11 % po ~1 230 liniach, przeganiają zachłanny po ~1 950 (MMAS) i ~2 870 (ACS) i kończą
+na tym samym poziomie (11,38 %). Z local search pierwsze zejście zużywa ~1 300–1 700 linii
+i od razu daje ~11,5 %.
+
+Przy k = 10 (`compare_algorithms_hard_convergence.png`) pierwsze zejście local search
+zużywa ~5 700–6 600 linii; dalej wszystkie trzy warianty rosną powoli i podobnie, a połowa
+uruchomień znajduje swoją najlepszą linię dopiero po ~25 000–27 000 liniach.
 
 ### 5.6 Wrażliwość parametrów (test 4, `aco_ablation.png`)
 
@@ -145,39 +165,42 @@ MMAS bez local search, 20 mrówek × 100 iteracji, 10 seedów, po jednym paramet
 
 | parametr | wartości → średnia oszczędność % |
 |---|---|
-| β (waga heurystyki) | 0 → 10,89; **1 → 11,08**; 3 → 9,79; 5 → 8,11 |
-| α (waga feromonu) | 0,5 → 10,34; **1 → 11,08**; 2 → 10,74 |
-| ρ (parowanie) | 0,05 → 10,95; **0,1 → 11,08**; 0,2 → 11,06 |
-| mrówki | 10 → 10,84; 20 → 11,08; 50 → 11,27 |
-| iteracje | 50 → 10,70; 100 → 11,08; 200 → 11,19 |
+| β (waga heurystyki) | 0 → 10,77; **1 → 11,18**; 3 → 10,23; 5 → 8,61 |
+| α (waga feromonu) | 0,5 → 10,70; **1 → 11,18**; 2 → 11,05 |
+| ρ (parowanie) | 0,05 → 11,04; **0,1 → 11,18**; 0,2 → 11,37 |
+| mrówki | 10 → 11,04; 20 → 11,18; 50 → 11,41 |
+| iteracje | 50 → 10,85; 100 → 11,18; 200 → 11,33 |
 
 Najsilniej działa β: heurystyka „popyt w pobliżu / odległość” pomaga tylko słabo (β = 1
 lepsze od β = 0), a silna (β = 3–5) prowadzi mrówki w złą stronę. Prawdopodobna przyczyna:
 popyt blisko kandydata nie mówi, czy jego przejścia są długie, a krótkie i tak wygrywa
 chodzenie, więc stacja przy popularnym budynku często niewiele daje. Dlatego
-domyślne β zmieniono z 3 na 1. α i ρ mają optimum w wartościach domyślnych; więcej mrówek
-i iteracji pomaga, ale coraz mniej.
+domyślne β zmieniono z 3 na 1. α ma optimum w wartości domyślnej; szybsze parowanie
+(ρ = 0,2) przy 100 iteracjach daje więcej niż domyślne 0,1. Więcej mrówek i iteracji
+pomaga, ale coraz mniej; to także więcej ocenionych linii (budżet nie jest tu wyrównany).
 
 ## 6. Symulacja tygodnia (`simulation_metrics.csv`)
 
-Każde z 286 626 przejść, bez metra i z linią z 5.1, z prawdziwym rozkładem (metro co 180 s
+Każde z 286 265 przejść, bez metra i z linią z 5.1, z prawdziwym rozkładem (metro co 180 s
 w obie strony, autobusy i tramwaje z GTFS). Student jedzie, gdy dotrze wcześniej niż
-pieszo; na zajęcia wychodzi najpóźniej, jak może.
+pieszo; z domu na zajęcia wychodzi najpóźniej, jak może (jedzie, gdy pozwala to wyjść
+później), po zajęciach wychodzi od razu.
 
 | | bez metra | z metrem |
 |---|---|---|
-| studento-godziny w tygodniu | 41 390 | 36 294 |
-| oszczędność | | **305 731 studento-minut** (14,9 min na studenta) |
-| przejścia dłuższe niż przerwa | 1,55 % | 1,34 % |
-| spóźnione przejścia | 1 607 | 1 393 |
-| spóźnione zajęcia (dzień, sala, godzina) | 519 | 469 |
-| przejazdy metrem | | 29,1 % |
-| przejazdy autobusem / tramwajem | 40,6 % | 23,1 % |
+| studento-godziny w tygodniu | 41 095 | 35 959 |
+| oszczędność | | **308 135 studento-minut** (15,0 min na studenta) |
+| spóźnione przejścia | 1 519 | 1 319 |
+| spóźnione przejścia między zajęciami (dłuższe niż przerwa) | 1,47 % | 1,27 % |
+| spóźnione zajęcia (dzień, budynek, godzina rozpoczęcia) | 503 z 2 335 | 450 z 2 335 |
+| przejazdy metrem | | 28,8 % |
+| przejazdy autobusem / tramwajem | 40,5 % | 23,1 % |
 
-Symulacja daje 12,3 % mniej czasu, nieco więcej niż funkcja celu (11,4 %): z prawdziwym
-rozkładem studenci jadący na zajęcia wychodzą później, a funkcja celu liczy średnie
-czekanie (połowa odstępu). Metro przejmuje głównie przejazdy autobusami między przystankami
-kampusu.
+Minuty na studenta liczone są na 20 573 studentów, którzy mają w tygodniu choć jedno
+przejście. Symulacja daje 12,5 % mniej czasu, nieco więcej niż funkcja celu (11,6 %):
+z prawdziwym rozkładem studenci jadący na zajęcia wychodzą później, a funkcja celu liczy
+średnie czekanie (połowa odstępu). Metro przejmuje głównie przejazdy autobusami między
+przystankami kampusu.
 
 ## 7. Walidacja modelu świata (test 5)
 
@@ -190,23 +213,30 @@ prędkości) oszczędza więcej, jeśli szybciej, mniej. Narzędzie do porównan
 
 ## 8. Wnioski
 
-1. Linia **H-D8 – C-4 – U-9 – D-10 – A-0** oszczędza ok. **11–12 %** czasu przejść, około
-   15 minut na studenta tygodniowo, i zmniejsza liczbę spóźnionych zajęć o 10 %.
+1. Linia **H-D8 – C-4 – U-9 – D-10 – A-0** oszczędza ok. **12 %** czasu przejść (11,6 %
+   w funkcji celu, 12,5 % w symulacji), około 15 minut na studenta tygodniowo, i zmniejsza
+   liczbę spóźnionych zajęć o ok. 10 % (503 → 450).
 2. Opłacalne jest 5–7 stacji; dalej każda stacja daje mniej niż 0,7 p.p.
-3. Same mrówki (MMAS, ACS) są lepsze od losowego przeszukiwania i od metody zachłannej,
-   ale dopiero z lokalnym przeszukiwaniem znajdują optimum niezawodnie (92 % przy 3 %
-   budżetu); to zgodne z literaturą (Stützle, Hoos 2000).
+3. Same mrówki (MMAS, ACS) są lepsze od losowego przeszukiwania, a przy wystarczającym
+   budżecie (~2 000–3 000 linii) także od metody zachłannej; z małym budżetem zachłanny
+   wygrywa. Dopiero z lokalnym przeszukiwaniem znajdują optimum niezawodnie (84–94 % przy
+   3 % budżetu); to zgodne z literaturą (Stützle, Hoos 2000).
 4. Heurystyka popytu musi być słaba (β = 1): popyt blisko stacji nie mówi, czy metro się
    przyda, bo liczą się długie przejścia.
 
 **Ograniczenia:** populacja syntetyczna (rozkład studentów na grupy z liczebności USOS),
-jeden tydzień, brak tłoku i pojemności pociągów, brak kosztu budowy, tunel po prostej, część
-budynków jako bryły bez wnętrz (LOD1), czasy przejść niezweryfikowane pomiarami w terenie.
+jeden tydzień, brak tłoku i pojemności pociągów, brak kosztu budowy, tunel po prostej, wszystkie
+budynki jako bryły bez wnętrz (LOD1: przejście kończy się przy głównym wejściu, nie w sali), czasy przejść niezweryfikowane pomiarami w terenie.
 
 ## 9. Odtworzenie wyników
 
+Dane po etapach 01–03 są w repozytorium (`data/processed/`), więc wystarczy zacząć od 04.
+Pełne przeliczenie od zera:
+
 ```bash
-uv run scripts/01_fetch_usos.py          # USOS (kilka godzin pierwszy raz, potem z cache)
+uv run scripts/01_fetch_usos.py          # USOS (około godziny pierwszy raz, potem z cache)
+uv run scripts/01_fetch_transit.py       # GTFS ZTP Kraków
+uv run scripts/02_build_campus.py        # OSM + model kampusu -> graf pieszy
 uv run scripts/03_build_demand.py
 uv run scripts/04_optimize.py
 uv run scripts/05_simulate.py

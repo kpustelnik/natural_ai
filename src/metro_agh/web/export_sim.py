@@ -302,7 +302,8 @@ def stats(
     scenarios = {sc: _scenario_stats(df, legs) for sc, df in sims.items()}
     total = {sc: s.total_travel_s for sc, s in scenarios.items()}
     lg = legs.set_index("leg_id")
-    # a leg belongs to the hour it leaves in when walking, so the chart follows the clock
+    # a leg belongs to the hour it leaves in without the metro (walk, bus or tram), so the
+    # chart follows the clock
     first = sims.get("no_metro", next(iter(sims.values()))).set_index("leg_id").depart_wt
     depart = first.reindex(lg.index).astype(float)
     hours = pd.DataFrame({"weekday": lg.weekday, "hour": ((depart % DAY_S) // 3600).astype(int)})

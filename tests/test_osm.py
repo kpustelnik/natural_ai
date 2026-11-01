@@ -196,3 +196,24 @@ def test_bootstrap_yaml_is_readable(layers, tmp_path):
     assert text.startswith("# yaml-language-server")
     assert "- [0.0, 0.0]" in text or "[0.0, 0.0]" in text  # flow-style coordinates
     assert yaml.safe_load(text)["placement"]["bearing_deg"] in (90.0, 270.0)
+
+
+def test_entrance_snaps_to_the_agh_building_over_a_nearer_context_one():
+    # entrance 0.8 m from D-17 and 0.4 m from an apartment block 1.2 m east of it
+    rows = [
+        (("way", 1), {"building": "university", "ref": "D-17"}, box(X0, Y0, X0 + 40, Y0 + 15)),
+        (("way", 6), {"building": "apartments"}, box(X0 + 41.2, Y0, X0 + 60, Y0 + 15)),
+        (("node", 10), {"entrance": "main"}, Point(X0 + 40.8, Y0 + 7)),
+    ]
+    idx = pd.MultiIndex.from_tuples([r[0] for r in rows], names=["element", "id"])
+    features = gpd.GeoDataFrame(
+        pd.DataFrame([r[1] for r in rows], index=idx),
+        geometry=[_geo(r[2]) for r in rows],
+        crs="EPSG:4326",
+    )
+    bbox = _geo(box(X0 - 100, Y0 - 100, X0 + 400, Y0 + 300))
+    lay, _ = build_layers(features, _graph(), bbox, pd.DataFrame(), CFG)
+    ent = lay["entrances"].set_index("osm_node")
+    assert ent.loc[10, "building_id"] == "D-17"
+    d17 = lay["buildings"].set_index("building_id").loc["D-17"]
+    assert d17.main_entrance_node == 10

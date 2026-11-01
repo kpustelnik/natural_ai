@@ -204,6 +204,7 @@ function Ants({ trace }: { trace: Trace }) {
     for (let ant = 0; ant < arr.a; ant++) {
       const tour: Vec3[] = [];
       for (let q = 0; q < arr.k; q++) tour.push(tops[arr.tours[(s * arr.a + ant) * arr.k + q]!]!);
+      if (trace.header.topology === "loop") tour.push(tour[0]!); // the ring closes, as the best line
       const p = alongPolyline(tour, progress);
       m4.makeScale(r, r, r).setPosition(p[0], p[1] + ANT_Y, p[2]);
       mesh.setMatrixAt(ant, m4);

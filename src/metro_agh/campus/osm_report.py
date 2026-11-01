@@ -1,4 +1,4 @@
-"""Human-facing outputs of the OSM stage: report.md and preview.html."""
+"""Human-facing outputs of the OSM stage: report.md, issues.json and preview.html."""
 
 import datetime as dt
 import json

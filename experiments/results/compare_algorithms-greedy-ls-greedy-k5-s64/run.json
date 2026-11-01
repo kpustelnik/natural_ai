@@ -1,16 +1,16 @@
 {
   "provenance": {
     "schema_version": 1,
-    "generated_at": "2026-10-28T21:24:22+01:00",
+    "generated_at": "2026-11-01T00:47:52+01:00",
     "generator": "run_experiments.py",
     "config_hash": "bd39eb8a7244b8bb",
-    "git_commit": "e3e521c"
+    "git_commit": "c509797"
   },
   "run_id": "compare_algorithms-greedy-ls-greedy-k5-s64",
   "experiment": "compare_algorithms",
   "algorithm": "greedy",
   "instance": "C:/Users/kampu/Desktop/natural_ai/data/processed/instance/instance.npz",
-  "instance_hash": "394d9afdefbb7e71",
+  "instance_hash": "8c0ccb8b16174a29",
   "seed": 64,
   "params": {
     "k": 5,
@@ -23,28 +23,28 @@
     },
     "tag": "greedy-ls"
   },
-  "eval_budget": 3495,
-  "evaluations": 3495,
-  "wall_time_s": 0.55,
+  "eval_budget": 2802,
+  "evaluations": 2802,
+  "wall_time_s": 0.75,
   "best": {
     "provenance": {
       "schema_version": 1,
-      "generated_at": "2026-10-28T21:24:22+01:00",
+      "generated_at": "2026-11-01T00:47:52+01:00",
       "generator": "run_experiments.py",
       "config_hash": "bd39eb8a7244b8bb",
-      "git_commit": "e3e521c"
+      "git_commit": "c509797"
     },
     "run_id": "compare_algorithms-greedy-ls-greedy-k5-s64",
     "topology": "line",
     "stations": [
       "A-0",
+      "C-4",
       "D-10",
       "U-9",
-      "C-4",
-      "H-D8"
+      "B-4"
     ],
-    "objective_s": 136321447.9,
-    "baseline_s": 153888800.0,
-    "lower_bound_s": 90917717.8
+    "objective_s": 135725784.5,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
   }
 }

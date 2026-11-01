@@ -58,7 +58,8 @@ export function nodePosition(net: Network, node: number): Vec3 {
   return [xyz[3 * node]!, xyz[3 * node + 1]!, xyz[3 * node + 2]!];
 }
 
-/** Nearest node to a point, within `maxDist` metres (plan distance, then height). */
+/** Nearest node to a point, within `maxDist` metres (3D distance with height counted twice,
+ *  so the clicked floor wins). */
 export function nearestNode(net: Network, p: Vec3, maxDist = 25): number | null {
   const xyz = net.arrays.node_xyz as Float32Array;
   let best = -1;

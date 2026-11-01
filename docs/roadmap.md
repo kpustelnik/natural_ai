@@ -43,7 +43,7 @@ search, refaktoryzacja MMAS, runner i skrypt wykresów, klucze `aco.variant` / `
 - [x] P1-7…11 eksperymenty: dokładne optimum całego kampusu (k ≤ 4), heurystyka, linia vs
       pętla, wrażliwość, długość tunelu (`scripts/plot_extra.py`, `docs/aco.md` §9.7).
 - [x] Wyniki P1 w sprawozdaniu (§5.7, wnioski 5–6, odtworzenie §9).
-- [x] P0-4 konspekt dwóch prezentacji (pośrednia i końcowa, sekcje zwijane, demo):
+- [x] P0-4 konspekt dwóch prezentacji (1: demo wizualizacji i przykładowego przebiegu z metrem i bez; 2: wszystko), sekcje zwijane:
       `docs/prezentacja.md`; slajdy robimy poza repo.
 - [x] P1-12 statystyka: `metro_agh/stats.py`, kolumny `p_mw`, `p_holm`, `a12`, `effect`
       (kolumna Kamila z Wilcoxonem sparowanym zostaje).

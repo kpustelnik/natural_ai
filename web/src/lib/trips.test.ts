@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { candidates, makeFrame, type Paths, peakCount, positionAt, prepareDay, spiral, State, studentsAt } from "./trips";
+import { arrivedBy, binLegs, candidates, dayLegs, makeFrame, type Paths, peakCount, positionAt, prepareDay, spiral, State, stateCurve, studentsAt } from "./trips";
 
 // path 0: walk 100 m east in 100 s; path 1: ride 0 -> 0,-15,-500 in 50 s; path 2: walk 10 s
 const paths: Paths = {
@@ -41,11 +41,11 @@ describe("trips", () => {
     expect(Array.from(f.student.subarray(0, 2))).toEqual([7, 8]);
     expect(Array.from(f.state.subarray(0, 2))).toEqual([State.Wait, State.Walk]);
     expect(Array.from(f.xyz.subarray(3, 6))).toEqual([70, 0, 0]);
-    expect(f.counts).toEqual([1, 1, 0]);
+    expect(f.counts).toEqual([1, 1, 0, 0]);
 
     studentsAt(paths, day, 1175, f); // 7 rides, 8 has arrived
     expect(f.n).toBe(1);
-    expect(f.state[0]).toBe(State.Ride);
+    expect(f.state[0]).toBe(State.Metro);
     expect(f.xyz[1]).toBe(-15);
     expect(studentsAt(paths, day, 1300, f).n).toBe(0);
     expect(studentsAt(paths, day, 999, f).n).toBe(0);
@@ -74,5 +74,24 @@ describe("trips", () => {
 
   it("counts the peak", () => {
     expect(peakCount(day)).toBe(2);
+  });
+
+  it("links each segment to the next one of its leg", () => {
+    expect(Array.from(day.next)).toEqual([2, -1, 3, -1]);
+  });
+
+  it("sums up the legs of the day", () => {
+    const legs = dayLegs(paths, day);
+    expect(Array.from(legs.leg)).toEqual([4, 3]); // by arrival: 4 at 1150, 3 at 1210
+    expect(Array.from(legs.arrive)).toEqual([1150, 1210]);
+    expect(Array.from(legs.mode)).toEqual([0, 1]);
+    expect(arrivedBy(legs, 1160)).toEqual({ n: 1, mean: 100 });
+    expect(arrivedBy(legs, 1300)).toEqual({ n: 2, mean: 155 });
+    const b = binLegs(legs, 1000, 1300, 100);
+    expect(Array.from(b.n)).toEqual([0, 1, 1]);
+    expect(Array.from(b.metro)).toEqual([0, 0, 1]);
+    const c = stateCurve(paths, day, 1120, 1175, 2);
+    expect(Array.from(c[State.Wait]!)).toEqual([1, 0]);
+    expect(Array.from(c[State.Metro]!)).toEqual([0, 1]);
   });
 });

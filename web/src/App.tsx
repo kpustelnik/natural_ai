@@ -5,14 +5,14 @@ import { useReplays, useScene, useStatus } from "./data/resource";
 import { pickBox, registry } from "./scene/registry";
 import { screenshot } from "./scene/screenshot";
 import { Viewport } from "./scene/Viewport";
-import { app, copyCapture, enterBuilding, focusBox, openedBuilding, pickBuilding, select, setPlayback, stepLevel, useApp } from "./state/app";
+import { app, copyCapture, enterBuilding, focusBox, openedBuilding, pickBuilding, resetView, select, setPlayback, stepLevel, toggleLayer, useApp } from "./state/app";
 import { bindUrl } from "./state/url";
 import { Command } from "./ui/Command";
 import { HelpDialog } from "./ui/HelpDialog";
 import { LeftPanel } from "./ui/LeftPanel";
 import { RightPanel } from "./ui/RightPanel";
 import { StatusBar } from "./ui/StatusBar";
-import { PlaybackClock } from "./ui/Timeline";
+import { iterationEnd, jumpBlock, PlaybackBar, PlaybackClock, stepClock, stepIteration, DAY_START, DAY_END } from "./ui/Timeline";
 import { TopBar } from "./ui/TopBar";
 import { ViewportOverlay } from "./ui/ViewportOverlay";
 
@@ -47,7 +47,12 @@ function useShortcuts() {
           app.set({ perf: s.perf === "off" ? "on" : "off" });
           break;
         case "PageUp":
-        case "PageDown": {
+        case "PageDown":
+          if (e.shiftKey && s.playback.replayId) {
+            jumpBlock(e.key === "PageUp" ? -1 : 1); // the previous / next class block
+            break;
+          }
+        {
           const id = openedBuilding(s) ?? pickBuilding(s.selection);
           if (!id) return;
           if (!openedBuilding(s)) enterBuilding(id, levelsOf(id));
@@ -64,6 +69,14 @@ function useShortcuts() {
           break;
         case "3":
           app.set({ camera: "walk" });
+          break;
+        case "h":
+        case "H":
+          resetView();
+          break;
+        case "x":
+        case "X":
+          toggleLayer("xray");
           break;
         case "Enter":
           if (!s.capture) return;
@@ -87,7 +100,8 @@ function useShortcuts() {
         }
         case "Escape":
           // clear the innermost thing first: measure points, the tool, the capture, the selection
-          if (s.present) app.set({ present: false });
+          if (s.playback.pov) setPlayback({ pov: false });
+          else if (s.present) app.set({ present: false });
           else if (s.tool === "measure" && s.measure.length) app.set({ measure: [] });
           else if (s.tool !== "select") app.set({ tool: "select" });
           else if (s.capture) app.set({ capture: null });
@@ -106,6 +120,20 @@ function useShortcuts() {
           if (!s.playback.replayId) return;
           setPlayback({ playing: !s.playback.playing });
           break;
+        case "ArrowLeft":
+        case "ArrowRight":
+        case "Home":
+        case "End": {
+          // playback steps: 15 min (Shift: 1 h) of the day, or iterations of the ant player
+          if (!s.playback.replayId) return;
+          const ants = s.workspace === "metro" && s.playback.acoView === "ants";
+          const d = e.key === "ArrowLeft" ? -1 : 1;
+          if (e.key === "Home") setPlayback(ants ? { iteration: 0 } : { t: DAY_START });
+          else if (e.key === "End") setPlayback(ants ? { iteration: iterationEnd } : { t: DAY_END });
+          else if (ants) stepIteration(d * (e.shiftKey ? 10 : 1), iterationEnd);
+          else stepClock(d * (e.shiftKey ? 3600 : 900));
+          break;
+        }
         default:
           return;
       }
@@ -139,6 +167,7 @@ export function App() {
   const leftOpen = useApp((s) => s.leftOpen);
   const rightOpen = useApp((s) => s.rightOpen);
   const present = useApp((s) => s.present);
+  const rightWidth = useApp((s) => s.rightWidth);
 
   if (error) {
     return error instanceof MissingDataError ? (
@@ -164,12 +193,16 @@ export function App() {
   const left = leftOpen && !present;
   const right = rightOpen && !present;
   return (
-    <div className={`app ${left ? "" : "no-left"} ${right ? "" : "no-right"} ${present ? "present" : ""}`}>
+    <div
+      className={`app ${left ? "" : "no-left"} ${right ? "" : "no-right"} ${present ? "present" : ""}`}
+      style={{ "--right": `${rightWidth}px` } as React.CSSProperties}
+    >
       {!present && <TopBar scene={scene} catalog={catalog} />}
       {left && <LeftPanel scene={scene} />}
       <main className="viewport">
         <Viewport scene={scene} />
         <ViewportOverlay scene={scene} catalog={catalog} />
+        <PlaybackBar catalog={catalog} />
       </main>
       {right && <RightPanel scene={scene} catalog={catalog} />}
       {!present && <StatusBar scene={scene} />}

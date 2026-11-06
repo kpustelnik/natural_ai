@@ -158,7 +158,8 @@ export const METRO = {
 export const STUDENTS = [
   { color: "#2a6fb0", label: "walking" },
   { color: "#e8a33d", label: "waiting (platform or stop)" },
-  { color: ACCENT, label: "riding (metro, bus, tram)" },
+  { color: ACCENT, label: "metro" },
+  { color: "#2e9e6a", label: "bus or tram" },
 ] as const;
 
 /** The two scenarios in charts and the split view. */

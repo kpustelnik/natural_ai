@@ -50,3 +50,6 @@ Thumbs.db
 
 # --- GitHub Pages (scripts/build_site.py) ---
 _site/
+
+# --- 05_simulate.py --showcase (odtwarzalne w ~1 min) ---
+data/processed/showcase/

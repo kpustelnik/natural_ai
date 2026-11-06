@@ -31,6 +31,7 @@ export interface WebData {
   scene: Scene;
   stats: Stats;
   status: BuildStatus;
+  students_header: StudentsHeader;
 }
 /**
  * ``replays/<id>/trace.{json,bin}``: AcoTrace (results/<run_id>/trace.npz) with the
@@ -604,6 +605,10 @@ export interface ReplayFiles {
    * Stats
    */
   stats: string | null;
+  /**
+   * dir with day-<weekday>.json (StudentsHeader): who goes where
+   */
+  students: string | null;
 }
 /**
  * ``replays/index.json``: every replay.json found, newest first.
@@ -940,4 +945,36 @@ export interface BuildError {
    * id of the room, corridor, stairs or entrance it is about
    */
   element: string | null;
+}
+/**
+ * ``students/day-<weekday>.{json,bin}``: every leg of the day, both scenarios side by
+ * side, for looking at one student (their classes and how they get there).
+ *
+ * One row = one leg, sorted by student and order in the day. ``from`` / ``to`` /
+ * ``*_board`` / ``*_alight`` index ``keys`` (65535: none); ``kind`` indexes ``leg_kinds``;
+ * ``*_mode`` is a MODE_CODES value. Times are seconds since 00:00 of the weekday;
+ * ``earliest`` (the previous class ends) and ``deadline`` (the class starts) are NaN when
+ * the leg has none.
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "StudentsHeader".
+ */
+export interface StudentsHeader {
+  provenance: Provenance;
+  /**
+   * file name of the .bin next to this header
+   */
+  bin: string;
+  buffers: {
+    [k: string]: BufferView;
+  };
+  kind: "students";
+  weekday: number;
+  n_students: number;
+  /**
+   * endpoints: building, room, stop or station keys
+   */
+  keys: string[];
+  leg_kinds: string[];
+  scenarios: Scenario[];
 }

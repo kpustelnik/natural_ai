@@ -19,7 +19,7 @@ export function PerfProbe() {
     a.last = now;
     if (now - a.start < 1000) return;
     const s = app.get();
-    const students = Object.values(registry.onScreen).reduce((n, c) => n + c[0] + c[1] + c[2], 0);
+    const students = Object.values(registry.onScreen).reduce((n, c) => n + c[0] + c[1] + c[2] + c[3], 0);
     registry.perf = {
       fps: (1000 * a.frames) / (now - a.start),
       worstMs: a.worst,

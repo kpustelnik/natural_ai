@@ -110,6 +110,7 @@ export const IconRuler = icon(
   </>,
 );
 export const IconUp = icon(<path d="m6 15 6-6 6 6" />);
+export const IconHome = icon(<path d="M4 11 12 4l8 7M6 10v10h4v-6h4v6h4V10" />);
 export const IconEnter = icon(
   <>
     <path d="M10 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-8" />

@@ -417,15 +417,19 @@ def _walk_legs(
     return df
 
 
-def run_simulation(processed: Path, best_line: Path, cfg: dict) -> dict[str, pd.DataFrame]:
+def run_simulation(
+    processed: Path, best_line: Path, cfg: dict, out: Path | None = None
+) -> dict[str, pd.DataFrame]:
     """Stage 5 on the files of one ``processed`` dir: network/, demand/legs.parquet and the
     line in ``best_line`` (and transit/trips.parquet when ``simulation.transit``). Writes
-    simulation/metro/schedule.parquet and simulation/<scenario>/legs.parquet."""
+    simulation/metro/schedule.parquet and simulation/<scenario>/legs.parquet under ``out``
+    (default: ``processed``; another dir keeps several lines side by side)."""
     from ..schemas.results import BestLine, load_json
     from ..schemas.tables import GRAPH_EDGES, GRAPH_NODES, LEGS, METRO_SCHEDULE
     from .schedule import build_schedule
 
     processed = Path(processed)
+    out = Path(out) if out is not None else processed
     nodes = GRAPH_NODES.read(processed / GRAPH_NODES.path)
     edges = GRAPH_EDGES.read(processed / GRAPH_EDGES.path)
     legs = LEGS.read(processed / LEGS.path)
@@ -436,12 +440,12 @@ def run_simulation(processed: Path, best_line: Path, cfg: dict) -> dict[str, pd.
         raise ValueError(f"stations without a metro shaft in the graph: {missing}")
     xy = np.array([[at.x[f"{s}:platform"], at.y[f"{s}:platform"]] for s in best.stations])
     schedule = build_schedule(best.stations, xy, best.topology, cfg)
-    METRO_SCHEDULE.write(schedule, processed / METRO_SCHEDULE.path)
+    METRO_SCHEDULE.write(schedule, out / METRO_SCHEDULE.path)
     transit = load_transit(processed, nodes, cfg)
     line = Line(best.stations, best.topology, schedule)
     sims = simulate(nodes, edges, legs, line, cfg, transit=transit)
     for sc, df in sims.items():
-        SIM_LEGS.write(df, processed / SIM_LEGS.path.format(scenario=sc))
+        SIM_LEGS.write(df, out / SIM_LEGS.path.format(scenario=sc))
     return sims
 
 

@@ -59,6 +59,13 @@ search, refaktoryzacja MMAS, runner i skrypt wykresów, klucze `aco.variant` / `
       pojedynczo, ~0,05 ms w paczkach (`Objective.many`); stara implementacja zostaje jako
       `travel_numpy`. Dodatkowo `tunnel_m(line)` i opcjonalna kara za tunel (domyślnie 0,
       nic nie zmienia). Wszystkie 135 testów przechodzi.
+- [x] Viewer, 2026-11-06: osobny kolor metra i autobusu / tramwaju (autobusy jadą po
+      grafie zewnętrznym, nie w linii prostej), wykresy na żywo w doku (średni czas odcinka,
+      zaoszczędzone godziny, kto co robi), liczniki czekających na peronach i pasażerów w
+      pociągach, kamera pod ziemią i przezroczysty grunt (`X`), prawy przycisk przesuwa także
+      nad etykietami, 4 prawdziwe symulacje tygodnia (k = 3, 5, pętla 7, 10:
+      `05_simulate.py --showcase`) i 4 replaye ACO bez LS, w których linia się zmienia
+      (`experiments/configs/showcase.yaml`), przejście z replayu ACO do symulacji linii.
 
 ## 2. Do zrobienia
 

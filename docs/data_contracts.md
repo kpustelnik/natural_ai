@@ -1044,7 +1044,7 @@ by all days:
 | `path_offsets` | uint32 (P+1) | path p = vertices `path_offsets[p] … path_offsets[p+1]−1` |
 | `xyz` | float32 (V, 3) | vertex positions |
 | `t` | float32 (V) | seconds since the start of the path |
-| `mode` | uint8 (P) | `0` walk, `1` metro (train ride from platform to platform), `2` bus / tram (stop to stop, straight, at street level) |
+| `mode` | uint8 (P) | `0` walk, `1` metro (train ride from platform to platform), `2` bus / tram (stop to stop along the shortest outdoor path of the walk graph, constant speed) |
 
 `day-<weekday>.json` + `.bin` (`DayHeader`) has one row per segment, sorted by `t_start`:
 
@@ -1099,6 +1099,15 @@ replays. It is only for developing the viewer.
 - `top_od[{from_key, to_key, n_legs, saving_s}]`: the 50 largest savings.
 
 The notebooks use the same numbers, computed from `simulation/*/legs.parquet`.
+
+**`replays/<id>/students/day-<weekday>.{json,bin}`: `schemas.web.StudentsHeader`.** Every leg
+of the day with both scenarios side by side, for the Student tab (one student's classes and
+trips). One row per leg, sorted by `student_id` and order: `leg_id`, `leg_kind` (index into
+`leg_kinds`), `from` / `to` (uint16 into `keys`, 65535 none), `earliest` (the previous class
+ends) and `deadline` (the class starts), seconds of the day, NaN when none; per scenario
+`s`: `s_depart`, `s_arrive`, `s_wait`, `s_late` (float32), `s_mode` (uint8, MODE_CODES),
+`s_board`, `s_alight` (uint16 into `keys`). About 4 MB a day; loaded only when a student is
+looked at.
 
 ### 10.7 `network.json` + `.bin`: `schemas.web.NetworkHeader`
 

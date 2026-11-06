@@ -1,0 +1,58 @@
+{
+  "provenance": {
+    "schema_version": 1,
+    "generated_at": "2026-11-06T21:04:53+01:00",
+    "generator": "run_experiments.py",
+    "config_hash": "36b55e5119033573",
+    "git_commit": "03941c3"
+  },
+  "run_id": "showcase-acs-k5-acs-k5-s42",
+  "experiment": "showcase",
+  "algorithm": "acs",
+  "instance": "D:/mateusz/studia/7_semestr/natural_ai/data/processed/instance/instance.npz",
+  "instance_hash": "8c0ccb8b16174a29",
+  "seed": 42,
+  "params": {
+    "n_ants": 50,
+    "n_iterations": 200,
+    "alpha": 1.0,
+    "beta": 1.0,
+    "rho": 0.1,
+    "q0": 0.5,
+    "xi": 0.1,
+    "local_search": false,
+    "heuristic": "demand_distance",
+    "tau0": 0.01818181818181818,
+    "k": 5,
+    "topology": "line",
+    "n_candidates": 55,
+    "overrides": {
+      "optimize.algorithm": "acs"
+    },
+    "tag": "acs-k5"
+  },
+  "eval_budget": 10000,
+  "evaluations": 8099,
+  "wall_time_s": 4.93,
+  "best": {
+    "provenance": {
+      "schema_version": 1,
+      "generated_at": "2026-11-06T21:04:53+01:00",
+      "generator": "run_experiments.py",
+      "config_hash": "36b55e5119033573",
+      "git_commit": "03941c3"
+    },
+    "run_id": "showcase-acs-k5-acs-k5-s42",
+    "topology": "line",
+    "stations": [
+      "D-10",
+      "C-4",
+      "U-9",
+      "H-D8",
+      "A-0"
+    ],
+    "objective_s": 135504815.5,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
+  }
+}

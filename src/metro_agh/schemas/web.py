@@ -267,6 +267,9 @@ class ReplayFiles(StrictModel):
         default={}, description="scenario -> dir with paths.json and day-<weekday>.json"
     )
     stats: str | None = Field(default=None, description="Stats")
+    students: str | None = Field(
+        default=None, description="dir with day-<weekday>.json (StudentsHeader): who goes where"
+    )
 
 
 class Replay(StrictModel):
@@ -394,6 +397,29 @@ class DayHeader(_BinaryHeader):
     t_max: DayTime
     REQUIRED = ("student_id", "leg_id", "path_id", "t_start")
     # student_id uint32 (S)   leg_id uint32 (S)   path_id uint32 (S)   t_start float32 (S)
+
+
+class StudentsHeader(_BinaryHeader):
+    """``students/day-<weekday>.{json,bin}``: every leg of the day, both scenarios side by
+    side, for looking at one student (their classes and how they get there).
+
+    One row = one leg, sorted by student and order in the day. ``from`` / ``to`` /
+    ``*_board`` / ``*_alight`` index ``keys`` (65535: none); ``kind`` indexes ``leg_kinds``;
+    ``*_mode`` is a MODE_CODES value. Times are seconds since 00:00 of the weekday;
+    ``earliest`` (the previous class ends) and ``deadline`` (the class starts) are NaN when
+    the leg has none.
+    """
+
+    kind: Literal["students"] = "students"
+    weekday: Weekday
+    n_students: int
+    keys: list[str] = Field(description="endpoints: building, room, stop or station keys")
+    leg_kinds: list[str]
+    scenarios: list[Scenario]
+    REQUIRED = ("student_id", "leg_id", "leg_kind", "from", "to", "earliest", "deadline")
+    # student_id uint32 (L)  leg_id uint32 (L)  leg_kind uint8 (L)  from, to uint16 (L)
+    # earliest, deadline float32 (L); per scenario s: s_depart, s_arrive, s_wait, s_late
+    # float32 (L), s_mode uint8 (L), s_board, s_alight uint16 (L)
 
 
 # drawing classes of network edges: outdoor edges by OSM highway, the rest by GRAPH_EDGES kind
@@ -593,5 +619,6 @@ WEB_MODELS = {
     "demand": Demand,
     "paths_header": PathsHeader,
     "day_header": DayHeader,
+    "students_header": StudentsHeader,
     "aco_trace_header": AcoTraceHeader,
 }

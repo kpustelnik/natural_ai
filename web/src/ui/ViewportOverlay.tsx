@@ -33,9 +33,10 @@ import {
   splitActive,
   stepLevel,
   useApp,
+  resetView,
 } from "../state/app";
 import { Command } from "./Command";
-import { IconCamera, IconClose, IconChevronDown, IconCopy, IconHelp, IconOrbit, IconPlan, IconPresent, IconRuler, IconUp, IconWalk } from "./icons";
+import { IconCamera, IconClose, IconChevronDown, IconCopy, IconHelp, IconHome, IconOrbit, IconPlan, IconPresent, IconRuler, IconUp, IconWalk } from "./icons";
 import { openReplay } from "./ReplayMenu";
 
 const COLOR_MODES: { id: ColorMode; label: string }[] = [
@@ -284,7 +285,7 @@ function WalkHelp() {
       Click to look around · <kbd>W</kbd>
       <kbd>A</kbd>
       <kbd>S</kbd>
-      <kbd>D</kbd> move · <kbd>Shift</kbd> run · <kbd>Esc</kbd> back to orbit
+      <kbd>D</kbd> move · <kbd>Shift</kbd> run · wheel speed · <kbd>Space</kbd> / <kbd>C</kbd> fly up / down (into the metro) · <kbd>G</kbd> walk · <kbd>Esc</kbd> back to orbit
     </div>
   );
 }
@@ -482,6 +483,9 @@ export function ViewportOverlay({ scene, catalog }: { scene: Scene; catalog: Rep
       <div className="overlay-top-right">
         <Compass />
         <div className="view-actions" role="group" aria-label="View">
+          <button className="icon-button" onClick={resetView} title="Reset the view: the whole campus (H)" aria-label="Reset the view">
+            <IconHome size={16} />
+          </button>
           <button className="icon-button" onClick={screenshot} title="Save a screenshot (S)" aria-label="Save a screenshot">
             <IconCamera size={16} />
           </button>

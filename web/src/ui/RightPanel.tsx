@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { live } from "../data/live";
 import { useBuildingInfo, useContextFeatures, useIssues, useNetwork } from "../data/resource";
 import type { BuildError, Issue, ReplayCatalog, Scene, SceneBuilding } from "../generated/schemas";
@@ -11,7 +11,8 @@ import { useSlice } from "../state/store";
 import { IconAlert, IconCode, IconCopy, IconEnter, IconExternal, IconFrame, IconInfo } from "./icons";
 import { RoutePanel } from "./RoutePanel";
 import { StatsPanel } from "./StatsPanel";
-import { Timeline } from "./Timeline";
+import { StudentPanel } from "./StudentPanel";
+import { ReplayPanel } from "./Timeline";
 
 /** vscode:// link to a repo file (and line), for the machine that exported the data. */
 export function editorUrl(scene: Scene, file: string, line?: number | null): string | null {
@@ -539,11 +540,14 @@ export function RightPanel({ scene, catalog }: { scene: Scene; catalog: ReplayCa
   const replay = useOpenReplay(scene);
   const simulation = useApp((s) => s.workspace === "simulation");
   const showStats = simulation || replay?.kind === "simulation";
-  const tab = useApp((s) => (s.rightTab === "stats" && !showStats ? "inspector" : s.rightTab));
+  const tab = useApp((s) => ((s.rightTab === "stats" || s.rightTab === "student") && !showStats ? "inspector" : s.rightTab));
+  const tabsOpen = useApp((s) => s.tabsOpen);
   const count = useIssues(scene.issues).data?.issues.length ?? 0;
   return (
-    <aside className="sidebar right">
-      <Timeline catalog={catalog} />
+    <aside className={`sidebar right ${tabsOpen ? "tabs-open" : ""}`}>
+      <Resizer />
+      <ReplayPanel catalog={catalog} />
+      {replay && tabsOpen && <SplitHandle />}
       <div className="panel-tabs">
         <button className={tab === "inspector" ? "active" : ""} aria-pressed={tab === "inspector"} onClick={() => app.set({ rightTab: "inspector" })}>
           <IconInfo size={14} /> Inspector
@@ -559,9 +563,25 @@ export function RightPanel({ scene, catalog }: { scene: Scene; catalog: ReplayCa
             Stats
           </button>
         )}
+        {showStats && (
+          <button className={tab === "student" ? "active" : ""} aria-pressed={tab === "student"} onClick={() => app.set({ rightTab: "student", tabsOpen: true })} title="One student: classes and trips">
+            Student
+          </button>
+        )}
+        <button
+          className="tabs-toggle"
+          onClick={() => app.set({ tabsOpen: !tabsOpen })}
+          title={tabsOpen ? "Fold the tabs: more room for the charts" : "Unfold the tabs"}
+          aria-expanded={tabsOpen}
+        >
+          {tabsOpen ? "▾" : "▸"}
+        </button>
       </div>
+      {tabsOpen && (
       <div className="panel-body">
-        {tab === "inspector" ? (
+        {tab === "student" ? (
+          <StudentPanel replay={replay?.kind === "simulation" ? replay : null} />
+        ) : tab === "inspector" ? (
           <Inspector scene={scene} />
         ) : tab === "issues" ? (
           <IssuesPanel scene={scene} />
@@ -571,6 +591,83 @@ export function RightPanel({ scene, catalog }: { scene: Scene; catalog: ReplayCa
           <RoutePanel scene={scene} />
         )}
       </div>
+      )}
     </aside>
+  );
+}
+
+/** Between the charts and the tabs: drag to share the panel's height between them. */
+function SplitHandle() {
+  const start = useRef<{ y: number; h: number } | null>(null);
+  const [active, setActive] = useState(false);
+  return (
+    <div
+      className={`split-handle ${active ? "active" : ""}`}
+      role="separator"
+      aria-orientation="horizontal"
+      title="Drag to give the charts more or less room"
+      onPointerDown={(e) => {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        start.current = { y: e.clientY, h: app.get().replayHeight };
+        setActive(true);
+      }}
+      onPointerMove={(e) => {
+        if (!start.current || e.buttons === 0) return;
+        const h = Math.min(window.innerHeight - 180, Math.max(120, start.current.h + e.clientY - start.current.y));
+        app.set({ replayHeight: h });
+      }}
+      onPointerUp={() => {
+        start.current = null;
+        setActive(false);
+        try {
+          localStorage.setItem("metro-agh:replayHeight", String(Math.round(app.get().replayHeight)));
+        } catch {
+          // no storage: the height lasts this visit
+        }
+      }}
+    />
+  );
+}
+
+const MIN_W = 260;
+const MAX_W = 1200;
+
+/** The panel's left edge: drag to widen it (double-click: back to 360 px). */
+function Resizer() {
+  const [active, setActive] = useState(false);
+  const start = useRef<{ x: number; w: number } | null>(null);
+  const save = (w: number) => {
+    try {
+      localStorage.setItem("metro-agh:rightWidth", String(Math.round(w)));
+    } catch {
+      // no storage: the width lasts this visit
+    }
+  };
+  return (
+    <div
+      className={`panel-resizer ${active ? "active" : ""}`}
+      role="separator"
+      aria-orientation="vertical"
+      title="Drag to resize the panel (double-click: reset)"
+      onPointerDown={(e) => {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        start.current = { x: e.clientX, w: app.get().rightWidth };
+        setActive(true);
+      }}
+      onPointerMove={(e) => {
+        if (!start.current || e.buttons === 0) return;
+        const w = Math.min(MAX_W, window.innerWidth - 420, Math.max(MIN_W, start.current.w + start.current.x - e.clientX));
+        app.set({ rightWidth: w });
+      }}
+      onPointerUp={() => {
+        start.current = null;
+        setActive(false);
+        save(app.get().rightWidth);
+      }}
+      onDoubleClick={() => {
+        app.set({ rightWidth: 360 });
+        save(360);
+      }}
+    />
   );
 }

@@ -9,6 +9,7 @@ import { useReplays } from "../../data/resource";
 import type { Replay, Scenario, Scene } from "../../generated/schemas";
 import { splitActive, useApp } from "../../state/app";
 import { AcoLayer } from "./AcoTrace";
+import { Crowd } from "./Crowd";
 import { MetroLayer } from "./Metro";
 import { Students } from "./Students";
 
@@ -62,6 +63,7 @@ function SimulationLayers({ replay }: { replay: Replay }) {
     <>
       {shown && <Students key={shown} dir={trips[shown]!} scenario={shown} side={null} />}
       {metro && shown !== "no_metro" && <MetroLayer path={metro} side={null} />}
+      {metro && shown === "metro" && <Crowd path={metro} scenario="metro" />}
     </>
   );
 }

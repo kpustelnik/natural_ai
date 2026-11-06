@@ -10,7 +10,7 @@ export type CameraMode = "orbit" | "plan" | "walk";
 export type ColorMode = "category" | "lod" | "issues" | "demand";
 export type RoomColorMode = "kind" | "capacity";
 export type Tool = "select" | "measure" | "route";
-export type RightTab = "inspector" | "issues" | "route" | "stats";
+export type RightTab = "inspector" | "issues" | "route" | "stats" | "student";
 export type AcoView = "ants" | "trains";
 
 export const WORKSPACES: { id: Workspace; label: string }[] = [
@@ -37,7 +37,9 @@ export type LayerId =
   | "aerial"
   | "grid"
   | "osmOutline"
-  | "roomLabels";
+  | "roomLabels"
+  | "xray"
+  | "counts";
 
 export const LAYER_GROUPS: { title: string; layers: { id: LayerId; label: string }[] }[] = [
   {
@@ -61,6 +63,7 @@ export const LAYER_GROUPS: { title: string; layers: { id: LayerId; label: string
     title: "Ground",
     layers: [
       { id: "ground", label: "Ground" },
+      { id: "xray", label: "See through the ground (X)" },
       { id: "aerial", label: "Aerial photo" },
       { id: "paths", label: "Paths and roads" },
       { id: "boundary", label: "Campus boundary" },
@@ -75,6 +78,10 @@ export const LAYER_GROUPS: { title: string; layers: { id: LayerId; label: string
       { id: "stops", label: "Stops (simulation)" },
       { id: "otherStops", label: "Other stops" },
     ],
+  },
+  {
+    title: "Simulation",
+    layers: [{ id: "counts", label: "Counts: crowds, waiting, on board" }],
   },
 ];
 
@@ -97,6 +104,8 @@ const BASE: Layers = {
   grid: false,
   osmOutline: false,
   roomLabels: true,
+  xray: false,
+  counts: true,
 };
 
 /** Default layers of each workspace (applied when switching to it). */
@@ -105,7 +114,7 @@ export const WORKSPACE_LAYERS: Record<Workspace, Layers> = {
   building: { ...BASE, labels: false, stops: false, grid: true, osmOutline: true },
   network: { ...BASE, network: true, barriers: true, fences: true, paths: false, otherStops: true, labels: false },
   metro: { ...BASE, entrances: false },
-  simulation: { ...BASE, entrances: false },
+  simulation: { ...BASE, entrances: false, xray: true }, // the platforms and who waits there
 };
 
 export type Pick =
@@ -145,6 +154,7 @@ export interface FocusRequest {
   seq: number;
   min: Vec3;
   max: Vec3;
+  reset?: boolean; // also turn to the default view (from the south-south-east, 50° up)
 }
 
 export interface CameraPose {
@@ -163,6 +173,9 @@ export interface Playback {
   weekday: number; // 1..5
   scenario: Scenario;
   split: boolean; // simulation: both scenarios side by side (no_metro left, metro right)
+  student: number | null; // simulation: the student looked at (Student tab, marker)
+  follow: boolean; // the camera follows that student
+  pov: boolean; // the camera is that student's eyes (orbit camera only)
 }
 
 /** Route tool: two endpoints (endpoint keys like D-17/1.38, stop:…, or node keys). */
@@ -202,18 +215,38 @@ export interface AppState {
   leftOpen: boolean;
   rightOpen: boolean;
   rightTab: RightTab;
+  rightWidth: number; // px, dragged at the panel's left edge
+  tabsOpen: boolean; // the right panel's tabs (inspector, issues, …) or only the replay part
+  replayHeight: number; // px of the replay part (charts) above the tabs, dragged at its bottom edge
   focus: FocusRequest | null;
   initialPose: CameraPose | null; // from the URL, applied once
   cursor: Vec3 | null; // web position under the pointer
   cursorBuilding: string | null; // building under the pointer
   azimuthDeg: number; // camera heading, 0 = looking north
   metresPerPixel: number;
+  cameraBelow: boolean; // the orbit camera is under the ground: the ground turns see-through
   playback: Playback;
   searchFocus: number; // bumped to focus the search box
   northRequest: number; // bumped by the compass: turn the camera to north-up
   present: boolean; // presentation mode: only the view (a replay keeps playing)
   help: boolean; // keyboard help dialog
   perf: "off" | "on" | "log"; // frame-rate probe: overlay, or overlay + console lines
+}
+
+/** A size from the last visit (localStorage may be unavailable). */
+function storedNumber(key: string, lo: number, hi: number, fallback: number): number {
+  try {
+    const raw = localStorage.getItem(key);
+    const v = Number(raw);
+    return raw !== null && Number.isFinite(v) && v >= lo && v <= hi ? v : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/** The right panel's width from the last visit. */
+function storedWidth(): number {
+  return storedNumber("metro-agh:rightWidth", 260, 1200, 360);
 }
 
 export const app = createStore<AppState>({
@@ -233,12 +266,16 @@ export const app = createStore<AppState>({
   leftOpen: true,
   rightOpen: true,
   rightTab: "inspector",
+  rightWidth: storedWidth(),
+  tabsOpen: true,
+  replayHeight: storedNumber("metro-agh:replayHeight", 120, 2000, 420),
   focus: null,
   initialPose: null,
   cursor: null,
   cursorBuilding: null,
   azimuthDeg: 0,
   metresPerPixel: 1,
+  cameraBelow: false,
   playback: {
     replayId: null,
     playing: false,
@@ -249,6 +286,9 @@ export const app = createStore<AppState>({
     weekday: 1,
     scenario: "metro",
     split: false,
+    student: null,
+    follow: false,
+    pov: false,
   },
   searchFocus: 0,
   northRequest: 0,
@@ -320,6 +360,20 @@ export function toast(text: string, kind: Toast["kind"] = "info", ms = 3500): vo
 let focusSeq = 0;
 export function focusBox(min: Vec3, max: Vec3): void {
   app.set({ focus: { seq: ++focusSeq, min, max } });
+}
+
+/** Back to the first view: every AGH building, from the default direction (H). */
+export function resetView(): void {
+  const s = app.get();
+  if (s.camera === "walk") app.set({ camera: "orbit" });
+  const h = homeBox;
+  if (h) app.set({ focus: { seq: ++focusSeq, min: h.min, max: h.max, reset: true }, playback: { ...s.playback, follow: false } });
+}
+
+let homeBox: { min: Vec3; max: Vec3 } | null = null;
+/** The first view's box (Viewport sets it once the scene is known). */
+export function setHomeBox(min: Vec3, max: Vec3): void {
+  homeBox = { min, max };
 }
 
 /** A box of half-width ``r`` around a point, half as tall, from its height up: what framing

@@ -8,10 +8,14 @@ import { app, setPlayback, setWorkspace, useApp } from "../state/app";
 import { Command } from "./Command";
 import { IconChevronDown, IconClose, IconReplay } from "./icons";
 
-const KIND_LABEL: Record<Replay["kind"], string> = {
-  aco: "Optimisation runs (ACO)",
-  simulation: "Simulations",
-};
+const isSynthetic = (r: Replay) => (r.run_id ?? "").startsWith("fake-");
+
+/** Menu groups: real simulations, then real ACO runs (each by line length), synthetic last. */
+const GROUPS: { title: string; pick: (r: Replay) => boolean }[] = [
+  { title: "Week simulations (with / without metro)", pick: (r) => r.kind === "simulation" && !isSynthetic(r) },
+  { title: "Optimisation runs (ACO)", pick: (r) => r.kind === "aco" && !isSynthetic(r) },
+  { title: "Synthetic (for developing the viewer)", pick: isSynthetic },
+];
 
 export function openReplay(r: Replay | null): void {
   setPlayback({
@@ -105,12 +109,12 @@ export function ReplayMenu({ catalog }: { catalog: ReplayCatalog | undefined }) 
               <Command lines={["uv run scripts/06_export_web.py --fake"]} />
             </div>
           )}
-          {(["simulation", "aco"] as const).map((kind) => {
-            const group = replays.filter((r) => r.kind === kind);
+          {GROUPS.map((g) => {
+            const group = replays.filter(g.pick).sort((a, b) => a.stations.length - b.stations.length || a.title.localeCompare(b.title));
             if (!group.length) return null;
             return (
-              <div key={kind} className="replay-group">
-                <div className="group-title">{KIND_LABEL[kind]}</div>
+              <div key={g.title} className="replay-group">
+                <div className="group-title">{g.title}</div>
                 {group.map((r) => (
                   <button
                     key={r.id}

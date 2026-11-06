@@ -131,7 +131,7 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | file | contents |
 |---|---|
 | `simulation/schedule.py` | train timetable: `build_schedule`, `station_order`, `run_times`, `hhmm` |
-| `simulation/simulate.py` | `simulate` (both scenarios: Dijkstra per origin in batches; walk vs bus / tram (`Transit`) vs metro (`Line`), each a timetabled `_Net` boarded via `Connections.earliest/latest` in `_best_rides`; `connections` + `loop_successors`: a loop ride may pass station 0 into the next run), `walk_matrix` / `csr_walk` (the walk graph as CSR), `load_transit`, `run_simulation` (reads a processed dir, writes schedule + legs) |
+| `simulation/simulate.py` | `run_simulation(..., out=)` (another dir keeps several lines side by side), `simulate` (both scenarios: Dijkstra per origin in batches; walk vs bus / tram (`Transit`) vs metro (`Line`), each a timetabled `_Net` boarded via `Connections.earliest/latest` in `_best_rides`; `connections` + `loop_successors`: a loop ride may pass station 0 into the next run), `walk_matrix` / `csr_walk` (the walk graph as CSR), `load_transit`, `run_simulation` (reads a processed dir, writes schedule + legs) |
 | `simulation/metrics.py` | `scenario_metrics`: the report's metrics of one scenario (time, legs longer than the break, late legs and classes, mode shares) |
 
 ### Web export (stage 6): `web/`
@@ -140,8 +140,8 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 |---|---|
 | `web/export_campus.py` | `CampusExport` (`full`, `update` for watch mode, `_building`, `_network`); `export_context`, `export_ground`, `export_network`, `export_stops`, `export_aerial`, `write_replay_catalog`, `write_status_file` |
 | `web/export_demand.py` | `load_web_graph`, `edge_loads_from_od`, `export_demand` (OD → shortest-path edge loads on `network.json`), `refresh_demand` (again after `network.json` changes, + status) |
-| `web/export_metro.py` | `export_aco_run` (`--aco` → `replays/aco-<run>/`), `export_best_line` (`--metro` → `replays/sim-<run>/metro.json`), `metro_model`, `shafts`, `load_scene` |
-| `web/export_sim.py` | `export_simulation` (`--sim`: `trips/<scenario>/paths.*`, `day-N.*`, `stats.json`), `PathBuilder` (node paths → web polylines with times), `stats` |
+| `web/export_metro.py` | `export_aco_run` (`--aco` → `replays/aco-<run>/`, `_aco_title`), `export_best_line` (`--metro` → `replays/sim-<run>/metro.json`), `metro_model`, `shafts`, `load_scene` |
+| `web/export_sim.py` | `export_simulation` (`--sim`, `--showcase` via `sim_root`: `trips/<scenario>/paths.*`, `day-N.*`, `stats.json`, `students/day-N.*` by `export_students`; `_sim_title`), `PathBuilder` (node paths → web polylines with times; `street`: a bus / tram ride along the outdoor graph), `stats` |
 | `web/fake.py` | `--fake`: `fake_instance` + `weak_aco` (synthetic ACO run: `aco.run_mmas`, short and with a weak heuristic), `fake_population` (students, legs), `write_fake_results`, `write_fake_simulation` |
 | `web/gltf.py` | minimal GLB writer (`Node`, `write_glb`) |
 | `web/binary.py` | header `.json` + `.bin` containers (`write_binary`, `pack`) |
@@ -167,9 +167,9 @@ GTFS (01_fetch_transit) ─────────┘     population/, demand/,
 | `experiments/configs/k_sweep.yaml` | k = 2 … 10 × 5 seeds on the USOS demand |
 | `scripts/04_optimize.py` | build/load instance, `run_algorithm`, write `results/<run_id>/` + `best_line.json` |
 | `scripts/run_experiments.py` | YAML sweep / ablation → many runs + `runs.csv` + `summary_<name>.csv` |
-| `scripts/05_simulate.py` | stage 5 on `data/processed` |
-| `scripts/06_export_web.py` | flags `--campus --sample --watch --aerial --aco --metro --sim --fake` (`--fake` alone, not with `--aco/--metro/--sim`); `export_replays` (+ `export_demand`) |
-| `experiments/configs/*.yaml` | experiment specs: mode, seeds, sweep / variants. `compare_algorithms.yaml` (8 variants, with / without local search, k = 5), `compare_algorithms_hard.yaml` (k = 10), `aco_ablation.yaml` (MMAS parameters, real data), `aco_grid.yaml` (example on fake data), `k_sweep.yaml` |
+| `scripts/05_simulate.py` | stage 5 on `data/processed`; `--showcase`: the runs under `simulate:` in `showcase.yaml` → `data/processed/showcase/<run_id>/` (gitignored, `simulate_showcase`) |
+| `scripts/06_export_web.py` | flags `--campus --sample --watch --aerial --aco --metro --sim --showcase --fake` (`--fake` alone, not with `--aco/--metro/--sim`); `export_replays` (+ `export_demand`) |
+| `experiments/configs/*.yaml` | experiment specs: mode, seeds, sweep / variants. `compare_algorithms.yaml` (8 variants, with / without local search, k = 5), `compare_algorithms_hard.yaml` (k = 10), `aco_ablation.yaml` (MMAS parameters, real data), `aco_grid.yaml` (example on fake data), `k_sweep.yaml`, `showcase.yaml` (viewer only: ACO runs without local search with a trace, so the best line changes; the lines `05_simulate.py --showcase` simulates) |
 | `tests/test_web_export.py` | fixture `exported` (sample campus + synthetic OSM in a temp dir), used by the other export tests |
 | `tests/test_network.py`, `test_interior.py`, `test_osm.py`, `test_schemas.py` | graph, geometry, OSM, contracts |
 | `tests/test_extras.py` | compiled / batched objective vs the NumPy reference, tunnel and penalty, heuristic variants, `stats` |
@@ -194,7 +194,7 @@ through the store (`state/app.ts`). Values read every frame (clock, iteration) a
 |---|---|
 | `main.tsx` | entry: mounts `App`, imports `scene/bvh` and `theme.css` |
 | `App.tsx` | layout (top bar, panels, viewport, dock, status bar), **all keyboard shortcuts** (`useShortcuts`), presentation mode, the "no data" screen, `PlaybackClock` (always mounted) |
-| `state/app.ts` | the store: `AppState`, workspaces, `LAYER_GROUPS` + `WORKSPACE_LAYERS` (default layers per workspace), `Pick` (selection kinds), `Playback`, actions (`select`, `setPlayback`, `setRouteEnd`, `focusBox`, `focusPoint` + `boxAround`, `toast`, `copyText`, `splitActive`, …) |
+| `state/app.ts` | the store: `AppState`, workspaces, `LAYER_GROUPS` + `WORKSPACE_LAYERS` (default layers per workspace), `Pick` (selection kinds), `Playback`, actions (`select`, `setPlayback`, `resetView` (H) + `setHomeBox`, `setRouteEnd`, `focusBox`, `focusPoint` + `boxAround`, `toast`, `copyText`, `splitActive`, …) |
 | `state/url.ts` | store ↔ `location.hash` (`stateFromHash`, `writeHash`): add new URL params here |
 | `state/store.ts` | the tiny external store (`createStore`, `useSlice`) |
 | `data/loader.ts` | `fetchJson`, `loadBinary` (typed-array views), `MissingDataError` |
@@ -211,7 +211,8 @@ through the store (`state/app.ts`). Values read every frame (clock, iteration) a
 | `lib/frames.ts` | web ↔ lon/lat ↔ building local |
 | `lib/graph.ts` | Dijkstra on the CSR graph, route summary (legs, outdoor / indoor / stairs) |
 | `lib/metro.ts` | train positions from the timetable (`trainsAt`), ACO sample interpolation (`sampleAt`, `curveAt`), `heading` |
-| `lib/trips.ts` | students: `prepareDay`, `studentsAt` (who is where at t; any non-walk path is a ride: metro or bus / tram), `spiral` (crowd layout), `peakCount` |
+| `lib/trips.ts` | students: `prepareDay` (+ `next`: the leg's next segment), `studentsAt` (who is where at t: `State` walk / wait / metro / bus-tram), `spiral` (crowd layout), `peakCount`; the day in numbers: `dayLegs`, `binLegs`, `arrivedBy`, `stateCurve` |
+| `lib/students.ts` | one student's day from `students/day-N`: `rowsOf`, `studentLegs`, `dayTotals`, `whereAt`, `randomStudent`, `placeName` |
 | `lib/search.ts`, `lib/format.ts` | search ranking; number / time / duration formatting, `WEEKDAYS` |
 | `lib/commands.ts` | `commandFor(path)`: the export that writes a missing file |
 
@@ -220,8 +221,9 @@ through the store (`state/app.ts`). Values read every frame (clock, iteration) a
 | file | contents |
 |---|---|
 | `scene/Viewport.tsx` | the `<Canvas>`, lights, **which layers are mounted when**, pointer interaction (hover, select, measure, route clicks, Alt-capture) |
-| `scene/CameraRig.tsx` | orbit / plan cameras, framing flights (`ANIM_MS`), view reporting (azimuth, metres per pixel), split-view projection |
-| `scene/WalkRig.tsx` | first-person walk camera with collisions |
+| `scene/CameraRig.tsx` | orbit / plan cameras (controls on the canvas wrapper, so labels do not block a drag; a move with no button held ends a drag whose pointerup was lost; orbit may go under the ground, `cameraBelow`; follows `registry.follow`; `pov`: the camera is the student's eyes, a drag turns the head; `pickStudent`: a click near a student, on the canvas wrapper),
+| `scene/ModelControls.ts` | the orbit camera's controls, modelling-tool style: left drag turns round the point under the cursor, right / middle drag grabs and moves, wheel zooms to the cursor, y up | framing flights (`ANIM_MS`), view reporting (azimuth, metres per pixel), split-view projection |
+| `scene/WalkRig.tsx` | first-person walk camera with collisions, starting on the ground under the view's centre; the wheel sets the speed; Space / Ctrl / C fly (through the ground), G walks |
 | `scene/palette.ts` | **every colour** of the scene: categories, LOD, demand edge heatmap, network kinds, route parts, `METRO`, `STUDENTS`, `SCENARIOS`, markers; `indexDemand`, `demandColour` |
 | `scene/registry.ts` | loaded things non-scene code needs (`scene`, `network`, `infos`, split sides, `onScreen` counts, `perf`, `canvas`), `pickBox` |
 | `scene/picking.ts`, `bvh.ts`, `useGlb.ts` | hit → `Pick`, BVH setup, GLB loading |
@@ -245,7 +247,8 @@ Layers (`scene/layers/`):
 | `Replay.tsx` | what a replay draws per workspace (`useOpenReplay`, `useReplayView`, `ReplayLayers`, `SimulationLayers`) |
 | `AcoTrace.tsx` | ACO player: candidate pins, pheromone ribbons, ants, best line |
 | `Metro.tsx` | shafts, platforms, tunnel, trains |
-| `Students.tsx` | students (InstancedMesh, per-frame CPU update, colour by state) |
+| `Students.tsx` | students (InstancedMesh, per-frame CPU update, colour by state, fixed size in metres; the frame into `registry.frames`), crowd count labels, the marker of the student looked at (`registry.follow`), click picking (`registry.studentAt`) |
+| `Crowd.tsx` | numbers in the view: students waiting on each platform, riders on each train |
 
 ### UI (`ui/`)
 
@@ -253,13 +256,15 @@ Layers (`scene/layers/`):
 |---|---|
 | `TopBar.tsx` | panel toggles, workspace tabs, search, replay menu |
 | `LeftPanel.tsx` | layer checkboxes (`Layers`) and the building outliner (`Outliner`, `BuildingRow`, `LevelRow`) |
-| `RightPanel.tsx` | playback dock (`Timeline`) when a replay is open; tabs Inspector / Issues / Route / Stats; `BuildingInspector`, `SpaceInspector`, edge / barrier inspector in `Inspector`, `IssuesPanel` |
+| `RightPanel.tsx` | `ReplayPanel` when a replay is open; tabs Inspector / Issues / Route / Stats / Student, foldable (`tabsOpen`); `Resizer` (left edge, `rightWidth`), `SplitHandle` (charts vs tabs, `replayHeight`), both kept in localStorage; `BuildingInspector`, `SpaceInspector`, edge / barrier inspector in `Inspector`, `IssuesPanel` |
 | `RoutePanel.tsx` | route tool tab: ends, totals, legs, field measurements |
 | `StatsPanel.tsx` | simulation stats tab: totals, `HourChart`, `Stations`, `TopOd` |
 | `ViewportOverlay.tsx` | over the 3D view: camera / colour mode buttons, tool buttons, `Compass`, view actions (screenshot, presentation, help), `LevelStepper`, legends, `ScaleBar`, measure / capture panels, `NoReplay` empty state, split captions, `PerfPanel`, `Toasts`, presentation overlay |
-| `Timeline.tsx` | the playback dock (mounted in `RightPanel`): `Dock`, `DayControls` (clock, speed, weekday, scenario / split), `AntControls` (iteration player), `StudentLegend`, speed presets; `PlaybackClock` (the clock, mounted by `App` so playback runs with the panel hidden) |
+| `StudentPanel.tsx` | Student tab: one student's legs of the day, both scenarios (mode, boarding, waiting, late), totals, follow, "Be this student" (`playback.pov`); random / by number / click |
+| `LiveCharts.tsx` | live charts of a simulation in the dock: mean leg per 15 min (both scenarios), student-hours saved so far, what everyone is doing (stacked); click moves the clock |
+| `Timeline.tsx` | `PlaybackBar` (bottom centre of the view, mounted by `App`: play, steps `stepClock` / `jumpBlock` / `stepIteration`, speed, weekday, scenario), `ReplayPanel` (top of the right panel: `AcoInfo` with "simulate this line", `simulationOf`; `StudentLegend`, `LiveCharts`), `DayControls` (clock, speed, weekday, scenario / split), `AntControls` (iteration player), `StudentLegend`, speed presets; `PlaybackClock` (the clock, mounted by `App` so playback runs with the panel hidden) |
 | `ConvergenceChart.tsx` | ACO convergence chart (SVG) |
-| `ReplayMenu.tsx` | replay menu, `openReplay` (sets workspace, opens right panel, speed, scenario) |
+| `ReplayMenu.tsx` | replay menu (`GROUPS`: real simulations, real ACO runs, synthetic last), `openReplay` (sets workspace, opens right panel, speed, scenario) |
 | `Search.tsx` | search box |
 | `StatusBar.tsx` | build status, loading count, cursor coordinates, shortcuts button |
 | `HelpDialog.tsx` | keyboard help (`GROUPS`; update it when you add a shortcut) |

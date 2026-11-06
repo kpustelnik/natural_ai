@@ -186,7 +186,7 @@ def export_aco_run(
     replay = Replay(
         id=rid,
         kind="aco",
-        title=f"{meta.algorithm.upper()} k={len(meta.best.stations)}, seed {meta.seed}",
+        title=_aco_title(meta, synthetic=note is not None),
         description=note,
         created_at=meta.provenance.generated_at,
         run_id=meta.run_id,
@@ -200,6 +200,17 @@ def export_aco_run(
         "replay %s: %d sampled iterations, %d candidates", rid, len(trace.iterations), len(ids)
     )
     return replay
+
+
+def _aco_title(meta: RunMeta, synthetic: bool = False) -> str:
+    """ "MMAS + LS, k = 5 line: −11.6 %" (what the run is and how good its line is)."""
+    ls = " + LS" if meta.params.get("local_search") else ""
+    saving = 100 * (1 - meta.best.objective_s / max(1.0, meta.best.baseline_s))
+    title = (
+        f"{meta.algorithm.upper()}{ls}, k = {len(meta.best.stations)} {meta.best.topology}: "
+        f"−{saving:.1f} %"
+    )
+    return f"[synthetic] {title}" if synthetic else title
 
 
 def export_best_line(

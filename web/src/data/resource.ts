@@ -16,6 +16,7 @@ import type {
   ReplayCatalog,
   Scene,
   Stats,
+  StudentsHeader,
 } from "../generated/schemas";
 import { commandFor } from "../lib/commands";
 import { type Day, type Paths, prepareDay } from "../lib/trips";
@@ -183,3 +184,8 @@ async function fetchTrips(key: string): Promise<Trips> {
 /** One day of one scenario's students: `dir` is `replay.files.trips[scenario]`. */
 export const useTrips = (dir: string | null | undefined, weekday: number) =>
   useResource<Trips>(dir ? `${dir}|${weekday}` : null, fetchTrips);
+
+/** One day of every student's legs, both scenarios (StudentsHeader): `dir` is
+ *  `replay.files.students`. Loaded only when a student is looked at. */
+export const useStudents = (dir: string | null | undefined, weekday: number) =>
+  useResource<BinaryFile<StudentsHeader>>(dir ? `${dir}/day-${weekday}.json` : null, (p) => loadBinary<StudentsHeader>(p));

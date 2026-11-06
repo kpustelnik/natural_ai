@@ -8,6 +8,7 @@
     uv run scripts/06_export_web.py --aco RUN_DIR ...   # only these experiments/results/<run_id>
     uv run scripts/06_export_web.py --metro             # results/best_line.json -> replay
     uv run scripts/06_export_web.py --sim               # simulation/*/legs.parquet -> replay
+    uv run scripts/06_export_web.py --showcase          # processed/showcase/*/ -> replays
     uv run scripts/06_export_web.py --fake              # synthetic ACO run, line and week
     uv run scripts/06_export_web.py --fake --sample     # the same on data/sample/campus
 
@@ -63,6 +64,11 @@ def export_replays(cfg: dict, args: argparse.Namespace) -> int:
         if not (simulated / "simulation").exists():
             log.error("%s/simulation missing: run 05_simulate.py first (or --fake)", simulated)
             return 1
+    showcase = (
+        sorted((path(cfg, "processed") / "showcase").glob("*/simulation")) if args.showcase else []
+    )
+    if args.showcase and not showcase:
+        log.warning("no data/processed/showcase/*/simulation: run 05_simulate.py --showcase")
 
     changed: list[str] = []
     for run in runs:
@@ -76,6 +82,11 @@ def export_replays(cfg: dict, args: argparse.Namespace) -> int:
         export_best_line(cfg, best_line, out, changed, schedule_file=schedule)
         # heatmap from whatever demand/ exists next to the real pipeline
         export_demand(cfg, path(cfg, "processed"), out, changed)
+    for sim_dir in showcase:  # more lines, each simulated on its own (05 --showcase)
+        root = sim_dir.parent
+        export_simulation(
+            cfg, path(cfg, "processed"), root / "best_line.json", out, changed, sim_root=root
+        )
     changed.append(write_replay_catalog(out, cfg))
     status = write_status_file(out, changed)
     log.info("status.json version %d, %d files", status.version, len(status.changed))
@@ -93,18 +104,22 @@ def main() -> None:
     )
     parser.add_argument("--metro", action="store_true", help="the line in best_line.json")
     parser.add_argument("--sim", action="store_true", help="the simulated week (stage 5)")
+    parser.add_argument(
+        "--showcase", action="store_true", help="the lines of 05_simulate.py --showcase"
+    )
     parser.add_argument("--fake", action="store_true", help="synthetic ACO run, line and week")
     parser.add_argument("--config", default=None, help="YAML of config.yaml keys merged over it")
     args = parser.parse_args()
-    if args.fake and (args.aco is not None or args.metro or args.sim):
+    if args.fake and (args.aco is not None or args.metro or args.sim or args.showcase):
         # the synthetic run would label the real runs and simulation as synthetic too
-        parser.error("--fake cannot be combined with --aco, --metro or --sim")
-    if args.watch and (args.aco is not None or args.metro or args.sim or args.fake):
+        parser.error("--fake cannot be combined with --aco, --metro, --sim or --showcase")
+    real = args.aco is not None or args.metro or args.sim or args.showcase
+    if args.watch and (real or args.fake):
         parser.error("--watch rebuilds only the campus: export replays in a separate run")
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     cfg = load_config(override=args.config)
-    replays = args.aco is not None or args.metro or args.sim or args.fake
+    replays = real or args.fake
     code = 0
     if args.campus or args.watch or not replays:
         campus_dir = path(cfg, "sample") / "campus" if args.sample else path(cfg, "campus")

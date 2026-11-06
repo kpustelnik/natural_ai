@@ -75,7 +75,10 @@ export function stateFromHash(hash: string): Partial<AppState> {
     p.split = q.get("split") === "1";
     if (q.get("play") === "1") p.playing = true;
     p.speed = num("speed") ?? p.speed;
+    p.student = num("student");
+    p.follow = q.get("follow") === "1";
     out.playback = p;
+    if (p.student !== null) out.rightTab = "student";
     if (q.get("tab") === "stats") out.rightTab = "stats";
   }
   if (q.get("present") === "1") out.present = true;
@@ -120,6 +123,8 @@ function writeHash(): void {
       if (p.split) q.set("split", "1");
       else if (p.scenario !== "metro") q.set("sc", p.scenario);
       if (s.rightTab === "stats") q.set("tab", "stats");
+      if (p.student !== null) q.set("student", String(p.student));
+      if (p.follow) q.set("follow", "1");
     }
   }
   if (s.route.from) q.set("from", s.route.from);
@@ -153,7 +158,9 @@ export function bindUrl(): () => void {
       s.playback.split !== prev.playback.split ||
       s.playback.weekday !== prev.playback.weekday ||
       s.playback.acoView !== prev.playback.acoView ||
-      s.playback.scenario !== prev.playback.scenario
+      s.playback.scenario !== prev.playback.scenario ||
+      s.playback.student !== prev.playback.student ||
+      s.playback.follow !== prev.playback.follow
     ) {
       writeHash();
     }

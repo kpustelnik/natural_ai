@@ -18,6 +18,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import dijkstra
 
 from ..campus.geo import to_metric
 from ..config import provenance
@@ -38,6 +40,7 @@ from ..schemas.web import (
     ScenarioStats,
     StationStats,
     Stats,
+    StudentsHeader,
 )
 from ..simulation.metrics import scenario_metrics
 from ..simulation.schedule import DAY_S
@@ -84,6 +87,15 @@ class PathBuilder:
             self.time[(int(u), int(v))] = float(a)
             self.time[(int(v), int(u))] = float(b)
         self.polylines = polylines
+        # buses and trams follow the outdoor graph (streets and pavements from OSM), not a
+        # straight line through the buildings: shortest outdoor path between the two stops
+        out = edges[edges.kind.isin(["outdoor", "link"])]
+        n = len(keys)
+        self.streets = csr_matrix(
+            (np.r_[out.length_m, out.length_m], (np.r_[out.u, out.v], np.r_[out.v, out.u])),
+            shape=(n, n),
+        )
+        self._pred: dict[int, np.ndarray] = {}
         self.index: dict[object, int] = {}
         self.offsets = [0]
         self.verts: list[np.ndarray] = []
@@ -124,6 +136,28 @@ class PathBuilder:
                 ts.append(t + dt * f)
             t += dt
         return self._add(key, np.array(pts), np.array(ts), MODE_CODES["walk"])
+
+    def street(self, a: int, b: int, ride_s: float) -> int:
+        """A bus / tram ride from stop node ``a`` to ``b`` taking ``ride_s``: along the
+        shortest outdoor path, at constant speed (straight when the stops are not joined)."""
+        key = ("transit", a, b, round(ride_s))
+        p = self.index.get(key)
+        if p is not None:
+            return p
+        if a not in self._pred:
+            self._pred[a] = dijkstra(self.streets, indices=a, return_predecessors=True)[1]
+        pred = self._pred[a]
+        nodes = [b]
+        while nodes[-1] != a and pred[nodes[-1]] >= 0:
+            nodes.append(int(pred[nodes[-1]]))
+        if nodes[-1] != a:
+            nodes = [b, a]
+        w = self.walk(np.array(nodes[::-1], np.int64))  # geometry of the edges' polylines
+        lo, hi = self.offsets[w], self.offsets[w + 1]
+        xyz = self.verts[w]
+        seg = np.r_[0.0, np.cumsum(np.linalg.norm(np.diff(xyz, axis=0), axis=1))]
+        t = ride_s * seg / seg[-1] if seg[-1] > 0 else np.linspace(0.0, ride_s, hi - lo)
+        return self._add(key, xyz, t, MODE_CODES["transit"])
 
     def ride(self, key, xyz: list, t: list, mode: str = "metro") -> int:
         p = self.index.get(key)
@@ -220,19 +254,14 @@ def export_scenario(
 
     for r in df.itertuples(index=False):
         nodes = np.asarray(r.path_nodes, np.int64)
-        if r.mode == "transit":  # a bus or tram: straight from stop to stop, at street level
+        if r.mode == "transit":  # a bus or tram: from stop to stop along the streets
             a, b = stop_nodes[r.board_station], stop_nodes[r.alight_station]
             cut = np.flatnonzero((nodes[:-1] == a) & (nodes[1:] == b))
             if not len(cut):
                 raise ValueError(f"leg {r.leg_id}: path_nodes has no {a} -> {b} ride")
             c = int(cut[0])
             walk_in, walk_out = pb.walk(nodes[: c + 1]), pb.walk(nodes[c + 1 :])
-            ride = pb.ride(
-                ("transit", a, b, round(r.ride_s)),
-                [pb.xyz[a], pb.xyz[b]],
-                [0.0, float(r.ride_s)],
-                mode="transit",
-            )
+            ride = pb.street(a, b, float(r.ride_s))
             t_ride = r.depart_wt + pb.duration[walk_in] + r.wait_s
             seg(r, walk_in, r.depart_wt)
             seg(r, ride, t_ride)
@@ -288,6 +317,65 @@ def export_scenario(
         scenario, len(df), len(s), len(pb.modes), pb.offsets[-1],
     )  # fmt: skip
     return days
+
+
+NONE16 = 65535
+
+
+def export_students(
+    out_dir: Path, rel_dir: str, sims: dict[str, pd.DataFrame], legs: pd.DataFrame, cfg: dict,
+    changed: list[str],
+) -> str:  # fmt: skip
+    """students/day-<weekday>.*: every leg with both scenarios, sorted by student."""
+    keys: dict[str, int] = {}
+
+    def code(values: pd.Series) -> np.ndarray:
+        out = np.full(len(values), NONE16, np.uint16)
+        for i, v in enumerate(values.to_numpy()):
+            if isinstance(v, str) and v:
+                out[i] = keys.setdefault(v, len(keys))
+        return out
+
+    kinds = sorted(legs.kind.astype(str).unique())
+    df = legs.sort_values(["weekday", "student_id", "seq"], kind="stable")
+    by_leg = {sc: s.set_index("leg_id") for sc, s in sims.items()}
+    prov = provenance(GENERATOR, cfg)
+    days = []
+    for day, g in df.groupby("weekday"):
+        base = (int(day) - 1) * DAY_S
+        arrays = {
+            "student_id": g.student_id.to_numpy(np.uint32),
+            "leg_id": g.leg_id.to_numpy(np.uint32),
+            "leg_kind": g.kind.astype(str)
+            .map({k: i for i, k in enumerate(kinds)})
+            .to_numpy(np.uint8),
+            "from": code(g.from_key),
+            "to": code(g.to_key),
+            "earliest": (g.earliest_depart_wt.astype("Float64") - base)
+            .fillna(np.nan)
+            .to_numpy(np.float32, na_value=np.nan),
+            "deadline": (g.deadline_wt.astype("Float64") - base).to_numpy(
+                np.float32, na_value=np.nan
+            ),
+        }
+        for sc, s in by_leg.items():
+            r = s.reindex(g.leg_id)
+            arrays[f"{sc}_depart"] = (r.depart_wt.astype(float) - base).to_numpy(np.float32)
+            arrays[f"{sc}_arrive"] = (r.arrive_wt.astype(float) - base).to_numpy(np.float32)
+            arrays[f"{sc}_wait"] = r.wait_s.astype(float).to_numpy(np.float32)
+            arrays[f"{sc}_late"] = r.late_s.astype(float).to_numpy(np.float32)
+            arrays[f"{sc}_mode"] = r["mode"].map(MODE_CODES).fillna(0).to_numpy(np.uint8)
+            arrays[f"{sc}_board"] = code(r.board_station)
+            arrays[f"{sc}_alight"] = code(r.alight_station)
+        days.append((int(day), int(g.student_id.nunique()), arrays))
+    # the key table is complete only after every day: write the headers last
+    for day, n, arrays in days:
+        f = f"{rel_dir}/students/day-{day}.json"
+        write_binary(out_dir / f, StudentsHeader, arrays, provenance=prov, weekday=day,
+                     n_students=n, keys=list(keys), leg_kinds=kinds,
+                     scenarios=list(by_leg))  # fmt: skip
+        changed += [f, f.replace(".json", ".bin")]
+    return f"{rel_dir}/students"
 
 
 def _scenario_stats(sim: pd.DataFrame, legs: pd.DataFrame) -> ScenarioStats:
@@ -360,6 +448,14 @@ def stats(
     )
 
 
+def _sim_title(line: BestLine, st: Stats, synthetic: bool = False) -> str:
+    """ "Week, k = 5 line: −12.5 % (H-D8 – C-4 – …)": the saving the simulation measured."""
+    base = st.scenarios.get("no_metro")
+    saving = f": −{100 * st.saving_s / max(1.0, base.total_travel_s):.1f} %" if base else ""
+    title = f"Week, k = {len(line.stations)} {line.topology}{saving} ({' – '.join(line.stations)})"
+    return f"[synthetic] {title}" if synthetic else title
+
+
 def export_simulation(
     cfg: dict,
     processed: Path,
@@ -367,24 +463,27 @@ def export_simulation(
     out_dir: Path,
     changed: list[str],
     note: str | None = None,
+    sim_root: Path | None = None,
 ) -> Replay:
-    """``processed`` holds network/, demand/ and simulation/ of one simulation run."""
+    """``processed`` holds network/ and demand/; ``sim_root`` (default ``processed``) the
+    simulation/ of one run (05_simulate.py --showcase writes one per line)."""
     processed, out_dir = Path(processed), Path(out_dir)
+    sim_root = Path(sim_root) if sim_root is not None else processed
     nodes = GRAPH_NODES.read(processed / GRAPH_NODES.path)
     edges = GRAPH_EDGES.read(processed / GRAPH_EDGES.path)
     legs = LEGS.read(processed / LEGS.path)
     sims = {}
     for sc in Scenario:
-        f = processed / SIM_LEGS.path.format(scenario=sc.value)
+        f = sim_root / SIM_LEGS.path.format(scenario=sc.value)
         if f.exists():
             sims[sc.value] = SIM_LEGS.read(f)
     if not sims:
         raise FileNotFoundError(
-            f"no {processed}/simulation/*/legs.parquet: run 05_simulate.py first"
+            f"no {sim_root}/simulation/*/legs.parquet: run 05_simulate.py first"
         )
     line: BestLine = load_json(BestLine, best_line)
 
-    schedule = processed / "simulation" / "metro" / "schedule.parquet"
+    schedule = sim_root / "simulation" / "metro" / "schedule.parquet"
     if "metro" in sims and not schedule.exists():
         raise FileNotFoundError(f"{schedule} missing: rerun 05_simulate.py")
     replay = export_best_line(
@@ -414,6 +513,7 @@ def export_simulation(
                             platform_nodes, cfg, changed, stop_nodes)
         )  # fmt: skip
         trips[sc] = f"{rel_dir}/trips/{sc}"
+    students = export_students(out_dir, rel_dir, sims, legs, cfg, changed)
     st = stats(sims, legs, line.stations, cfg)
     (out_dir / rel_dir / "stats.json").write_text(st.model_dump_json(), encoding="utf-8")
     changed.append(f"{rel_dir}/stats.json")
@@ -423,9 +523,12 @@ def export_simulation(
             "scenarios": [sc.value for sc in Scenario if sc.value in sims],
             "weekdays": sorted(weekdays),
             "files": ReplayFiles(
-                metro=replay.files.metro, trips=trips, stats=f"{rel_dir}/stats.json"
+                metro=replay.files.metro,
+                trips=trips,
+                stats=f"{rel_dir}/stats.json",
+                students=students,
             ),
-            "title": f"Week simulation, line {' – '.join(line.stations)}",
+            "title": _sim_title(line, st, synthetic=note is not None),
         }
     )
     Replay.model_validate(replay.model_dump())

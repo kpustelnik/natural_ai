@@ -1,0 +1,32 @@
+# Runs for the viewer, not for the statistics: the optimisation replay needs a run in which
+# the best line actually changes. With local search every algorithm finds the k = 5 optimum
+# in the first iteration (mmas-k5-s42: one best line in all 41 samples), so these run
+# without it, recording every second iteration. Seed 42, one run each.
+#
+#   uv run scripts/run_experiments.py --config experiments/configs/showcase.yaml
+#   uv run scripts/06_export_web.py --aco
+#
+# `simulate`: lines (run ids in experiments/results/) that get their own week simulation
+# next to best_line.json: 05_simulate.py --showcase, then 06_export_web.py --showcase.
+
+name: showcase
+description: optimisation replays without local search (viewer), lines to simulate
+mode: variants
+seeds: [42]
+save_trace: true
+
+defaults:
+  optimize: { local_search: false, max_evaluations: null }
+  aco: { n_ants: 50, n_iterations: 200, trace: { every: 2, max_ants: 50 } }
+
+variants:
+  - { name: mmas-k5, optimize.algorithm: mmas }
+  - { name: acs-k5, optimize.algorithm: acs }
+  - { name: random-k5, optimize.algorithm: random }
+  - { name: mmas-k10, optimize.algorithm: mmas, metro.n_stations: 10 }
+  - { name: mmas-loop-k7, optimize.algorithm: mmas, metro.n_stations: 7, metro.topology: loop }
+
+simulate:
+  - exact_full_brute-k3-brute_force-k3-s42        # k = 3, the exact optimum
+  - topology-k7-topologyloop-mmas-k7-s42          # k = 7, a loop
+  - compare_algorithms_hard-mmas-ls-mmas-k10-s42  # k = 10

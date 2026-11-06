@@ -9,7 +9,11 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
     title: "View",
     keys: [
       ["1 / 2 / 3", "orbit, plan, walk camera"],
+      ["Left drag", "orbit: turn round the point under the cursor (also from under the ground)"],
+      ["Right / middle drag", "move, holding the point under the cursor (Shift + left too); wheel: zoom to it"],
+      ["X", "see through the ground (the metro, who waits on the platforms)"],
       ["F", "frame the selection (double-click: frame what is clicked)"],
+      ["H", "reset the view: the whole campus from the default side"],
       ["PageUp / PageDown", "open the selected building, step through its levels"],
       ["\\", "hide or show both side panels"],
       ["P", "presentation mode: only the view (a replay keeps playing)"],
@@ -32,7 +36,14 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
     title: "Replays",
     keys: [
       ["Space", "play / pause"],
-      ["Walk camera", "W A S D, Shift to run, mouse to look, Esc to leave"],
+      ["← / →", "15 minutes back / forward (Shift: an hour); ants: one iteration (Shift: 10)"],
+      ["Shift+PageUp / PageDown", "previous / next class block (15 min before it starts)"],
+      ["Home / End", "start / end of the day (ants: first / last iteration)"],
+      ["Wheel over the bar", "15 minutes (Shift: an hour) or one iteration"],
+      ["Click a student", "their day in the Student tab; follow them with the camera"],
+      ["Walk camera", "W A S D, Shift to run, wheel: speed, mouse to look, Esc to leave"],
+      ["Walk: Space / Ctrl or C", "fly up / down, through the ground into the metro; G walks again (Ctrl+W would close the tab: use C while moving)"],
+      ["Student tab: Be this student", "see through their eyes; drag to look round, Esc to leave"],
     ],
   },
 ];

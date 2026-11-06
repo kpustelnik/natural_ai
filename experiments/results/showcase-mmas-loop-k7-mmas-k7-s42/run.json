@@ -1,0 +1,60 @@
+{
+  "provenance": {
+    "schema_version": 1,
+    "generated_at": "2026-11-06T21:05:17+01:00",
+    "generator": "run_experiments.py",
+    "config_hash": "590a364c68192904",
+    "git_commit": "03941c3"
+  },
+  "run_id": "showcase-mmas-loop-k7-mmas-k7-s42",
+  "experiment": "showcase",
+  "algorithm": "mmas",
+  "instance": "D:/mateusz/studia/7_semestr/natural_ai/data/processed/instance/instance.npz",
+  "instance_hash": "8c0ccb8b16174a29",
+  "seed": 42,
+  "params": {
+    "n_ants": 50,
+    "n_iterations": 200,
+    "alpha": 1.0,
+    "beta": 1.0,
+    "rho": 0.1,
+    "tau_min_ratio": 0.01,
+    "local_search": false,
+    "heuristic": "demand_distance",
+    "k": 7,
+    "topology": "loop",
+    "n_candidates": 55,
+    "overrides": {
+      "optimize.algorithm": "mmas",
+      "metro.n_stations": 7,
+      "metro.topology": "loop"
+    },
+    "tag": "mmas-loop-k7"
+  },
+  "eval_budget": 10000,
+  "evaluations": 8045,
+  "wall_time_s": 7.72,
+  "best": {
+    "provenance": {
+      "schema_version": 1,
+      "generated_at": "2026-11-06T21:05:17+01:00",
+      "generator": "run_experiments.py",
+      "config_hash": "590a364c68192904",
+      "git_commit": "03941c3"
+    },
+    "run_id": "showcase-mmas-loop-k7-mmas-k7-s42",
+    "topology": "loop",
+    "stations": [
+      "C-7",
+      "A-0",
+      "C-4",
+      "D-10",
+      "U-9",
+      "H-D8",
+      "B-4"
+    ],
+    "objective_s": 131912126.5,
+    "baseline_s": 153077344.0,
+    "lower_bound_s": 90876925.5
+  }
+}

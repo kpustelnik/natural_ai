@@ -866,7 +866,9 @@ def write_replay_catalog(out_dir: Path, cfg: dict) -> str:
             replays.append(Replay.model_validate_json(f.read_text(encoding="utf-8")))
         except pydantic.ValidationError as err:
             log.error("%s: %s", _repo_rel(f), err)
+    # newest first, synthetic runs (06_export_web.py --fake) after every real one
     replays.sort(key=lambda r: r.created_at, reverse=True)
+    replays.sort(key=lambda r: (r.run_id or "").startswith("fake-"))
     catalog = ReplayCatalog(provenance=provenance(GENERATOR, cfg), replays=replays)
     (out_dir / "replays").mkdir(parents=True, exist_ok=True)
     (out_dir / "replays/index.json").write_text(catalog.model_dump_json(), encoding="utf-8")

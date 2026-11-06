@@ -19,6 +19,7 @@ import {
   pickBuilding,
   samePick,
   select,
+  setHomeBox,
   setRouteEnd,
   splitActive,
   toast,
@@ -215,8 +216,11 @@ export function Viewport({ scene }: { scene: Scene }) {
   const split = useApp(splitActive);
   const perf = useApp((s) => s.perf !== "off");
   registry.scene = scene;
-  // the metro line is underground: see through the ground while it is on show
-  const seeThrough = useReplayView(scene).view === "line";
+  // the metro line is underground: see through the ground while it is on show, when asked
+  // (X), and always from below
+  const lineView = useReplayView(scene).view === "line";
+  const xray = useApp((s) => s.layers.xray || s.cameraBelow);
+  const seeThrough = lineView || xray;
 
   // first view: all AGH buildings
   const home = useMemo<FocusRequest>(() => {
@@ -228,7 +232,11 @@ export function Viewport({ scene }: { scene: Scene }) {
         max[i] = Math.max(max[i], b.bbox_max[i]);
       }
     }
-    if (!scene.buildings.length) return { seq: 0, min: scene.extent.min, max: scene.extent.max };
+    if (!scene.buildings.length) {
+      setHomeBox(scene.extent.min, scene.extent.max);
+      return { seq: 0, min: scene.extent.min, max: scene.extent.max };
+    }
+    setHomeBox(min, [max[0], 0, max[2]]);
     return { seq: 0, min, max: [max[0], 0, max[2]] };
   }, [scene]);
 

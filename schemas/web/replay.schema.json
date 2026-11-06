@@ -62,13 +62,27 @@
           "default": null,
           "description": "Stats",
           "title": "Stats"
+        },
+        "students": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "dir with day-<weekday>.json (StudentsHeader): who goes where",
+          "title": "Students"
         }
       },
       "required": [
         "metro",
         "aco_trace",
         "trips",
-        "stats"
+        "stats",
+        "students"
       ],
       "title": "ReplayFiles",
       "type": "object"

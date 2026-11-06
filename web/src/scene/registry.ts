@@ -3,6 +3,7 @@
 
 import { Box3, type BufferGeometry, type Object3D, Vector3 } from "three";
 import type { BuildingInfo, NetworkHeader, Scene } from "../generated/schemas";
+import type { Day, Frame, Paths } from "../lib/trips";
 import type { Vec3 } from "../lib/frames";
 import { boxAround, type Pick } from "../state/app";
 import type { BinaryFile } from "../data/loader";
@@ -14,7 +15,10 @@ export const registry: {
   network: BinaryFile<NetworkHeader> | null;
   infos: Map<string, BuildingInfo>; // building id -> loaded BuildingInfo
   split: { left: Set<Object3D>; right: Set<Object3D> }; // drawn on one half of the split view only
-  onScreen: Record<string, [number, number, number]>; // scenario -> students walking, waiting, riding
+  onScreen: Record<string, [number, number, number, number]>; // scenario -> walking, waiting, metro, bus / tram
+  frames: Record<string, { paths: Paths; day: Day; frame: Frame }>; // scenario -> the students drawn last
+  studentAt: ((clientX: number, clientY: number) => number | null) | null; // the student near a click
+  follow: Vector3 | null; // where the student looked at is now (the camera may follow)
   perf: Perf | null; // last second, from PerfProbe
   canvas: HTMLCanvasElement | null; // for screenshots
 } = {
@@ -24,6 +28,9 @@ export const registry: {
   infos: new Map(),
   split: { left: new Set(), right: new Set() },
   onScreen: {},
+  frames: {},
+  studentAt: null,
+  follow: null,
   perf: null,
   canvas: null,
 };

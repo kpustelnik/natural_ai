@@ -6,10 +6,11 @@
 
 import { useFrame, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { MOUSE, OrthographicCamera, PerspectiveCamera, Vector3 } from "three";
+import { type Intersection, type Mesh, MOUSE, type Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { ModelControls } from "./ModelControls";
 import type { Vec3 } from "../lib/frames";
-import { app, type FocusRequest, openedBuilding, splitActive, useApp } from "../state/app";
+import { app, type FocusRequest, openedBuilding, setPlayback, splitActive, useApp } from "../state/app";
 import { rememberPose } from "../state/url";
 import { registry } from "./registry";
 import { type WalkStart, WalkRig } from "./WalkRig";
@@ -20,6 +21,9 @@ const ANIM_MS = 450;
 const REDUCED = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 const PLAN_HEIGHT = 3000;
 const DEFAULT_DIR = new Vector3(0.25, 0.75, 0.62).normalize(); // from south-south-east, 50 deg up
+// the orbit camera may go under the ground (the metro is 15 m down), short of straight up
+const MAX_POLAR = (172 * Math.PI) / 180;
+const CLICK_PX = 4; // a press that moved further is a drag, not a click on a label
 
 interface Flight {
   t0: number;
@@ -32,6 +36,30 @@ interface Flight {
 }
 
 const ease = (t: number) => 1 - (1 - t) ** 3;
+
+/** A click near a student (of a simulation) picks them for the Student tab; true if it did.
+ *  Checked here, on the canvas wrapper, so it works wherever the student stands (off the
+ *  ground plate too, where no mesh is hit). */
+function pickStudent(e: MouseEvent): boolean {
+  const s = app.get();
+  if (e.button !== 0 || s.tool !== "select" || s.camera === "walk" || s.playback.pov || e.altKey || !registry.studentAt) return false;
+  const id = registry.studentAt(e.clientX, e.clientY);
+  if (id === null) return false;
+  setPlayback({ student: id });
+  app.set({ rightTab: "student", rightOpen: true, tabsOpen: true });
+  return true;
+}
+
+/** What the rig uses of either controls: OrbitControls (plan) or ModelControls (orbit). */
+interface Controls {
+  target: Vector3;
+  update(): void;
+  dispose(): void;
+  getAzimuthalAngle(): number;
+  addEventListener(type: "end", listener: () => void): void;
+  removeEventListener(type: "end", listener: () => void): void;
+  dispatchEvent(event: { type: "end" }): void;
+}
 
 /** Direction (web, horizontal) that the plan view shows at the top of the screen. */
 function planUpOf(bearingDeg: number | null): Vector3 {
@@ -78,19 +106,131 @@ export function CameraRig({ home }: { home: FocusRequest }) {
     () => ({ width: split ? Math.floor(canvas.width / 2) : canvas.width, height: canvas.height }),
     [split, canvas.width, canvas.height],
   );
-  const dom = useThree((s) => s.gl.domElement);
+  const canvasEl = useThree((s) => s.gl.domElement);
+  // the controls listen on the canvas' wrapper: the HTML labels (Css2d) sit in it above the
+  // canvas, so a right-drag that starts on a label pans instead of opening the browser menu
+  const dom = canvasEl.parentElement ?? canvasEl;
+  useEffect(() => {
+    let down: [number, number] | null = null;
+    const onDown = (e: PointerEvent) => {
+      down = [e.clientX, e.clientY];
+    };
+    const onClick = (e: MouseEvent) => {
+      // a drag that ended on a label must not select it
+      if (down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) > CLICK_PX) e.stopPropagation();
+      // a click near a student picks them, before anything under them gets selected
+      else if (pickStudent(e)) e.stopPropagation();
+    };
+    const noMenu = (e: MouseEvent) => e.preventDefault();
+    // a drag whose pointerup got lost (context menu, cancelled capture) would stick until the
+    // next click: a move with no button held ends it (OrbitControls listens on the document)
+    let dragging = -1;
+    const onPress = (e: PointerEvent) => {
+      dragging = e.pointerId;
+    };
+    const onRelease = () => {
+      dragging = -1;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (dragging < 0 || e.buttons !== 0 || e.pointerType !== "mouse") return;
+      const id = dragging;
+      dragging = -1;
+      dom.ownerDocument.dispatchEvent(new PointerEvent("pointerup", { pointerId: id, pointerType: "mouse", clientX: e.clientX, clientY: e.clientY }));
+    };
+    dom.addEventListener("pointerdown", onPress);
+    dom.ownerDocument.addEventListener("pointerup", onRelease, true);
+    dom.ownerDocument.addEventListener("pointermove", onMove, true);
+    dom.addEventListener("pointerdown", onDown, true);
+    dom.addEventListener("click", onClick, true);
+    dom.addEventListener("contextmenu", noMenu);
+    return () => {
+      dom.removeEventListener("pointerdown", onDown, true);
+      dom.removeEventListener("pointerdown", onPress);
+      dom.ownerDocument.removeEventListener("pointerup", onRelease, true);
+      dom.ownerDocument.removeEventListener("pointermove", onMove, true);
+      dom.removeEventListener("click", onClick, true);
+      dom.removeEventListener("contextmenu", noMenu);
+    };
+  }, [dom]);
 
   const cams = useMemo(() => {
     const persp = new PerspectiveCamera(FOV, 1, 1, 20000);
     const ortho = new OrthographicCamera(-1, 1, 1, -1, 1, 20000);
     return { persp, ortho };
   }, []);
-  const controls = useRef<OrbitControls | null>(null);
+  const controls = useRef<Controls | null>(null);
+  const scene = useThree((s) => s.scene);
+  // the point under the pointer for the orbit controls: buildings, context, ground (the
+  // meshes with a BVH), visible ones only
+  const pick = useMemo(() => {
+    const ray = new Raycaster();
+    ray.firstHitOnly = true;
+    const visible = (h: Intersection) => {
+      for (let o: Object3D | null = h.object; o; o = o.parent) if (!o.visible) return false;
+      return !!(h.object as Mesh).geometry?.boundsTree;
+    };
+    return (ndc: { x: number; y: number }, cam: PerspectiveCamera) => {
+      ray.setFromCamera(ndc as never, cam);
+      return ray.intersectObject(scene, true).find(visible)?.point.clone() ?? null;
+    };
+  }, [scene]);
   const target = useRef(new Vector3());
   const flight = useRef<Flight | null>(null);
   const lastReport = useRef({ azimuth: NaN, mpp: NaN, time: 0 });
   const sizeRef = useRef(size);
   sizeRef.current = size;
+
+  // the student's eyes (playback.pov): the camera at their eye height, looking where they go;
+  // a drag turns the head (yaw, pitch), the orbit controls rest meanwhile
+  const pov = useApp((s) => s.playback.pov && s.camera === "orbit");
+  const eyes = useRef({ heading: new Vector3(0, 0, -1), last: null as Vector3 | null, yaw: 0, pitch: -0.08 });
+  useEffect(() => {
+    const c = controls.current as unknown as { enabled?: boolean } | null;
+    if (!pov) return;
+    if (c) c.enabled = false;
+    const cam = cams.persp;
+    const near = cam.near;
+    cam.near = 0.1; // tunnels and crowds are close
+    cam.updateProjectionMatrix();
+    eyes.current.last = null;
+    eyes.current.yaw = 0;
+    eyes.current.pitch = -0.08;
+    let drag: [number, number] | null = null;
+    const down = (e: PointerEvent) => {
+      if (e.button === 0) drag = [e.clientX, e.clientY];
+    };
+    const move = (e: PointerEvent) => {
+      if (!drag || e.buttons === 0) {
+        drag = null;
+        return;
+      }
+      eyes.current.yaw -= (e.clientX - drag[0]) * 0.004;
+      eyes.current.pitch = Math.max(-1.3, Math.min(1.3, eyes.current.pitch - (e.clientY - drag[1]) * 0.004));
+      drag = [e.clientX, e.clientY];
+    };
+    const up = () => {
+      drag = null;
+    };
+    dom.addEventListener("pointerdown", down);
+    dom.ownerDocument.addEventListener("pointermove", move);
+    dom.ownerDocument.addEventListener("pointerup", up);
+    return () => {
+      dom.removeEventListener("pointerdown", down);
+      dom.ownerDocument.removeEventListener("pointermove", move);
+      dom.ownerDocument.removeEventListener("pointerup", up);
+      cam.near = near;
+      cam.updateProjectionMatrix();
+      const ctl = controls.current;
+      if (ctl) {
+        (ctl as unknown as { enabled?: boolean }).enabled = true;
+        // step back and up from the student, looking at them
+        const back = eyes.current.heading.clone().multiplyScalar(-70);
+        ctl.target.copy(cam.position).setY(cam.position.y - 1.6);
+        cam.position.add(back).setY(cam.position.y + 55);
+        ctl.update();
+      }
+    };
+  }, [pov, cams, dom]);
 
   // first view: pose from the URL, else the home box
   const started = useRef(false);
@@ -127,6 +267,10 @@ export function CameraRig({ home }: { home: FocusRequest }) {
     prevMode.current = mode;
     if (mode === "walk") {
       if (persp.position.distanceTo(t) < 1e-3) persp.position.add(DEFAULT_DIR);
+      if (app.get().cameraBelow) app.set({ cameraBelow: false });
+      // the walk starts where the view looks: the scene point in the middle of the screen
+      const hit = pick({ x: 0, y: 0 }, persp);
+      if (hit) t.copy(hit);
       setWalk(walkStart(t, persp));
       persp.aspect = width / height;
       persp.updateProjectionMatrix();
@@ -163,23 +307,26 @@ export function CameraRig({ home }: { home: FocusRequest }) {
       set({ camera: persp });
     }
 
-    const c = new OrbitControls(mode === "plan" ? ortho : persp, dom);
-    c.target.copy(t);
-    c.enableDamping = true;
-    c.dampingFactor = 0.12;
-    c.zoomToCursor = true;
+    let c: Controls;
     if (mode === "plan") {
-      c.enableRotate = false;
-      c.screenSpacePanning = true;
-      c.mouseButtons = { LEFT: MOUSE.PAN, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
-      c.minZoom = 0.05;
-      c.maxZoom = 400;
+      const o = new OrbitControls(ortho, dom);
+      o.enableDamping = true;
+      o.dampingFactor = 0.12;
+      o.zoomToCursor = true;
+      o.zoomSpeed = 1.6;
+      o.enableRotate = false;
+      o.screenSpacePanning = true;
+      o.mouseButtons = { LEFT: MOUSE.PAN, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN };
+      o.minZoom = 0.05;
+      o.maxZoom = 400;
+      c = o as unknown as Controls;
     } else {
-      c.screenSpacePanning = false;
-      c.maxPolarAngle = (86 * Math.PI) / 180;
-      c.minDistance = 3;
-      c.maxDistance = 8000;
+      const m = new ModelControls(persp, dom);
+      m.maxPolarAngle = MAX_POLAR;
+      m.pick = (ndc) => pick(ndc, persp);
+      c = m as unknown as Controls;
     }
+    c.target.copy(t);
     const onEnd = () => {
       const cam = mode === "plan" ? ortho : persp;
       rememberPose({
@@ -197,7 +344,7 @@ export function CameraRig({ home }: { home: FocusRequest }) {
       c.dispose();
       controls.current = null;
     };
-  }, [mode, cams, dom, set, planUp]);
+  }, [mode, cams, dom, set, planUp, pick]);
 
   // framing requests: fly to the box, keeping the viewing direction. Each request once: the
   // effect also re-runs on a mode change, which must not fly back to an old box.
@@ -207,8 +354,8 @@ export function CameraRig({ home }: { home: FocusRequest }) {
     if (!focus || !c || focus.seq === doneFocus.current) return;
     doneFocus.current = focus.seq;
     const cam = mode === "plan" ? cams.ortho : cams.persp;
-    const dir = cam.position.clone().sub(c.target).normalize();
-    const { pos, tgt } = frameBox(focus.min, focus.max, mode === "plan" ? new Vector3(0, 1, 1e-6) : dir);
+    const dir = focus.reset ? DEFAULT_DIR.clone() : cam.position.clone().sub(c.target).normalize();
+    const { pos, tgt } = frameBox(focus.min, focus.max, mode === "plan" ? new Vector3(0, 1, 1e-6) : dir, focus.reset ? 0.8 : 1.5);
     if (mode === "plan") pos.copy(tgt).add(planOffset(planUp));
     flight.current = {
       t0: performance.now(),
@@ -246,6 +393,24 @@ export function CameraRig({ home }: { home: FocusRequest }) {
     const c = controls.current;
     if (!c) return;
     const cam = mode === "plan" ? cams.ortho : cams.persp;
+    if (pov) {
+      const p = registry.follow;
+      const e = eyes.current;
+      if (p) {
+        if (e.last) {
+          const d = p.clone().sub(e.last).setY(0);
+          if (d.length() > 0.02) e.heading.lerp(d.normalize(), 0.12).normalize();
+        }
+        e.last = p.clone();
+        const dir = e.heading.clone().applyAxisAngle(new Vector3(0, 1, 0), e.yaw);
+        dir.multiplyScalar(Math.cos(e.pitch)).setY(Math.sin(e.pitch));
+        cam.position.set(p.x, p.y + 1.6, p.z);
+        c.target.copy(cam.position).addScaledVector(dir, 5);
+        c.update();
+        report(cam, c);
+      }
+      return;
+    }
     const f = flight.current;
     if (f) {
       const k = REDUCED ? 1 : ease(Math.min(1, (performance.now() - f.t0) / ANIM_MS));
@@ -260,12 +425,24 @@ export function CameraRig({ home }: { home: FocusRequest }) {
         c.dispatchEvent({ type: "end" });
       }
     }
+    // follow the student looked at: move camera and target with them (eased)
+    if (!f && registry.follow && app.get().playback.follow) {
+      const d = registry.follow.clone().sub(c.target);
+      if (mode === "plan") d.y = 0;
+      if (d.lengthSq() > 1e-4) {
+        d.multiplyScalar(Math.min(1, 0.15));
+        cam.position.add(d);
+        c.target.add(d);
+      }
+    }
     c.update();
     target.current.copy(c.target);
     report(cam, c);
+    const below = mode !== "plan" && cam.position.y < 0;
+    if (below !== app.get().cameraBelow) app.set({ cameraBelow: below });
   });
 
-  function report(cam: PerspectiveCamera | OrthographicCamera, c: OrbitControls) {
+  function report(cam: PerspectiveCamera | OrthographicCamera, c: Controls) {
     const now = performance.now();
     if (now - lastReport.current.time < 100) return;
     const azimuth = mode === "plan" ? -Math.atan2(planUp.x, -planUp.z) : c.getAzimuthalAngle();

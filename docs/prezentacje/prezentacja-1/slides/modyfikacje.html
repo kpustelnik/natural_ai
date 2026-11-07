@@ -1,0 +1,16 @@
+<section id="modyfikacje" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">Co zmieniliśmy względem klasycznego ACO (TSP)</h2>
+<table style="font-size:30px;line-height:1.3;color:#1C2430">
+<tr><th style="width:30%;text-align:left">klasyczne ACO (TSP)</th><th style="width:40%;text-align:left">nasza modyfikacja</th><th style="width:30%;text-align:left">po co</th></tr>
+<tr><td>trasa przez wszystkie miasta</td><td>uporządkowany wybór k z 55, stop po k</td><td>linia, nie objazd</td></tr>
+<tr><td>start w losowym mieście</td><td>feromon <b>start(v)</b> + popyt dla 1. stacji</td><td>kolonia uczy się też końców linii</td></tr>
+<tr><td>η = 1 / odległość</td><td>η = popyt(v) / (tunel + 100 m)</td><td>stacje tam, gdzie są ludzie</td></tr>
+<tr><td>Δτ = 1 / długość trasy</td><td>Δτ = cel bez metra / cel linii</td><td>skala niezależna od jednostek</td></tr>
+<tr><td>koszt = suma krawędzi</td><td>cel = Σ min(bez metra, metro) po 4 830 parach</td><td>wartość odcinka zależy od całej linii</td></tr>
+<tr><td>ocena bez pamięci</td><td>cache; linia = jej odwrócenie</td><td>każda linia liczona raz</td></tr>
+<tr><td>stała liczba iteracji</td><td>budżet różnych linii</td><td>uczciwe porównanie (etap 2)</td></tr>
+<tr><td>(poziom 1) jeden feromon</td><td>feromon na cel, kroki Diala, MSA</td><td>rozkład ruchu, nie jedna trasa</td></tr>
+</table>
+
+<aside>Klasyczne ACO powstało dla komiwojażera: mrówka odwiedza wszystkie miasta, heurystyka to odwrotność odległości, a odkłada się odwrotność długości trasy. U nas mrówka wybiera tylko k stacji z 55, więc kończy po k krokach; pierwszą stację wybiera z osobnego feromonu startowego i z popytu, dzięki czemu kolonia uczy się też, gdzie linia ma końce. Heurystyka łączy popyt przy kandydacie z długością tunelu (to nasza wersja „zmodyfikowanej” heurystyki Korzenia i Kruszyny, którzy dodawali liczbę mieszkańców przy stacji). Odkładamy stosunek celu bez metra do celu linii, bo cel to miliony studento-sekund i 1/cel byłoby bezużyteczne liczbowo. Najważniejsza różnica: funkcja celu nie jest sumą krawędzi; każde przejście wybiera najlepszą parę stacji albo nie jedzie wcale, więc wartość odcinka zależy od całej linii. Każda linia jest oceniana raz (pamięć podręczna, linia i jej odwrócenie to jeden klucz), a przebieg może być ograniczony budżetem różnych ocenionych linii, co na etapie 2 pozwala porównać algorytmy uczciwie.</aside>
+</section>

@@ -1,0 +1,23 @@
+<section id="poziom1" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">Poziom 1: ruch pieszy z tłokiem</h2>
+<div style="display:flex;gap:48px">
+<div style="flex:1;display:flex;flex-direction:column;gap:18px">
+<p style="font-size:34px;line-height:1.35;background:#FBFBF8;padding:20px 24px;border-radius:12px">czas odcinka t = t₀ · (1 + 0,73 · (x / C)⁴)</p>
+<p style="font-size:24px;line-height:1.35;color:#4A5260">x: osoby na odcinku w ciągu 5 min (oba kierunki); C = 75 os./min/m (FHWA 1998) × szerokość × 5 min; przy x = C prędkość spada z 1,3 do 0,75 m/s (FHWA)</p>
+<p style="font-size:34px;line-height:1.35;background:#FBFBF8;padding:20px 24px;border-radius:12px">p(u → v) ∝ τ_d(uv)^α · exp(−β · nadłożony czas / 20 s)</p>
+<p style="font-size:24px;line-height:1.35;color:#4A5260">nadłożony czas = c(uv) + h_d(v) − h_d(u): ile ten krok dokłada do najkrótszej drogi do celu d przy obecnym tłoku; tylko kroki bliżej celu (Dial 1971)</p>
+</div>
+<div style="width:640px"><table style="font-size:28px;line-height:1.3;color:#1C2430">
+<tr><th style="width:40%;text-align:left">element</th><th style="width:60%;text-align:left">u nas</th></tr>
+<tr><td>feromon</td><td>osobny dla każdego celu d</td></tr>
+<tr><td>mrówki</td><td>8 na parę skąd–dokąd, 848 par</td></tr>
+<tr><td>ludzie</td><td>dzieleni równo między ścieżki mrówek</td></tr>
+<tr><td>przepływ</td><td>średnia z iteracji, krok 1/n (MSA)</td></tr>
+<tr><td>odkładanie</td><td>najkrótsza / jej ścieżka, ÷ 8</td></tr>
+<tr><td>granice τ</td><td>[0,05; 5] jak w MMAS</td></tr>
+<tr><td>parowanie</td><td>ρ = 0,1; 60 iteracji</td></tr>
+</table>
+</div>
+</div>
+<aside>Czas przejścia odcinkiem rośnie z liczbą osób: to funkcja BPR, którą do chodników stosowali Lam i Cheung (2000). Przepustowość chodnika to 75 osób na minutę na metr szerokości (raport FHWA z 1998, prędkość przy przepustowości 0,75 m/s, stąd współczynnik 0,73). OSM nie ma szerokości chodników na kampusie, więc szerokość bierzemy z typu drogi (chodnik 2 m, ścieżka 1,5 m, droga serwisowa 3 m, deptak 6 m, drzwi 1,8 m). Okres 5 minut, bo 81 % wychodzi w pierwszej minucie po zajęciach, a mediana przejścia to 4,6 min. Mrówka idzie od źródła do celu krok po kroku: wybiera następny odcinek proporcjonalnie do feromonu dla tego celu i do tego, ile ten krok dokłada do najkrótszej drogi przy obecnym tłoku. Dopuszczamy tylko kroki, które zbliżają do celu (efektywne ścieżki Diala), więc mrówka nie krąży i nie utyka w ślepej uliczce. Ludzie z pary skąd–dokąd dzielą się równo na ścieżki jej mrówek, a przepływ uśredniamy po iteracjach krokiem 1/n: to metoda kolejnych średnich, którą D'Acierno i in. łączą z mrówkami w zadaniu rozkładu ruchu. Feromon jest osobny dla każdego celu (mrówki do A-0 nie mylą mrówek do D-17), paruje, odkłada każda mrówka proporcjonalnie do tego, jak blisko najkrótszej była jej trasa, i jest przycinany do przedziału jak w MMAS.</aside>
+</section>

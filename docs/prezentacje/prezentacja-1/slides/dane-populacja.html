@@ -1,0 +1,24 @@
+<section id="dane-populacja" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">Ilu studentów, kto mieszka w akademiku, kto skąd dojeżdża</h2>
+<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:36px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:60px;font-weight:600;color:#C8102E">22 660</p>
+<p style="font-size:24px;line-height:1.35"><b>studentów</b> = suma kohort. Kohorta = 75. percentyl, po jej przedmiotach, liczby zapisanych dzielonej równo między kohorty, które ten przedmiot dzielą (wykłady obowiązkowe mają wszystkich, obieralne nie)</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:36px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:60px;font-weight:600;color:#C8102E">7 000</p>
+<p style="font-size:24px;line-height:1.35"><b>w akademikach</b> (31 %): Miasteczko AGH ma ok. 7 tys. miejsc dla studentów w 20 domach (Radio Kraków). Rozdzielone na 20 akademików proporcjonalnie do powierzchni pięter z modelu 3D</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:36px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:60px;font-weight:600;color:#C8102E">15 660</p>
+<p style="font-size:24px;line-height:1.35"><b>dojeżdża</b>: każdy „przyjeżdża” na jeden z 12 przystanków, z prawdopodobieństwem ∝ miejsca w pojazdach przyjeżdżających 7–10 (GTFS; autobus 90, tramwaj 180)</p>
+</div>
+</div>
+<table style="font-size:24px;line-height:1.3;color:#1C2430">
+<tr><th style="width:18%;text-align:left">przystanek</th><th style="width:14%;text-align:left">Plac Inwalidów</th><th style="width:13%;text-align:left">AGH / UR</th><th style="width:13%;text-align:left">Biprostal</th><th style="width:15%;text-align:left">Czarnowiejska</th><th style="width:11%;text-align:left">UKEN</th><th style="width:16%;text-align:left">pozostałe 7</th></tr>
+<tr><td>przyjazdy 7–10</td><td>432</td><td>341</td><td>240</td><td>186</td><td>164</td><td>48–155</td></tr>
+<tr><td>studentów</td><td>3 179</td><td>2 399</td><td>1 691</td><td>1 399</td><td>1 229</td><td>617–1 079</td></tr>
+</table>
+
+<aside>Liczba studentów nie jest wpisana ręcznie: to suma kohort z USOS. Rozmiar kohorty liczymy z przedmiotów: dla każdego przedmiotu kohorty bierzemy liczbę zapisanych podzieloną równo między kohorty, które go mają, i z tego 75. percentyl. Wykłady obowiązkowe mają całą kohortę, obieralne tylko część, więc górny kwantyl daje liczebność rocznika. Wyszło 22 660 studentów; tylu jest w populacji. Akademiki: Miasteczko Studenckie AGH ma ok. 7 tysięcy miejsc dla studentów w 20 domach (Radio Kraków), uczelnia nie publikuje liczby na każdy dom, więc 7 000 miejsc rozdzielamy proporcjonalnie do powierzchni kondygnacji z naszego modelu 3D. Udział mieszkańców akademików to 7 000 / 22 660 = 31 %. Reszta dojeżdża: przypisujemy ich do 12 przystanków kampusu proporcjonalnie do liczby miejsc w pojazdach, które przyjeżdżają na przystanek między 7 a 10 rano (z rozkładu GTFS, autobus liczony jako 90 miejsc, tramwaj jako 180; to wagi względne, Lajkonik ma 238 miejsc). Każdy student dostaje swoje przedmioty: obowiązkowe wszyscy z kohorty, obieralne z prawdopodobieństwem dopasowanym do liczby zapisanych; w każdym typie zajęć jedną grupę, tak żeby rozmiary grup się zgadzały i nie było kolizji w planie.</aside>
+</section>

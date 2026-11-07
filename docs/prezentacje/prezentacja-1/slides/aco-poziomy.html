@@ -1,0 +1,16 @@
+<section id="aco-poziomy" data-section="Algorytmy mrówkowe i ich modyfikacje" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">Mrówki na dwóch poziomach</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;flex:1">
+<div style="display:flex;flex-direction:column;gap:20px;background:#FBFBF8;padding:44px;border:1px solid #D9DCD6;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:28px;font-weight:600;color:#C8102E;letter-spacing:1px">POZIOM 1</p>
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;line-height:1.2">Którędy idą ludzie, gdy jest tłok?</p>
+<ul style="font-size:26px;line-height:1.35;color:#1C2430"><li style="margin-bottom:10px">graf: 7 198 odcinków chodników, korytarzy, wejść</li><li style="margin-bottom:10px">popyt: szczyt, środa 9:30–9:45, 5 381 przejść</li><li style="margin-bottom:10px">mrówka = grupa ludzi; czas odcinka rośnie z tłokiem</li><li style="margin-bottom:10px">wzór: D'Acierno, Gallo, Montella (2012)</li></ul>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;background:#1C2430;color:#F4F3EE;padding:44px;border-radius:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:28px;font-weight:600;color:#E86A7E;letter-spacing:1px">POZIOM 2</p>
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;line-height:1.2;color:#F4F3EE">Gdzie postawić linię metra?</p>
+<ul style="font-size:26px;line-height:1.35;color:#F4F3EE"><li style="margin-bottom:10px">graf: 55 kandydatów, każdy z każdym</li><li style="margin-bottom:10px">popyt: cały tydzień, 286 169 przejść</li><li style="margin-bottom:10px">mrówka = jedna linia z k stacji</li><li style="margin-bottom:10px">wzór: MAX-MIN Ant System (Stützle, Hoos 2000)</li></ul>
+</div>
+</div>
+<aside>Plan z etapu 0 miał dwa poziomy mrówek i oba działają. Poziom 1: mrówki szukają tras pieszych z uwzględnieniem tłoku: w szczycie po zajęciach o 9:30 w środę 5 381 osób wychodzi niemal naraz i niektóre chodniki się korkują; mrówki rozkładają ten ruch na trasy alternatywne. Poziom 2: mrówki projektują linię metra z k stacjami; to główny problem projektu. Poziomy są na razie niezależne: metro liczy dojścia bez tłoku (to opisujemy jako ograniczenie), a poziom 1 mówi, ile tłok dokłada i gdzie.</aside>
+</section>

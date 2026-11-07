@@ -1,0 +1,17 @@
+<section id="metro-stale" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">Stałe metra i ich źródła</h2>
+<table style="font-size:29px;line-height:1.3;color:#1C2430">
+<tr><th style="width:28%;text-align:left">stała</th><th style="width:24%;text-align:left">wartość</th><th style="width:48%;text-align:left">skąd</th></tr>
+<tr><td>prędkość jazdy</td><td>10 m/s = 36 km/h</td><td>studium metra w Krakowie: prędkość handlowa ok. 32–36 km/h (stm.krakow.pl)</td></tr>
+<tr><td>postój na stacji pośredniej</td><td>30 s</td><td>typowo 15–45 s w metrze; założenie</td></tr>
+<tr><td>odstęp pociągów</td><td>180 s</td><td>metro w Warszawie w szczycie: M2 co 2 min 50 s, M1 co 2 min 20 s (WTP)</td></tr>
+<tr><td>czekanie w funkcji celu</td><td>90 s = ½ odstępu</td><td>student przychodzi w losowej chwili</td></tr>
+<tr><td>godziny kursowania</td><td>7:00–21:00</td><td>założenie: godziny zajęć</td></tr>
+<tr><td>głębokość peronu</td><td>15 m</td><td>założenie: płytka stacja</td></tr>
+<tr><td>szyb</td><td>schody: 33 s / 43 s</td><td>prędkości schodów z modelu pieszego; bez windy</td></tr>
+<tr><td>pojemność pociągu</td><td><b>nie modelujemy</b></td><td>każdy, kto chce, wsiada</td></tr>
+<tr><td>koszt budowy</td><td>nie ma w celu</td><td>zamiast tego liczba stacji k jako parametr</td></tr>
+</table>
+
+<aside>Każda stała ma źródło albo jest jawnie założeniem. Prędkość 10 m/s to 36 km/h: tyle co górna granica prędkości handlowej podanej w studium metra dla Krakowa (32–36 km/h); u nas to prędkość jazdy bez przyspieszania, a postój dodajemy osobno. Postój 30 s na stacji pośredniej to typowa wartość dla metra (15–45 s). Odstęp 180 s to tyle, ile w szczycie jeździ druga linia metra w Warszawie (co 2 min 50 s, pierwsza co 2 min 20 s). W funkcji celu czekanie to połowa odstępu, bo student przychodzi w losowej chwili; w symulacji jest prawdziwy rozkład. Kursy od 7 do 21. Pojemności pociągu nie modelujemy: zakładamy, że każdy się zmieści; tak samo nie ma kosztu budowy, dlatego liczba stacji jest parametrem. Na etapie 2 sprawdzamy, jak wynik zależy od postoju, odstępu i prędkości.</aside>
+</section>

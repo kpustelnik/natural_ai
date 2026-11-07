@@ -1,0 +1,20 @@
+<section id="poziom1-wynik" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:112px 128px 150px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">Poziom 1: tłok dokłada 18 %, mrówki odzyskują większość</h2>
+<div style="display:flex;gap:40px;flex:1">
+<div style="width:1040px;display:flex;flex-direction:column;gap:16px">
+<img src="/_blob/walk_aco" alt="" style="width:1040px;border-radius:8px">
+</div>
+<div style="flex:1"><table style="font-size:27px;line-height:1.3;color:#1C2430">
+<tr><th style="width:62%;text-align:left">średnie przejście</th><th style="width:38%;text-align:left">s</th></tr>
+<tr><td>bez tłoku</td><td>324</td></tr>
+<tr><td>wszyscy najkrótszą, z tłokiem</td><td><b>383</b> (7 odcinków ponad C)</td></tr>
+<tr><td>mrówki (5 ziaren)</td><td><b>342</b> (−10,8 %)</td></tr>
+<tr><td>równowaga (MSA, odniesienie)</td><td>336 (−12,3 %)</td></tr>
+<tr><td>mrówki bez feromonu (α = 0)</td><td>344,6</td></tr>
+<tr><td>α = 2</td><td>340,0</td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:22px;color:#6B7280">scripts/walk_aco.py · wykres i tabela: docs/figures/walk_aco.png / .csv · BPR, 75 os./min/m, okres 5 min</p>
+<aside>Gdyby wszyscy szli najkrótszą drogą, jak zakłada model metra i symulacja, tłok wydłuża średnie przejście z 324 do 383 sekund, a 7 odcinków (między budynkami B i D przy ul. Czarnowiejskiej) jest ponad przepustowością. Mrówki rozkładają ruch na alternatywne trasy: 342 s, czyli 10,8 % mniej, bez przekroczeń przepustowości, i to przy każdym z 5 ziaren (rozrzut 0,1 s). Odniesieniem jest klasyczna równowaga użytkowników (metoda kolejnych średnich z najkrótszymi ścieżkami): 336 s; mrówki są 1,7 % od niej, bo rozkład stochastyczny zostawia część ludzi na trasach trochę dłuższych od najkrótszej (to bliżej rzeczywistości: ludzie nie znają idealnie tłoku). Feromon pomaga: bez niego (α = 0) 344,6 s, z α = 1 341,9 s, z α = 2 340,0 s. Wniosek dla metra: czas „bez metra” w szczycie jest niedoszacowany, więc metro realnie oszczędzałoby więcej; na etapie 2 można by wpiąć czasy z tłokiem do funkcji celu.</aside>
+</section>

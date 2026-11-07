@@ -1,0 +1,20 @@
+<section id="dane-usos" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">USOS: jak pobraliśmy plan zajęć</h2>
+<div style="display:flex;gap:56px">
+<div style="flex:1"><ul style="font-size:26px;line-height:1.35;color:#1C2430"><li style="margin-bottom:10px">Bez logowania i klucza: <b>anonimowe metody USOS API</b> (budynki, sale, pojemności) + <b>publiczne strony USOSweb</b></li><li style="margin-bottom:10px">Crawl: sala → plan sali w tygodniu → przedmiot → grupy zajęć (liczba zapisanych, limit) → grupy przedmiotów = kohorty; daty wszystkich spotkań</li><li style="margin-bottom:10px">Grzecznie: 0,4 s między zapytaniami, cache na dysku (ważność: grupy 3 dni, sale 90 dni), ok. godziny pierwszy raz</li><li style="margin-bottom:10px">Pobrano 27–28.10.2026, cykl <b>26/27-Z</b>; nazwiska prowadzących nie są zapisywane</li></ul></div>
+<div style="width:640px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFBF8;padding:32px;border:1px solid #D9DCD6;border-radius:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:48px;font-weight:600;color:#C8102E">13 881</p><p style="font-size:26px;line-height:1.3">zajęć w tygodniu (plany sal)</p></div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFBF8;padding:32px;border:1px solid #D9DCD6;border-radius:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:48px;font-weight:600;color:#C8102E">15 395</p><p style="font-size:26px;line-height:1.3">grup zajęć</p></div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFBF8;padding:32px;border:1px solid #D9DCD6;border-radius:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:48px;font-weight:600;color:#C8102E">553</p><p style="font-size:26px;line-height:1.3">kohort (kierunek + semestr)</p></div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFBF8;padding:32px;border:1px solid #D9DCD6;border-radius:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:48px;font-weight:600;color:#C8102E">157 437</p><p style="font-size:26px;line-height:1.3">spotkań w semestrze</p></div>
+</div>
+</div>
+<table style="font-size:24px;line-height:1.3;color:#1C2430">
+<tr><th style="width:40%;text-align:left">liczebność grupy</th><th style="width:40%;text-align:left">skąd</th><th style="width:20%;text-align:left">grup</th></tr>
+<tr><td>liczba zapisanych > 0</td><td>USOSweb, strona grupy</td><td>15 312 (99,5 %)</td></tr>
+<tr><td>limit miejsc</td><td>USOSweb</td><td>45</td></tr>
+<tr><td>60 % miejsc najmniejszej sali</td><td>USOS API (pojemność sali)</td><td>38</td></tr>
+</table>
+
+<aside>Nie używamy żadnych danych prywatnych: USOS API ma metody anonimowe (budynki, sale, pojemności), a USOSweb publiczny katalog: plany sal, strony przedmiotów z grupami zajęć, a na stronie grupy liczbę zapisanych studentów i limit. Grupy przedmiotów w USOS to u nas kohorty: kierunek, stopień i semestr, np. 240-INF-1S-1R-Z. Crawler w usos/fetch.py idzie od sal przez plany do przedmiotów i grup; parsery w usos/pages.py są testowane na zapisanych stronach. Między zapytaniami 0,4 s, wszystko w cache, ponowne pobranie tylko po wygaśnięciu (grupy co 3 dni, bo zapisy się zmieniają). Pierwszy pełny crawl to kilka tysięcy stron, ok. godziny. Liczebność grupy: w 99,5 % to prawdziwa liczba zapisanych z USOS; dla 45 grup limit, dla 38 sześćdziesiąt procent miejsc najmniejszej sali (założenie), a gdyby nic nie było, mediana typu zajęć.</aside>
+</section>

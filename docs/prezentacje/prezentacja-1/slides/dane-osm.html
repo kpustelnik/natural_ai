@@ -1,0 +1,13 @@
+<section id="dane-osm" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">OpenStreetMap → model kampusu i graf pieszy</h2>
+<div style="display:flex;gap:56px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<ul style="font-size:26px;line-height:1.35;color:#1C2430"><li style="margin-bottom:10px">Overpass API: prostokąt 19,8975–19,9265° E, 50,0625–50,0730° N (kampus, Miasteczko, otoczenie) + relacja AGH 3830877</li><li style="margin-bottom:10px">Warstwy: budynki, wejścia, chodniki, schody, bariery, ogrodzenia; zapis do <code>campus.gpkg</code></li><li style="margin-bottom:10px"><b>89 budynków</b> AGH jako YAML: szkielet z OSM (<code>--bootstrap</code>), potem ręcznie: obrys, liczba pięter (× 3,5 m, domyślnie 3), wejścia, aliasy kodów USOS</li><li style="margin-bottom:10px">55 dydaktycznych · 20 akademików · 10 łączników · 4 inne</li><li style="margin-bottom:10px"><b>Graf pieszy</b>: 5 622 węzły OSM, 6 832 krawędzie, 140,8 km, 438 odcinków schodów; + wejścia, budynki, 12 przystanków</li></ul>
+</div>
+<div style="width:760px;display:flex;flex-direction:column;gap:12px">
+<img src="/_blob/viewer_route" alt="" style="width:760px;border-radius:12px;border:1px solid #D9DCD6">
+<p style="font-size:22px;color:#6B7280">Trasa Czarnowiejska → D-17 w grafie: 801 m, 10 min 19 s</p>
+</div>
+</div>
+<aside>Kampus pobieramy z OpenStreetMap przez Overpass API: prostokąt obejmujący kampus główny, Miasteczko Studenckie i otoczenie, plus relację AGH (amenity=university), żeby wiedzieć, które budynki należą do uczelni. Skrypt 02_build_campus robi z tego warstwy (budynki, wejścia, chodniki, schody, bariery) i raport rzeczy do sprawdzenia ręcznie. Dla każdego budynku AGH powstaje plik YAML: szkielet z OSM, potem uzupełniony ręcznie o wysokość (piętra razy 3,5 m, gdy OSM nie ma liczby pięter: 3), wejścia i aliasy kodów USOS (np. USOS pisze D17, my D-17). Graf pieszy: chodniki z OSM (5 622 węzły, 6 832 krawędzie, 141 km), połączone z wejściami budynków i przystankami. Wszystkie budynki są w LOD1 (bryła bez wnętrz): przejście kończy się przy głównym wejściu. Model obsługuje wnętrza (piętra, korytarze, sale), ale sprawdziliśmy je tylko na kampusie testowym.</aside>
+</section>

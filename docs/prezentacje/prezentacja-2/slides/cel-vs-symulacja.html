@@ -1,0 +1,14 @@
+<section id="cel-vs-symulacja" data-transition="fade" style="background:#FBFBF8;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:112px 128px 150px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">Funkcja celu a symulacja: te same stacje, inna kolejność</h2>
+<table style="font-size:32px;line-height:1.3;color:#1C2430">
+<tr><th style="width:44%;text-align:left">linia (k = 5)</th><th style="width:28%;text-align:right">funkcja celu</th><th style="width:28%;text-align:right">symulacja tygodnia</th></tr>
+<tr><td>etap 1: H-D8 – A-0 – C-4 – D-10 – U-9 (MMAS bez LS)</td><td style="text-align:right">11,39 %</td><td style="text-align:right"><b>12,87 %</b></td></tr>
+<tr><td>etap 2: H-D8 – C-4 – U-9 – D-10 – A-0 (optimum celu)</td><td style="text-align:right"><b>11,60 %</b></td><td style="text-align:right">12,53 %</td></tr>
+</table>
+<div style="display:flex;flex-direction:column;gap:20px;font-size:30px;line-height:1.4;color:#4A5260">
+<p>Funkcja celu liczy <b style="color:#1C2430">średnie</b> czekanie (90 s); symulacja: prawdziwy rozkład, a na pierwsze zajęcia student wychodzi tak, żeby trafić w pociąg.</p>
+<p>Różnice rzędu 0,2–0,4 p.p. między liniami o tych samych stacjach są w granicy błędu modelu: <b style="color:#1C2430">wybór stacji jest pewny, kolejność mniej</b>.</p>
+</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:22px;color:#6B7280">05_simulate.py --showcase; docs/figures/simulation_metrics.csv; replaye sim-showcase-mmas-k5-mmas-k5-s42 i sim-mmas-k5-s42</p>
+<aside>Ciekawostka, którą trzeba umieć wyjaśnić. Linia z etapu 1 i optimum z etapu 2 mają te same pięć stacji, różnią się kolejnością. W funkcji celu lepsze jest optimum (11,60 wobec 11,39 procent), ale w symulacji tygodnia z prawdziwym rozkładem odwrotnie (12,53 wobec 12,87). Powód: funkcja celu jest przybliżeniem: zakłada średnie czekanie równe połowie odstępu i nie wie, że student jadący z domu na zajęcia wybiera kurs i wychodzi tak, żeby nie czekać; nie uwzględnia też dokładnego zgrania odjazdów w obu kierunkach. Wniosek: optymalizujemy przybliżenie, a różnice kilku dziesiątych punktu procentowego między liniami o tych samych stacjach są w granicy błędu modelu. Pewne jest to, które stacje (wszystkie metody i symulacja się zgadzają), mniej pewna kolejność. Można by optymalizować bezpośrednio symulację, ale ocena jednej linii trwa wtedy ok. 15 sekund zamiast 0,2 milisekundy.</aside>
+</section>

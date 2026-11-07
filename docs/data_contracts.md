@@ -454,7 +454,7 @@ boards (section 9).
 ### 5.1 `population/students.parquet`: `tables.STUDENTS`
 
 Synthetic students, `population.n_students` in total (`auto`: the sum of the USOS cohorts,
-currently 22 571).
+currently 22 660).
 
 | column | type | note |
 |---|---|---|
@@ -1071,6 +1071,20 @@ iterations when it is missing). The header adds `run_id`, `algorithm`, `topology
 pins at their shafts, animates each sampled ant along its tour, and shows the pheromone
 between candidates as ribbon width and opacity.
 
+**`replays/<id>/walk.json` + `.bin`: `WalkTraceHeader` (ACO level 1).** The peak walking
+flows assigned with congestion by `scripts/walk_aco.py` (`metro_agh.walk.assign`), from
+`results/walk-aco-<seed>/walk_trace.npz`. Buffers over `network.json`'s edges (E) and nodes,
+matched by node key: per sampled iteration `iterations` (int32), `flow` (people per
+`walk_aco.period_s`, both directions), `ratio` (flow / capacity), `pheromone` (0..1, all
+destinations weighted by demand), all float32 (I, E); `ratio_aon` (E: everybody on the
+free-flow shortest path); the sampled ants as node paths (`ant_sample_offsets` (I+1),
+`ant_offsets`, `ant_nodes`, uint32); the curve per iteration (`curve_iteration`,
+`curve_mean_s`: mean walk of the averaged assignment, `curve_iter_mean_s`: of that
+iteration's ants, `curve_gap`: relative gap to equilibrium). The header carries `window`,
+`period_s`, `n_legs`, `people` and the reference means `free_flow_mean_s`, `aon_mean_s`,
+`msa_mean_s`, `aco_mean_s`. `06_export_web.py --walk` writes it as replay `walk-<seed>`
+(kind `walk`); the viewer opens it in the Metro workspace.
+
 **Where replays come from.** `06_export_web.py --aco` turns every
 `results/<run_id>/` with a `trace.npz` into `replays/aco-<run_id>/` (trace, `metro.json` of its
 best line, replay.json). `--metro` turns `results/best_line.json` into
@@ -1162,7 +1176,8 @@ the page (HMR event `metro:data`), which refetches only the files in `changed`.
 ### 10.10 Replays: `replays/index.json` (`ReplayCatalog`) and `replays/<id>/replay.json` (`Replay`)
 
 A **replay** is one thing the viewer can play back, chosen from the *Replays* menu: an
-optimisation run (`kind: "aco"`) or a simulation (`kind: "simulation"`). Each one lives in
+optimisation run (`kind: "aco"`), a simulation (`kind: "simulation"`) or an ACO level 1 walk
+run (`kind: "walk"`, `files.walk_trace`). Each one lives in
 its own directory with a `replay.json`:
 
 ```json

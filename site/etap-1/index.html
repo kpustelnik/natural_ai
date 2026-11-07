@@ -16,7 +16,7 @@
   <nav aria-label="Strony">
     <a href="../etap-1/" aria-current="page">Etap 1</a>
     <a href="../etap-2/">Etap 2</a>
-    <a href="../viewer/">Wizualizacja</a>
+    <a href="../viewer/#stage=1">Wizualizacja</a>
     <a href="https://github.com/kpustelnik/natural_ai">GitHub</a>
   </nav>
 </div></header>
@@ -25,12 +25,12 @@
 <section class="page-head"><div class="wrap">
   <p class="crumbs"><a href="../">Metro AGH</a> / Etap 1</p>
   <h1>Etap 1: demo</h1>
-  <p class="lead">Działający system: dane z USOS, OpenStreetMap i GTFS, model kampusu, algorytm mrówkowy (MAX-MIN Ant System) i wizualizacja 3D, pokazane na jednym przykładowym przebiegu. Eksperymenty walidacyjne są w toku.</p>
+  <p class="lead">Działający system: dane z USOS, OpenStreetMap i GTFS, model kampusu, algorytm mrówkowy na dwóch poziomach (ruch pieszy z tłokiem; linia metra: MAX-MIN Ant System) i wizualizacja 3D, pokazane na przykładowych przebiegach. Eksperymenty walidacyjne są w toku.</p>
 </div></section>
 
 <section class="block"><div class="wrap">
   <h2>Slajdy</h2>
-  <p class="sub">Prezentacja pośrednia, 10 slajdów; pod każdym slajdem notatki do mówienia.</p>
+  <p class="sub">Prezentacja etapu 1, 23 slajdy: skąd każda liczba i stała, mrówki na dwóch poziomach, demo; pod każdym slajdem notatki do mówienia.</p>
   <div class="deck">
     <iframe src="../prezentacje/prezentacja-1.html" title="Slajdy prezentacji pośredniej" loading="lazy"></iframe>
     <div class="deck-bar">
@@ -42,17 +42,27 @@
 
 <section class="block alt"><div class="wrap">
   <h2>Demo w wizualizacji</h2>
-  <p class="sub">Każdy krok otwiera wizualizację w odpowiednim widoku. Przykładowy przebieg: MMAS, 5 stacji.</p>
+  <p class="sub">Każdy krok otwiera wizualizację w odpowiednim widoku, w wersji z etapu 1 (bez wykresów z etapu 2). Przykładowy przebieg: MMAS, 5 stacji.</p>
   <ol class="steps">
-    <li><a href="../viewer/#ws=campus"><b>Kampus 3D</b><span>Budynki, wejścia, przystanki; kliknij budynek, żeby zobaczyć szczegóły.</span></a></li>
-    <li><a href="../viewer/#ws=network&amp;from=stop:czarnowiejska&amp;to=D-17"><b>Trasa piesza</b><span>Z przystanku Czarnowiejska do D-17: czas i części trasy.</span></a></li>
-    <li><a href="../viewer/#ws=metro&amp;replay=aco-mmas-k5-s42&amp;play=1"><b>Kolonia mrówek</b><span>Mrówki budują linie, feromon się koncentruje.</span></a></li>
-    <li><a href="../viewer/#ws=metro&amp;replay=aco-mmas-k5-s42&amp;view=trains"><b>Gotowa linia</b><span>Szyby, tunel i kursujące pociągi.</span></a></li>
-    <li><a href="../viewer/#ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;t=29700&amp;sc=no_metro&amp;play=1&amp;speed=60"><b>Poranny szczyt bez metra</b><span>Poniedziałek, 8:15: studenci idą i jadą autobusami.</span></a></li>
-    <li><a href="../viewer/#ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;t=29700&amp;play=1&amp;speed=60"><b>Ten sam szczyt z metrem</b><span>Kolor: idzie, czeka na pociąg, jedzie.</span></a></li>
-    <li><a href="../viewer/#ws=simulation&amp;replay=sim-mmas-k5-s42&amp;day=1&amp;t=29700&amp;split=1&amp;play=1&amp;speed=60"><b>Obok siebie</b><span>Bez metra i z metrem w jednym widoku.</span></a></li>
+    <li><a href="../viewer/#stage=1&amp;ws=campus"><b>Kampus 3D</b><span>Budynki, wejścia, przystanki; kliknij budynek, żeby zobaczyć szczegóły.</span></a></li>
+    <li><a href="../viewer/#stage=1&amp;ws=network&amp;from=stop:czarnowiejska&amp;to=D-17"><b>Trasa piesza</b><span>Z przystanku Czarnowiejska do D-17: czas i części trasy.</span></a></li>
+    <li><a href="../viewer/#stage=1&amp;ws=metro&amp;replay=walk-s42&amp;play=1"><b>Mrówki, poziom 1: tłok na chodnikach</b><span>Środa 9:30: 5 381 osób wychodzi z zajęć; mrówki rozkładają ruch, kolor = obciążenie chodnika.</span></a></li>
+    <li><a href="../viewer/#stage=1&amp;ws=metro&amp;replay=aco-showcase-mmas-k5-mmas-k5-s42&amp;play=1"><b>Mrówki, poziom 2: linia metra</b><span>Mrówki budują linie, feromon się koncentruje.</span></a></li>
+    <li><a href="../viewer/#stage=1&amp;ws=metro&amp;replay=aco-showcase-mmas-k5-mmas-k5-s42&amp;view=trains"><b>Gotowa linia</b><span>Szyby, tunel i kursujące pociągi.</span></a></li>
+    <li><a href="../viewer/#stage=1&amp;ws=simulation&amp;replay=sim-showcase-mmas-k5-mmas-k5-s42&amp;day=1&amp;t=29700&amp;sc=no_metro&amp;play=1&amp;speed=60"><b>Poranny szczyt bez metra</b><span>Poniedziałek, 8:15: studenci idą i jadą autobusami.</span></a></li>
+    <li><a href="../viewer/#stage=1&amp;ws=simulation&amp;replay=sim-showcase-mmas-k5-mmas-k5-s42&amp;day=1&amp;t=29700&amp;play=1&amp;speed=60"><b>Ten sam szczyt z metrem</b><span>Kolor: idzie, czeka na pociąg, jedzie.</span></a></li>
+    <li><a href="../viewer/#stage=1&amp;ws=simulation&amp;replay=sim-showcase-mmas-k5-mmas-k5-s42&amp;day=1&amp;t=29700&amp;split=1&amp;play=1&amp;speed=60"><b>Obok siebie</b><span>Bez metra i z metrem w jednym widoku.</span></a></li>
   </ol>
   <p class="note">Wizualizacja wczytuje ok. 60 MB danych, więc pierwsze otwarcie trwa chwilę. Klawisz <b>P</b> włącza tryb prezentacji, <b>?</b> pokazuje skróty.</p>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <h2>Dokumentacja</h2>
+  <div class="links">
+    <a href="https://github.com/kpustelnik/natural_ai/raw/main/docs/sprawozdanie/Metro%20AGH%20-%20opis%201.docx"><b>Opis 1 (Word)</b><span>dane i model: skąd każda liczba i stała</span></a>
+    <a href="https://github.com/kpustelnik/natural_ai/raw/main/docs/sprawozdanie/Metro%20AGH%20-%20opis%202.docx"><b>Opis 2 (Word)</b><span>pierwsze algorytmy mrówkowe, poziom 1 i 2</span></a>
+    <a href="https://github.com/kpustelnik/natural_ai/blob/main/docs/aco.md"><b>Jak działa optymalizacja</b><span>algorytmy, pytania i odpowiedzi</span></a>
+  </div>
 </div></section>
 
 <section class="block"><div class="wrap">
@@ -60,7 +70,7 @@
   <div class="two">
     <div class="panel done">
       <h3>Działa</h3>
-      <ul><li>dane z USOS, OpenStreetMap i GTFS</li><li>model kampusu i funkcja celu</li><li>MAX-MIN Ant System</li><li>symulacja tygodnia z metrem i bez</li><li>wizualizacja 3D</li></ul>
+      <ul><li>dane z USOS, OpenStreetMap i GTFS</li><li>model kampusu i funkcja celu</li><li>mrówki poziom 1: ruch pieszy z tłokiem</li><li>mrówki poziom 2: MAX-MIN Ant System</li><li>symulacja tygodnia z metrem i bez</li><li>wizualizacja 3D</li></ul>
     </div>
     <div class="panel todo">
       <h3>W toku (etap 2)</h3>

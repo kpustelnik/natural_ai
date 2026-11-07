@@ -29,12 +29,19 @@ export function ConvergenceChart({
   iteration,
   nIterations,
   onScrub,
+  labels,
+  baseLabel = "base",
+  format = studentHours,
 }: {
   curve: Curve;
   baseline: number;
   iteration: number;
   nIterations: number;
   onScrub: (iteration: number) => void;
+  /** other names for the three series (the walk player: assignment, iteration, MSA) */
+  labels?: [string, string, string];
+  baseLabel?: string;
+  format?: (v: number) => string;
 }) {
   const [hover, setHover] = useState<number | null>(null);
   const { x, y, paths } = useMemo(() => {
@@ -66,22 +73,22 @@ export function ConvergenceChart({
   return (
     <div className="chart">
       <div className="chart-legend">
-        {SERIES.map((s) => (
-          <span key={s.key} className="legend-item" title={`${s.label}: ${studentHours(curveAt(curve.iteration, curve[s.key], at))}`}>
+        {SERIES.map((s, i) => (
+          <span key={s.key} className="legend-item" title={`${labels?.[i] ?? s.label}: ${format(curveAt(curve.iteration, curve[s.key], at))}`}>
             <svg width="12" height="6" aria-hidden>
               <line x1="0" y1="3" x2="12" y2="3" stroke={s.color} strokeWidth={s.width + 0.5} strokeDasharray={s.dash} />
             </svg>
-            {s.label}
+            {labels?.[i] ?? s.label}
           </span>
         ))}
-        <span className="legend-item muted" title={`no metro: ${studentHours(baseline)}`}>
+        <span className="legend-item muted" title={`${baseLabel}: ${format(baseline)}`}>
           <svg width="12" height="6" aria-hidden>
             <line x1="0" y1="3" x2="12" y2="3" stroke="#9aa0a7" strokeDasharray="4 3" />
           </svg>
-          base
+          {baseLabel}
         </span>
         <span className="legend-item mono chart-hover">
-          {hover !== null ? `it ${hover}` : ""} {studentHours(curveAt(curve.iteration, curve.best, at))}
+          {hover !== null ? `it ${hover}` : ""} {format(curveAt(curve.iteration, curve.best, at))}
         </span>
       </div>
       <svg

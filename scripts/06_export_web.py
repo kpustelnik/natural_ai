@@ -9,6 +9,7 @@
     uv run scripts/06_export_web.py --metro             # results/best_line.json -> replay
     uv run scripts/06_export_web.py --sim               # simulation/*/legs.parquet -> replay
     uv run scripts/06_export_web.py --showcase          # processed/showcase/*/ -> replays
+    uv run scripts/06_export_web.py --walk              # ACO level 1 (walk_aco.py) -> replay
     uv run scripts/06_export_web.py --fake              # synthetic ACO run, line and week
     uv run scripts/06_export_web.py --fake --sample     # the same on data/sample/campus
 
@@ -29,6 +30,7 @@ from metro_agh.web.export_campus import CampusExport, write_replay_catalog, writ
 from metro_agh.web.export_demand import export_demand, refresh_demand
 from metro_agh.web.export_metro import export_aco_run, export_best_line, load_scene
 from metro_agh.web.export_sim import export_simulation
+from metro_agh.web.export_walk import export_walk_run
 from metro_agh.web.fake import NOTE, SIM_NOTE, write_fake_results, write_fake_simulation
 from metro_agh.web.watch import watch
 
@@ -87,6 +89,12 @@ def export_replays(cfg: dict, args: argparse.Namespace) -> int:
         export_simulation(
             cfg, path(cfg, "processed"), root / "best_line.json", out, changed, sim_root=root
         )
+    if args.walk:  # ACO level 1: every results/walk-aco-*/ (scripts/walk_aco.py)
+        walks = sorted(p.parent for p in results.glob("*/walk_trace.npz"))
+        if not walks:
+            log.warning("no %s/*/walk_trace.npz: run scripts/walk_aco.py first", results)
+        for run in walks:
+            export_walk_run(cfg, run, out, changed)
     changed.append(write_replay_catalog(out, cfg))
     status = write_status_file(out, changed)
     log.info("status.json version %d, %d files", status.version, len(status.changed))
@@ -107,13 +115,14 @@ def main() -> None:
     parser.add_argument(
         "--showcase", action="store_true", help="the lines of 05_simulate.py --showcase"
     )
+    parser.add_argument("--walk", action="store_true", help="ACO level 1 (scripts/walk_aco.py)")
     parser.add_argument("--fake", action="store_true", help="synthetic ACO run, line and week")
     parser.add_argument("--config", default=None, help="YAML of config.yaml keys merged over it")
     args = parser.parse_args()
     if args.fake and (args.aco is not None or args.metro or args.sim or args.showcase):
         # the synthetic run would label the real runs and simulation as synthetic too
         parser.error("--fake cannot be combined with --aco, --metro, --sim or --showcase")
-    real = args.aco is not None or args.metro or args.sim or args.showcase
+    real = args.aco is not None or args.metro or args.sim or args.showcase or args.walk
     if args.watch and (real or args.fake):
         parser.error("--watch rebuilds only the campus: export replays in a separate run")
 

@@ -284,6 +284,8 @@ uv run scripts/06_export_web.py --sim      # wynik 05_simulate.py -> studenci (o
 uv run scripts/05_simulate.py --showcase   # + linie z experiments/configs/showcase.yaml (k = 3, pętla k = 7, k = 10), ~15 s każda
 uv run scripts/06_export_web.py --showcase # -> ich tygodnie jako osobne replaye
 uv run scripts/run_experiments.py --config experiments/configs/showcase.yaml  # przebiegi ACO bez LS ze śladem co 2 iteracje (replay optymalizacji)
+uv run scripts/walk_aco.py                 # ACO poziom 1: ruch pieszy w szczycie z tłokiem (po 05_simulate.py)
+uv run scripts/06_export_web.py --walk     # -> replay walk-s42 (obciążenie chodników, feromon, mrówki)
 uv run scripts/06_export_web.py --fake     # syntetyczny przebieg MMAS + tydzień 20 000 studentów (data/processed/fake/)
 uv run scripts/06_export_web.py --fake --sample   # to samo na data/sample/campus (eksport --campus też z --sample)
 ```
@@ -314,7 +316,7 @@ npm test                                 # testy jednostkowe (vitest)
 npm run gen:types                        # typy TS z schemas/web, po zmianie kontraktów
 ```
 
-Skróty w przeglądarce: `/` szukaj (także sale, np. `D-17/1.38`), `F` pokaż zaznaczenie, `Esc` odznacz, `1` / `2` / `3` kamera 3D / plan / spacer (WASD, Shift bieg, kółko prędkość, Spacja / Ctrl lub C lot w górę / w dół, także do metra, G z powrotem chód, Esc powrót; w 3D lewy przycisk obraca wokół punktu pod kursorem, prawy / środkowy przesuwa trzymając ten punkt, kółko przybliża do kursora, kamera może zejść pod ziemię), `X` przezroczysty grunt (metro i czekający na peronach), w odtwarzaczu `←` / `→` 15 min (Shift: godzina), `Shift+PageUp` / `PageDown` poprzedni / następny blok zajęć, `Home` / `End` początek / koniec dnia, klik na studenta: jego dzień w zakładce *Student*, `PageUp` / `PageDown` piętro wybranego budynku, `M` pomiar, `R` trasa (zakładka *Route*: najszybsza droga między salą, budynkiem, przystankiem lub dowolnym punktem grafu, z podziałem na odcinki na zewnątrz / w środku / schody), `\` ukryj panele, spacja odtwarzanie, `P` tryb prezentacji (tylko widok i odtwarzacz), `S` zrzut ekranu (PNG z etykietami), `?` lista skrótów, `` ` `` licznik klatek (fps, wywołania rysowania). Alt+klik kopiuje współrzędne lokalne `[x, y]` budynku, Alt+Shift+klik zbiera łamaną, `Enter` kopiuje ją w formacie YAML. Widok (zakładka, zaznaczenie, piętro, kamera, replay) jest w adresie URL, więc przeładowanie strony go nie gubi.
+Skróty w przeglądarce: `/` szukaj (także sale, np. `D-17/1.38`), `F` pokaż zaznaczenie, `Esc` odznacz, `1` / `2` / `3` kamera 3D / plan / spacer (WASD, Shift bieg, kółko prędkość, Spacja / Ctrl lub C lot w górę / w dół, także do metra, G z powrotem chód, Esc powrót; w 3D lewy przycisk obraca wokół punktu pod kursorem, prawy / środkowy przesuwa trzymając ten punkt, kółko przybliża do kursora, kamera może zejść pod ziemię), `X` przezroczysty grunt (metro i czekający na peronach), w odtwarzaczu `←` / `→` 15 min (Shift: godzina), `Shift+PageUp` / `PageDown` poprzedni / następny blok zajęć, `Home` / `End` początek / koniec dnia, klik na studenta: jego dzień w zakładce *Student*, `PageUp` / `PageDown` piętro wybranego budynku, `M` pomiar, `R` trasa (zakładka *Route*: najszybsza droga między salą, budynkiem, przystankiem lub dowolnym punktem grafu, z podziałem na odcinki na zewnątrz / w środku / schody), `\` ukryj panele, spacja odtwarzanie, `P` tryb prezentacji (tylko widok i odtwarzacz), `S` zrzut ekranu (PNG z etykietami), `?` lista skrótów, `` ` `` licznik klatek (fps, wywołania rysowania). Alt+klik kopiuje współrzędne lokalne `[x, y]` budynku, Alt+Shift+klik zbiera łamaną, `Enter` kopiuje ją w formacie YAML. Widok (zakładka, zaznaczenie, piętro, kamera, replay) jest w adresie URL, więc przeładowanie strony go nie gubi. `#stage=1` pokazuje wizualizację jak na etapie 1 (bez wykresów na żywo, zakładki Stats i replayów z etapu 2; `web/src/lib/stage.ts`).
 
 Wejście do budynku: zaznacz go i kliknij *Enter* w inspektorze (albo `PageUp`). Zakładka *Building* wyszarza resztę kampusu, a wybrane piętro jest przecięte na wysokości 1,2 m jak rzut architektoniczny; widok *Plan* jest wtedy obrócony do osi budynku.
 
@@ -361,7 +363,7 @@ Pełny opis (po angielsku): **[docs/data_contracts.md](docs/data_contracts.md)**
 | `data/campus/buildings/<id>.yaml` | budynek: piętra, korytarze, sale, schody, wejścia, szyb metra | ręcznie |
 | `data/campus/campus.yaml` | przejścia między budynkami, poprawki OSM, przystanki (12, z GTFS) | ręcznie |
 | `usos/timetable.csv` + `groups.csv`, `cohorts.csv`, `group_cohorts.csv` | plan zajęć z USOS | osoba 1 |
-| `population/students.parquet`, `enrollments.parquet` | syntetyczni studenci (22 571 przy `population.n_students: auto`) i ich grupy | osoba 1 |
+| `population/students.parquet`, `enrollments.parquet` | syntetyczni studenci (22 660 przy `population.n_students: auto`) i ich grupy | osoba 1 |
 | `demand/legs.parquet`, `od.parquet` | każde przejście studenta / zagregowany popyt | osoba 1 |
 | `network/nodes.parquet`, `edges.parquet` | graf pieszy: OSM + wnętrza + szyby metra | osoba 2 |
 | `instance/instance.npz` | macierze czasów + popyt, jedyne wejście ACO | osoba 2 |

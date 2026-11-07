@@ -3,6 +3,7 @@
 
 import type { Scenario } from "../generated/schemas";
 import type { Vec3 } from "../lib/frames";
+import type { Stage } from "../lib/stage";
 import { createStore, useSlice } from "./store";
 
 export type Workspace = "campus" | "building" | "network" | "metro" | "simulation";
@@ -12,6 +13,8 @@ export type RoomColorMode = "kind" | "capacity";
 export type Tool = "select" | "measure" | "route";
 export type RightTab = "inspector" | "issues" | "route" | "stats" | "student";
 export type AcoView = "ants" | "trains";
+/** ACO level 1 replays: segments coloured by congestion, by pheromone, or the shortest-path load. */
+export type WalkView = "ratio" | "pheromone" | "aon";
 
 export const WORKSPACES: { id: Workspace; label: string }[] = [
   { id: "campus", label: "Campus" },
@@ -170,6 +173,7 @@ export interface Playback {
   t: number; // seconds since 00:00 of the weekday (trains, students)
   iteration: number; // ACO replays: fractional iteration of the ant player
   acoView: AcoView; // ACO replays: the ants or the best line's trains
+  walkView: WalkView; // walk (ACO level 1) replays: what colours the segments
   weekday: number; // 1..5
   scenario: Scenario;
   split: boolean; // simulation: both scenarios side by side (no_metro left, metro right)
@@ -231,6 +235,7 @@ export interface AppState {
   present: boolean; // presentation mode: only the view (a replay keeps playing)
   help: boolean; // keyboard help dialog
   perf: "off" | "on" | "log"; // frame-rate probe: overlay, or overlay + console lines
+  stage: Stage; // #stage=1: the viewer as at the intermediate presentation (lib/stage.ts)
 }
 
 /** A size from the last visit (localStorage may be unavailable). */
@@ -283,6 +288,7 @@ export const app = createStore<AppState>({
     t: 8 * 3600,
     iteration: 0,
     acoView: "ants",
+    walkView: "ratio",
     weekday: 1,
     scenario: "metro",
     split: false,
@@ -295,6 +301,7 @@ export const app = createStore<AppState>({
   present: false,
   help: false,
   perf: "off",
+  stage: 2,
 });
 
 export function useApp<S>(selector: (s: AppState) => S): S {

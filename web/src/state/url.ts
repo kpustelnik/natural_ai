@@ -82,6 +82,7 @@ export function stateFromHash(hash: string): Partial<AppState> {
     if (q.get("tab") === "stats") out.rightTab = "stats";
   }
   if (q.get("present") === "1") out.present = true;
+  if (q.get("stage") === "1") out.stage = 1;
   const perf = q.get("perf");
   if (perf === "1" || perf === "log") out.perf = perf === "log" ? "log" : "on";
   const from = q.get("from");
@@ -104,6 +105,7 @@ export function rememberPose(pose: CameraPose): void {
 function writeHash(): void {
   const s = app.get();
   const q = new URLSearchParams();
+  if (s.stage === 1) q.set("stage", "1");
   q.set("ws", s.workspace);
   if (s.camera === "plan") q.set("cam", s.camera);
   if (s.selection) q.set("sel", pickKey(s.selection));
@@ -155,6 +157,7 @@ export function bindUrl(): () => void {
       s.rightTab !== prev.rightTab ||
       s.present !== prev.present ||
       s.perf !== prev.perf ||
+      s.stage !== prev.stage ||
       s.playback.split !== prev.playback.split ||
       s.playback.weekday !== prev.playback.weekday ||
       s.playback.acoView !== prev.playback.acoView ||

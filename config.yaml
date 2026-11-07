@@ -116,7 +116,43 @@ aco:                         # MMAS i ACS; random bierze n_ants × n_iterations 
     every: 5                 # co która iteracja
     max_ants: 50             # ile mrówek z iteracji
 
+walk_aco:                    # ACO poziom 1: mrówki rozkładają ruch pieszy szczytu z tłokiem
+  # popyt: piesze przejścia scenariusza bez metra (simulation/no_metro/legs.parquet)
+  # wychodzące w oknie [window_start, +window_s) czasu tygodnia (pon. 00:00 = 0)
+  window_start_wt: 207000    # środa 9:30: najliczniejsze 15 min tygodnia (5 381 przejść)
+  window_s: 900
+  period_s: 300              # okres przepływu: 81 % wychodzi w 1. minucie, mediana
+                             # przejścia 4,6 min -> fala mija odcinek w ok. 5 min
+  capacity_ped_min_m: 75     # przepustowość chodnika (FHWA-RD-98-107: 75 os./min/m)
+  stairs_capacity_ped_min_m: 50  # schody: założenie (ok. 2/3 chodnika)
+  bpr_a: 0.73                # t = t0 (1 + a (x/C)^b); a: 1,3 m/s -> 0,75 m/s przy x = C
+  bpr_b: 4.0                 # wykładnik BPR
+  widths_m:                  # szerokość użyteczna wg typu (OSM nie ma tagu width)
+    footway: 2.0
+    path: 1.5
+    steps: 2.0
+    service: 3.0
+    residential: 3.0
+    living_street: 4.0
+    pedestrian: 6.0
+    track: 2.5
+    link: 3.0
+    entrance: 1.8
+    door: 1.8
+    corridor: 2.5
+    passage: 3.0
+    stairs: 2.0
+  n_ants: 8                  # mrówek na parę (skąd, dokąd) w iteracji
+  n_iterations: 60
+  alpha: 1.0                 # waga feromonu
+  beta: 1.0                  # waga heurystyki: exp(-beta * nadłożony czas / detour_scale_s)
+  detour_scale_s: 20.0
+  rho: 0.1                   # parowanie
+  tau_min: 0.05              # ograniczenia feromonu (jak w MMAS)
+  tau_max: 5.0
+  trace: { every: 2, max_ants: 150 }
+
 simulation:
-  transit: true              # autobusy i tramwaje z GTFS (transit/trips.parquet) w obu
+  transit: true             # autobusy i tramwaje z GTFS (transit/trips.parquet) w obu
                              # scenariuszach i w czasie "bez metra" instancji ACO
   weekdays: [1, 2, 3, 4, 5]

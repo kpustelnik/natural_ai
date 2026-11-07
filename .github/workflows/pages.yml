@@ -37,7 +37,7 @@ jobs:
         run: uv run scripts/05_simulate.py --showcase
 
       - name: Export the viewer data
-        run: uv run scripts/06_export_web.py --campus --aco --metro --sim --showcase
+        run: uv run scripts/06_export_web.py --campus --aco --metro --sim --showcase --walk
 
       - uses: actions/setup-node@v4
         with:

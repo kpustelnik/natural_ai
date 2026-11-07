@@ -1,23 +1,14 @@
-<section id="status" data-transition="fade" style="background:#1C2430;color:#F4F3EE;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:64px">
-<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#F4F3EE">Gdzie jesteśmy</h2>
-<div style="display:flex;gap:64px;flex:1">
-<div style="flex:1;display:flex;flex-direction:column;gap:24px">
-<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#7FB2EE">Działa</h3>
-<div style="display:flex;gap:20px;align-items:center"><x-icon name="CheckCircle" style="color:#7FB2EE;width:40px;height:40px"></x-icon><p style="font-size:32px;color:#F4F3EE">dane z USOS, OSM i GTFS</p></div>
-<div style="display:flex;gap:20px;align-items:center"><x-icon name="CheckCircle" style="color:#7FB2EE;width:40px;height:40px"></x-icon><p style="font-size:32px;color:#F4F3EE">model kampusu i funkcja celu</p></div>
-<div style="display:flex;gap:20px;align-items:center"><x-icon name="CheckCircle" style="color:#7FB2EE;width:40px;height:40px"></x-icon><p style="font-size:32px;color:#F4F3EE">MAX-MIN Ant System</p></div>
-<div style="display:flex;gap:20px;align-items:center"><x-icon name="CheckCircle" style="color:#7FB2EE;width:40px;height:40px"></x-icon><p style="font-size:32px;color:#F4F3EE">symulacja tygodnia</p></div>
-<div style="display:flex;gap:20px;align-items:center"><x-icon name="CheckCircle" style="color:#7FB2EE;width:40px;height:40px"></x-icon><p style="font-size:32px;color:#F4F3EE">wizualizacja 3D</p></div>
+<section id="status" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">Gdzie jesteśmy</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;flex:1">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:40px;font-weight:600;color:#C8102E">Działa</p>
+<ul style="font-size:28px;line-height:1.35;color:#1C2430"><li style="margin-bottom:10px">dane z USOS, OpenStreetMap i GTFS, populacja i przejścia</li><li style="margin-bottom:10px">model kampusu, metra i funkcja celu</li><li style="margin-bottom:10px">mrówki poziom 1: ruch pieszy z tłokiem</li><li style="margin-bottom:10px">mrówki poziom 2: MAX-MIN Ant System</li><li style="margin-bottom:10px">symulacja tygodnia; wizualizacja 3D</li></ul>
 </div>
-<div style="flex:1;display:flex;flex-direction:column;gap:24px">
-<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#F2A3B0">W toku, na prezentację końcową</h3>
-<div style="display:flex;gap:20px;align-items:center"><x-icon name="Clock" style="color:#F2A3B0;width:40px;height:40px"></x-icon><p style="font-size:32px;color:#F4F3EE">drugi algorytm (ACS) i lokalne przeszukiwanie</p></div>
-<div style="display:flex;gap:20px;align-items:center"><x-icon name="Clock" style="color:#F2A3B0;width:40px;height:40px"></x-icon><p style="font-size:32px;color:#F4F3EE">porównanie z innymi metodami i testy statystyczne</p></div>
-<div style="display:flex;gap:20px;align-items:center"><x-icon name="Clock" style="color:#F2A3B0;width:40px;height:40px"></x-icon><p style="font-size:32px;color:#F4F3EE">czy to optimum: przegląd zupełny</p></div>
-<div style="display:flex;gap:20px;align-items:center"><x-icon name="Clock" style="color:#F2A3B0;width:40px;height:40px"></x-icon><p style="font-size:32px;color:#F4F3EE">ile stacji ma sens; wrażliwość wyniku</p></div>
-<div style="display:flex;gap:20px;align-items:center"><x-icon name="Clock" style="color:#F2A3B0;width:40px;height:40px"></x-icon><p style="font-size:32px;color:#F4F3EE">porównanie z literaturą</p></div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Rubik', Arial, sans-serif;font-size:40px;font-weight:600;color:#1C2430">Etap 2</p>
+<ul style="font-size:28px;line-height:1.35;color:#1C2430"><li style="margin-bottom:10px">drugi algorytm (ACS) i lokalne przeszukiwanie</li><li style="margin-bottom:10px">porównanie z losowym i zachłannym, testy statystyczne</li><li style="margin-bottom:10px">czy to optimum: przegląd zupełny</li><li style="margin-bottom:10px">ile stacji ma sens; wrażliwość na założenia</li><li style="margin-bottom:10px">porównanie z literaturą</li></ul>
 </div>
 </div>
-<p style="font-size:32px;color:#C9CED6">Slajdy i wizualizacja online: <span style="color:#E86A7E"><a href="https://kpustelnik.github.io/natural_ai/etap-1/">kpustelnik.github.io/natural_ai/etap-1</a></span></p>
-<aside>Podsumowanie: cały łańcuch działa, od planu zajęć do animacji tygodnia, i daje pierwszy sensowny wynik. Na prezentację końcową: drugi algorytm mrówkowy (Ant Colony System) i lokalne przeszukiwanie, uczciwe porównanie z metodami odniesienia przy tym samym budżecie z testami statystycznymi, sprawdzenie, czy to optimum (tam, gdzie da się sprawdzić wszystkie linie), ile stacji ma sens, jak wynik zależy od założeń, i porównanie z pracami o algorytmach mrówkowych w planowaniu kolei. Dziękujemy, pytania.</aside>
+<aside>Cały łańcuch działa: od planu zajęć do animacji tygodnia, na dwóch poziomach mrówek. Na etap 2: drugi algorytm mrówkowy (Ant Colony System) i lokalne przeszukiwanie, uczciwe porównanie z metodami odniesienia przy tym samym budżecie i testami statystycznymi, sprawdzenie optimum przeglądem zupełnym tam, gdzie się da, liczba stacji, wrażliwość na postój, odstęp i prędkość, porównanie z pracami Korzenia i Kruszyny. Dziękujemy, pytania.</aside>
 </section>

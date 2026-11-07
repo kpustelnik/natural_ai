@@ -15,8 +15,8 @@ Dzięki temu prowadzący widzi postęp: najpierw działający system i pierwszy 
 
 **Slajdy** (otwórz w przeglądarce, notatki do mówienia pod każdym slajdem):
 
-- [`docs/prezentacje/prezentacja-1.html`](prezentacje/prezentacja-1.html): demo, 10 slajdów;
-- [`docs/prezentacje/prezentacja-2.html`](prezentacje/prezentacja-2.html): końcowa, 18 slajdów.
+- [`docs/prezentacje/prezentacja-1.html`](prezentacje/prezentacja-1.html): etap 1, 23 slajdy;
+- [`docs/prezentacje/prezentacja-2.html`](prezentacje/prezentacja-2.html): etap 2, 19 slajdów.
 
 Źródła są w `docs/prezentacje/prezentacja-1/` i `prezentacja-2/` (`deck.json` + jeden plik
 HTML na slajd, format Slides z claude.ai; wykresy z `docs/figures/` przez `assets.json`). Po
@@ -29,7 +29,7 @@ Notatki do mówienia w konspekcie poniżej są pod każdym slajdem (rozwiń). Li
 **Przygotowanie viewera** (przed każdą prezentacją):
 
 ```bash
-uv run scripts/06_export_web.py --campus --aco --metro --sim   # prawdziwe replaye
+uv run scripts/06_export_web.py --campus --aco --metro --sim --showcase --walk   # prawdziwe replaye
 cd web && npm run dev                                           # http://localhost:5173/
 ```
 
@@ -39,124 +39,54 @@ Linki demo poniżej to `http://localhost:5173/` + podany `#…`. `P` włącza tr
 ---
 
 <details>
-<summary><b>Prezentacja 1: demo</b> (wizualizacja i przykładowy przebieg mrówek, z metrem i bez metra)</summary>
+<summary><b>Prezentacja 1: etap 1</b> (dane i pochodzenie każdej liczby, założenia metra, mrówki na dwóch poziomach, demo)</summary>
 
 ### Cel tej prezentacji
 
-Pokazać działający system: prawdziwe dane, model kampusu, algorytm mrówkowy i wizualizację na
-**jednym przykładowym przebiegu** (MMAS, k = 5, seed 42) oraz symulację tygodnia z tą linią i
-bez niej. Główna część to demo w viewerze (ok. 6 min). Na koniec status: co działa, jakie
-eksperymenty trwają.
+Pokazać, skąd jest każda liczba i stała (USOS, OpenStreetMap, GTFS, akademiki, dojazdy,
+stałe metra ze źródłami), jak zmodyfikowaliśmy algorytm mrówkowy na dwóch poziomach (ruch
+pieszy z tłokiem; linia metra MMAS) i czym inspirowaliśmy się w pracach z `references/`,
+a potem działający system na przykładowych przebiegach. Wizualizacja w wersji etapu 1:
+`#stage=1` (bez wykresów na żywo, zakładki Stats i replayów z etapu 2).
 
-### Czego nie pokazujemy (zostaje na prezentację 2)
+### Czego nie pokazujemy (zostaje na etap 2)
 
-- żadnych wykresów z eksperymentów: `k_sweep`, `compare_algorithms*`, `gap_to_optimum`,
-  `exact_full`, zbieżność, `aco_ablation`, `heuristic`, `topology`, `sensitivity`, `tunnel`;
-- ACS, lokalnego przeszukiwania, metod odniesienia (losowe, zachłanne, przegląd zupełny) i
-  testów statystycznych;
-- odpowiedzi na „czy to optimum?”, „ile stacji ma sens?”, „czy wynik zależy od założeń?”:
-  stawiamy je na koniec jako plan;
-- porównania z pracami Korzenia i Kruszyny.
+ACS, lokalnego przeszukiwania, metod odniesienia, testów statystycznych, optimum, liczby
+stacji, wrażliwości, wykresów z `docs/figures/` poza `walk_aco.png`.
 
-Wynik przebiegu podajemy jako **przykład**, bez twierdzenia, że jest najlepszy.
+### Slajdy (23; notatki do mówienia pod każdym, z odpowiedziami na pytania)
 
-### Slajdy
+1. Tytuł · 2. Problem · 3. Skąd mrówki (Goss 1989)
+4. Dane: 22 660 studentów, 286 169 przejść, 4 830 par, 55 kandydatów
+5. OpenStreetMap → 89 budynków YAML i graf pieszy (5 622 węzły, 6 832 krawędzie)
+6. USOS: crawl publicznego USOSweb + anonimowe API, 26/27-Z, 27–28.10.2026; liczebności grup (99,5 % z liczby zapisanych)
+7. Ilu studentów (suma kohort, 75. percentyl), akademiki (7 000, Radio Kraków), dojazdy (12 przystanków ∝ miejsca 7–10)
+8. Z planu do przejść: tydzień 16–20.11.2026, reguły, 286 169 przejść
+9. Czas pieszo i autobusem: stałe i źródła (Weidmann, Fruin, GTFS)
+10. Gdzie stacja: szyb pod wejściem, 15 m, schody 33 / 43 s, bez windy
+11. Stałe metra i źródła: 10 m/s (studium Kraków), 30 s, 180 s (Warszawa), pojemność nie modelowana
+12. Model i funkcja celu (42 521 h bez metra, granica 40,6 %)
+13. Mrówki na dwóch poziomach
+14. Poziom 1: BPR, FHWA 75 os./min/m, reguła mrówki, Dial, MSA (D'Acierno 2012)
+15. Poziom 1: wynik (`walk_aco.png`): 383 → 342 s, równowaga 336 s, α = 0 / 1 / 2
+16. Poziom 2: MMAS (wzory, parametry)
+17. Modyfikacje względem klasycznego ACO (TSP)
+18. Inspiracje: Goss, Korzeń i Kruszyna 2023 / 2025, Stützle i Hoos, D'Acierno
+19. Implementacja · 20. Wizualizacja · 21. Demo
+22. Przykładowy przebieg: H-D8 – A-0 – C-4 – D-10 – U-9, 11,4 % (cel), 12,9 % (symulacja)
+23. Status i plan
 
-<details>
-<summary>1. Tytuł (0,5 min)</summary>
+### Demo (6–7 min)
 
-„Metro na kampusie AGH: projekt linii algorytmem mrówkowym”, skład zespołu, przedmiot.
-</details>
+Każdy link z `#stage=1&` na początku:
 
-<details>
-<summary>2. Problem (1,5 min)</summary>
-
-- Kampus AGH: ok. 90 budynków, 15 minut przerwy między zajęciami w różnych budynkach.
-- Pytanie: **gdzie postawić linię metra z k stacjami, żeby łączny czas przejść studentów był
-  najmniejszy, i ile stacji ma sens?**
-- Rysunek: mapa kampusu (zrzut z viewera, zakładka Campus).
-
-Notatki: przykład z MAIN_IDEA: 30 osób D-17 → A-0 idzie 14 min, metrem 6 → oszczędzają po
-8 min; krótkie przejścia nic nie zyskują, więc stacje opłaca się stawiać przy długich.
-</details>
-
-<details>
-<summary>3. Skąd mrówki (1 min)</summary>
-
-- Goss i in. (1989): mrówki argentyńskie na mostku z dwiema gałęziami wybierają krótszą,
-  choć żadna nie porównuje długości: feromon na krótszej gałęzi przybywa szybciej.
-- Rysunek: schemat mostka (z artykułu, z podpisem źródła).
-</details>
-
-<details>
-<summary>4. Dane i model (2 min)</summary>
-
-- USOS: plan zajęć → syntetyczna populacja **22 tys. studentów**, **286 tys. przejść
-  tygodniowo**; OpenStreetMap: graf pieszy; GTFS: autobusy i tramwaje.
-- 55 kandydatów na stacje (szyb pod wejściem budynku).
-- Czas metrem = dojście + szyb + czekanie + jazda (10 m/s, 30 s postoju) + szyb + dojście;
-  student wybiera szybsze: pieszo / autobus albo metro. Cel: suma czasów wszystkich przejść.
-
-Notatki: ok. 2·10⁸ możliwych linii przy k = 5, dlatego potrzebny jest algorytm przybliżony;
-nie mamy danych osobowych, studenci są syntetyczni, ale ich plany wynikają z grup USOS.
-</details>
-
-<details>
-<summary>5. Jak mrówki budują linię (1,5 min)</summary>
-
-- MAX-MIN Ant System: mrówka wybiera kolejne stacje z prawdopodobieństwem ∝ feromon^α ·
-  podpowiedź^β; lepsza linia zostawia więcej feromonu, feromon paruje i jest ograniczony z
-  dołu i z góry, żeby kolonia nie utknęła na pierwszym wyborze.
-- Zaraz zobaczymy to na żywo w viewerze.
-</details>
-
-<details>
-<summary>6. Wizualizacja (1 min, przed demo)</summary>
-
-- Python liczy wszystko (dane, graf, optymalizacja, symulacja), przeglądarka tylko odtwarza
-  gotowe pliki (React + three.js).
-- Zakładki: kampus 3D, graf pieszy i trasy, metro z przebiegiem mrówek, symulacja tygodnia
-  (ok. 20 tys. studentów).
-</details>
-
-<details>
-<summary>7. Demo (6 min)</summary>
-
-Scenariusz poniżej („Demo”).
-</details>
-
-<details>
-<summary>8. Przykładowy przebieg: wynik (1 min)</summary>
-
-- MMAS, k = 5, jeden przebieg: linia **H-D8 – C-4 – U-9 – D-10 – A-0**.
-- Funkcja celu: **11,6 % mniej** czasu przejść; symulacja tygodnia z prawdziwym rozkładem:
-  **12,5 % mniej**, ok. 15 min na studenta tygodniowo, 28,8 % przejść metrem.
-
-Notatki: podkreślić „przykładowy przebieg”; jeszcze nie wiemy, czy to najlepsza linia ani ile
-stacji ma sens.
-</details>
-
-<details>
-<summary>9. Status i plan (1 min)</summary>
-
-- Działa: dane, model kampusu, MMAS, symulacja tygodnia, wizualizacja.
-- W toku (na prezentację 2): drugi algorytm (ACS) i lokalne przeszukiwanie; porównanie z
-  metodami odniesienia przy równym budżecie i testami statystycznymi; czy to optimum (przegląd
-  zupełny); ile stacji ma sens; wrażliwość na założenia; porównanie z literaturą.
-</details>
-
-### Demo (6 min)
-
-1. `#ws=campus` → obrót kampusu, klik na A-0, Inspector.
-2. `#ws=network&from=stop:czarnowiejska&to=D-17` → trasa z przystanku, z czasem i częściami
-   (na zewnątrz, w budynku, schody).
-3. `#ws=metro&replay=aco-mmas-k5-s42&play=1` → kolonia: mrówki, feromon się koncentruje,
-   najlepsza linia rośnie.
-4. `#ws=metro&replay=aco-mmas-k5-s42&view=trains` → linia, szyby, tunel, pociągi.
-5. `#ws=simulation&replay=sim-mmas-k5-s42&day=1&t=29700&sc=no_metro&play=1&speed=60` →
-   poranny szczyt (8:15) **bez metra**.
-6. Ten sam link bez `&sc=no_metro` → **z metrem** (studenci: idą / czekają / jadą).
-7. Dodać `&split=1` → bez metra i z metrem obok siebie; zostawić na chwilę.
+1. `ws=campus` → klik na A-0, Inspector.
+2. `ws=network&from=stop:czarnowiejska&to=D-17` → trasa i jej części.
+3. `ws=metro&replay=walk-s42&play=1` → poziom 1: kolor = obciążenie / przepustowość; przełączyć Congestion / Pheromone / Shortest path.
+4. `ws=metro&replay=aco-showcase-mmas-k5-mmas-k5-s42&play=1` → poziom 2: kolonia, feromon.
+5. To samo z `&view=trains` → linia, szyby, tunel, pociągi.
+6. `ws=simulation&replay=sim-showcase-mmas-k5-mmas-k5-s42&day=1&t=29700&sc=no_metro&play=1&speed=60` → bez metra.
+7. Bez `&sc=no_metro` → z metrem; 8. `&split=1` → obok siebie.
 
 </details>
 
@@ -260,8 +190,9 @@ dała 11,5 % mniej „wysiłku” niż obecna trasa.
 <summary>10. Symulacja tygodnia (2 min)</summary>
 
 - Każde z 286 tys. przejść z prawdziwym rozkładem metra, autobusów i tramwajów.
-- **12,5 % mniej czasu, ok. 15 minut na studenta tygodniowo**; spóźnione zajęcia 503 → 450;
-  28,8 % przejść metrem.
+- **12,5 % mniej czasu, ok. 15 minut na studenta tygodniowo**; spóźnione zajęcia 496 → 452;
+  29,0 % przejść metrem. Następny slajd: linia z etapu 1 (te same stacje, inna kolejność) ma
+  w symulacji 12,9 %: funkcja celu to przybliżenie (średnie czekanie).
 - Na prezentacji 1 była to „przykładowa linia”; teraz wiemy, że jest najlepsza dla k = 5 i że
   nie zależy od założeń o pociągach. Demo: zakładka Stats (widok obok siebie był na
   prezentacji 1).

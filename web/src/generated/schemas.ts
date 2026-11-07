@@ -32,6 +32,7 @@ export interface WebData {
   stats: Stats;
   status: BuildStatus;
   students_header: StudentsHeader;
+  walk_trace_header: WalkTraceHeader;
 }
 /**
  * ``replays/<id>/trace.{json,bin}``: AcoTrace (results/<run_id>/trace.npz) with the
@@ -566,7 +567,7 @@ export interface PathsHeader {
  */
 export interface Replay {
   id: string;
-  kind: "aco" | "simulation";
+  kind: "aco" | "simulation" | "walk";
   title: string;
   description: string | null;
   created_at: string;
@@ -595,6 +596,10 @@ export interface ReplayFiles {
    * AcoTraceHeader
    */
   aco_trace: string | null;
+  /**
+   * WalkTraceHeader (ACO level 1: walking flows with congestion)
+   */
+  walk_trace: string | null;
   /**
    * scenario -> dir with paths.json and day-<weekday>.json
    */
@@ -977,4 +982,56 @@ export interface StudentsHeader {
   keys: string[];
   leg_kinds: string[];
   scenarios: Scenario[];
+}
+/**
+ * ``replays/<id>/walk.{json,bin}``: ACO level 1 (``scripts/walk_aco.py``): the peak
+ * walking flows assigned with congestion, for the viewer. Edge indices are those of
+ * ``network.json`` (matched by node keys), node indices too.
+ *
+ * Buffers (I sampled iterations, E network edges, P sampled ant paths, V their nodes,
+ * C iterations):
+ *     iterations int32 (I)   flow float32 (I, E) people per period   ratio float32 (I, E)
+ *     flow / capacity   pheromone float32 (I, E) 0..1   ratio_aon float32 (E)
+ *     ant_sample_offsets uint32 (I+1) paths of sample i   ant_offsets uint32 (P+1)
+ *     ant_nodes uint32 (V)   curve_iteration int32 (C)   curve_mean_s, curve_iter_mean_s,
+ *     curve_gap float32 (C)
+ *
+ * This interface was referenced by `WebData`'s JSON-Schema
+ * via the `definition` "WalkTraceHeader".
+ */
+export interface WalkTraceHeader {
+  provenance: Provenance;
+  /**
+   * file name of the .bin next to this header
+   */
+  bin: string;
+  buffers: {
+    [k: string]: BufferView;
+  };
+  kind: "walk_trace";
+  run_id: string;
+  n_iterations: number;
+  /**
+   * the peak window, e.g. 'Wednesday 09:30-09:45'
+   */
+  window: string;
+  period_s: number;
+  n_legs: number;
+  people: number;
+  /**
+   * mean walk without congestion
+   */
+  free_flow_mean_s: number;
+  /**
+   * everybody on the free-flow shortest path, congested
+   */
+  aon_mean_s: number;
+  /**
+   * equilibrium reference (MSA)
+   */
+  msa_mean_s: number;
+  /**
+   * the colony's final assignment
+   */
+  aco_mean_s: number;
 }

@@ -154,6 +154,20 @@ export const METRO = {
   pheromone: "#2f3338",
 };
 
+/** ACO level 1 (walk replays): flow / capacity bins, pheromone, ants. */
+export const WALK = {
+  ratio: [
+    { max: 0.3, color: "#a9c8e8", label: "under 30 % of capacity" },
+    { max: 0.6, color: "#2a78d6", label: "30–60 %" },
+    { max: 0.9, color: "#f2b134", label: "60–90 %" },
+    { max: 1.0, color: "#eb6834", label: "90–100 %" },
+    { max: Infinity, color: ACCENT, label: "over capacity" },
+  ],
+  pheromone: "#6b3fa0",
+  pheromoneLow: "#e9e4f0",
+  ant: "#15181b",
+};
+
 /** Students by what they are doing (simulation replays). */
 export const STUDENTS = [
   { color: "#2a6fb0", label: "walking" },

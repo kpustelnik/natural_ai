@@ -101,6 +101,23 @@ terenowych (≥ 3 przejścia na trasę, rozrzut), gdyby pomiary powstały (`vali
   opis wariantów, wybór parametrów (α, β, ρ, liczba mrówek), rola heurystyki η i lokalnego
   przeszukiwania. Punkt odniesienia dla analizy wrażliwości (`aco_ablation.yaml`).
 
+### 2.1 ACO poziom 1: rozkład ruchu pieszego
+
+- **D'Acierno, Gallo, Montella (2012)**, *An Ant Colony Optimisation algorithm for solving
+  the asymmetric traffic assignment problem*, European Journal of Operational Research
+  217(2), 459–469. Mrówki generują ścieżki, a przepływy uśrednia się jak w metodzie
+  kolejnych średnich (MSA); ta sama dokładność co MSA w krótszym czasie. U nas: przepływ
+  poziomu 1 uśredniany krokiem 1/n (`walk/assign.py`, `run_walk_aco`).
+- **Dial (1971)**, *A probabilistic multipath traffic assignment model which obviates path
+  enumeration*, Transportation Research 5(2), 83–111. „Efektywne” kroki, które zbliżają do
+  celu: mrówka poziomu 1 wybiera tylko takie, więc nie krąży.
+- **Lam, Cheung (2000)**, *Pedestrian speed/flow relationships for walking facilities in Hong
+  Kong*, Journal of Transportation Engineering 126(4), 343–349. Funkcja czasu przejścia
+  typu BPR dla chodników.
+- **Rouphail i in. / FHWA (1998)**, *Pedestrian and Bicycle Capacity Analysis*,
+  FHWA-RD-98-107: przepustowość chodnika 75 os./min/m, prędkość przy przepustowości
+  0,75 m/s (`walk_aco.capacity_ped_min_m`, `bpr_a`).
+
 ## 3. Metodyka porównań i statystyka
 
 - **Derrac, García, Molina, Herrera (2011)**, *A practical tutorial on the use of
@@ -127,6 +144,22 @@ terenowych (≥ 3 przejścia na trasę, rozrzut), gdyby pomiary powstały (`vali
   „istotna”, więc wielkość efektu mówi więcej niż samo p.
 
 ## 4. Dane i graf
+
+- **Weidmann (1993)**, *Transporttechnik der Fussgänger*, IVT Schriftenreihe 90, ETH
+  Zürich: średnia prędkość swobodna pieszego 1,34 m/s (u nas 1,3 m/s).
+- **Fruin (1971)**, *Pedestrian Planning and Design*: prędkości na schodach 0,51–0,57 m/s
+  w górę i 0,67–0,77 m/s w dół wzdłuż biegu (nasze prędkości w pionie, 0,35 / 0,45 m/s, są
+  założeniem i raczej optymistyczne).
+- **Stałe metra**: prędkość handlowa planowanego metra w Krakowie ok. 32–36 km/h (studium
+  wariantów, stm.krakow.pl), u nas 10 m/s = 36 km/h; odstęp w szczycie w Warszawie: M2 co
+  2 min 50 s, M1 co 2 min 20 s (komunikat WTP), u nas 180 s; postój typowo 15–45 s, u nas
+  30 s; głębokość 15 m i godziny 7–21: założenia.
+- **Akademiki**: Miasteczko Studenckie AGH ma ok. 7 tys. miejsc dla studentów w 20 domach
+  (Radio Kraków), u nas `population.dorm_beds: 7000`.
+- **Holliday, El-Geneidy, Dudek (2024)**, *Learning Heuristics for Transit Network Design
+  and Improvement with Deep Reinforcement Learning*, arXiv:2404.05894. Projektowanie sieci
+  linii; metody uczone z metaheurystykami (odniesienie z opisu etapu 0).
+
 
 - **Boeing (2017)**, *OSMnx: New methods for acquiring, constructing, analyzing, and
   visualizing complex street networks*, Computers, Environment and Urban Systems 65,

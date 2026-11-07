@@ -75,7 +75,8 @@
         "kind": {
           "enum": [
             "aco",
-            "simulation"
+            "simulation",
+            "walk"
           ],
           "title": "Kind",
           "type": "string"
@@ -201,6 +202,19 @@
           "description": "AcoTraceHeader",
           "title": "Aco Trace"
         },
+        "walk_trace": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "WalkTraceHeader (ACO level 1: walking flows with congestion)",
+          "title": "Walk Trace"
+        },
         "trips": {
           "additionalProperties": {
             "type": "string"
@@ -243,6 +257,7 @@
       "required": [
         "metro",
         "aco_trace",
+        "walk_trace",
         "trips",
         "stats",
         "students"

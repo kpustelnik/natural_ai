@@ -27,15 +27,15 @@ funkcji celu, a wynik weryfikujemy przeglądem zupełnym, innymi metodami i symu
 
 | źródło | co | skala |
 |---|---|---|
-| USOS AGH (publiczne API + katalog USOSweb) | plany sal, grupy zajęć, liczebności, kohorty (kierunek + semestr), daty spotkań | 13 881 zajęć tygodniowo, 15 395 grup, 544 kohorty; cały semestr: 8 889 przedmiotów, 157 437 spotkań |
+| USOS AGH (publiczne API + katalog USOSweb) | plany sal, grupy zajęć, liczebności, kohorty (kierunek + semestr), daty spotkań | 13 881 zajęć tygodniowo, 15 395 grup, 553 kohorty; cały semestr: 8 889 przedmiotów, 157 437 spotkań |
 | OpenStreetMap | budynki, wejścia, chodniki, schody, bariery | graf pieszy: 5 622 węzły, 6 832 krawędzie |
 | model kampusu (`data/campus/`) | 89 budynków w YAML (szkielety LOD1 z OSM, uzupełnione ręcznie: obrys, wysokość, wejścia, aliasy USOS), 12 przystanków; bez przejść między budynkami | |
 | GTFS ZTP Kraków | autobusy i tramwaje między przystankami kampusu | kursy jednego dnia roboczego |
 | akademiki | 20 domów studenckich, 6 997 miejsc | |
 
-Z planów zajęć powstaje syntetyczna populacja (22 571 studentów w kohortach, mieszkańcy
-akademików i dojeżdżający) i ich tygodniowe przejścia: **286 265 przejść** (zajęcia →
-zajęcia, dom → zajęcia, zajęcia → dom), zagregowane do 4 835 par (skąd, dokąd).
+Z planów zajęć powstaje syntetyczna populacja (22 660 studentów w kohortach, mieszkańcy
+akademików i dojeżdżający) i ich tygodniowe przejścia: **286 169 przejść** (zajęcia →
+zajęcia, dom → zajęcia, zajęcia → dom), zagregowane do 4 830 par (skąd, dokąd).
 
 ## 3. Model
 
@@ -60,11 +60,11 @@ cel         = Σ po parach  liczba przejść × min(bez metra(a, b), metro(a, b)
 „Bez metra” to szybsze z dojścia pieszo i przejazdu autobusem / tramwajem (GTFS), więc
 porównanie jest uczciwe: metro musi wygrać z istniejącą komunikacją. Instancja zawiera
 tylko tablice NumPy (N × E czasy dojść, E = 101 punktów końcowych), więc ocena linii to
-arytmetyka bez Dijkstry: **0,46 ms** na linię.
+arytmetyka bez Dijkstry: **0,23 ms** na linię.
 
-**Granice (test 6).** Bez metra: 152,7 mln s (42 407 studento-godzin tygodniowo). Dolne
+**Granice (test 6).** Bez metra: 153,1 mln s (42 521 studento-godzin tygodniowo). Dolne
 ograniczenie „teleportacji” (przejazd trwa 0 s, każda para ma swoje dwie najlepsze stacje):
-90,5 mln s, czyli żadna linia nie da więcej niż **40,7 %** oszczędności. Każda znaleziona
+90,9 mln s, czyli żadna linia nie da więcej niż **40,6 %** oszczędności. Każda znaleziona
 linia mieści się między granicami (sprawdzane w `bounds.csv` i w każdym `best_line.json`).
 
 ## 4. Algorytmy
@@ -254,26 +254,34 @@ k = 5 tylko 1 530. Przy koszcie tunelu k = 4 lub k = 7 byłyby lepsze od k = 5 (
 
 ## 6. Symulacja tygodnia (`simulation_metrics.csv`)
 
-Każde z 286 265 przejść, bez metra i z linią z 5.1, z prawdziwym rozkładem (metro co 180 s
+Każde z 286 169 przejść, bez metra i z linią z 5.1, z prawdziwym rozkładem (metro co 180 s
 w obie strony, autobusy i tramwaje z GTFS). Student jedzie, gdy dotrze wcześniej niż
 pieszo; z domu na zajęcia wychodzi najpóźniej, jak może (jedzie, gdy pozwala to wyjść
 później), po zajęciach wychodzi od razu.
 
 | | bez metra | z metrem |
 |---|---|---|
-| studento-godziny w tygodniu | 41 095 | 35 959 |
-| oszczędność | | **308 135 studento-minut** (15,0 min na studenta) |
-| spóźnione przejścia | 1 519 | 1 319 |
-| spóźnione przejścia między zajęciami (dłuższe niż przerwa) | 1,47 % | 1,27 % |
-| spóźnione zajęcia (dzień, budynek, godzina rozpoczęcia) | 503 z 2 335 | 450 z 2 335 |
-| przejazdy metrem | | 28,8 % |
-| przejazdy autobusem / tramwajem | 40,5 % | 23,1 % |
+| studento-godziny w tygodniu | 41 205 | 36 043 |
+| oszczędność | | **309 719 studento-minut** (15,0 min na studenta) |
+| spóźnione przejścia | 1 554 | 1 351 |
+| spóźnione przejścia między zajęciami (dłuższe niż przerwa) | 1,51 % | 1,31 % |
+| spóźnione zajęcia (dzień, budynek, godzina rozpoczęcia) | 496 z 2 332 | 452 z 2 332 |
+| przejazdy metrem | | 29,0 % |
+| przejazdy autobusem / tramwajem | 40,7 % | 23,2 % |
 
-Minuty na studenta liczone są na 20 573 studentów, którzy mają w tygodniu choć jedno
+Minuty na studenta liczone są na 20 674 studentów, którzy mają w tygodniu choć jedno
 przejście. Symulacja daje 12,5 % mniej czasu, nieco więcej niż funkcja celu (11,6 %):
 z prawdziwym rozkładem studenci jadący na zajęcia wychodzą później, a funkcja celu liczy
 średnie czekanie (połowa odstępu). Metro przejmuje głównie przejazdy autobusami między
 przystankami kampusu.
+
+## 6a. ACO poziom 1: ruch pieszy z tłokiem
+
+Szczyt tygodnia (środa 9:30–9:45, 5 381 pieszych przejść) przypisany na graf pieszy z czasem
+odcinka rosnącym z tłokiem (BPR, przepustowość 75 os./min/m × szerokość z typu drogi, okres
+5 min). Wszyscy najkrótszą drogą: 383 s średnio (bez tłoku 324 s, 7 odcinków ponad
+przepustowością); mrówki (feromon na cel, kroki Diala, przepływ uśredniany 1/n): 342 s
+(−10,8 %), równowaga MSA: 336 s. Szczegóły: [`docs/aco.md`](../aco.md) §13.
 
 ## 7. Walidacja modelu świata (test 5)
 
@@ -288,7 +296,7 @@ prędkości) oszczędza więcej, jeśli szybciej, mniej. Narzędzie do porównan
 
 1. Linia **H-D8 – C-4 – U-9 – D-10 – A-0** oszczędza ok. **12 %** czasu przejść (11,6 %
    w funkcji celu, 12,5 % w symulacji), około 15 minut na studenta tygodniowo, i zmniejsza
-   liczbę spóźnionych zajęć o ok. 10 % (503 → 450).
+   liczbę spóźnionych zajęć o ok. 9 % (496 → 452).
 2. Opłacalne jest 5–7 stacji; dalej każda stacja daje mniej niż 0,7 p.p.
 3. Same mrówki (MMAS, ACS) są lepsze od losowego przeszukiwania, a przy wystarczającym
    budżecie (~2 000–3 000 linii) także od metody zachłannej; z małym budżetem zachłanny

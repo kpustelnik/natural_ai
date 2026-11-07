@@ -8,13 +8,13 @@
 // panels hidden or in presentation mode.
 
 import { useEffect, useMemo, useState } from "react";
-import { useAcoTrace } from "../data/resource";
+import { useAcoTrace, useWalkTrace } from "../data/resource";
 import type { Replay, ReplayCatalog } from "../generated/schemas";
 import { clock, studentHours, WEEKDAYS } from "../lib/format";
 import { curveAt, sampleAt } from "../lib/metro";
-import { STUDENTS, SCENARIOS } from "../scene/palette";
+import { STUDENTS, SCENARIOS, WALK } from "../scene/palette";
 import { registry } from "../scene/registry";
-import { app, setPlayback, useApp } from "../state/app";
+import { app, setPlayback, useApp, type WalkView } from "../state/app";
 import { ConvergenceChart, type Curve } from "./ConvergenceChart";
 import { LiveCharts } from "./LiveCharts";
 import { IconClose, IconPause, IconPlay } from "./icons";
@@ -64,8 +64,11 @@ export function PlaybackClock({ catalog }: { catalog: ReplayCatalog | undefined 
   const id = useApp((s) => s.playback.replayId);
   const acoView = useApp((s) => s.playback.acoView);
   const replay = catalog?.replays.find((r) => r.id === id);
-  const ants = replay?.kind === "aco" && acoView === "ants" && !!replay.files.aco_trace;
-  const trace = useAcoTrace(ants ? replay!.files.aco_trace : null).data;
+  const walk = replay?.kind === "walk" && !!replay.files.walk_trace;
+  const ants = walk || (replay?.kind === "aco" && acoView === "ants" && !!replay.files.aco_trace);
+  const trace = useAcoTrace(ants && !walk ? replay!.files.aco_trace : null).data;
+  const walkTrace = useWalkTrace(walk ? replay!.files.walk_trace : null).data;
+  const end = walk ? (walkTrace ? walkTrace.header.n_iterations - 1 : null) : trace ? trace.header.n_iterations - 1 : null;
   useEffect(() => {
     // a replay opened from the URL keeps the default speed: make it fit the view
     if (!replay) return;
@@ -73,7 +76,7 @@ export function PlaybackClock({ catalog }: { catalog: ReplayCatalog | undefined 
     if (ants && !ITER_SPEEDS.includes(p.speed)) setPlayback({ speed: 5 });
     if (!ants && !DAY_SPEEDS.includes(p.speed)) setPlayback({ speed: 60 });
   }, [replay, ants]);
-  useClock(ants ? "iteration" : "day", !replay ? null : ants ? (trace ? trace.header.n_iterations - 1 : null) : DAY_END);
+  useClock(ants ? "iteration" : "day", !replay ? null : ants ? end : DAY_END);
   return null;
 }
 
@@ -213,9 +216,11 @@ export let iterationEnd = 0;
 
 function AntControls({ replay }: { replay: Replay }) {
   const { trace } = useCurve(replay);
+  const walk = useWalkTrace(replay.kind === "walk" ? replay.files.walk_trace : null).data;
   const iteration = useApp((s) => s.playback.iteration);
-  if (!trace) return <div className="dock-note muted">Loading the trace…</div>;
-  const end = trace.header.n_iterations - 1;
+  const n = replay.kind === "walk" ? walk?.header.n_iterations : trace?.header.n_iterations;
+  if (!n) return <div className="dock-note muted">Loading the trace…</div>;
+  const end = n - 1;
   iterationEnd = end;
   return (
     <div className="dock-controls">
@@ -336,21 +341,25 @@ export function PlaybackBar({ catalog }: { catalog: ReplayCatalog | undefined })
   const acoView = useApp((s) => s.playback.acoView);
   const workspace = useApp((s) => s.workspace);
   const trace = useAcoTrace(replay?.kind === "aco" && acoView === "ants" ? replay.files.aco_trace : null).data;
+  const walkTrace = useWalkTrace(replay?.kind === "walk" ? replay.files.walk_trace : null).data;
   if (!replay || (workspace !== "metro" && workspace !== "simulation")) return null;
   const sim = replay.kind === "simulation";
+  const walk = replay.kind === "walk";
   const files = replay.files;
-  const ants = !sim && acoView === "ants" && !!files.aco_trace;
+  const ants = walk || (!sim && acoView === "ants" && !!files.aco_trace);
+  const nIter = walk ? walkTrace?.header.n_iterations : trace?.header.n_iterations;
   const onWheel = (e: React.WheelEvent) => {
     const d = Math.sign(e.deltaY); // down: later
     if (!d) return;
-    if (ants) stepIteration(e.shiftKey ? d * 10 : d, trace ? trace.header.n_iterations - 1 : 0);
+    if (ants) stepIteration(e.shiftKey ? d * 10 : d, nIter ? nIter - 1 : 0);
     else stepClock(d * (e.shiftKey ? 3600 : 900));
   };
   return (
     <div className="playback-bar" onWheel={onWheel}>
       <div className="dock-title">
         <strong title={replay.title}>{replay.title}</strong>
-        {!sim && (
+        {walk && <WalkViewSwitch />}
+        {!sim && !walk && (
           <div className="segmented small" role="group" aria-label="Show">
             <button
               className={acoView === "ants" ? "active" : ""}
@@ -376,11 +385,90 @@ export function PlaybackBar({ catalog }: { catalog: ReplayCatalog | undefined })
         </button>
       </div>
       {ants ? <AntControls replay={replay} /> : <DayControls replay={replay} />}
-      {!sim && !files.aco_trace && !files.metro && (
+      {!sim && !walk && !files.aco_trace && !files.metro && (
         <div className="dock-note muted">
           No playable files.
           <Command lines={["uv run scripts/06_export_web.py --aco"]} />
         </div>
+      )}
+    </div>
+  );
+}
+
+const WALK_VIEWS: { id: WalkView; label: string; title: string }[] = [
+  { id: "ratio", label: "Congestion", title: "People on each segment / its capacity, as the ants assign them" },
+  { id: "pheromone", label: "Pheromone", title: "Pheromone on each segment (all destinations, weighted by demand)" },
+  { id: "aon", label: "Shortest path", title: "For comparison: everybody on the free-flow shortest path" },
+];
+
+function WalkViewSwitch() {
+  const view = useApp((s) => s.playback.walkView);
+  return (
+    <div className="segmented small" role="group" aria-label="Colour by">
+      {WALK_VIEWS.map((v) => (
+        <button key={v.id} className={view === v.id ? "active" : ""} aria-pressed={view === v.id} title={v.title} onClick={() => setPlayback({ walkView: v.id })}>
+          {v.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+const sec = (v: number) => `${v.toFixed(1)} s`;
+
+/** ACO level 1: mean walk per person per iteration against the references, and a legend. */
+function WalkInfo({ replay }: { replay: Replay }) {
+  const trace = useWalkTrace(replay.files.walk_trace).data;
+  const iteration = useApp((s) => s.playback.iteration);
+  const view = useApp((s) => s.playback.walkView);
+  const curve = useMemo<Curve | null>(() => {
+    if (!trace) return null;
+    const it = trace.arrays.curve_iteration as Int32Array;
+    return {
+      iteration: it,
+      best: trace.arrays.curve_mean_s as Float32Array,
+      iterBest: trace.arrays.curve_iter_mean_s as Float32Array,
+      iterMean: new Float32Array(it.length).fill(trace.header.msa_mean_s),
+    };
+  }, [trace]);
+  if (!trace || !curve) return <div className="dock-note muted">Loading the walk run…</div>;
+  const h = trace.header;
+  const now = curveAt(curve.iteration, curve.best, iteration);
+  const gap = curveAt(curve.iteration, trace.arrays.curve_gap as Float32Array, iteration);
+  return (
+    <div className="aco-body">
+      <div className="dock-note">
+        {h.window}: {h.n_legs.toLocaleString("en-US")} walking legs. Without congestion {sec(h.free_flow_mean_s)} a person; all on the
+        shortest path {sec(h.aon_mean_s)}.
+      </div>
+      <ConvergenceChart
+        curve={curve}
+        baseline={h.aon_mean_s}
+        iteration={iteration}
+        nIterations={h.n_iterations}
+        onScrub={(it) => setPlayback({ iteration: it, playing: false })}
+        labels={["ants (averaged)", "this iteration", "MSA"]}
+        baseLabel="shortest"
+        format={sec}
+      />
+      <div className="aco-stats">
+        <span className="mono strong">{sec(now)}</span>
+        <span className="mono muted">−{(100 * (1 - now / h.aon_mean_s)).toFixed(1)}% vs shortest path</span>
+        <span className="mono muted">gap {(100 * gap).toFixed(1)}%</span>
+      </div>
+      {view !== "pheromone" ? (
+        <div className="chart-legend">
+          {WALK.ratio.map((b) => (
+            <span key={b.label} className="legend-item">
+              <svg width="12" height="6" aria-hidden>
+                <line x1="0" y1="3" x2="12" y2="3" stroke={b.color} strokeWidth={4} />
+              </svg>
+              {b.label}
+            </span>
+          ))}
+        </div>
+      ) : (
+        <div className="dock-note muted">Darker: more pheromone (the ants of all destinations, weighted by how many go there).</div>
       )}
     </div>
   );
@@ -391,14 +479,16 @@ export function ReplayPanel({ catalog }: { catalog: ReplayCatalog | undefined })
   const replay = useReplay(catalog);
   const tabsOpen = useApp((s) => s.tabsOpen);
   const height = useApp((s) => s.replayHeight);
+  const stage2 = useApp((s) => s.stage === 2); // live charts came in stage 2
   if (!replay) return null;
   const sim = replay.kind === "simulation";
   const hasTrips = Object.keys(replay.files.trips ?? {}).length > 0;
   return (
     <div className="replay-panel" style={tabsOpen ? { height } : undefined}>
-      {!sim && <AcoInfo replay={replay} catalog={catalog} />}
+      {replay.kind === "aco" && <AcoInfo replay={replay} catalog={catalog} />}
+      {replay.kind === "walk" && <WalkInfo replay={replay} />}
       {sim && hasTrips && <StudentLegend replay={replay} />}
-      {sim && hasTrips && <LiveCharts replay={replay} />}
+      {sim && hasTrips && stage2 && <LiveCharts replay={replay} />}
       {sim && !hasTrips && (
         <div className="dock-note muted">
           No students yet.

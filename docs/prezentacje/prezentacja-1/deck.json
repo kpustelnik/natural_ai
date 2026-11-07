@@ -1,18 +1,67 @@
 {
   "v": 4,
-  "createdOnFiles": { "v": 1, "at": "2026-11-01T18:10:00+01:00" },
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-11-01T18:10:00+01:00"
+  },
   "lists": "css",
-  "title": "Metro AGH — prezentacja 1",
-  "order": ["cover", "problem", "mrowki", "dane", "model", "mmas", "wizualizacja", "demo", "wynik", "status"],
+  "title": "Metro AGH — prezentacja 1 (etap 1)",
+  "order": [
+    "cover",
+    "problem",
+    "mrowki",
+    "dane",
+    "dane-osm",
+    "dane-usos",
+    "dane-populacja",
+    "dane-przejscia",
+    "czas",
+    "metro-stacje",
+    "metro-stale",
+    "model",
+    "aco-poziomy",
+    "poziom1",
+    "poziom1-wynik",
+    "mmas",
+    "modyfikacje",
+    "inspiracje",
+    "implementacja",
+    "wizualizacja",
+    "demo",
+    "wynik",
+    "status"
+  ],
   "sections": {
-    "s1": { "description": "Problem i inspiracja: po co metro i skąd mrówki", "start": "cover" },
-    "s2": { "description": "Dane, model i algorytm mrówkowy", "start": "dane" },
-    "s3": { "description": "Wizualizacja i demo przykładowego przebiegu", "start": "wizualizacja" },
-    "s4": { "description": "Wynik przykładowego przebiegu i plan na etap końcowy", "start": "wynik" }
+    "s1": {
+      "description": "Problem i inspiracja: po co metro i skąd mrówki",
+      "start": "cover"
+    },
+    "s2": {
+      "description": "Dane: skąd każda liczba",
+      "start": "dane"
+    },
+    "s3": {
+      "description": "Metro: założenia i skąd stałe",
+      "start": "metro-stacje"
+    },
+    "s4": {
+      "description": "Algorytmy mrówkowe i ich modyfikacje",
+      "start": "aco-poziomy"
+    },
+    "s5": {
+      "description": "Wizualizacja, demo, wynik i plan",
+      "start": "wizualizacja"
+    }
   },
   "faces": {
-    "rubik": { "family": "Rubik", "href": "https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" },
-    "public-sans": { "family": "Public Sans", "href": "https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600&display=swap" }
+    "rubik": {
+      "family": "Rubik",
+      "href": "https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap"
+    },
+    "public-sans": {
+      "family": "Public Sans",
+      "href": "https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600&display=swap"
+    }
   },
   "designSystems": []
 }

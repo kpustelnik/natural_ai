@@ -4,6 +4,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import type {
   AcoTraceHeader,
+  WalkTraceHeader,
   BuildingInfo,
   BuildStatus,
   ContextFeatures,
@@ -143,6 +144,8 @@ export const useNetwork = (path?: string | null) => useResource<BinaryFile<Netwo
 export const useMetro = (path?: string | null) => useResource<Metro>(path, fetchJson);
 export const useAcoTrace = (path?: string | null) =>
   useResource<BinaryFile<AcoTraceHeader>>(path, (p) => loadBinary<AcoTraceHeader>(p));
+export const useWalkTrace = (path?: string | null) =>
+  useResource<BinaryFile<WalkTraceHeader>>(path, (p) => loadBinary<WalkTraceHeader>(p));
 export const useStats = (path?: string | null) => useResource<Stats>(path, fetchJson);
 
 /** Campus-wide weekly load for the Demand colour modes; null until `--fake` / `--sim`. */

@@ -263,6 +263,9 @@ class ReplayFiles(StrictModel):
 
     metro: str | None = Field(default=None, description="Metro (metro.json)")
     aco_trace: str | None = Field(default=None, description="AcoTraceHeader")
+    walk_trace: str | None = Field(
+        default=None, description="WalkTraceHeader (ACO level 1: walking flows with congestion)"
+    )
     trips: dict[Scenario, str] = Field(
         default={}, description="scenario -> dir with paths.json and day-<weekday>.json"
     )
@@ -276,7 +279,7 @@ class Replay(StrictModel):
     """``replays/<id>/replay.json``: one thing the viewer can play back."""
 
     id: str = Field(pattern=REPLAY_ID_PATTERN)
-    kind: Literal["aco", "simulation"]
+    kind: Literal["aco", "simulation", "walk"]
     title: str
     description: str | None = None
     created_at: str
@@ -531,6 +534,47 @@ class AcoTraceHeader(_BinaryHeader):
     )
 
 
+class WalkTraceHeader(_BinaryHeader):
+    """``replays/<id>/walk.{json,bin}``: ACO level 1 (``scripts/walk_aco.py``): the peak
+    walking flows assigned with congestion, for the viewer. Edge indices are those of
+    ``network.json`` (matched by node keys), node indices too.
+
+    Buffers (I sampled iterations, E network edges, P sampled ant paths, V their nodes,
+    C iterations):
+        iterations int32 (I)   flow float32 (I, E) people per period   ratio float32 (I, E)
+        flow / capacity   pheromone float32 (I, E) 0..1   ratio_aon float32 (E)
+        ant_sample_offsets uint32 (I+1) paths of sample i   ant_offsets uint32 (P+1)
+        ant_nodes uint32 (V)   curve_iteration int32 (C)   curve_mean_s, curve_iter_mean_s,
+        curve_gap float32 (C)
+    """
+
+    kind: Literal["walk_trace"] = "walk_trace"
+    run_id: str
+    n_iterations: int = Field(ge=1)
+    window: str = Field(description="the peak window, e.g. 'Wednesday 09:30-09:45'")
+    period_s: float
+    n_legs: int
+    people: float
+    free_flow_mean_s: float = Field(description="mean walk without congestion")
+    aon_mean_s: float = Field(description="everybody on the free-flow shortest path, congested")
+    msa_mean_s: float = Field(description="equilibrium reference (MSA)")
+    aco_mean_s: float = Field(description="the colony's final assignment")
+    REQUIRED = (
+        "iterations",
+        "flow",
+        "ratio",
+        "pheromone",
+        "ratio_aon",
+        "ant_sample_offsets",
+        "ant_offsets",
+        "ant_nodes",
+        "curve_iteration",
+        "curve_mean_s",
+        "curve_iter_mean_s",
+        "curve_gap",
+    )
+
+
 # --- stats.json --------------------------------------------------------------
 
 
@@ -621,4 +665,5 @@ WEB_MODELS = {
     "day_header": DayHeader,
     "students_header": StudentsHeader,
     "aco_trace_header": AcoTraceHeader,
+    "walk_trace_header": WalkTraceHeader,
 }

@@ -1,27 +1,15 @@
-<section id="dane" data-section="Dane, model i algorytm mrówkowy" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:64px">
-<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1">Dane: prawdziwy plan zajęć, prawdziwy kampus</h2>
-<div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:32px">
-<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
-<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">22 tys.</p>
-<p style="font-size:32px;line-height:1.3">studentów, populacja z grup i kohort USOS</p>
+<section id="dane" data-section="Dane: skąd każda liczba" data-transition="fade" style="background:#F4F3EE;color:#1C2430;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">Dane: prawdziwy plan zajęć, prawdziwy kampus</h2>
+<div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFBF8;padding:32px;border:1px solid #D9DCD6;border-radius:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:60px;font-weight:600;color:#C8102E">22 660</p><p style="font-size:26px;line-height:1.3">studentów: suma kohort z USOS</p></div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFBF8;padding:32px;border:1px solid #D9DCD6;border-radius:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:60px;font-weight:600;color:#C8102E">286 169</p><p style="font-size:26px;line-height:1.3">przejść w tygodniu 16–20.11.2026</p></div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFBF8;padding:32px;border:1px solid #D9DCD6;border-radius:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:60px;font-weight:600;color:#C8102E">4 830</p><p style="font-size:26px;line-height:1.3">różnych par „skąd → dokąd”</p></div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFBF8;padding:32px;border:1px solid #D9DCD6;border-radius:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:60px;font-weight:600;color:#C8102E">55</p><p style="font-size:26px;line-height:1.3">kandydatów na stację: budynki dydaktyczne</p></div>
 </div>
-<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
-<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">286 tys.</p>
-<p style="font-size:32px;line-height:1.3">przejść w tygodniu zajęć</p>
+<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:32px;font-size:28px;line-height:1.4;color:#4A5260">
+<p><b style="color:#1C2430">USOS AGH</b>: sale, plany sal, grupy zajęć z liczbą zapisanych, kohorty, daty spotkań (cykl 26/27-Z)</p>
+<p><b style="color:#1C2430">OpenStreetMap</b>: obrysy budynków, wejścia, chodniki, schody, bariery (Overpass API)</p>
+<p><b style="color:#1C2430">GTFS ZTP Kraków</b>: rozkład autobusów i tramwajów, 12 przystanków kampusu</p>
 </div>
-<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
-<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">4 830</p>
-<p style="font-size:32px;line-height:1.3">różnych par „skąd → dokąd”</p>
-</div>
-<div style="display:flex;flex-direction:column;gap:16px;background:#FBFBF8;padding:40px;border:1px solid #D9DCD6;border-radius:16px">
-<p style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;color:#C8102E">55</p>
-<p style="font-size:32px;line-height:1.3">kandydatów na stację, po jednym przy budynku</p>
-</div>
-</div>
-<div style="display:flex;gap:48px">
-<p style="flex:1;font-size:32px;line-height:1.4;color:#4A5260"><b style="color:#1C2430">USOS</b>: plan zajęć, sale, grupy</p>
-<p style="flex:1;font-size:32px;line-height:1.4;color:#4A5260"><b style="color:#1C2430">OpenStreetMap</b>: chodniki, schody, budynki</p>
-<p style="flex:1;font-size:32px;line-height:1.4;color:#4A5260"><b style="color:#1C2430">GTFS</b>: autobusy i tramwaje jako alternatywa</p>
-</div>
-<aside>Plan zajęć pobieramy z USOS: sale, grupy, kohorty. Z tego budujemy syntetyczną populację: ok. 22 tysiące studentów, każdy ze swoim tygodniowym planem; nie mamy danych osobowych, ale plany wynikają z prawdziwych grup. Z kolejnych zajęć tego samego dnia wychodzi 286 tysięcy przejść w tygodniu, 4 830 różnych par budynków lub przystanków. Kampus to graf pieszy z OpenStreetMap, ze schodami; autobusy i tramwaje z GTFS są alternatywą dla metra.</aside>
+<aside>Trzy otwarte źródła, żadnych danych osobowych. Z USOS: plan zajęć, grupy i ich liczebności; z OpenStreetMap: kampus i chodniki; z GTFS: autobusy i tramwaje, które są konkurencją dla metra. Na kolejnych slajdach pokazujemy, skąd jest każda z tych czterech liczb. 22 660 to suma kohort z USOS (nie oficjalna statystyka uczelni), 286 169 przejść to tydzień 16–20 listopada 2026 (najwięcej spotkań w semestrze), 4 830 par to różne pary punktów (budynek, akademik, przystanek), 55 kandydatów to wszystkie budynki dydaktyczne kampusu.</aside>
 </section>

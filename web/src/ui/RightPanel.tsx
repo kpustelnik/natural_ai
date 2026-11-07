@@ -540,7 +540,10 @@ export function RightPanel({ scene, catalog }: { scene: Scene; catalog: ReplayCa
   const replay = useOpenReplay(scene);
   const simulation = useApp((s) => s.workspace === "simulation");
   const showStats = simulation || replay?.kind === "simulation";
-  const tab = useApp((s) => ((s.rightTab === "stats" || s.rightTab === "student") && !showStats ? "inspector" : s.rightTab));
+  const stage2 = useApp((s) => s.stage === 2); // the Stats tab came in stage 2
+  const tab = useApp((s) =>
+    ((s.rightTab === "stats" || s.rightTab === "student") && !showStats) || (s.rightTab === "stats" && s.stage === 1) ? "inspector" : s.rightTab,
+  );
   const tabsOpen = useApp((s) => s.tabsOpen);
   const count = useIssues(scene.issues).data?.issues.length ?? 0;
   return (
@@ -558,7 +561,7 @@ export function RightPanel({ scene, catalog }: { scene: Scene; catalog: ReplayCa
         <button className={tab === "route" ? "active" : ""} aria-pressed={tab === "route"} onClick={() => app.set({ rightTab: "route" })} title="Route tool (R)">
           Route
         </button>
-        {showStats && (
+        {showStats && stage2 && (
           <button className={tab === "stats" ? "active" : ""} aria-pressed={tab === "stats"} onClick={() => app.set({ rightTab: "stats" })} title="Simulation stats">
             Stats
           </button>

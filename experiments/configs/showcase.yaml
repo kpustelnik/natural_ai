@@ -27,6 +27,7 @@ variants:
   - { name: mmas-loop-k7, optimize.algorithm: mmas, metro.n_stations: 7, metro.topology: loop }
 
 simulate:
+  - showcase-mmas-k5-mmas-k5-s42                  # k = 5, MMAS without LS: the stage-1 run
   - exact_full_brute-k3-brute_force-k3-s42        # k = 3, the exact optimum
   - topology-k7-topologyloop-mmas-k7-s42          # k = 7, a loop
   - compare_algorithms_hard-mmas-ls-mmas-k10-s42  # k = 10

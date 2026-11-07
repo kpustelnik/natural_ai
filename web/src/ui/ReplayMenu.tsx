@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Replay, ReplayCatalog } from "../generated/schemas";
 import { dateTime, WEEKDAYS } from "../lib/format";
+import { inStage } from "../lib/stage";
 import { app, setPlayback, setWorkspace, useApp } from "../state/app";
 import { Command } from "./Command";
 import { IconChevronDown, IconClose, IconReplay } from "./icons";
@@ -14,6 +15,7 @@ const isSynthetic = (r: Replay) => (r.run_id ?? "").startsWith("fake-");
 const GROUPS: { title: string; pick: (r: Replay) => boolean }[] = [
   { title: "Week simulations (with / without metro)", pick: (r) => r.kind === "simulation" && !isSynthetic(r) },
   { title: "Optimisation runs (ACO)", pick: (r) => r.kind === "aco" && !isSynthetic(r) },
+  { title: "Walking with congestion (ACO level 1)", pick: (r) => r.kind === "walk" },
   { title: "Synthetic (for developing the viewer)", pick: isSynthetic },
 ];
 
@@ -25,10 +27,11 @@ export function openReplay(r: Replay | null): void {
     iteration: 0,
     acoView: "ants",
     split: false,
-    speed: r?.kind === "aco" ? 5 : 60,
+    speed: r?.kind === "simulation" || !r ? 60 : 5,
   });
   if (r) {
-    setWorkspace(r.kind === "aco" ? "metro" : "simulation");
+    setWorkspace(r.kind === "simulation" ? "simulation" : "metro");
+    if (r.kind === "walk") app.set({ layers: { ...app.get().layers, labels: false } });
     app.set({ rightOpen: true });
     if (r.scenarios.length) setPlayback({ scenario: r.scenarios.includes("metro") ? "metro" : r.scenarios[0]! });
     if (r.weekdays.length) setPlayback({ weekday: r.weekdays[0]! });
@@ -50,7 +53,8 @@ export function ReplayMenu({ catalog }: { catalog: ReplayCatalog | undefined }) 
   const [open, setOpen] = useState(false);
   const replayId = useApp((s) => s.playback.replayId);
   const box = useRef<HTMLDivElement>(null);
-  const replays = catalog?.replays ?? [];
+  const stage = useApp((s) => s.stage);
+  const replays = (catalog?.replays ?? []).filter((r) => inStage(r, stage));
   const current = replays.find((r) => r.id === replayId) ?? null;
 
   useEffect(() => {

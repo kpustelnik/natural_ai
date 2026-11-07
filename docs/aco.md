@@ -12,7 +12,8 @@ Spis: [1 Problem](#1-problem) · [2 Funkcja celu](#2-funkcja-celu) ·
 [5 ACS](#5-ant-colony-system-acs) · [6 Local search](#6-lokalne-przeszukiwanie) ·
 [7 Metody odniesienia](#7-metody-odniesienia) · [8 Uczciwe porównanie](#8-uczciwe-porównanie) ·
 [9 Wyniki](#9-wyniki) · [10 Literatura](#10-związek-z-pracami-w-references) ·
-[11 Odtworzenie](#11-odtworzenie) · [12 Pytania](#12-pytania-na-prezentacji)
+[11 Odtworzenie](#11-odtworzenie) · [12 Pytania](#12-pytania-na-prezentacji) ·
+[13 Poziom 1: ruch pieszy z tłokiem](#13-aco-poziom-1-ruch-pieszy-z-tłokiem)
 
 ## 1. Problem
 
@@ -212,8 +213,12 @@ klasyczna hybryda ACO + local search ze Stützle i Hoos (2000).
 **H-D8 – C-4 – U-9 – D-10 – A-0**: 11,6 % mniej czasu przejść niż bez metra (4 916
 studento-godzin tygodniowo). Znajdują ją MMAS + LS, ACS + LS i losowe + LS przy każdym z 30
 seedów (obecny `runs.csv`). W symulacji tygodnia z prawdziwym rozkładem: **12,5 %**, ok. **15 minut na
-studenta tygodniowo**, spóźnione zajęcia 503 → 450, 28,8 % przejść metrem
-(`simulation_metrics.csv`).
+studenta tygodniowo**, spóźnione zajęcia 496 → 452 (z 2 332), 29,0 % przejść metrem
+(`simulation_metrics.csv`). Przebieg z etapu 1 (MMAS bez LS, `showcase-mmas-k5`) ma te same
+stacje w innej kolejności (H-D8 – A-0 – C-4 – D-10 – U-9): 11,39 % w funkcji celu, ale
+**12,87 %** w symulacji. Funkcja celu liczy średnie czekanie (połowa odstępu), symulacja
+prawdziwy rozkład, więc różnice kilku dziesiątych p.p. między liniami o tych samych stacjach
+są w granicy błędu modelu: wybór stacji jest pewny, kolejność mniej.
 
 ### 9.2 Ile stacji (`k_sweep.png`)
 
@@ -466,3 +471,56 @@ i sprawdzamy wynik przeglądem zupełnym, innymi metodami i symulacją (§10).
 **Najważniejsze ograniczenia?** Populacja syntetyczna (z liczebności grup USOS), jeden
 tydzień, brak tłoku i pojemności pociągów, brak kosztu budowy, tunel po prostej, budynki bez
 wnętrz, czasy dojść niesprawdzone pomiarami w terenie.
+
+## 13. ACO poziom 1: ruch pieszy z tłokiem
+
+`walk/assign.py`, `scripts/walk_aco.py`; wyniki: `docs/figures/walk_aco.png`, `.csv`,
+`walk_aco_ablation.csv`, `walk_aco_convergence.csv`; replay `walk-s42`.
+
+**Pytanie.** Model metra (poziom 2) i symulacja prowadzą każdego najkrótszą drogą, bez tłoku.
+Jak bardzo tłok wydłuża przejścia w szczycie i jak rozkładają się ludzie, gdy chodnik się
+korkuje?
+
+**Popyt.** Piesze przejścia scenariusza bez metra wychodzące w najliczniejszym kwadransie
+tygodnia: środa 9:30–9:45 (`walk_aco.window_*`), 5 381 przejść, 848 par węzłów, 76 celów;
+81 % wychodzi w pierwszej minucie.
+
+**Czas z tłokiem** (funkcja BPR, dla chodników: Lam, Cheung 2000):
+`t = t₀ · (1 + 0,73 · (x / C)⁴)`, x = osoby na odcinku w okresie `period_s` = 5 min (oba
+kierunki dzielą szerokość), C = 75 os./min/m (FHWA-RD-98-107) × szerokość × 5 min; przy x = C
+prędkość spada z 1,3 do 0,75 m/s (FHWA). Szerokość z typu drogi OSM (`walk_aco.widths_m`:
+chodnik 2 m, ścieżka 1,5, droga serwisowa 3, deptak 6, drzwi 1,8), bo OSM na kampusie nie ma
+tagu `width`; schody 50 os./min/m (założenie).
+
+**Kolonia** (`run_walk_aco`). W każdej z 60 iteracji każda para wysyła 8 mrówek; mrówka w
+węźle u, idąc do celu d, wybiera odcinek u → v z prawdopodobieństwem
+∝ τ_d(uv)^α · exp(−β · (c(uv) + h_d(v) − h_d(u)) / 20 s), gdzie c to obecny czas z tłokiem,
+a h_d najkrótszy czas do d przy obecnym tłoku (heurystyka = ile krok nadkłada). Tylko kroki,
+które zbliżają do celu (efektywne ścieżki, Dial 1971): mrówka nie krąży i nie utyka.
+Ludzie pary dzielą się równo między ścieżki jej mrówek; przepływ jest uśredniany po
+iteracjach krokiem 1/n (metoda kolejnych średnich, jak u D'Acierno i in. 2012). Feromon
+osobny dla każdego celu, parowanie ρ = 0,1, każda mrówka odkłada (najkrótszy czas pary / czas
+swojej ścieżki) / 8, przycinanie do [0,05; 5] jak w MMAS. Kompilowane numbą, ok. 5 s.
+
+**Odniesienia.** `aon`: wszyscy najkrótszą drogą bez tłoku (to zakłada poziom 2), oceniane z
+tłokiem; `run_msa`: równowaga użytkowników (Wardrop) metodą kolejnych średnich z
+najkrótszymi ścieżkami; bez tłoku: dolna granica.
+
+| przypisanie | średnie przejście | vs najkrótsza | odcinki ponad C |
+|---|---|---|---|
+| bez tłoku | 324,4 s | | |
+| wszyscy najkrótszą, z tłokiem | 383,2 s | | 7 (maks. 1,45 C) |
+| mrówki (5 ziaren) | 341,8–341,9 s | −10,8 % | 0 |
+| MSA (równowaga) | 336,0 s | −12,3 % | 0 |
+
+Feromon pomaga (`walk_aco_ablation.csv`, 5 ziaren): α = 0 → 344,6 s, α = 1 → 341,9 s,
+α = 2 → 340,0 s. Mrówki są 1,7 % od równowagi deterministycznej, bo rozkład jest
+stochastyczny (część ludzi idzie trasą trochę dłuższą od najkrótszej), czyli bliżej
+równowagi stochastycznej niż Wardropa.
+
+**Wnioski i ograniczenia.** W szczycie tłok dokłada ok. 18 % czasu przejścia, a najbardziej
+obciążone są chodniki między budynkami B i D wzdłuż Czarnowiejskiej. Czas „bez metra” w
+funkcji celu poziomu 2 jest więc w szczycie niedoszacowany, czyli metro realnie oszczędzałoby
+więcej; poziomy nie są (jeszcze) połączone. Model jest statyczny (jeden okres 5 min, bez
+fali w czasie), szerokości chodników są przyjęte z typu drogi, a do popytu nie weszły dojścia
+do przystanków.
